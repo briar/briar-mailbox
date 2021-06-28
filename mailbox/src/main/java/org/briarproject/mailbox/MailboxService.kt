@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.IBinder
@@ -15,12 +14,15 @@ import androidx.core.content.ContextCompat
 
 class MailboxService : Service() {
 
-    private val CHANNEL_ID = "Briar Mailbox Service"
-    private val CHANNEL_NAME = "Briar Mailbox Channel"
 
     companion object {
 
-        private val ARG_MESSAGE = "message"
+        private const val CHANNEL_ID = "Briar Mailbox Service"
+        private const val CHANNEL_NAME = "Briar Mailbox Channel"
+        private const val ARG_MESSAGE = "message"
+
+        private const val NOTIFICATION_MAIN_ID = 1
+        private const val NOTIFICATION_MAIN_TITLE = "Briar Mailbox running"
 
         fun startService(context: Context, message: String) {
             val startIntent = Intent(context, MailboxService::class.java)
@@ -39,18 +41,17 @@ class MailboxService : Service() {
         createNotificationChannel()
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
-                this,
-                0, notificationIntent, 0
+                this, 0, notificationIntent, 0
         )
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Briar Mailbox running")
+                .setContentTitle(NOTIFICATION_MAIN_TITLE)
                 .setContentText(input)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentIntent(pendingIntent)
                 .build()
 
-        startForeground(1, notification)
+        startForeground(NOTIFICATION_MAIN_ID, notification)
         return START_NOT_STICKY
     }
 
