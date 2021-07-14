@@ -1,8 +1,8 @@
 package org.briarproject.mailbox
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
@@ -18,6 +18,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val textView = findViewById<TextView>(R.id.text)
-        textView.setText(mailboxViewModel.text)
+        textView.text = mailboxViewModel.text
     }
 }

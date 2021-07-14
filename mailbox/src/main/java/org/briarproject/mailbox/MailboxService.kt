@@ -41,15 +41,15 @@ class MailboxService : Service() {
         createNotificationChannel()
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
-                this, 0, notificationIntent, 0
+            this, 0, notificationIntent, 0
         )
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle(NOTIFICATION_MAIN_TITLE)
-                .setContentText(input)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentIntent(pendingIntent)
-                .build()
+            .setContentTitle(NOTIFICATION_MAIN_TITLE)
+            .setContentText(input)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentIntent(pendingIntent)
+            .build()
 
         startForeground(NOTIFICATION_MAIN_ID, notification)
         return START_NOT_STICKY
@@ -61,8 +61,10 @@ class MailboxService : Service() {
 
     private fun createNotificationChannel() {
         if (VERSION.SDK_INT >= VERSION_CODES.O) {
-            val serviceChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_DEFAULT)
+            val serviceChannel = NotificationChannel(
+                CHANNEL_ID, CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
 
             val manager = getSystemService(NotificationManager::class.java)
             manager!!.createNotificationChannel(serviceChannel)
