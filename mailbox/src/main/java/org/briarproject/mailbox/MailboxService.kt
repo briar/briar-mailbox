@@ -18,11 +18,9 @@ class MailboxService : Service() {
     companion object {
 
         private const val CHANNEL_ID = "Briar Mailbox Service"
-        private const val CHANNEL_NAME = "Briar Mailbox Channel"
         private const val ARG_MESSAGE = "message"
 
         private const val NOTIFICATION_MAIN_ID = 1
-        private const val NOTIFICATION_MAIN_TITLE = "Briar Mailbox running"
 
         fun startService(context: Context, message: String) {
             val startIntent = Intent(context, MailboxService::class.java)
@@ -45,7 +43,7 @@ class MailboxService : Service() {
         )
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(NOTIFICATION_MAIN_TITLE)
+            .setContentTitle(getString(R.string.notification_mailbox_running))
             .setContentText(input)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
@@ -62,7 +60,7 @@ class MailboxService : Service() {
     private fun createNotificationChannel() {
         if (VERSION.SDK_INT >= VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
-                CHANNEL_ID, CHANNEL_NAME,
+                CHANNEL_ID, getString(R.string.notification_channel_name),
                 NotificationManager.IMPORTANCE_DEFAULT
             )
 

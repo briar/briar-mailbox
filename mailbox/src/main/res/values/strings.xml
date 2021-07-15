@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Briar Mailbox</string>
+    <string name="notification_channel_name">Briar Mailbox Channel</string>
+    <string name="notification_mailbox_running">Briar Mailbox running</string>
 </resources>
