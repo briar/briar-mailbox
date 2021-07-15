@@ -7,6 +7,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build.VERSION
+import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -58,7 +59,7 @@ class MailboxService : Service() {
     }
 
     private fun createNotificationChannel() {
-        if (VERSION.SDK_INT >= VERSION_CODES.O) {
+        if (SDK_INT >= 26) {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID, getString(R.string.notification_channel_name),
                 NotificationManager.IMPORTANCE_DEFAULT
