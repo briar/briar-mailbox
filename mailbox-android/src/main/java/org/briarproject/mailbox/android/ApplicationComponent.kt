@@ -1,4 +1,4 @@
-package org.briarproject.mailbox
+package org.briarproject.mailbox.android
 
 import dagger.Component
 

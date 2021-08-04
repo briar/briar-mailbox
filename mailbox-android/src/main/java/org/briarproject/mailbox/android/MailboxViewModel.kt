@@ -1,4 +1,4 @@
-package org.briarproject.mailbox
+package org.briarproject.mailbox.android
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

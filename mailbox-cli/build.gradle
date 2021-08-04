@@ -1,0 +1,39 @@
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+import java.util.jar.JarOutputStream
+
+import static java.util.Collections.list
+
+plugins {
+    id 'application'
+    id 'idea'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.kapt'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    implementation project(path: ':mailbox-core', configuration: 'default')
+
+    implementation 'org.slf4j:slf4j-simple:1.7.30'
+    implementation 'com.github.ajalt:clikt:2.2.0'
+
+    def junitVersion = '5.5.2'
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testImplementation 'io.mockk:mockk:1.10.4'
+}
+
+application {
+    mainClassName = 'org.briarproject.mailbox.cli.MainKt'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
