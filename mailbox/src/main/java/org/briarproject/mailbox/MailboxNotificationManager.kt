@@ -50,8 +50,8 @@ class MailboxNotificationManager @Inject constructor(
                 ctx, 0, notificationIntent, 0
             )
             return NotificationCompat.Builder(ctx, CHANNEL_ID)
-                .setContentTitle(ctx.getString(R.string.notification_mailbox_running))
-                .setContentText("Waiting for messages...")
+                .setContentTitle(ctx.getString(R.string.notification_mailbox_title))
+                .setContentText(ctx.getString(R.string.notification_mailbox_content))
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentIntent(pendingIntent)
                 .setPriority(PRIORITY_MIN)
