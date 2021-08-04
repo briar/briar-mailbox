@@ -7,6 +7,7 @@ import android.os.IBinder
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
+import org.briarproject.mailbox.server.WebServerManager
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -25,10 +26,14 @@ class MailboxService : Service() {
     }
 
     @Inject
-    lateinit var notificationManager: MailboxNotificationManager
+    internal lateinit var notificationManager: MailboxNotificationManager
+    @Inject
+    internal lateinit var webServerManager: WebServerManager
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startForeground(NOTIFICATION_MAIN_ID, notificationManager.serviceNotification)
+        // TODO handle inside LifecycleManager
+        webServerManager.start()
         return START_NOT_STICKY
     }
 
@@ -36,4 +41,9 @@ class MailboxService : Service() {
         return null
     }
 
+    override fun onDestroy() {
+        // TODO handle inside LifecycleManager
+        webServerManager.stop()
+        super.onDestroy()
+    }
 }
