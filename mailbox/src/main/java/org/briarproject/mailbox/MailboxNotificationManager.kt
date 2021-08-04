@@ -14,7 +14,9 @@ import androidx.core.app.NotificationCompat.PRIORITY_MIN
 import androidx.core.content.ContextCompat.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class MailboxNotificationManager @Inject constructor(
     @ApplicationContext private val ctx: Context,
 ) {
