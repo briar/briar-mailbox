@@ -1,9 +1,23 @@
 package org.briarproject.mailbox
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.SavedStateHandle
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
-class MailboxViewModel @Inject constructor() {
+@HiltViewModel
+class MailboxViewModel @Inject constructor(
+    app: Application,
+    handle: SavedStateHandle,
+) : AndroidViewModel(app) {
 
-    val text = "Hello Mailbox"
+    private val _text = handle.getLiveData("text", "Hello Mailbox")
+    val text: LiveData<String> = _text
+
+    fun updateText(str: String) {
+        _text.value = str
+    }
 
 }
