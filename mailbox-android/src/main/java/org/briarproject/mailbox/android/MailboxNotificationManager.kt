@@ -1,4 +1,4 @@
-package org.briarproject.mailbox
+package org.briarproject.mailbox.android
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_MIN
 import androidx.core.content.ContextCompat.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
+import org.briarproject.mailbox.R
 import javax.inject.Inject
 import javax.inject.Singleton
 

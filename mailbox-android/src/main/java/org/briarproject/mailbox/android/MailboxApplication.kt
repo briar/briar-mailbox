@@ -1,4 +1,4 @@
-package org.briarproject.mailbox
+package org.briarproject.mailbox.android
 
 import androidx.multidex.MultiDexApplication
 import dagger.hilt.android.HiltAndroidApp

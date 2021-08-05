@@ -1,4 +1,4 @@
-package org.briarproject.mailbox
+package org.briarproject.mailbox.android
 
 import android.app.Service
 import android.content.Context
@@ -6,7 +6,7 @@ import android.content.Intent
 import android.os.IBinder
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
-import org.briarproject.mailbox.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
+import org.briarproject.mailbox.android.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
 import org.briarproject.mailbox.server.WebServerManager
 import javax.inject.Inject
 
