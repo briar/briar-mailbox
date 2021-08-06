@@ -7,12 +7,13 @@ import io.ktor.server.netty.Netty
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.briarproject.mailbox.core.lifecycle.Service
 import java.util.logging.Logger.getLogger
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class WebServerManager @Inject constructor() {
+class WebServerManager @Inject constructor() : Service {
 
     internal companion object {
         private const val PORT = 8888
@@ -26,7 +27,7 @@ class WebServerManager @Inject constructor() {
         }
     }
 
-    fun start() {
+    override fun startService() {
         // hangs if not starting inside a coroutine
         GlobalScope.launch(Dispatchers.IO) {
             LOG.info("starting")
@@ -35,7 +36,7 @@ class WebServerManager @Inject constructor() {
         }
     }
 
-    fun stop() {
+    override fun stopService() {
         server.stop(1_000, 2_000)
     }
 

@@ -10,8 +10,10 @@ targetCompatibility = 1.8
 
 dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    api 'com.google.code.findbugs:jsr305:3.0.2'
+    api 'javax.inject:javax.inject:1' // required for @Qualifier in @Wakeful
 
-    implementation "com.google.dagger:dagger:$hilt_version"
+    implementation "com.google.dagger:hilt-core:$hilt_version"
     kapt "com.google.dagger:dagger-compiler:$hilt_version"
 
     def ktorVersion = '1.6.2'
