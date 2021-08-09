@@ -11,11 +11,10 @@ targetCompatibility = 1.8
 dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    def junitVersion = '5.5.2'
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
-    testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
-    testImplementation 'io.mockk:mockk:1.10.4'
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junit_version"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:$junit_version"
+    testImplementation "io.mockk:mockk:$mockk_version"
 }
 
 test {
