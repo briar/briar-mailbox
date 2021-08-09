@@ -66,11 +66,6 @@ dependencies {
     def multidex_version = "2.0.1"
     implementation "androidx.multidex:multidex:$multidex_version"
 
-    def ktorVersion = '1.6.2'
-    implementation "io.ktor:ktor-server-core:$ktorVersion"
-    implementation "io.ktor:ktor-server-netty:$ktorVersion"
-    implementation "ch.qos.logback:logback-classic:1.2.5"
-
     testImplementation 'junit:junit:4.13.2'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

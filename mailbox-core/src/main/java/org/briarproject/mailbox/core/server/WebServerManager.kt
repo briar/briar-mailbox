@@ -1,7 +1,5 @@
-package org.briarproject.mailbox.server
+package org.briarproject.mailbox.core.server
 
-import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.application.install
 import io.ktor.features.CallLogging
 import io.ktor.server.engine.embeddedServer
@@ -14,9 +12,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class WebServerManager @Inject constructor(
-    @ApplicationContext private val ctx: Context,
-) {
+class WebServerManager @Inject constructor() {
 
     internal companion object {
         private const val PORT = 8888
