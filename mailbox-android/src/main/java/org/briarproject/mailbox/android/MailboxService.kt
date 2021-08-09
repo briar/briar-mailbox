@@ -7,7 +7,7 @@ import android.os.IBinder
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.android.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
-import org.briarproject.mailbox.server.WebServerManager
+import org.briarproject.mailbox.core.server.WebServerManager
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -27,6 +27,7 @@ class MailboxService : Service() {
 
     @Inject
     internal lateinit var notificationManager: MailboxNotificationManager
+
     @Inject
     internal lateinit var webServerManager: WebServerManager
 

@@ -1,6 +1,5 @@
-package org.briarproject.mailbox.server
+package org.briarproject.mailbox.core.server
 
-import android.os.Build
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.http.ContentType
@@ -10,6 +9,6 @@ import io.ktor.routing.routing
 
 internal fun Application.configureRouting() = routing {
     get("/") {
-        call.respondText("All good here in ${Build.MODEL}", ContentType.Text.Plain)
+        call.respondText("Hello world!", ContentType.Text.Plain)
     }
 }

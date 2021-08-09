@@ -1,9 +1,3 @@
-import java.util.jar.JarEntry
-import java.util.jar.JarFile
-import java.util.jar.JarOutputStream
-
-import static java.util.Collections.list
-
 plugins {
     id 'application'
     id 'idea'
@@ -20,11 +14,10 @@ dependencies {
     implementation 'org.slf4j:slf4j-simple:1.7.30'
     implementation 'com.github.ajalt:clikt:2.2.0'
 
-    def junitVersion = '5.5.2'
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
-    testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
-    testImplementation 'io.mockk:mockk:1.10.4'
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junit_version"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:$junit_version"
+    testImplementation "io.mockk:mockk:$mockk_version"
 }
 
 application {
