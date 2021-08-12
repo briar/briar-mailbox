@@ -2,20 +2,13 @@ package org.briarproject.mailbox.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.counted
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.types.int
 import org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY
-import java.io.File
-import java.io.File.separator
-import java.io.IOException
-import java.lang.System.getProperty
 import java.lang.System.setProperty
-import java.nio.file.Files.setPosixFilePermissions
-import java.nio.file.attribute.PosixFilePermission
-import java.nio.file.attribute.PosixFilePermission.*
-import java.util.logging.Level.*
+import java.util.logging.Level.ALL
+import java.util.logging.Level.INFO
+import java.util.logging.Level.WARNING
 import java.util.logging.LogManager
 
 private class Main : CliktCommand(
