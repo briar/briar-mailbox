@@ -10,15 +10,15 @@ import static org.briarproject.mailbox.core.tor.TorPlugin.State.INACTIVE;
 import static org.briarproject.mailbox.core.tor.TorPlugin.State.STARTING_STOPPING;
 import static org.briarproject.mailbox.core.util.IoUtils.copyAndClose;
 import static org.briarproject.mailbox.core.util.IoUtils.tryToClose;
+import static org.briarproject.mailbox.core.util.LogUtils.info;
 import static org.briarproject.mailbox.core.util.LogUtils.logException;
+import static org.briarproject.mailbox.core.util.LogUtils.warn;
 import static org.briarproject.mailbox.core.util.PrivacyUtils.scrubOnion;
+import static org.slf4j.LoggerFactory.getLogger;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.Objects.requireNonNull;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static java.util.logging.Logger.getLogger;
 
 import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
@@ -29,6 +29,7 @@ import org.briarproject.mailbox.core.lifecycle.ServiceException;
 import org.briarproject.mailbox.core.system.Clock;
 import org.briarproject.mailbox.core.system.LocationUtils;
 import org.briarproject.mailbox.core.system.ResourceProvider;
+import org.slf4j.Logger;
 
 import java.io.EOFException;
 import java.io.File;
@@ -46,7 +47,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
 import java.util.zip.ZipInputStream;
 
 import javax.annotation.Nullable;
@@ -55,7 +55,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 abstract class TorPlugin implements Service, EventHandler {
 
-    private static final Logger LOG = getLogger(TorPlugin.class.getName());
+    private static final Logger LOG = getLogger(TorPlugin.class);
 
     private static final String[] EVENTS = {
             "CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
@@ -87,14 +87,14 @@ abstract class TorPlugin implements Service, EventHandler {
     protected abstract long getLastUpdateTime();
 
     TorPlugin(Executor ioExecutor,
-                        NetworkManager networkManager,
-                        LocationUtils locationUtils,
-                        Clock clock,
-                        ResourceProvider resourceProvider,
-                        CircumventionProvider circumventionProvider,
-                        Backoff backoff,
-                        String architecture,
-                        File torDirectory) {
+              NetworkManager networkManager,
+              LocationUtils locationUtils,
+              Clock clock,
+              ResourceProvider resourceProvider,
+              CircumventionProvider circumventionProvider,
+              Backoff backoff,
+              String architecture,
+              File torDirectory) {
         this.ioExecutor = ioExecutor;
         this.networkManager = networkManager;
         this.locationUtils = locationUtils;
@@ -126,14 +126,14 @@ abstract class TorPlugin implements Service, EventHandler {
         if (used.getAndSet(true)) throw new IllegalStateException();
         if (!torDirectory.exists()) {
             if (!torDirectory.mkdirs()) {
-                LOG.warning("Could not create Tor directory.");
+                LOG.warn("Could not create Tor directory.");
                 throw new ServiceException();
             }
         }
         // Install or update the assets if necessary
         if (!assetsAreUpToDate()) installAssets();
         if (cookieFile.exists() && !cookieFile.delete())
-            LOG.warning("Old auth cookie not deleted");
+            LOG.warn("Old auth cookie not deleted");
         // Start a new Tor process
         LOG.info("Starting Tor");
         File torFile = getTorExecutableFile();
@@ -152,7 +152,7 @@ abstract class TorPlugin implements Service, EventHandler {
             throw new ServiceException(e);
         }
         // Log the process's standard output until it detaches
-        if (LOG.isLoggable(INFO)) {
+        if (LOG.isInfoEnabled()) {
             Scanner stdout = new Scanner(torProcess.getInputStream());
             Scanner stderr = new Scanner(torProcess.getErrorStream());
             while (stdout.hasNextLine() || stderr.hasNextLine()) {
@@ -170,16 +170,15 @@ abstract class TorPlugin implements Service, EventHandler {
             // Wait for the process to detach or exit
             int exit = torProcess.waitFor();
             if (exit != 0) {
-                if (LOG.isLoggable(WARNING))
-                    LOG.warning("Tor exited with value " + exit);
+                warn(LOG, () -> "Tor exited with value " + exit);
                 throw new ServiceException();
             }
             // Wait for the auth cookie file to be created/updated
             long start = clock.currentTimeMillis();
             while (cookieFile.length() < 32) {
                 if (clock.currentTimeMillis() - start > COOKIE_TIMEOUT_MS) {
-                    LOG.warning("Auth cookie not created");
-                    if (LOG.isLoggable(INFO)) listFiles(torDirectory);
+                    LOG.warn("Auth cookie not created");
+                    if (LOG.isInfoEnabled()) listFiles(torDirectory);
                     throw new ServiceException();
                 }
                 //noinspection BusyWait
@@ -187,7 +186,7 @@ abstract class TorPlugin implements Service, EventHandler {
             }
             LOG.info("Auth cookie created");
         } catch (InterruptedException e) {
-            LOG.warning("Interrupted while starting Tor");
+            LOG.warn("Interrupted while starting Tor");
             Thread.currentThread().interrupt();
             throw new ServiceException();
         }
@@ -232,7 +231,7 @@ abstract class TorPlugin implements Service, EventHandler {
             extract(getGeoIpInputStream(), geoIpFile);
             extract(getConfigInputStream(), configFile);
             if (!doneFile.createNewFile())
-                LOG.warning("Failed to create done file");
+                LOG.warn("Failed to create done file");
         } catch (IOException e) {
             throw new ServiceException(e);
         }
@@ -244,16 +243,14 @@ abstract class TorPlugin implements Service, EventHandler {
     }
 
     protected void installTorExecutable() throws IOException {
-        if (LOG.isLoggable(INFO))
-            LOG.info("Installing Tor binary for " + architecture);
+        info(LOG, () -> "Installing Tor binary for " + architecture);
         File torFile = getTorExecutableFile();
         extract(getTorInputStream(), torFile);
         if (!torFile.setExecutable(true, true)) throw new IOException();
     }
 
     protected void installObfs4Executable() throws IOException {
-        if (LOG.isLoggable(INFO))
-            LOG.info("Installing obfs4proxy binary for " + architecture);
+        info(LOG, () -> "Installing obfs4proxy binary for " + architecture);
         File obfs4File = getObfs4ExecutableFile();
         extract(getObfs4InputStream(), obfs4File);
         if (!obfs4File.setExecutable(true, true)) throw new IOException();
@@ -309,7 +306,7 @@ abstract class TorPlugin implements Service, EventHandler {
             }
             return b;
         } finally {
-            tryToClose(in, LOG, WARNING);
+            tryToClose(in, LOG);
         }
     }
 
@@ -333,23 +330,21 @@ abstract class TorPlugin implements Service, EventHandler {
                 response = controlConnection.addOnion(privKey, portLines);
             }
         } catch (IOException e) {
-            logException(LOG, WARNING, e);
+            logException(LOG, e);
             return;
         }
         if (!response.containsKey(HS_ADDRESS)) {
-            LOG.warning("Tor did not return a hidden service address");
+            LOG.warn("Tor did not return a hidden service address");
             return;
         }
         if (privKey == null && !response.containsKey(HS_PRIVKEY)) {
-            LOG.warning("Tor did not return a private key");
+            LOG.warn("Tor did not return a private key");
             return;
         }
         String onion3 = response.get(HS_ADDRESS);
-        if (LOG.isLoggable(INFO)) {
-            LOG.info("V3 hidden service " + scrubOnion(onion3));
-        }
+        info(LOG, () -> "V3 hidden service " + scrubOnion(onion3));
         // TODO remove
-        LOG.warning("V3 hidden service: http://" + onion3 + ".onion");
+        LOG.warn("V3 hidden service: http://" + onion3 + ".onion");
         if (privKey == null) {
             // TODO Save the hidden service's onion hostname
 //			p.put(PROP_ONION_V3, onion3);
@@ -387,7 +382,7 @@ abstract class TorPlugin implements Service, EventHandler {
     @Override
     public void stopService() {
         ServerSocket ss = state.setStopped();
-        tryToClose(ss, LOG, WARNING);
+        tryToClose(ss, LOG);
         if (controlSocket != null && controlConnection != null) {
             try {
                 LOG.info("Stopping Tor");
@@ -395,7 +390,7 @@ abstract class TorPlugin implements Service, EventHandler {
                 controlConnection.shutdownTor("TERM");
                 controlSocket.close();
             } catch (IOException e) {
-                logException(LOG, WARNING, e);
+                logException(LOG, e);
             }
         }
     }
@@ -415,8 +410,7 @@ abstract class TorPlugin implements Service, EventHandler {
 
     @Override
     public void orConnStatus(String status, String orName) {
-        if (LOG.isLoggable(INFO))
-            LOG.info("OR connection " + status + " " + orName);
+        info(LOG, () -> "OR connection " + status + " " + orName);
         if (status.equals("CLOSED") || status.equals("FAILED")) {
             // Check whether we've lost connectivity
             updateConnectionStatus(networkManager.getNetworkStatus()
@@ -434,7 +428,7 @@ abstract class TorPlugin implements Service, EventHandler {
 
     @Override
     public void message(String severity, String msg) {
-        if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
+        info(LOG, () -> severity + " " + msg);
         if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
             state.setBootstrapped();
             backoff.reset();
@@ -457,7 +451,7 @@ abstract class TorPlugin implements Service, EventHandler {
             try {
                 if (state.isTorRunning()) enableNetwork(false);
             } catch (IOException ex) {
-                logException(LOG, WARNING, ex);
+                logException(LOG, ex);
             }
         });
     }
@@ -473,7 +467,7 @@ abstract class TorPlugin implements Service, EventHandler {
                     circumventionProvider.isTorProbablyBlocked(country);
             boolean bridgesWork = circumventionProvider.doBridgesWork(country);
 
-            if (LOG.isLoggable(INFO)) {
+            if (LOG.isInfoEnabled()) {
                 LOG.info("Online: " + online + ", wifi: " + wifi
                         + ", IPv6 only: " + ipv6Only);
                 if (country.isEmpty()) LOG.info("Country code unknown");
@@ -512,7 +506,7 @@ abstract class TorPlugin implements Service, EventHandler {
                 }
                 enableNetwork(enableNetwork);
             } catch (IOException e) {
-                logException(LOG, WARNING, e);
+                logException(LOG, e);
             }
         });
     }

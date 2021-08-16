@@ -1,9 +1,9 @@
 package org.briarproject.mailbox.core.tor;
 
 import static android.os.Build.VERSION.SDK_INT;
+import static org.briarproject.mailbox.core.util.LogUtils.info;
+import static org.slf4j.LoggerFactory.getLogger;
 import static java.util.Arrays.asList;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Logger.getLogger;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -16,6 +16,7 @@ import org.briarproject.mailbox.android.api.system.AndroidWakeLockManager;
 import org.briarproject.mailbox.core.system.Clock;
 import org.briarproject.mailbox.core.system.LocationUtils;
 import org.briarproject.mailbox.core.system.ResourceProvider;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -37,8 +37,7 @@ public class AndroidTorPlugin extends TorPlugin {
     private static final String TOR_LIB_NAME = "libtor.so";
     private static final String OBFS4_LIB_NAME = "libobfs4proxy.so";
 
-    private static final Logger LOG =
-            getLogger(AndroidTorPlugin.class.getName());
+    private static final Logger LOG = getLogger(AndroidTorPlugin.class);
 
     private final Context ctx;
     private final AndroidWakeLock wakeLock;
@@ -152,10 +151,8 @@ public class AndroidTorPlugin extends TorPlugin {
             for (ZipEntry e = zin.getNextEntry(); e != null;
                  e = zin.getNextEntry()) {
                 if (libPaths.contains(e.getName())) {
-                    if (LOG.isLoggable(INFO)) {
-                        LOG.info("Extracting " + e.getName()
-                                + " from " + apk.getAbsolutePath());
-                    }
+                    String ex = e.getName();
+                    info(LOG, () -> "Extracting " + ex + " from " + apk.getAbsolutePath());
                     extract(zin, dest); // Zip input stream will be closed
                     return;
                 }

@@ -13,12 +13,18 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.system.Clock
 import org.briarproject.mailbox.core.system.LocationUtils
 import org.briarproject.mailbox.core.system.ResourceProvider
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.Executor
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 internal class AndroidTorModule {
+
+    companion object {
+        private val LOG: Logger = getLogger(AndroidTorModule::class.java)
+    }
 
     @Provides
     @Singleton
@@ -69,7 +75,7 @@ internal class AndroidTorModule {
                     else -> continue
                 }
             }
-//            LOG.info("Tor is not supported on this architecture")
+            LOG.info("Tor is not supported on this architecture")
             return "" // TODO
         }
 

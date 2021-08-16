@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.briarproject.mailbox.core.lifecycle.Service
-import java.util.logging.Logger.getLogger
+import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,7 +17,7 @@ class WebServerManager @Inject constructor() : Service {
 
     internal companion object {
         private const val PORT = 8888
-        private val LOG = getLogger(WebServerManager::class.java.name)
+        private val LOG = getLogger(WebServerManager::class.java)
     }
 
     private val server by lazy {

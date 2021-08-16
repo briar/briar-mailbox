@@ -10,6 +10,8 @@ import org.briarproject.mailbox.core.system.Clock
 import org.briarproject.mailbox.core.system.LocationUtils
 import org.briarproject.mailbox.core.system.ResourceProvider
 import org.briarproject.mailbox.core.util.OsUtils.isLinux
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.util.concurrent.Executor
 import javax.inject.Singleton
@@ -17,6 +19,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 internal class JavaTorModule {
+
+    companion object {
+        private val LOG: Logger = LoggerFactory.getLogger(JavaTorModule::class.java)
+    }
 
     @Provides
     @Singleton
@@ -56,9 +62,9 @@ internal class JavaTorModule {
     private val architecture: String
         get() {
             if (isLinux()) {
-//                if (LOG.isLoggable(Level.INFO)) {
-//                    LOG.info("System's os.arch is $arch")
-//                }
+                if (LOG.isInfoEnabled) {
+                    LOG.info("System's os.arch is ${System.getProperty("os.arch")}")
+                }
                 when (System.getProperty("os.arch")) {
                     "amd64" -> {
                         return "linux-x86_64"
@@ -71,7 +77,7 @@ internal class JavaTorModule {
                     }
                 }
             }
-//            LOG.info("Tor is not supported on this architecture")
+            LOG.info("Tor is not supported on this architecture")
             return "" // TODO
         }
 

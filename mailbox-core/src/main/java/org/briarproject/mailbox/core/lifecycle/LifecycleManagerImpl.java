@@ -9,23 +9,22 @@ import static org.briarproject.mailbox.core.lifecycle.LifecycleManager.Lifecycle
 import static org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR;
 import static org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS;
+import static org.briarproject.mailbox.core.util.LogUtils.info;
 import static org.briarproject.mailbox.core.util.LogUtils.logDuration;
 import static org.briarproject.mailbox.core.util.LogUtils.logException;
 import static org.briarproject.mailbox.core.util.LogUtils.now;
-import static java.util.logging.Level.FINE;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static java.util.logging.Logger.getLogger;
+import static org.briarproject.mailbox.core.util.LogUtils.trace;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import org.briarproject.mailbox.core.db.DatabaseComponent;
 import org.briarproject.mailbox.core.db.MigrationListener;
+import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
-import java.util.logging.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
@@ -33,8 +32,7 @@ import javax.inject.Inject;
 @ThreadSafe
 class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 
-    private static final Logger LOG =
-            getLogger(LifecycleManagerImpl.class.getName());
+    private static final Logger LOG = getLogger(LifecycleManagerImpl.class);
 
     private final DatabaseComponent db;
     private final List<Service> services;
@@ -57,23 +55,19 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 
     @Override
     public void registerService(Service s) {
-        if (LOG.isLoggable(INFO))
-            LOG.info("Registering service " + s.getClass().getSimpleName());
+        info(LOG, () -> "Registering service " + s.getClass().getSimpleName());
         services.add(s);
     }
 
     @Override
     public void registerOpenDatabaseHook(OpenDatabaseHook hook) {
-        if (LOG.isLoggable(INFO)) {
-            LOG.info("Registering open database hook "
-                    + hook.getClass().getSimpleName());
-        }
+        info(LOG, () -> "Registering open database hook " + hook.getClass().getSimpleName());
         openDatabaseHooks.add(hook);
     }
 
     @Override
     public void registerForShutdown(ExecutorService e) {
-        LOG.info("Registering executor " + e.getClass().getSimpleName());
+        info(LOG, () -> "Registering executor " + e.getClass().getSimpleName());
         executors.add(e);
     }
 
@@ -87,8 +81,8 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
             LOG.info("Opening database");
             long start = now();
             boolean reopened = db.open(this);
-            if (reopened) logDuration(LOG, "Reopening database", start);
-            else logDuration(LOG, "Creating database", start);
+            if (reopened) logDuration(LOG, () -> "Reopening database", start);
+            else logDuration(LOG, () -> "Creating database", start);
 
             LOG.info("Starting services");
             state = STARTING_SERVICES;
@@ -97,17 +91,14 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
             for (Service s : services) {
                 start = now();
                 s.startService();
-                if (LOG.isLoggable(FINE)) {
-                    logDuration(LOG, "Starting service "
-                            + s.getClass().getSimpleName(), start);
-                }
+                logDuration(LOG, () -> "Starting service " + s.getClass().getSimpleName(), start);
             }
 
             state = RUNNING;
             startupLatch.countDown();
             return SUCCESS;
         } catch (ServiceException e) {
-            logException(LOG, WARNING, e);
+            logException(LOG, e);
             return SERVICE_ERROR;
         } finally {
             startStopSemaphore.release();
@@ -129,7 +120,7 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
         try {
             startStopSemaphore.acquire();
         } catch (InterruptedException e) {
-            LOG.warning("Interrupted while waiting to stop services");
+            LOG.warn("Interrupted while waiting to stop services");
             return;
         }
         try {
@@ -138,24 +129,18 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
             for (Service s : services) {
                 long start = now();
                 s.stopService();
-                if (LOG.isLoggable(FINE)) {
-                    logDuration(LOG, "Stopping service "
-                            + s.getClass().getSimpleName(), start);
-                }
+                logDuration(LOG, () -> "Stopping service " + s.getClass().getSimpleName(), start);
             }
             for (ExecutorService e : executors) {
-                if (LOG.isLoggable(FINE)) {
-                    LOG.fine("Stopping executor "
-                            + e.getClass().getSimpleName());
-                }
+                trace(LOG, () -> "Stopping executor " + e.getClass().getSimpleName());
                 e.shutdownNow();
             }
             long start = now();
             db.close();
-            logDuration(LOG, "Closing database", start);
+            logDuration(LOG, () -> "Closing database", start);
             shutdownLatch.countDown();
         } catch (ServiceException e) {
-            logException(LOG, WARNING, e);
+            logException(LOG, e);
         } finally {
             startStopSemaphore.release();
         }
