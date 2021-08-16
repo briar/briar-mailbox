@@ -70,6 +70,7 @@ abstract class TorPlugin implements Service, EventHandler {
     private final LocationUtils locationUtils;
     private final Clock clock;
     private final Backoff backoff;
+    @Nullable
     private final String architecture;
     private final CircumventionProvider circumventionProvider;
     private final ResourceProvider resourceProvider;
@@ -93,7 +94,7 @@ abstract class TorPlugin implements Service, EventHandler {
               ResourceProvider resourceProvider,
               CircumventionProvider circumventionProvider,
               Backoff backoff,
-              String architecture,
+              @Nullable String architecture,
               File torDirectory) {
         this.ioExecutor = ioExecutor;
         this.networkManager = networkManager;
@@ -222,6 +223,8 @@ abstract class TorPlugin implements Service, EventHandler {
     }
 
     private void installAssets() throws ServiceException {
+        if (architecture == null)
+            throw new ServiceException("Tor not supported on this architecture");
         try {
             // The done file may already exist from a previous installation
             //noinspection ResultOfMethodCallIgnored

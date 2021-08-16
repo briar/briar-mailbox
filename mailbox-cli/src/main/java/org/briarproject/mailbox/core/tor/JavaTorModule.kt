@@ -59,7 +59,7 @@ internal class JavaTorModule {
         ).also { lifecycleManager.registerService(it) }
     }
 
-    private val architecture: String
+    private val architecture: String?
         get() {
             if (isLinux()) {
                 if (LOG.isInfoEnabled) {
@@ -78,7 +78,7 @@ internal class JavaTorModule {
                 }
             }
             LOG.info("Tor is not supported on this architecture")
-            return "" // TODO
+            return null
         }
 
 }

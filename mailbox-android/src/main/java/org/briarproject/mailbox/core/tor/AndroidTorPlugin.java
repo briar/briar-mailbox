@@ -29,6 +29,8 @@ import java.util.concurrent.Executor;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.annotation.Nullable;
+
 public class AndroidTorPlugin extends TorPlugin {
 
     private static final List<String> LIBRARY_ARCHITECTURES =
@@ -52,7 +54,7 @@ public class AndroidTorPlugin extends TorPlugin {
                      CircumventionProvider circumventionProvider,
                      AndroidWakeLockManager wakeLockManager,
                      Backoff backoff,
-                     String architecture,
+                     @Nullable String architecture,
                      File torDirectory) {
         super(ioExecutor, networkManager, locationUtils, clock, resourceProvider, circumventionProvider, backoff, architecture, torDirectory);
         this.ctx = ctx;

@@ -64,7 +64,7 @@ internal class AndroidTorModule {
         app.getDir("tor", Context.MODE_PRIVATE),
     ).also { lifecycleManager.registerService(it) }
 
-    private val architecture: String
+    private val architecture: String?
         get() {
             for (abi in AndroidTorPlugin.getSupportedArchitectures()) {
                 return when {
@@ -76,7 +76,7 @@ internal class AndroidTorModule {
                 }
             }
             LOG.info("Tor is not supported on this architecture")
-            return "" // TODO
+            return null
         }
 
 }

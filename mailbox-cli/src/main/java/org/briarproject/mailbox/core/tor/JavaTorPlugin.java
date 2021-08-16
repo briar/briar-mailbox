@@ -13,6 +13,8 @@ import java.net.URISyntaxException;
 import java.security.CodeSource;
 import java.util.concurrent.Executor;
 
+import javax.annotation.Nullable;
+
 public class JavaTorPlugin extends TorPlugin {
 
     JavaTorPlugin(Executor ioExecutor,
@@ -22,7 +24,7 @@ public class JavaTorPlugin extends TorPlugin {
                   ResourceProvider resourceProvider,
                   CircumventionProvider circumventionProvider,
                   Backoff backoff,
-                  String architecture,
+                  @Nullable String architecture,
                   File torDirectory) {
         super(ioExecutor, networkManager, locationUtils, clock, resourceProvider,
                 circumventionProvider, backoff, architecture, torDirectory);
