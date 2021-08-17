@@ -3,6 +3,7 @@ plugins {
     id 'idea'
     id 'org.jetbrains.kotlin.jvm'
     id 'org.jetbrains.kotlin.kapt'
+    id "org.jlleitschuh.gradle.ktlint" version "$ktlint_plugin_version"
 }
 
 sourceCompatibility = 1.8
@@ -35,3 +36,5 @@ test {
         events "passed", "skipped", "failed"
     }
 }
+
+apply from: "${rootProject.rootDir}/gradle/ktlint.gradle"

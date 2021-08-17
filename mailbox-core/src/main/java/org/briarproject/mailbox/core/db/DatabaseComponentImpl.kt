@@ -4,7 +4,7 @@ class DatabaseComponentImpl : DatabaseComponent {
 
     override fun open(listener: MigrationListener?): Boolean {
         // TODO: implement this
-        return true;
+        return true
     }
 
     override fun close() {
