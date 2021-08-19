@@ -59,10 +59,12 @@ class Main : CliktCommand(
         val javaCliComponent = DaggerJavaCliComponent.builder().build()
         javaCliComponent.inject(this)
 
-        Runtime.getRuntime().addShutdownHook(Thread {
-            lifecycleManager.stopServices()
-            lifecycleManager.waitForShutdown()
-        })
+        Runtime.getRuntime().addShutdownHook(
+            Thread {
+                lifecycleManager.stopServices()
+                lifecycleManager.waitForShutdown()
+            }
+        )
 
         lifecycleManager.startServices()
         lifecycleManager.waitForStartup()

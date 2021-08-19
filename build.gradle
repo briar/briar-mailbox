@@ -5,6 +5,7 @@ buildscript {
     ext.obfs4_version = '0.0.12-dev-40245c4a'
     ext.junit_version = '5.7.2'
     ext.mockk_version = '1.10.4'
+    ext.ktlint_plugin_version = '10.1.0'
     repositories {
         google()
         mavenCentral()
@@ -19,6 +20,7 @@ buildscript {
 allprojects {
     repositories {
         google()
+        //noinspection JcenterRepositoryObsolete
         jcenter() // for dependencies that haven't moved, yet
         mavenCentral()
     }
