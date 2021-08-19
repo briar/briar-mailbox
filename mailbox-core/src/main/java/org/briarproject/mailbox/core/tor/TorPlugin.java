@@ -24,8 +24,10 @@ import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
 
 import org.briarproject.mailbox.core.PoliteExecutor;
+import org.briarproject.mailbox.core.lifecycle.IoExecutor;
 import org.briarproject.mailbox.core.lifecycle.Service;
 import org.briarproject.mailbox.core.lifecycle.ServiceException;
+import org.briarproject.mailbox.core.server.WebServerManager;
 import org.briarproject.mailbox.core.system.Clock;
 import org.briarproject.mailbox.core.system.LocationUtils;
 import org.briarproject.mailbox.core.system.ResourceProvider;
@@ -215,7 +217,7 @@ abstract class TorPlugin implements Service, EventHandler {
         // Check whether we're online
         updateConnectionStatus(networkManager.getNetworkStatus());
         // Create a hidden service if necessary
-        ioExecutor.execute(() -> publishHiddenService("8888"));
+        ioExecutor.execute(() -> publishHiddenService(String.valueOf(WebServerManager.PORT)));
     }
 
     private boolean assetsAreUpToDate() {
@@ -313,6 +315,7 @@ abstract class TorPlugin implements Service, EventHandler {
         }
     }
 
+    @IoExecutor
     private void publishHiddenService(String port) {
         if (!state.isTorRunning()) return;
         // TODO get stored key
@@ -320,6 +323,7 @@ abstract class TorPlugin implements Service, EventHandler {
         publishV3HiddenService(port, privKey3);
     }
 
+    @IoExecutor
     private void publishV3HiddenService(String port, @Nullable String privKey) {
         LOG.info("Creating v3 hidden service");
         Map<Integer, String> portLines = singletonMap(80, "127.0.0.1:" + port);

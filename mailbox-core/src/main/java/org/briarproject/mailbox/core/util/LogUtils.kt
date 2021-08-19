@@ -44,8 +44,8 @@ object LogUtils {
      * Logs the duration of a task.
      *
      * @param logger the logger to use
-     * @param task   a description of the task
-     * @param start  the start time of the task, as returned by [.now]
+     * @param msg   a description of the task
+     * @param start  the start time of the task, as returned by [now]
      */
     @JvmStatic
     fun logDuration(logger: Logger, msg: () -> String, start: Long) {

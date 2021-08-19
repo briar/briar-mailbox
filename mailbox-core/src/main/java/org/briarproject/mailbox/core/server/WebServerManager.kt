@@ -16,7 +16,7 @@ import javax.inject.Singleton
 class WebServerManager @Inject constructor() : Service {
 
     internal companion object {
-        private const val PORT = 8888
+        const val PORT = 8888
         private val LOG = getLogger(WebServerManager::class.java)
     }
 
