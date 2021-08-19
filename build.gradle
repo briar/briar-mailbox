@@ -1,6 +1,8 @@
 buildscript {
     ext.kotlin_version = '1.5.21'
     ext.hilt_version = '2.38.1'
+    ext.tor_version = '0.3.5.15'
+    ext.obfs4_version = '0.0.12-dev-40245c4a'
     ext.junit_version = '5.7.2'
     ext.mockk_version = '1.10.4'
     repositories {
@@ -17,6 +19,7 @@ buildscript {
 allprojects {
     repositories {
         google()
+        jcenter() // for dependencies that haven't moved, yet
         mavenCentral()
     }
 }

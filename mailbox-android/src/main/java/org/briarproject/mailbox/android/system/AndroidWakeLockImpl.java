@@ -1,12 +1,12 @@
 package org.briarproject.mailbox.android.system;
 
-import static java.util.logging.Level.FINE;
-import static java.util.logging.Logger.getLogger;
+import static org.briarproject.mailbox.core.util.LogUtils.trace;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import org.briarproject.mailbox.android.api.system.AndroidWakeLock;
+import org.slf4j.Logger;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -19,8 +19,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 class AndroidWakeLockImpl implements AndroidWakeLock {
 
-    private static final Logger LOG =
-            getLogger(AndroidWakeLockImpl.class.getName());
+    private static final Logger LOG = getLogger(AndroidWakeLockImpl.class);
 
     private static final AtomicInteger INSTANCE_ID = new AtomicInteger(0);
 
@@ -40,13 +39,9 @@ class AndroidWakeLockImpl implements AndroidWakeLock {
     public void acquire() {
         synchronized (lock) {
             if (held) {
-                if (LOG.isLoggable(FINE)) {
-                    LOG.fine(tag + " already acquired");
-                }
+                trace(LOG, () -> tag + " already acquired");
             } else {
-                if (LOG.isLoggable(FINE)) {
-                    LOG.fine(tag + " acquiring shared wake lock");
-                }
+                trace(LOG, () -> tag + " acquiring shared wake lock");
                 held = true;
                 sharedWakeLock.acquire();
             }
@@ -57,15 +52,11 @@ class AndroidWakeLockImpl implements AndroidWakeLock {
     public void release() {
         synchronized (lock) {
             if (held) {
-                if (LOG.isLoggable(FINE)) {
-                    LOG.fine(tag + " releasing shared wake lock");
-                }
+                trace(LOG, () -> tag + " releasing shared wake lock");
                 held = false;
                 sharedWakeLock.release();
             } else {
-                if (LOG.isLoggable(FINE)) {
-                    LOG.fine(tag + " already released");
-                }
+                trace(LOG, () -> tag + " already released");
             }
         }
     }

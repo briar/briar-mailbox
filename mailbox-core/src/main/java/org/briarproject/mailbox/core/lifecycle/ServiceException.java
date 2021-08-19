@@ -9,6 +9,10 @@ public class ServiceException extends Exception {
         super();
     }
 
+    public ServiceException(String msg) {
+        super(msg);
+    }
+
     public ServiceException(Throwable cause) {
         super(cause);
     }

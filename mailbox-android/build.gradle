@@ -1,3 +1,5 @@
+import com.android.build.gradle.tasks.MergeResources
+
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
@@ -43,9 +45,14 @@ android {
     }
 }
 
+configurations {
+    tor
+}
+
 dependencies {
     implementation project(path: ':mailbox-core', configuration: 'default')
 
+    implementation 'com.github.tony19:logback-android:2.0.0'
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation "androidx.activity:activity-ktx:1.3.1"
     implementation "androidx.fragment:fragment-ktx:1.3.6"
@@ -66,10 +73,71 @@ dependencies {
     def multidex_version = "2.0.1"
     implementation "androidx.multidex:multidex:$multidex_version"
 
+    tor "org.briarproject:tor-android:$tor_version"
+    tor "org.briarproject:obfs4proxy-android:$obfs4_version@zip"
+
     testImplementation 'junit:junit:4.13.2'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+}
+
+def torBinariesDir = 'src/main/res/raw'
+def torLibsDir = 'src/main/jniLibs'
+
+task cleanTorBinaries {
+    doLast {
+        delete fileTree(torBinariesDir) { include '*.zip' }
+        delete fileTree(torLibsDir) { include '**/*.so' }
+    }
+}
+
+clean.dependsOn cleanTorBinaries
+
+task unpackTorBinaries {
+    doLast {
+        copy {
+            from configurations.tor.collect { zipTree(it) }
+            into torBinariesDir
+            include 'geoip.zip'
+        }
+        configurations.tor.each { outer ->
+            zipTree(outer).each { inner ->
+                if (inner.name.endsWith('_arm_pie.zip')) {
+                    copy {
+                        from zipTree(inner)
+                        into torLibsDir
+                        rename '(.*)', 'armeabi-v7a/lib$1.so'
+                    }
+                } else if (inner.name.endsWith('_arm64_pie.zip')) {
+                    copy {
+                        from zipTree(inner)
+                        into torLibsDir
+                        rename '(.*)', 'arm64-v8a/lib$1.so'
+                    }
+                } else if (inner.name.endsWith('_x86_pie.zip')) {
+                    copy {
+                        from zipTree(inner)
+                        into torLibsDir
+                        rename '(.*)', 'x86/lib$1.so'
+                    }
+                } else if (inner.name.endsWith('_x86_64_pie.zip')) {
+                    copy {
+                        from zipTree(inner)
+                        into torLibsDir
+                        rename '(.*)', 'x86_64/lib$1.so'
+                    }
+                }
+            }
+        }
+    }
+    dependsOn cleanTorBinaries
+}
+
+tasks.withType(MergeResources) {
+    inputs.dir torBinariesDir
+    inputs.dir torLibsDir
+    dependsOn unpackTorBinaries
 }
 
 apply from: "${rootProject.rootDir}/gradle/ktlint.gradle"

@@ -16,10 +16,12 @@ dependencies {
     implementation "com.google.dagger:hilt-core:$hilt_version"
     kapt "com.google.dagger:dagger-compiler:$hilt_version"
 
+    implementation 'org.briarproject:jtorctl:0.3'
+
     def ktorVersion = '1.6.2'
     implementation "io.ktor:ktor-server-core:$ktorVersion"
     implementation "io.ktor:ktor-server-netty:$ktorVersion"
-    implementation "ch.qos.logback:logback-classic:1.2.5"
+    api "org.slf4j:slf4j-api:1.7.32"
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junit_version"

@@ -1,18 +1,19 @@
 package org.briarproject.mailbox.android.system;
 
+import static org.briarproject.mailbox.core.util.LogUtils.info;
+import static org.briarproject.mailbox.core.util.LogUtils.trace;
+import static org.briarproject.mailbox.core.util.LogUtils.warn;
+import static org.slf4j.LoggerFactory.getLogger;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.logging.Level.FINE;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static java.util.logging.Logger.getLogger;
 
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
+import org.slf4j.Logger;
+
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -21,8 +22,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 class RenewableWakeLock implements SharedWakeLock {
 
-    private static final Logger LOG =
-            getLogger(RenewableWakeLock.class.getName());
+    private static final Logger LOG = getLogger(RenewableWakeLock.class);
 
     private final PowerManager powerManager;
     private final ScheduledExecutorService scheduledExecutorService;
@@ -61,9 +61,7 @@ class RenewableWakeLock implements SharedWakeLock {
         synchronized (lock) {
             refCount++;
             if (refCount == 1) {
-                if (LOG.isLoggable(INFO)) {
-                    LOG.info("Acquiring wake lock " + tag);
-                }
+                info(LOG, () -> "Acquiring wake lock " + tag);
                 wakeLock = powerManager.newWakeLock(levelAndFlags, tag);
                 // We do our own reference counting so we can replace the lock
                 // TODO: Check whether using a ref-counted wake lock affects
@@ -73,26 +71,24 @@ class RenewableWakeLock implements SharedWakeLock {
                 future = scheduledExecutorService.schedule(this::renew,
                         durationMs, MILLISECONDS);
                 acquired = android.os.SystemClock.elapsedRealtime();
-            } else if (LOG.isLoggable(FINE)) {
-                LOG.fine("Wake lock " + tag + " has " + refCount + " holders");
+            } else {
+                trace(LOG, () -> "Wake lock " + tag + " has " + refCount + " holders");
             }
         }
     }
 
     private void renew() {
-        if (LOG.isLoggable(INFO)) LOG.info("Renewing wake lock " + tag);
+        info(LOG, () -> "Renewing wake lock " + tag);
         synchronized (lock) {
             if (wakeLock == null) {
                 LOG.info("Already released");
                 return;
             }
-            if (LOG.isLoggable(FINE)) {
-                LOG.fine("Wake lock " + tag + " has " + refCount + " holders");
-            }
+            trace(LOG, () -> "Wake lock " + tag + " has " + refCount + " holders");
             long now = android.os.SystemClock.elapsedRealtime();
             long expiry = acquired + durationMs + safetyMarginMs;
-            if (now > expiry && LOG.isLoggable(WARNING)) {
-                LOG.warning("Wake lock expired " + (now - expiry) + " ms ago");
+            if (now > expiry) {
+                warn(LOG, () -> "Wake lock expired " + (now - expiry) + " ms ago");
             }
             WakeLock oldWakeLock = wakeLock;
             wakeLock = powerManager.newWakeLock(levelAndFlags, tag);
@@ -110,16 +106,14 @@ class RenewableWakeLock implements SharedWakeLock {
         synchronized (lock) {
             refCount--;
             if (refCount == 0) {
-                if (LOG.isLoggable(INFO)) {
-                    LOG.info("Releasing wake lock " + tag);
-                }
+                info(LOG, () -> "Releasing wake lock " + tag);
                 requireNonNull(future).cancel(false);
                 future = null;
                 requireNonNull(wakeLock).release();
                 wakeLock = null;
                 acquired = 0;
-            } else if (LOG.isLoggable(FINE)) {
-                LOG.fine("Wake lock " + tag + " has " + refCount + " holders");
+            } else {
+                trace(LOG, () -> "Wake lock " + tag + " has " + refCount + " holders");
             }
         }
     }

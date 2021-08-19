@@ -12,14 +12,16 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
-import java.util.logging.Level
-import java.util.logging.Logger
+import org.slf4j.LoggerFactory.getLogger
+
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MailboxService : Service() {
 
     companion object {
+        private val LOG = getLogger(MailboxService::class.java.name)
+
         fun startService(context: Context) {
             val startIntent = Intent(context, MailboxService::class.java)
             ContextCompat.startForegroundService(context, startIntent)
@@ -30,8 +32,6 @@ class MailboxService : Service() {
             context.stopService(stopIntent)
         }
     }
-
-    private val LOG = Logger.getLogger(MailboxService::class.java.name)
 
     @Volatile
     internal var started = false
@@ -60,8 +60,7 @@ class MailboxService : Service() {
                     LOG.info("Already running")
                     stopSelf()
                 } else {
-                    if (LOG.isLoggable(Level.WARNING))
-                        LOG.warning("Startup failed: $result")
+                    if (LOG.isWarnEnabled) LOG.warn("Startup failed: $result")
                     // TODO: implement this
                     // showStartupFailure(result)
                     stopSelf()

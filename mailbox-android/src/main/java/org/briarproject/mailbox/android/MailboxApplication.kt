@@ -2,6 +2,7 @@ package org.briarproject.mailbox.android
 
 import androidx.multidex.MultiDexApplication
 import dagger.hilt.android.HiltAndroidApp
+import org.briarproject.mailbox.core.AndroidEagerSingletons
 import org.briarproject.mailbox.core.CoreEagerSingletons
 import javax.inject.Inject
 
@@ -9,7 +10,10 @@ import javax.inject.Inject
 class MailboxApplication : MultiDexApplication() {
 
     @Inject
-    lateinit var coreEagerSingletons: CoreEagerSingletons
+    internal lateinit var coreEagerSingletons: CoreEagerSingletons
+
+    @Inject
+    internal lateinit var androidEagerSingletons: AndroidEagerSingletons
 
     override fun onCreate() {
         super.onCreate()
