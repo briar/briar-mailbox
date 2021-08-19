@@ -5,6 +5,8 @@ import org.briarproject.mailbox.core.system.Wakeful;
 
 import java.util.concurrent.ExecutorService;
 
+import kotlinx.coroutines.flow.StateFlow;
+
 /**
  * Manages the lifecycle of the app: opening and closing the
  * {@link DatabaseComponent} starting and stopping {@link Service Services},
@@ -27,7 +29,7 @@ public interface LifecycleManager {
      */
     enum LifecycleState {
 
-        STARTING, MIGRATING_DATABASE, COMPACTING_DATABASE, STARTING_SERVICES,
+        STOPPED, STARTING, MIGRATING_DATABASE, COMPACTING_DATABASE, STARTING_SERVICES,
         RUNNING, STOPPING;
 
         public boolean isAfter(LifecycleState state) {
@@ -91,6 +93,8 @@ public interface LifecycleManager {
      * Returns the current state of the lifecycle.
      */
     LifecycleState getLifecycleState();
+
+    StateFlow<LifecycleState> getLifecycleStateFlow();
 
     interface OpenDatabaseHook {
         /**

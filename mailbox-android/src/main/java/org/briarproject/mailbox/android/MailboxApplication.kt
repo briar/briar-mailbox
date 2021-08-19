@@ -15,9 +15,4 @@ class MailboxApplication : MultiDexApplication() {
     @Inject
     internal lateinit var androidEagerSingletons: AndroidEagerSingletons
 
-    override fun onCreate() {
-        super.onCreate()
-        MailboxService.startService(this)
-    }
-
 }

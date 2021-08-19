@@ -26,6 +26,7 @@ import net.freehaven.tor.control.TorControlConnection;
 import org.briarproject.mailbox.core.PoliteExecutor;
 import org.briarproject.mailbox.core.lifecycle.Service;
 import org.briarproject.mailbox.core.lifecycle.ServiceException;
+import org.briarproject.mailbox.core.server.WebServerManager;
 import org.briarproject.mailbox.core.system.Clock;
 import org.briarproject.mailbox.core.system.LocationUtils;
 import org.briarproject.mailbox.core.system.ResourceProvider;
@@ -215,7 +216,7 @@ abstract class TorPlugin implements Service, EventHandler {
         // Check whether we're online
         updateConnectionStatus(networkManager.getNetworkStatus());
         // Create a hidden service if necessary
-        ioExecutor.execute(() -> publishHiddenService("8888"));
+        ioExecutor.execute(() -> publishHiddenService(String.valueOf(WebServerManager.PORT)));
     }
 
     private boolean assetsAreUpToDate() {
@@ -583,18 +584,6 @@ abstract class TorPlugin implements Service, EventHandler {
             settingsChecked = true;
             this.reasonsDisabled = reasonsDisabled;
 //            callback.pluginStateChanged(getState());
-        }
-
-        // Doesn't affect getState()
-        synchronized boolean setServerSocket(ServerSocket ss) {
-            if (stopped || serverSocket != null) return false;
-            serverSocket = ss;
-            return true;
-        }
-
-        // Doesn't affect getState()
-        synchronized void clearServerSocket(ServerSocket ss) {
-            if (serverSocket == ss) serverSocket = null;
         }
 
         synchronized State getState() {
