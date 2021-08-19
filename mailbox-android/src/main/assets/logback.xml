@@ -10,4 +10,6 @@
     <root level="DEBUG">
         <appender-ref ref="logcat" />
     </root>
+    <!-- hide all Netty debug logs -->
+    <logger name="io.netty" level="INFO"/>
 </configuration>
