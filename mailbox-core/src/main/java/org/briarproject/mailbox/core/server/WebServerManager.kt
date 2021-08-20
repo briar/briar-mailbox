@@ -4,9 +4,6 @@ import io.ktor.application.install
 import io.ktor.features.CallLogging
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.briarproject.mailbox.core.lifecycle.Service
 import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
@@ -16,7 +13,7 @@ import javax.inject.Singleton
 class WebServerManager @Inject constructor() : Service {
 
     internal companion object {
-        const val PORT = 8888
+        internal const val PORT = 8000
         private val LOG = getLogger(WebServerManager::class.java)
     }
 
@@ -28,12 +25,9 @@ class WebServerManager @Inject constructor() : Service {
     }
 
     override fun startService() {
-        // hangs if not starting inside a coroutine
-        GlobalScope.launch(Dispatchers.IO) {
-            LOG.info("starting")
-            server.start(wait = true)
-            LOG.info("started")
-        }
+        LOG.info("starting")
+        server.start()
+        LOG.info("started")
     }
 
     override fun stopService() {
