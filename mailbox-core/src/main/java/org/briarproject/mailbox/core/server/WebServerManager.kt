@@ -25,9 +25,7 @@ class WebServerManager @Inject constructor() : Service {
     }
 
     override fun startService() {
-        LOG.info("starting")
         server.start()
-        LOG.info("started")
     }
 
     override fun stopService() {
