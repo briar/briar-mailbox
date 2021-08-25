@@ -20,7 +20,9 @@ class WebServerManager @Inject constructor() : Service {
     private val server by lazy {
         embeddedServer(Netty, PORT, watchPaths = emptyList()) {
             install(CallLogging)
-            configureRouting()
+            configureBasicApi()
+            configureContactApi()
+            configureFilesApi()
         }
     }
 
