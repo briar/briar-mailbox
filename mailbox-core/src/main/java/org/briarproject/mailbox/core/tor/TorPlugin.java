@@ -589,18 +589,6 @@ abstract class TorPlugin implements Service, EventHandler {
 //            callback.pluginStateChanged(getState());
         }
 
-        // Doesn't affect getState()
-        synchronized boolean setServerSocket(ServerSocket ss) {
-            if (stopped || serverSocket != null) return false;
-            serverSocket = ss;
-            return true;
-        }
-
-        // Doesn't affect getState()
-        synchronized void clearServerSocket(ServerSocket ss) {
-            if (serverSocket == ss) serverSocket = null;
-        }
-
         synchronized State getState() {
             if (!started || stopped || !settingsChecked) {
                 return STARTING_STOPPING;

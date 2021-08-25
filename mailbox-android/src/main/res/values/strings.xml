@@ -3,4 +3,6 @@
     <string name="notification_channel_name">Briar Mailbox Channel</string>
     <string name="notification_mailbox_title">Briar Mailbox running</string>
     <string name="notification_mailbox_content">Waiting for messages…</string>
+    <string name="start">Start mailbox</string>
+    <string name="stop">Stop mailbox</string>
 </resources>
