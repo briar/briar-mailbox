@@ -13,8 +13,10 @@ internal class WebServerModule {
 
     @Provides
     @Singleton
-    fun provideWebServer(lifecycleManager: LifecycleManager): WebServerManager {
-        val webServerManager = WebServerManager()
+    fun provideWebServerManager(
+        lifecycleManager: LifecycleManager,
+        webServerManager: WebServerManagerImpl,
+    ): WebServerManager {
         lifecycleManager.registerService(webServerManager)
         return webServerManager
     }

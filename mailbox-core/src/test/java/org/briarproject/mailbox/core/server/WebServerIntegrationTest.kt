@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.DaggerTestComponent
 import org.briarproject.mailbox.core.TestComponent
 import org.briarproject.mailbox.core.TestModule
-import org.briarproject.mailbox.core.server.WebServerManager.Companion.PORT
+import org.briarproject.mailbox.core.server.WebServerManagerImpl.Companion.PORT
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test

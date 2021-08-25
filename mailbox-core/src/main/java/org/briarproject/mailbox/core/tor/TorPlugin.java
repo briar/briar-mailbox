@@ -1,5 +1,25 @@
 package org.briarproject.mailbox.core.tor;
 
+import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
+import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
+import static org.briarproject.mailbox.core.tor.TorConstants.CONTROL_PORT;
+import static org.briarproject.mailbox.core.tor.TorPlugin.State.ACTIVE;
+import static org.briarproject.mailbox.core.tor.TorPlugin.State.DISABLED;
+import static org.briarproject.mailbox.core.tor.TorPlugin.State.ENABLING;
+import static org.briarproject.mailbox.core.tor.TorPlugin.State.INACTIVE;
+import static org.briarproject.mailbox.core.tor.TorPlugin.State.STARTING_STOPPING;
+import static org.briarproject.mailbox.core.util.IoUtils.copyAndClose;
+import static org.briarproject.mailbox.core.util.IoUtils.tryToClose;
+import static org.briarproject.mailbox.core.util.LogUtils.info;
+import static org.briarproject.mailbox.core.util.LogUtils.logException;
+import static org.briarproject.mailbox.core.util.LogUtils.warn;
+import static org.briarproject.mailbox.core.util.PrivacyUtils.scrubOnion;
+import static org.slf4j.LoggerFactory.getLogger;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
+import static java.util.Objects.requireNonNull;
+
 import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
 
@@ -10,7 +30,7 @@ import org.briarproject.mailbox.core.event.EventListener;
 import org.briarproject.mailbox.core.lifecycle.IoExecutor;
 import org.briarproject.mailbox.core.lifecycle.Service;
 import org.briarproject.mailbox.core.lifecycle.ServiceException;
-import org.briarproject.mailbox.core.server.WebServerManager;
+import org.briarproject.mailbox.core.server.WebServerManagerImpl;
 import org.briarproject.mailbox.core.settings.Settings;
 import org.briarproject.mailbox.core.settings.SettingsManager;
 import org.briarproject.mailbox.core.system.Clock;
@@ -228,7 +248,7 @@ abstract class TorPlugin implements Service, EventHandler, EventListener {
         // Check whether we're online
         updateConnectionStatus(networkManager.getNetworkStatus());
         // Create a hidden service if necessary
-        ioExecutor.execute(() -> publishHiddenService(String.valueOf(WebServerManager.PORT)));
+        ioExecutor.execute(() -> publishHiddenService(String.valueOf(WebServerManagerImpl.PORT)));
     }
 
     private boolean assetsAreUpToDate() {
