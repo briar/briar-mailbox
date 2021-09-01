@@ -1,15 +1,15 @@
 package org.briarproject.mailbox.core.util;
 
-import static org.briarproject.mailbox.core.util.StringUtils.isNullOrEmpty;
-import static org.briarproject.mailbox.core.util.StringUtils.isValidMac;
-import static org.briarproject.mailbox.core.util.StringUtils.toHexString;
-
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import javax.annotation.Nullable;
+
+import static org.briarproject.mailbox.core.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.mailbox.core.util.StringUtils.isValidMac;
+import static org.briarproject.mailbox.core.util.StringUtils.toHexString;
 
 public class PrivacyUtils {
 

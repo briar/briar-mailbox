@@ -9,14 +9,13 @@ import android.os.IBinder
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.android.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
-import org.briarproject.mailbox.android.api.system.AndroidWakeLockManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
+import org.briarproject.mailbox.core.system.AndroidWakeLockManager
 import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.atomic.AtomicBoolean
-
 import javax.inject.Inject
 import kotlin.system.exitProcess
 

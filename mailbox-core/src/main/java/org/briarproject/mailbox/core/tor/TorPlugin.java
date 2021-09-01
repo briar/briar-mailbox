@@ -1,29 +1,11 @@
 package org.briarproject.mailbox.core.tor;
 
-import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
-import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
-import static org.briarproject.mailbox.core.tor.TorConstants.CONTROL_PORT;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.ACTIVE;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.DISABLED;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.ENABLING;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.INACTIVE;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.STARTING_STOPPING;
-import static org.briarproject.mailbox.core.util.IoUtils.copyAndClose;
-import static org.briarproject.mailbox.core.util.IoUtils.tryToClose;
-import static org.briarproject.mailbox.core.util.LogUtils.info;
-import static org.briarproject.mailbox.core.util.LogUtils.logException;
-import static org.briarproject.mailbox.core.util.LogUtils.warn;
-import static org.briarproject.mailbox.core.util.PrivacyUtils.scrubOnion;
-import static org.slf4j.LoggerFactory.getLogger;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
-import static java.util.Objects.requireNonNull;
-
 import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
 
 import org.briarproject.mailbox.core.PoliteExecutor;
+import org.briarproject.mailbox.core.event.Event;
+import org.briarproject.mailbox.core.event.EventListener;
 import org.briarproject.mailbox.core.lifecycle.IoExecutor;
 import org.briarproject.mailbox.core.lifecycle.Service;
 import org.briarproject.mailbox.core.lifecycle.ServiceException;
@@ -55,7 +37,27 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-abstract class TorPlugin implements Service, EventHandler {
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
+import static java.util.Objects.requireNonNull;
+import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
+import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
+import static org.briarproject.mailbox.core.tor.TorConstants.CONTROL_PORT;
+import static org.briarproject.mailbox.core.tor.TorPlugin.State.ACTIVE;
+import static org.briarproject.mailbox.core.tor.TorPlugin.State.DISABLED;
+import static org.briarproject.mailbox.core.tor.TorPlugin.State.ENABLING;
+import static org.briarproject.mailbox.core.tor.TorPlugin.State.INACTIVE;
+import static org.briarproject.mailbox.core.tor.TorPlugin.State.STARTING_STOPPING;
+import static org.briarproject.mailbox.core.util.IoUtils.copyAndClose;
+import static org.briarproject.mailbox.core.util.IoUtils.tryToClose;
+import static org.briarproject.mailbox.core.util.LogUtils.info;
+import static org.briarproject.mailbox.core.util.LogUtils.logException;
+import static org.briarproject.mailbox.core.util.LogUtils.warn;
+import static org.briarproject.mailbox.core.util.PrivacyUtils.scrubOnion;
+import static org.slf4j.LoggerFactory.getLogger;
+
+abstract class TorPlugin implements Service, EventHandler, EventListener {
 
     private static final Logger LOG = getLogger(TorPlugin.class);
 
@@ -420,8 +422,7 @@ abstract class TorPlugin implements Service, EventHandler {
         info(LOG, () -> "OR connection " + status + " " + orName);
         if (status.equals("CLOSED") || status.equals("FAILED")) {
             // Check whether we've lost connectivity
-            updateConnectionStatus(networkManager.getNetworkStatus()
-            );
+            updateConnectionStatus(networkManager.getNetworkStatus());
         }
     }
 
@@ -449,8 +450,11 @@ abstract class TorPlugin implements Service, EventHandler {
         }
     }
 
-    public void onNetworkStatusChanged() {
-        updateConnectionStatus(networkManager.getNetworkStatus());
+    @Override
+    public void eventOccurred(Event e) {
+        if (e instanceof NetworkStatusEvent) {
+            updateConnectionStatus(((NetworkStatusEvent) e).getStatus());
+        }
     }
 
     private void disableNetwork() {

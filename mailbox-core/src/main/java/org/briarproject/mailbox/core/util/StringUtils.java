@@ -1,8 +1,5 @@
 package org.briarproject.mailbox.core.util;
 
-import static java.nio.charset.CodingErrorAction.IGNORE;
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
-
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -13,6 +10,9 @@ import java.util.Random;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
+
+import static java.nio.charset.CodingErrorAction.IGNORE;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 public class StringUtils {
 

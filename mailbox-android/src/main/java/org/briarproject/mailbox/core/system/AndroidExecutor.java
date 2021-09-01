@@ -1,4 +1,4 @@
-package org.briarproject.mailbox.android.api.system;
+package org.briarproject.mailbox.core.system;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;

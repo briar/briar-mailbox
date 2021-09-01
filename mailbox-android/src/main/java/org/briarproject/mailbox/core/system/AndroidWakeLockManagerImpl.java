@@ -1,23 +1,20 @@
-package org.briarproject.mailbox.android.system;
-
-import static android.content.Context.POWER_SERVICE;
-import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
-import static java.util.Objects.requireNonNull;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
+package org.briarproject.mailbox.core.system;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.PowerManager;
 
-import org.briarproject.mailbox.android.api.system.AndroidWakeLock;
-import org.briarproject.mailbox.android.api.system.AndroidWakeLockManager;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
+
+import static android.content.Context.POWER_SERVICE;
+import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
+import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 class AndroidWakeLockManagerImpl implements AndroidWakeLockManager {
 

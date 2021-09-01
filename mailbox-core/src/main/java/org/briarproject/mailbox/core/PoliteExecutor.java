@@ -1,14 +1,14 @@
 package org.briarproject.mailbox.core;
 
-import static org.briarproject.mailbox.core.util.LogUtils.now;
-import static java.util.logging.Level.FINE;
-
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.GuardedBy;
+
+import static java.util.logging.Level.FINE;
+import static org.briarproject.mailbox.core.util.LogUtils.now;
 
 /**
  * An {@link Executor} that delegates its tasks to another {@link Executor}

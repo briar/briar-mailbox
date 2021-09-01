@@ -1,6 +1,4 @@
-package org.briarproject.mailbox.android.system;
-
-import org.briarproject.mailbox.android.api.system.AndroidWakeLock;
+package org.briarproject.mailbox.core.system;
 
 interface SharedWakeLock {
 
