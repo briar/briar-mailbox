@@ -7,11 +7,17 @@ import io.ktor.features.CallLogging
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.briarproject.mailbox.core.lifecycle.Service
+import org.briarproject.mailbox.core.server.WebServerManager.Companion.PORT
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
 import javax.inject.Singleton
 
-interface WebServerManager : Service
+interface WebServerManager : Service {
+    companion object {
+        const val PORT: Int = 8000
+    }
+}
 
 @Singleton
 internal class WebServerManagerImpl @Inject constructor(
@@ -19,18 +25,18 @@ internal class WebServerManagerImpl @Inject constructor(
 ) : WebServerManager {
 
     internal companion object {
-        internal const val PORT = 8000
-        private val LOG = getLogger(WebServerManager::class.java)
+        private val LOG: Logger = getLogger(WebServerManager::class.java)
     }
 
     private val server by lazy {
         embeddedServer(Netty, PORT, watchPaths = emptyList()) {
             install(CallLogging)
-            // TODO validate mailboxId and fileId somewhere
+            // TODO validate folderId and fileId somewhere
             install(Authentication) {
                 bearer(AuthContext.ownerOnly) {
                     realm = "Briar Mailbox Owner"
-                    validate { credentials ->
+                    authenticationFunction = { credentials ->
+                        // TODO: Remove logging [of credentials] before release.
                         LOG.error("credentials: $credentials")
                         if (authManager.canOwnerAccess(credentials)) {
                             UserIdPrincipal(AuthContext.ownerOnly)
@@ -39,12 +45,12 @@ internal class WebServerManagerImpl @Inject constructor(
                 }
                 bearer(AuthContext.ownerAndContacts) {
                     realm = "Briar Mailbox"
-                    validate { credentials ->
+                    authenticationFunction = { credentials ->
                         LOG.error("credentials: $credentials")
-                        val mailboxId = credentials.mailboxId
-                        // we must have a mailboxId for this AuthContext
-                        if (mailboxId == null) {
-                            LOG.warn("No mailboxId found in request")
+                        val folderId = credentials.folderId
+                        // we must have a folderId for this AuthContext
+                        if (folderId == null) {
+                            LOG.warn("No folderId found in request")
                             null
                         } else if (authManager.canOwnerOrContactAccess(credentials)) {
                             UserIdPrincipal(AuthContext.ownerAndContacts)

@@ -14,7 +14,7 @@ import io.ktor.routing.put
 import io.ktor.routing.route
 import io.ktor.routing.routing
 
-internal const val V = "/" // TODO set to "/v1" for release
+internal const val V = "" // TODO set to "/v1" for release
 
 internal fun Application.configureBasicApi() = routing {
     route("$V/") {
@@ -59,19 +59,19 @@ internal fun Application.configureContactApi() = routing {
 internal fun Application.configureFilesApi() = routing {
 
     authenticate(AuthContext.ownerAndContacts) {
-        route("$V/files/{mailboxId}") {
+        route("$V/files/{folderId}") {
             post {
                 call.respond(
                     HttpStatusCode.OK,
                     "post: Not yet implemented. " +
-                        "mailboxId: ${call.parameters["mailboxId"]}"
+                        "folderId: ${call.parameters["folderId"]}"
                 )
             }
             get {
                 call.respond(
                     HttpStatusCode.OK,
                     "get: Not yet implemented. " +
-                        "mailboxId: ${call.parameters["mailboxId"]}"
+                        "folderId: ${call.parameters["folderId"]}"
                 )
             }
             route("/{fileId}") {
@@ -79,7 +79,7 @@ internal fun Application.configureFilesApi() = routing {
                     call.respond(
                         HttpStatusCode.OK,
                         "get: Not yet implemented. " +
-                            "mailboxId: ${call.parameters["mailboxId"]} " +
+                            "folderId: ${call.parameters["folderId"]} " +
                             "fileId: ${call.parameters["fileId"]}"
                     )
                 }
@@ -87,7 +87,7 @@ internal fun Application.configureFilesApi() = routing {
                     call.respond(
                         HttpStatusCode.OK,
                         "delete: Not yet implemented. " +
-                            "mailboxId: ${call.parameters["mailboxId"]} " +
+                            "folderId: ${call.parameters["folderId"]} " +
                             "fileId: ${call.parameters["fileId"]}"
                     )
                 }

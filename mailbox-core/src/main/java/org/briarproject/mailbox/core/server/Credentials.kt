@@ -5,7 +5,7 @@ import io.ktor.http.HttpMethod
 data class Credentials(
     val accessType: AccessType,
     val token: String,
-    val mailboxId: String?,
+    val folderId: String?,
 )
 
 enum class AccessType { UPLOAD, DOWNLOAD_DELETE }
