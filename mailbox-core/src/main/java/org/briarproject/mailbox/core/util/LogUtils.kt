@@ -8,27 +8,27 @@ object LogUtils {
     private const val NANOS_PER_MILLI = 1000 * 1000
 
     @JvmStatic
-    fun Logger.trace(msg: () -> String) {
+    inline fun Logger.trace(msg: () -> String) {
         if (isTraceEnabled) trace(msg())
     }
 
     @JvmStatic
-    fun Logger.debug(msg: () -> String) {
+    inline fun Logger.debug(msg: () -> String) {
         if (isDebugEnabled) debug(msg())
     }
 
     @JvmStatic
-    fun Logger.info(msg: () -> String) {
+    inline fun Logger.info(msg: () -> String) {
         if (isInfoEnabled) info(msg())
     }
 
     @JvmStatic
-    fun Logger.warn(msg: () -> String) {
+    inline fun Logger.warn(msg: () -> String) {
         if (isWarnEnabled) warn(msg())
     }
 
     @JvmStatic
-    fun Logger.error(msg: () -> String) {
+    inline fun Logger.error(msg: () -> String) {
         if (isErrorEnabled) error(msg())
     }
 
