@@ -14,18 +14,18 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class NetworkUtils {
 
-    private static final Logger LOG = getLogger(NetworkUtils.class.getName());
+	private static final Logger LOG = getLogger(NetworkUtils.class.getName());
 
-    public static List<NetworkInterface> getNetworkInterfaces() {
-        try {
-            Enumeration<NetworkInterface> ifaces =
-                    NetworkInterface.getNetworkInterfaces();
-            // Despite what the docs say, the return value can be null
-            //noinspection ConstantConditions
-            return ifaces == null ? emptyList() : list(ifaces);
-        } catch (SocketException e) {
-            logException(LOG, e);
-            return emptyList();
-        }
-    }
+	public static List<NetworkInterface> getNetworkInterfaces() {
+		try {
+			Enumeration<NetworkInterface> ifaces =
+					NetworkInterface.getNetworkInterfaces();
+			// Despite what the docs say, the return value can be null
+			//noinspection ConstantConditions
+			return ifaces == null ? emptyList() : list(ifaces);
+		} catch (SocketException e) {
+			logException(LOG, e);
+			return emptyList();
+		}
+	}
 }
