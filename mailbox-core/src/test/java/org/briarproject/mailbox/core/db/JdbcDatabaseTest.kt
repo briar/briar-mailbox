@@ -1,30 +1,24 @@
 package org.briarproject.mailbox.core.db
 
 import org.briarproject.mailbox.core.TestUtils.deleteTestDirectory
-import org.briarproject.mailbox.core.TestUtils.getTestDirectory
 import org.briarproject.mailbox.core.api.Contact
 import org.briarproject.mailbox.core.system.Clock
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.sql.Connection
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 abstract class JdbcDatabaseTest {
 
-    private val testDir: File = getTestDirectory()
+    @TempDir
+    lateinit var testDir: File
 
     protected abstract fun createDatabase(
         config: DatabaseConfig,
         clock: Clock,
     ): JdbcDatabase
-
-    @BeforeEach
-    open fun setUp() {
-        assertTrue(testDir.mkdirs())
-    }
 
     @Throws(java.lang.Exception::class)
     fun open(
