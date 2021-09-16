@@ -21,7 +21,7 @@ import javax.inject.Singleton
     ]
 )
 @InstallIn(SingletonComponent::class)
-internal class TestModule {
+internal class TestModule(private val tempDir: File) {
     @Singleton
     @Provides
     fun provideClock() = Clock { System.currentTimeMillis() }
@@ -30,7 +30,7 @@ internal class TestModule {
     @Provides
     fun provideDatabaseConfig() = object : DatabaseConfig {
         override fun getDatabaseDirectory(): File {
-            return File("/tmp")
+            return tempDir
         }
     }
 }
