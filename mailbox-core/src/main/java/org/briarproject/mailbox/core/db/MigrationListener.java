@@ -12,4 +12,5 @@ public interface MigrationListener {
      * This is called when compaction is started while opening the database.
      */
     void onDatabaseCompaction();
+
 }
