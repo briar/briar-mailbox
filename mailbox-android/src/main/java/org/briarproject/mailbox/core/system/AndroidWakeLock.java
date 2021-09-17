@@ -1,4 +1,4 @@
-package org.briarproject.mailbox.android.api.system;
+package org.briarproject.mailbox.core.system;
 
 public interface AndroidWakeLock {
 

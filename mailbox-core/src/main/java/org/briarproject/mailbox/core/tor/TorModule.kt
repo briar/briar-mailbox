@@ -5,7 +5,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.briarproject.mailbox.core.lifecycle.IoExecutor
-import org.briarproject.mailbox.core.system.LocationUtils
 import java.util.concurrent.Executor
 import java.util.concurrent.SynchronousQueue
 import java.util.concurrent.ThreadPoolExecutor
@@ -22,16 +21,6 @@ internal class TorModule {
         private const val MAX_POLLING_INTERVAL = 10 * 60 * 1000 // 10 mins
         private const val BACKOFF_BASE = 1.2
     }
-
-    @Provides
-    @Singleton
-    fun provideNetworkManager() = NetworkManager {
-        NetworkStatus(true, true, false)
-    }
-
-    @Provides
-    @Singleton
-    fun provideLocationUtils() = LocationUtils { "" }
 
     @Provides
     @Singleton

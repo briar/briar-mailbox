@@ -1,10 +1,8 @@
-package org.briarproject.mailbox.android.system;
+package org.briarproject.mailbox.core.system;
 
 import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
-
-import org.briarproject.mailbox.android.api.system.AndroidExecutor;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;

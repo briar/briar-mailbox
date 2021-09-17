@@ -1,11 +1,4 @@
-package org.briarproject.mailbox.android.system;
-
-import static org.briarproject.mailbox.core.util.LogUtils.info;
-import static org.briarproject.mailbox.core.util.LogUtils.trace;
-import static org.briarproject.mailbox.core.util.LogUtils.warn;
-import static org.slf4j.LoggerFactory.getLogger;
-import static java.util.Objects.requireNonNull;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+package org.briarproject.mailbox.core.system;
 
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
@@ -18,6 +11,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+
+import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.briarproject.mailbox.core.util.LogUtils.info;
+import static org.briarproject.mailbox.core.util.LogUtils.trace;
+import static org.briarproject.mailbox.core.util.LogUtils.warn;
+import static org.slf4j.LoggerFactory.getLogger;
 
 @ThreadSafe
 class RenewableWakeLock implements SharedWakeLock {

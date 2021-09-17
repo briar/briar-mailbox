@@ -1,15 +1,14 @@
-package org.briarproject.mailbox.android.system;
+package org.briarproject.mailbox.core.system;
 
-import static org.briarproject.mailbox.core.util.LogUtils.trace;
-import static org.slf4j.LoggerFactory.getLogger;
-
-import org.briarproject.mailbox.android.api.system.AndroidWakeLock;
 import org.slf4j.Logger;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+
+import static org.briarproject.mailbox.core.util.LogUtils.trace;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * A wrapper around a {@link SharedWakeLock} that provides the more convenient

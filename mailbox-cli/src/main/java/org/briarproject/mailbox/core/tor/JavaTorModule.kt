@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import org.briarproject.mailbox.core.event.EventBus
 import org.briarproject.mailbox.core.lifecycle.IoExecutor
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.system.Clock
@@ -11,8 +12,9 @@ import org.briarproject.mailbox.core.system.LocationUtils
 import org.briarproject.mailbox.core.system.ResourceProvider
 import org.briarproject.mailbox.core.util.OsUtils.isLinux
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.slf4j.LoggerFactory.getLogger
 import java.io.File
+import java.util.Locale
 import java.util.concurrent.Executor
 import javax.inject.Singleton
 
@@ -21,7 +23,7 @@ import javax.inject.Singleton
 internal class JavaTorModule {
 
     companion object {
-        private val LOG: Logger = LoggerFactory.getLogger(JavaTorModule::class.java)
+        private val LOG: Logger = getLogger(JavaTorModule::class.java)
     }
 
     @Provides
@@ -42,6 +44,7 @@ internal class JavaTorModule {
         circumventionProvider: CircumventionProvider,
         backoff: Backoff,
         lifecycleManager: LifecycleManager,
+        eventBus: EventBus,
     ): JavaTorPlugin {
         val configDir = File(System.getProperty("user.home") + File.separator + ".config")
         val mailboxDir = File(configDir, ".briar-mailbox")
@@ -56,7 +59,10 @@ internal class JavaTorModule {
             backoff,
             architecture,
             torDir,
-        ).also { lifecycleManager.registerService(it) }
+        ).also {
+            lifecycleManager.registerService(it)
+            eventBus.addListener(it)
+        }
     }
 
     private val architecture: String?
@@ -80,5 +86,15 @@ internal class JavaTorModule {
             LOG.info("Tor is not supported on this architecture")
             return null
         }
+
+    @Provides
+    @Singleton
+    fun provideNetworkManager(networkManager: JavaCliNetworkManager): NetworkManager {
+        return networkManager
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocationUtils() = LocationUtils { Locale.getDefault().country }
 
 }

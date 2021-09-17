@@ -4,12 +4,11 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.briarproject.mailbox.core.CoreModule
-import org.briarproject.mailbox.core.tor.AndroidTorModule
 
 @Module(
     includes = [
         CoreModule::class,
-        AndroidTorModule::class,
+        // Hilt modules from this gradle module are included automatically somehow
     ]
 )
 @InstallIn(SingletonComponent::class)

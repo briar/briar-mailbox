@@ -11,8 +11,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 
-import org.briarproject.mailbox.android.api.system.AndroidWakeLock;
-import org.briarproject.mailbox.android.api.system.AndroidWakeLockManager;
+import org.briarproject.mailbox.core.system.AndroidWakeLock;
+import org.briarproject.mailbox.core.system.AndroidWakeLockManager;
 import org.briarproject.mailbox.core.system.Clock;
 import org.briarproject.mailbox.core.system.LocationUtils;
 import org.briarproject.mailbox.core.system.ResourceProvider;

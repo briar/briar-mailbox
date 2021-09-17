@@ -7,9 +7,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import org.briarproject.mailbox.android.api.system.AndroidWakeLockManager
+import org.briarproject.mailbox.core.event.EventBus
 import org.briarproject.mailbox.core.lifecycle.IoExecutor
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.system.AndroidWakeLockManager
 import org.briarproject.mailbox.core.system.Clock
 import org.briarproject.mailbox.core.system.LocationUtils
 import org.briarproject.mailbox.core.system.ResourceProvider
@@ -50,6 +51,7 @@ internal class AndroidTorModule {
         androidWakeLockManager: AndroidWakeLockManager,
         backoff: Backoff,
         lifecycleManager: LifecycleManager,
+        eventBus: EventBus,
     ) = AndroidTorPlugin(
         ioExecutor,
         app,
@@ -62,7 +64,10 @@ internal class AndroidTorModule {
         backoff,
         architecture,
         app.getDir("tor", Context.MODE_PRIVATE),
-    ).also { lifecycleManager.registerService(it) }
+    ).also {
+        lifecycleManager.registerService(it)
+        eventBus.addListener(it)
+    }
 
     private val architecture: String?
         get() {
@@ -78,5 +83,20 @@ internal class AndroidTorModule {
             LOG.info("Tor is not supported on this architecture")
             return null
         }
+
+    @Provides
+    fun provideLocationUtils(locationUtils: AndroidLocationUtils): LocationUtils {
+        return locationUtils
+    }
+
+    @Provides
+    @Singleton
+    fun provideNetworkManager(
+        lifecycleManager: LifecycleManager,
+        networkManager: AndroidNetworkManager,
+    ): NetworkManager {
+        lifecycleManager.registerService(networkManager)
+        return networkManager
+    }
 
 }

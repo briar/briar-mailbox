@@ -1,9 +1,5 @@
 package org.briarproject.mailbox.core.util;
 
-import static org.briarproject.mailbox.core.util.LogUtils.logException;
-import static org.briarproject.mailbox.core.util.LogUtils.warn;
-import static org.slf4j.LoggerFactory.getLogger;
-
 import org.slf4j.Logger;
 
 import java.io.Closeable;
@@ -16,6 +12,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import javax.annotation.Nullable;
+
+import static org.briarproject.mailbox.core.util.LogUtils.logException;
+import static org.briarproject.mailbox.core.util.LogUtils.warn;
+import static org.slf4j.LoggerFactory.getLogger;
 
 public class IoUtils {
 
