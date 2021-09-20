@@ -79,5 +79,15 @@ any hardware supporting Java (e.g. unix server, raspberry pi) could be added.
 * Contacts and the owner can connect to the mailbox via other transports (Bluetooth, Wifi-Direct, Lan)
 * Push-like message notification for the owner to decrease battery drain
 
+## Useful links 
+[briarproject.org](https://briarproject.org/) 
+
+[Source code](https://code.briarproject.org/briar/briar-mailbox/-/tree/main) 
+
+
+## Donate 
+[![Donate using Liberapay](https://briarproject.org/img/liberapay.svg)](https://liberapay.com/Briar/donate) [![Flattr this](https://briarproject.org/img/flattr-badge-large.png "Flattr this")](https://flattr.com/t/592836/)   
+Bitcoin and BCH: 1NZCKkUCtJV2U2Y9hDb9uq8S7ksFCFGR6K
+
 
 
