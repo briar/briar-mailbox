@@ -28,9 +28,9 @@ graph LR
 
 Message delivery could be delayed for an arbitrary time (or even indefinitely) 
 until both Bob and Alice are online at the same time.  
-The repeater solves this problem by providing 
-mailbox-like message buffer where contacts can leave messages for the owner 
-of the repeater and which is connected to a stable internet connection 
+The mailbox solves this problem by providing 
+a message buffer where contacts can leave messages for the owner 
+of the mailbox and which is connected to a stable internet connection 
 (e.g. the wifi at home, cable internet) and a power source.
  
 
@@ -58,25 +58,25 @@ graph LR
 
 ## Hardware
 
-We want the repeater to be as easy to deploy as possible. The first version 
+We want the mailbox to be as easy to deploy as possible. The target for this project
 will come as Android application since it will be easy to setup and besides a 
-spare phone no special hardware is required. Once this is done support for
-any hardware supporting Java (e.g. unix server, raspberry pi) will be added.
+spare phone, no special hardware is required. Once this is done support for
+any hardware supporting Java (e.g. unix server, raspberry pi) could be added.
 
 ## Features
 
 ### Core features
 
-* Allow contacts to store messages for the owner of the repeater
+* Allow contacts to store messages for the owner of the mailbox
 * Allow the owner to store messages for her contacts. Contacts can pick them up
-  when syncing with the repeater.
-* Owner and contacts connect to the repeater via Tor.
+  when syncing with the mailbox.
+* Owner and contacts connect to the mailbox via Tor.
 
 ### Extended features/components
 
-* The repeater can sync group messages (from groups the owner is part of) with 
+* The mailbox can sync group messages (from groups the owner is part of) with 
   other group members (increases message circulation)
-* Contacts and the owner can connect to the repeater via other transports (Bluetooth, Wifi-Direct, Lan)
+* Contacts and the owner can connect to the mailbox via other transports (Bluetooth, Wifi-Direct, Lan)
 * Push-like message notification for the owner to decrease battery drain
 
 
