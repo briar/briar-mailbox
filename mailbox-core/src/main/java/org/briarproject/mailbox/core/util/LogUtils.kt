@@ -1,6 +1,7 @@
 package org.briarproject.mailbox.core.util
 
 import org.slf4j.Logger
+import java.io.File
 
 object LogUtils {
 
@@ -59,4 +60,25 @@ object LogUtils {
     fun logException(logger: Logger, t: Throwable) {
         if (logger.isWarnEnabled) logger.warn(t.toString(), t)
     }
+
+    fun logFileOrDir(logger: Logger, f: File) {
+        if (logger.isInfoEnabled) {
+            if (f.isFile) {
+                logWithType(logger, f, "F")
+            } else if (f.isDirectory) {
+                logWithType(logger, f, "D")
+                val children = f.listFiles()
+                if (children != null) {
+                    for (child in children) logFileOrDir(logger, child)
+                }
+            } else if (f.exists()) {
+                logWithType(logger, f, "?")
+            }
+        }
+    }
+
+    fun logWithType(logger: Logger, f: File, type: String) {
+        logger.info("$type ${f.absolutePath} ${f.length()}")
+    }
+
 }

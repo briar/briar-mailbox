@@ -4,6 +4,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import org.briarproject.mailbox.core.system.Clock
+import java.sql.Connection
 import javax.inject.Singleton
 
 @Module
@@ -12,8 +14,14 @@ internal class DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabaseComponent(): DatabaseComponent {
-        return DatabaseComponentImpl()
+    fun provideDatabase(config: DatabaseConfig, clock: Clock): Database<Connection> {
+        return H2Database(config, clock)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDatabaseComponent(db: Database<Connection>): DatabaseComponent {
+        return DatabaseComponentImpl(db)
     }
 
 }

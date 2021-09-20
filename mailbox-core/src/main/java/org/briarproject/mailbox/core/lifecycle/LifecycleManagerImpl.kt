@@ -84,12 +84,10 @@ internal class LifecycleManagerImpl @Inject constructor(private val db: Database
             state.value = STARTING_SERVICES
             dbLatch.countDown()
             for (s in services) {
-                LOG.info { "Starting service ${s.javaClass.simpleName}" }
                 start = now()
                 s.startService()
-                logDuration(LOG, { "Starting service ${s.javaClass.simpleName}" }, start)
+                logDuration(LOG, { "Starting service  ${s.javaClass.simpleName}" }, start)
             }
-            LOG.info("All services started")
             state.compareAndSet(STARTING_SERVICES, RUNNING)
             startupLatch.countDown()
             SUCCESS
