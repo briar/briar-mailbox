@@ -14,6 +14,7 @@ import io.ktor.auth.parseAuthorizationHeader
 import io.ktor.http.auth.HttpAuthHeader
 import io.ktor.request.httpMethod
 import io.ktor.response.respond
+import io.ktor.util.pipeline.PipelineContext
 import org.briarproject.mailbox.core.util.LogUtils.debug
 import org.slf4j.LoggerFactory.getLogger
 
@@ -64,40 +65,48 @@ internal fun Authentication.Configuration.bearer(
 ) {
     val provider = BearerAuthenticationProvider.Configuration(name).apply(configure).build()
     provider.pipeline.intercept(AuthenticationPipeline.RequestAuthentication) { context ->
-        val authHeader = provider.authHeader(call)
-        if (authHeader == null) {
-            context.unauthorizedResponse(AuthenticationFailedCause.NoCredentials, provider)
-            return@intercept
-        }
-
-        try {
-            // TODO try faking accessType with X-Http-Method-Override header
-            val accessType = call.request.httpMethod.toAccessType()
-            val token = (authHeader as? HttpAuthHeader.Single)?.blob
-            if (accessType == null || token == null) {
-                context.unauthorizedResponse(AuthenticationFailedCause.InvalidCredentials, provider)
-                return@intercept
-            }
-            val folderId = call.parameters["folderId"]
-
-            // TODO remove logging before release
-            LOG.debug { "name: $name" }
-            LOG.debug { "httpMethod: ${call.request.httpMethod}" }
-
-            val credentials = Credentials(accessType, token, folderId)
-            val principal = provider.authenticationFunction(call, credentials)
-            if (principal == null) {
-                context.unauthorizedResponse(AuthenticationFailedCause.InvalidCredentials, provider)
-            } else {
-                context.principal(principal)
-            }
-        } catch (cause: Throwable) {
-            val message = cause.message ?: cause.javaClass.simpleName
-            LOG.debug { "Bearer verification failed: $message" }
-            context.error(AUTH_KEY_BEARER, AuthenticationFailedCause.Error(message))
-        }
+        authenticate(context, provider, name)
     }
     register(provider)
+}
+
+private suspend fun PipelineContext<AuthenticationContext, ApplicationCall>.authenticate(
+    context: AuthenticationContext,
+    provider: BearerAuthenticationProvider,
+    name: String?,
+) {
+    val authHeader = provider.authHeader(call)
+    if (authHeader == null) {
+        context.unauthorizedResponse(AuthenticationFailedCause.NoCredentials, provider)
+        return
+    }
+
+    try {
+        // TODO try faking accessType with X-Http-Method-Override header
+        val accessType = call.request.httpMethod.toAccessType()
+        val token = (authHeader as? HttpAuthHeader.Single)?.blob
+        if (accessType == null || token == null) {
+            context.unauthorizedResponse(AuthenticationFailedCause.InvalidCredentials, provider)
+            return
+        }
+        val folderId = call.parameters["folderId"]
+
+        // TODO remove logging before release
+        LOG.debug { "name: $name" }
+        LOG.debug { "httpMethod: ${call.request.httpMethod}" }
+
+        val credentials = Credentials(accessType, token, folderId)
+        val principal = provider.authenticationFunction(call, credentials)
+        if (principal == null) {
+            context.unauthorizedResponse(AuthenticationFailedCause.InvalidCredentials, provider)
+        } else {
+            context.principal(principal)
+        }
+    } catch (cause: Throwable) {
+        val message = cause.message ?: cause.javaClass.simpleName
+        LOG.debug { "Bearer verification failed: $message" }
+        context.error(AUTH_KEY_BEARER, AuthenticationFailedCause.Error(message))
+    }
 }
 
 private fun AuthenticationContext.unauthorizedResponse(
