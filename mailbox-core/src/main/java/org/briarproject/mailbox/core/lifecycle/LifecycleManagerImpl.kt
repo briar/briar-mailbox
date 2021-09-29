@@ -2,7 +2,7 @@ package org.briarproject.mailbox.core.lifecycle
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.briarproject.mailbox.core.db.DatabaseComponent
+import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.db.MigrationListener
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.COMPACTING_DATABASE
@@ -23,6 +23,7 @@ import org.briarproject.mailbox.core.util.LogUtils.logException
 import org.briarproject.mailbox.core.util.LogUtils.now
 import org.briarproject.mailbox.core.util.LogUtils.trace
 import org.slf4j.LoggerFactory.getLogger
+import java.sql.Connection
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutorService
@@ -31,7 +32,7 @@ import javax.annotation.concurrent.ThreadSafe
 import javax.inject.Inject
 
 @ThreadSafe
-internal class LifecycleManagerImpl @Inject constructor(private val db: DatabaseComponent) :
+internal class LifecycleManagerImpl @Inject constructor(private val db: Database<Connection>) :
     LifecycleManager, MigrationListener {
 
     companion object {

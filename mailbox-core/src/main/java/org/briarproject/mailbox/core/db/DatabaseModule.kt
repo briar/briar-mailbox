@@ -18,10 +18,4 @@ internal class DatabaseModule {
         return H2Database(config, clock)
     }
 
-    @Provides
-    @Singleton
-    fun provideDatabaseComponent(db: Database<Connection>): DatabaseComponent {
-        return DatabaseComponentImpl(db)
-    }
-
 }
