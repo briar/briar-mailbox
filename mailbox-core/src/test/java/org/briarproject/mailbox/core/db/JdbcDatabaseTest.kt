@@ -2,6 +2,7 @@ package org.briarproject.mailbox.core.db
 
 import org.briarproject.mailbox.core.TestUtils.deleteTestDirectory
 import org.briarproject.mailbox.core.api.Contact
+import org.briarproject.mailbox.core.settings.Settings
 import org.briarproject.mailbox.core.system.Clock
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -80,6 +81,33 @@ abstract class JdbcDatabaseTest {
         val contact2Reloaded2 = db.getContact(txn, 2)
         assertNull(contact1Reloaded2)
         assertEquals(contact2, contact2Reloaded2)
+
+        db.commitTransaction(txn)
+        db.close()
+    }
+
+    @Test
+    @Throws(java.lang.Exception::class)
+    open fun testMergeSettings() {
+        val before = Settings()
+        before["foo"] = "bar"
+        before["baz"] = "bam"
+        val update = Settings()
+        update["baz"] = "qux"
+        val merged = Settings()
+        merged["foo"] = "bar"
+        merged["baz"] = "qux"
+
+        var db: Database = open(false)
+        var txn = db.startTransaction()
+
+        // store 'before'
+        db.mergeSettings(txn, before, "namespace")
+        assertEquals(before, db.getSettings(txn, "namespace"))
+
+        // merge 'update'
+        db.mergeSettings(txn, update, "namespace")
+        assertEquals(merged, db.getSettings(txn, "namespace"))
 
         db.commitTransaction(txn)
         db.close()
