@@ -352,6 +352,25 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     }
 
     @Throws(DbException::class)
+    override fun clearDatabase(txn: Transaction) {
+        val connection: Connection = txn.unbox()
+        execute(connection, "DELETE FROM settings")
+        execute(connection, "DELETE FROM contacts")
+    }
+
+    private fun execute(connection: Connection, sql: String) {
+        var ps: PreparedStatement? = null
+        try {
+            ps = connection.prepareStatement(sql)
+            ps.executeUpdate()
+            ps.close()
+        } catch (e: SQLException) {
+            tryToClose(ps, LOG)
+            throw DbException(e)
+        }
+    }
+
+    @Throws(DbException::class)
     override fun getSettings(txn: Transaction, namespace: String): Settings {
         val connection: Connection = txn.unbox()
         return getSettings(connection, namespace)

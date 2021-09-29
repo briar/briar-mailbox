@@ -23,7 +23,7 @@ import kotlin.system.exitProcess
 class MailboxService : Service() {
 
     companion object {
-        private val LOG = getLogger(MailboxService::class.java.name)
+        private val LOG = getLogger(MailboxService::class.java)
 
         fun startService(context: Context) {
             val startIntent = Intent(context, MailboxService::class.java)

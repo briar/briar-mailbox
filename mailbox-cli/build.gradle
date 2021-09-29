@@ -35,7 +35,7 @@ dependencies {
 }
 
 application {
-    mainClassName = 'org.briarproject.mailbox.cli.MainKt'
+    mainClass = 'org.briarproject.mailbox.cli.MainKt'
 }
 
 test {

@@ -7,6 +7,7 @@ import io.ktor.features.ContentNegotiation
 import io.ktor.jackson.jackson
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import org.briarproject.mailbox.core.contacts.ContactsManager
 import org.briarproject.mailbox.core.files.FileManager
 import org.briarproject.mailbox.core.lifecycle.Service
 import org.briarproject.mailbox.core.server.WebServerManager.Companion.PORT
@@ -24,6 +25,7 @@ interface WebServerManager : Service {
 @Singleton
 internal class WebServerManagerImpl @Inject constructor(
     private val authManager: AuthManager,
+    private val contactsManager: ContactsManager,
     private val fileManager: FileManager,
 ) : WebServerManager {
 
@@ -47,7 +49,7 @@ internal class WebServerManagerImpl @Inject constructor(
                 jackson()
             }
             configureBasicApi()
-            configureContactApi()
+            configureContactApi(contactsManager)
             configureFilesApi(fileManager)
         }
     }
