@@ -52,4 +52,17 @@ interface Database {
     @Throws(DbException::class)
     fun removeContact(txn: Connection, id: Int)
 
+    /**
+     * Runs the given task within a transaction.
+     */
+    @Throws(DbException::class)
+    fun transaction(readOnly: Boolean, task: (Connection) -> Unit)
+
+    /**
+     * Runs the given task within a transaction and returns the result of the
+     * task.
+     */
+    @Throws(DbException::class)
+    fun <R> transactionWithResult(readOnly: Boolean, task: (Connection) -> R): R
+
 }

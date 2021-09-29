@@ -461,4 +461,35 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         }
     }
 
+    override fun transaction(readOnly: Boolean, task: (Connection) -> Unit) {
+        val txn = startTransaction()
+        var success = false
+        try {
+            task(txn)
+            success = true
+        } finally {
+            if (success) {
+                commitTransaction(txn)
+            } else {
+                abortTransaction(txn)
+            }
+        }
+    }
+
+    override fun <R> transactionWithResult(readOnly: Boolean, task: (Connection) -> R): R {
+        val txn = startTransaction()
+        var success = false
+        try {
+            val result = task(txn)
+            success = true
+            return result
+        } finally {
+            if (success) {
+                commitTransaction(txn)
+            } else {
+                abortTransaction(txn)
+            }
+        }
+    }
+
 }
