@@ -4,7 +4,7 @@ import org.briarproject.mailbox.core.api.Contact
 import org.briarproject.mailbox.core.settings.Settings
 import java.sql.Connection
 
-interface Database {
+interface Database : TransactionManager {
 
     /**
      * Opens the database and returns true if the database already existed.
@@ -19,50 +19,31 @@ interface Database {
     fun close()
 
     /**
-     * Starts a new transaction and returns an object representing it.
-     */
-    @Throws(DbException::class)
-    fun startTransaction(): Connection
-
-    /**
      * Aborts the given transaction - no changes made during the transaction
      * will be applied to the database.
      */
-    fun abortTransaction(txn: Connection)
+    fun abortTransaction(connection: Connection)
 
     /**
      * Commits the given transaction - all changes made during the transaction
      * will be applied to the database.
      */
     @Throws(DbException::class)
-    fun commitTransaction(txn: Connection)
+    fun commitTransaction(connection: Connection)
 
     @Throws(DbException::class)
-    fun getSettings(txn: Connection, namespace: String?): Settings
+    fun getSettings(txn: Transaction, namespace: String): Settings
 
     @Throws(DbException::class)
-    fun mergeSettings(txn: Connection, s: Settings, namespace: String?)
+    fun mergeSettings(txn: Transaction, s: Settings, namespace: String)
 
     @Throws(DbException::class)
-    fun addContact(txn: Connection, contact: Contact)
+    fun addContact(txn: Transaction, contact: Contact)
 
     @Throws(DbException::class)
-    fun getContact(txn: Connection, id: Int): Contact?
+    fun getContact(txn: Transaction, id: Int): Contact?
 
     @Throws(DbException::class)
-    fun removeContact(txn: Connection, id: Int)
-
-    /**
-     * Runs the given task within a transaction.
-     */
-    @Throws(DbException::class)
-    fun transaction(readOnly: Boolean, task: (Connection) -> Unit)
-
-    /**
-     * Runs the given task within a transaction and returns the result of the
-     * task.
-     */
-    @Throws(DbException::class)
-    fun <R> transactionWithResult(readOnly: Boolean, task: (Connection) -> R): R
+    fun removeContact(txn: Transaction, id: Int)
 
 }

@@ -37,7 +37,7 @@ abstract class JdbcDatabaseTest {
     open fun testPersistence() {
         // Store some records
         var db: Database = open(false)
-        var txn = db.startTransaction()
+        var txn = db.startTransaction(false)
 
         val contact1 = Contact(
             1,
@@ -60,8 +60,7 @@ abstract class JdbcDatabaseTest {
 
         // Check that the records are still there
         db = open(true)
-        txn = db.startTransaction()
-
+        txn = db.startTransaction(false)
         val contact1Reloaded1 = db.getContact(txn, 1)
         val contact2Reloaded1 = db.getContact(txn, 2)
         assertEquals(contact1, contact1Reloaded1)
@@ -75,7 +74,7 @@ abstract class JdbcDatabaseTest {
 
         // Check that the record is gone
         db = open(true)
-        txn = db.startTransaction()
+        txn = db.startTransaction(true)
 
         val contact1Reloaded2 = db.getContact(txn, 1)
         val contact2Reloaded2 = db.getContact(txn, 2)
@@ -99,7 +98,7 @@ abstract class JdbcDatabaseTest {
         merged["baz"] = "qux"
 
         var db: Database = open(false)
-        var txn = db.startTransaction()
+        var txn = db.startTransaction(false)
 
         // store 'before'
         db.mergeSettings(txn, before, "namespace")

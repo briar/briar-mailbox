@@ -2,7 +2,7 @@ package org.briarproject.mailbox.core.settings
 
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.db.DbException
-import java.sql.Connection
+import org.briarproject.mailbox.core.db.Transaction
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
 
@@ -11,18 +11,18 @@ internal class SettingsManagerImpl @Inject constructor(private val db: Database)
 
     @Throws(DbException::class)
     override fun getSettings(namespace: String): Settings {
-        return db.transactionWithResult(true) { txn: Connection ->
+        return db.transactionWithResult(true) { txn ->
             db.getSettings(txn, namespace)
         }
     }
 
     @Throws(DbException::class)
-    override fun getSettings(txn: Connection, namespace: String): Settings {
+    override fun getSettings(txn: Transaction, namespace: String): Settings {
         return db.getSettings(txn, namespace)
     }
 
     @Throws(DbException::class)
     override fun mergeSettings(s: Settings, namespace: String) {
-        db.transaction(false) { txn: Connection -> db.mergeSettings(txn, s, namespace) }
+        db.transaction(false) { txn -> db.mergeSettings(txn, s, namespace) }
     }
 }

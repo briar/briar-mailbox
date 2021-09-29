@@ -1,7 +1,7 @@
 package org.briarproject.mailbox.core.settings
 
 import org.briarproject.mailbox.core.db.DbException
-import java.sql.Connection
+import org.briarproject.mailbox.core.db.Transaction
 
 interface SettingsManager {
     /**
@@ -14,7 +14,7 @@ interface SettingsManager {
      * Returns all settings in the given namespace.
      */
     @Throws(DbException::class)
-    fun getSettings(txn: Connection, namespace: String): Settings
+    fun getSettings(txn: Transaction, namespace: String): Settings
 
     /**
      * Merges the given settings with any existing settings in the given
