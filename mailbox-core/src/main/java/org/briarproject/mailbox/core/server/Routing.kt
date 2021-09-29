@@ -14,10 +14,10 @@ import io.ktor.routing.put
 import io.ktor.routing.route
 import io.ktor.routing.routing
 
-internal const val V = "" // TODO set to "/v1" for release
+internal const val V = "/" // TODO set to "/v1" for release
 
 internal fun Application.configureBasicApi() = routing {
-    route("$V/") {
+    route(V) {
         get {
             call.respondText("Hello world!", ContentType.Text.Plain)
         }
@@ -25,7 +25,7 @@ internal fun Application.configureBasicApi() = routing {
             delete {
                 call.respond(HttpStatusCode.OK, "delete: Not yet implemented")
             }
-            put("setup") {
+            put("/setup") {
                 call.respond(HttpStatusCode.OK, "put: Not yet implemented")
             }
         }
@@ -35,14 +35,14 @@ internal fun Application.configureBasicApi() = routing {
 internal fun Application.configureContactApi() = routing {
     authenticate(AuthContext.ownerOnly) {
         route("$V/contacts") {
-            put("{contactId}") {
+            put("/{contactId}") {
                 call.respond(
                     HttpStatusCode.OK,
                     "get: Not yet implemented. " +
                         "contactId: ${call.parameters["contactId"]}"
                 )
             }
-            delete("{contactId}") {
+            delete("/{contactId}") {
                 call.respond(
                     HttpStatusCode.OK,
                     "delete: Not yet implemented. " +
