@@ -25,7 +25,7 @@ import java.util.concurrent.locks.ReentrantLock
 import javax.annotation.concurrent.GuardedBy
 
 abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val clock: Clock) :
-    Database<Connection> {
+    Database {
 
     internal companion object {
 

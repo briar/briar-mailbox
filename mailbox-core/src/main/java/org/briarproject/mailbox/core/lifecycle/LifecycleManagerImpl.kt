@@ -23,7 +23,6 @@ import org.briarproject.mailbox.core.util.LogUtils.logException
 import org.briarproject.mailbox.core.util.LogUtils.now
 import org.briarproject.mailbox.core.util.LogUtils.trace
 import org.slf4j.LoggerFactory.getLogger
-import java.sql.Connection
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutorService
@@ -32,7 +31,7 @@ import javax.annotation.concurrent.ThreadSafe
 import javax.inject.Inject
 
 @ThreadSafe
-internal class LifecycleManagerImpl @Inject constructor(private val db: Database<Connection>) :
+internal class LifecycleManagerImpl @Inject constructor(private val db: Database) :
     LifecycleManager, MigrationListener {
 
     companion object {

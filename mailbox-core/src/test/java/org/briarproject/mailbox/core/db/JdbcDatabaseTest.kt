@@ -6,7 +6,6 @@ import org.briarproject.mailbox.core.system.Clock
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import java.sql.Connection
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
@@ -23,8 +22,8 @@ abstract class JdbcDatabaseTest {
     @Throws(java.lang.Exception::class)
     fun open(
         resume: Boolean,
-    ): Database<Connection> {
-        val db: Database<Connection> = createDatabase(
+    ): Database {
+        val db: Database = createDatabase(
             TestDatabaseConfig(testDir)
         ) { System.currentTimeMillis() }
         if (!resume) deleteTestDirectory(testDir)
@@ -36,7 +35,7 @@ abstract class JdbcDatabaseTest {
     @Throws(Exception::class)
     open fun testPersistence() {
         // Store some records
-        var db: Database<Connection> = open(false)
+        var db: Database = open(false)
         var txn = db.startTransaction()
 
         val contact1 = Contact(

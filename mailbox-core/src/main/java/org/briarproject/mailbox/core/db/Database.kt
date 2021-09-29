@@ -4,7 +4,7 @@ import org.briarproject.mailbox.core.api.Contact
 import org.briarproject.mailbox.core.settings.Settings
 import java.sql.Connection
 
-interface Database<T> {
+interface Database {
 
     /**
      * Opens the database and returns true if the database already existed.
@@ -22,20 +22,20 @@ interface Database<T> {
      * Starts a new transaction and returns an object representing it.
      */
     @Throws(DbException::class)
-    fun startTransaction(): T
+    fun startTransaction(): Connection
 
     /**
      * Aborts the given transaction - no changes made during the transaction
      * will be applied to the database.
      */
-    fun abortTransaction(txn: T)
+    fun abortTransaction(txn: Connection)
 
     /**
      * Commits the given transaction - all changes made during the transaction
      * will be applied to the database.
      */
     @Throws(DbException::class)
-    fun commitTransaction(txn: T)
+    fun commitTransaction(txn: Connection)
 
     @Throws(DbException::class)
     fun getSettings(txn: Connection, namespace: String?): Settings
@@ -44,12 +44,12 @@ interface Database<T> {
     fun mergeSettings(txn: Connection, s: Settings, namespace: String?)
 
     @Throws(DbException::class)
-    fun addContact(txn: T, contact: Contact)
+    fun addContact(txn: Connection, contact: Contact)
 
     @Throws(DbException::class)
-    fun getContact(txn: T, id: Int): Contact?
+    fun getContact(txn: Connection, id: Int): Contact?
 
     @Throws(DbException::class)
-    fun removeContact(txn: T, id: Int)
+    fun removeContact(txn: Connection, id: Int)
 
 }
