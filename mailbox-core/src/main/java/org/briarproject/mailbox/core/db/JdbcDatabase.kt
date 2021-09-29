@@ -219,7 +219,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         return connection
     }
 
-    override fun abortTransaction(connection: Connection) {
+    private fun abortTransaction(connection: Connection) {
         try {
             connection.rollback()
             connectionsLock.lock()
@@ -244,7 +244,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         }
     }
 
-    override fun commitTransaction(connection: Connection) {
+    private fun commitTransaction(connection: Connection) {
         try {
             connection.commit()
         } catch (e: SQLException) {

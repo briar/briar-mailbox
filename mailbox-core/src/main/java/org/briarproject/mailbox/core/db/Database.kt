@@ -2,7 +2,6 @@ package org.briarproject.mailbox.core.db
 
 import org.briarproject.mailbox.core.api.Contact
 import org.briarproject.mailbox.core.settings.Settings
-import java.sql.Connection
 
 interface Database : TransactionManager {
 
@@ -17,19 +16,6 @@ interface Database : TransactionManager {
      */
     @Throws(DbException::class)
     fun close()
-
-    /**
-     * Aborts the given transaction - no changes made during the transaction
-     * will be applied to the database.
-     */
-    fun abortTransaction(connection: Connection)
-
-    /**
-     * Commits the given transaction - all changes made during the transaction
-     * will be applied to the database.
-     */
-    @Throws(DbException::class)
-    fun commitTransaction(connection: Connection)
 
     @Throws(DbException::class)
     fun getSettings(txn: Transaction, namespace: String): Settings
