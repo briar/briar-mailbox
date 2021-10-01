@@ -4,12 +4,15 @@ import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
 
 import org.briarproject.mailbox.core.PoliteExecutor;
+import org.briarproject.mailbox.core.db.DbException;
 import org.briarproject.mailbox.core.event.Event;
 import org.briarproject.mailbox.core.event.EventListener;
 import org.briarproject.mailbox.core.lifecycle.IoExecutor;
 import org.briarproject.mailbox.core.lifecycle.Service;
 import org.briarproject.mailbox.core.lifecycle.ServiceException;
 import org.briarproject.mailbox.core.server.WebServerManager;
+import org.briarproject.mailbox.core.settings.Settings;
+import org.briarproject.mailbox.core.settings.SettingsManager;
 import org.briarproject.mailbox.core.system.Clock;
 import org.briarproject.mailbox.core.system.LocationUtils;
 import org.briarproject.mailbox.core.system.ResourceProvider;
@@ -44,6 +47,9 @@ import static java.util.Objects.requireNonNull;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
 import static org.briarproject.mailbox.core.tor.TorConstants.CONTROL_PORT;
+import static org.briarproject.mailbox.core.tor.TorConstants.HS_ADDRESS_V3;
+import static org.briarproject.mailbox.core.tor.TorConstants.HS_PRIVATE_KEY_V3;
+import static org.briarproject.mailbox.core.tor.TorConstants.SETTINGS_NAMESPACE;
 import static org.briarproject.mailbox.core.tor.TorPlugin.State.ACTIVE;
 import static org.briarproject.mailbox.core.tor.TorPlugin.State.DISABLED;
 import static org.briarproject.mailbox.core.tor.TorPlugin.State.ENABLING;
@@ -70,6 +76,7 @@ abstract class TorPlugin implements Service, EventHandler, EventListener {
 
     private final Executor ioExecutor;
     private final Executor connectionStatusExecutor;
+    private final SettingsManager settingsManager;
     private final NetworkManager networkManager;
     private final LocationUtils locationUtils;
     private final Clock clock;
@@ -92,6 +99,7 @@ abstract class TorPlugin implements Service, EventHandler, EventListener {
     protected abstract long getLastUpdateTime();
 
     TorPlugin(Executor ioExecutor,
+              SettingsManager settingsManager,
               NetworkManager networkManager,
               LocationUtils locationUtils,
               Clock clock,
@@ -101,6 +109,7 @@ abstract class TorPlugin implements Service, EventHandler, EventListener {
               @Nullable String architecture,
               File torDirectory) {
         this.ioExecutor = ioExecutor;
+        this.settingsManager = settingsManager;
         this.networkManager = networkManager;
         this.locationUtils = locationUtils;
         this.clock = clock;
@@ -320,9 +329,16 @@ abstract class TorPlugin implements Service, EventHandler, EventListener {
     @IoExecutor
     private void publishHiddenService(String port) {
         if (!state.isTorRunning()) return;
-        // TODO get stored key
-        String privKey3 = null;
-        publishV3HiddenService(port, privKey3);
+
+        Settings s;
+        try {
+            s = settingsManager.getSettings(SETTINGS_NAMESPACE);
+        } catch (DbException e) {
+            logException(LOG, e);
+            s = new Settings();
+        }
+        String privateKey3 = s.get(HS_PRIVATE_KEY_V3);
+        publishV3HiddenService(port, privateKey3);
     }
 
     @IoExecutor
@@ -350,16 +366,21 @@ abstract class TorPlugin implements Service, EventHandler, EventListener {
             LOG.warn("Tor did not return a private key");
             return;
         }
+        Settings s = new Settings();
         String onion3 = response.get(HS_ADDRESS);
+        s.put(HS_ADDRESS_V3, onion3);
         info(LOG, () -> "V3 hidden service " + scrubOnion(onion3));
-        // TODO remove
+
+        // TODO remove before release
         LOG.warn("V3 hidden service: http://" + onion3 + ".onion");
+
         if (privKey == null) {
-            // TODO Save the hidden service's onion hostname
-//			p.put(PROP_ONION_V3, onion3);
-            // TODO Save the hidden service's private key for next time
-//			s.put(HS_PRIVATE_KEY_V3, response.get(HS_PRIVKEY));
-//			s.put(HS_V3_CREATED, String.valueOf(clock.currentTimeMillis()));
+            s.put(HS_PRIVATE_KEY_V3, response.get(HS_PRIVKEY));
+        }
+        try {
+            settingsManager.mergeSettings(s, SETTINGS_NAMESPACE);
+        } catch (DbException e) {
+            logException(LOG, e);
         }
     }
 

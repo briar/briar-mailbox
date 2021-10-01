@@ -10,6 +10,7 @@ import dagger.hilt.components.SingletonComponent
 import org.briarproject.mailbox.core.event.EventBus
 import org.briarproject.mailbox.core.lifecycle.IoExecutor
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.settings.SettingsManager
 import org.briarproject.mailbox.core.system.AndroidWakeLockManager
 import org.briarproject.mailbox.core.system.Clock
 import org.briarproject.mailbox.core.system.LocationUtils
@@ -43,6 +44,7 @@ internal class AndroidTorModule {
     fun provideAndroidTorPlugin(
         @ApplicationContext app: Context,
         @IoExecutor ioExecutor: Executor,
+        settingsManager: SettingsManager,
         networkManager: NetworkManager,
         locationUtils: LocationUtils,
         clock: Clock,
@@ -55,6 +57,7 @@ internal class AndroidTorModule {
     ) = AndroidTorPlugin(
         ioExecutor,
         app,
+        settingsManager,
         networkManager,
         locationUtils,
         clock,
