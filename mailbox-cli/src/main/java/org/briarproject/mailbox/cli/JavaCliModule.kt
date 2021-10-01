@@ -9,6 +9,7 @@ import org.briarproject.mailbox.core.db.DatabaseConfig
 import org.briarproject.mailbox.core.event.DefaultEventExecutorModule
 import org.briarproject.mailbox.core.system.DefaultTaskSchedulerModule
 import org.briarproject.mailbox.core.tor.JavaTorModule
+import org.briarproject.mailbox.core.util.LogUtils.info
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 import java.io.File
@@ -37,36 +38,48 @@ internal class JavaCliModule {
 
         private val DEFAULT_DATAHOME = System.getProperty("user.home") +
             separator + ".local" + separator + "share"
-        private val DATAHOME_SUBDIR = "briar-mailbox"
+        private const val DATAHOME_SUBDIR = "briar-mailbox"
     }
 
     @Singleton
     @Provides
     fun provideDatabaseConfig() = object : DatabaseConfig {
         override fun getDatabaseDirectory(): File {
-            val dataHome = when (val custom = System.getenv("XDG_DATA_HOME").orEmpty()) {
-                "" -> File(DEFAULT_DATAHOME)
-                else -> File(custom)
+            val dataDir = getDataDir()
+            val dbDir = File(dataDir, "db")
+            if (!dbDir.exists() && !dbDir.mkdirs()) {
+                throw IOException("dbDir could not be created: ${dbDir.absolutePath}")
+            } else if (!dbDir.isDirectory) {
+                throw IOException("dbDir is not a directory: ${dbDir.absolutePath}")
             }
-            if (!dataHome.exists() || !dataHome.isDirectory()) {
-                throw IOException("datahome missing or not a directory: ${dataHome.absolutePath}")
-            }
-
-            val dataDir = File(dataHome.absolutePath + separator + DATAHOME_SUBDIR)
-            if (!dataDir.exists() && !dataDir.mkdirs()) {
-                throw IOException("datadir could not be created: ${dataDir.absolutePath}")
-            } else if (!dataDir.isDirectory()) {
-                throw IOException("datadir is not a directory: ${dataDir.absolutePath}")
-            }
-
-            val perms = HashSet<PosixFilePermission>()
-            perms.add(OWNER_READ)
-            perms.add(OWNER_WRITE)
-            perms.add(OWNER_EXECUTE)
-            setPosixFilePermissions(dataDir.toPath(), perms)
-
-            LOG.info("Datadir set to: " + dataDir.absolutePath)
-            return dataDir
+            return dbDir
         }
     }
+
+    private fun getDataDir(): File {
+        val dataHome = when (val custom = System.getenv("XDG_DATA_HOME").orEmpty()) {
+            "" -> File(DEFAULT_DATAHOME)
+            else -> File(custom)
+        }
+        if (!dataHome.exists() || !dataHome.isDirectory) {
+            throw IOException("datahome missing or not a directory: ${dataHome.absolutePath}")
+        }
+
+        val dataDir = File(dataHome.absolutePath + separator + DATAHOME_SUBDIR)
+        if (!dataDir.exists() && !dataDir.mkdirs()) {
+            throw IOException("datadir could not be created: ${dataDir.absolutePath}")
+        } else if (!dataDir.isDirectory) {
+            throw IOException("datadir is not a directory: ${dataDir.absolutePath}")
+        }
+
+        val perms = HashSet<PosixFilePermission>()
+        perms.add(OWNER_READ)
+        perms.add(OWNER_WRITE)
+        perms.add(OWNER_EXECUTE)
+        setPosixFilePermissions(dataDir.toPath(), perms)
+
+        LOG.info { "Datadir set to: ${dataDir.absolutePath}" }
+        return dataDir
+    }
+
 }
