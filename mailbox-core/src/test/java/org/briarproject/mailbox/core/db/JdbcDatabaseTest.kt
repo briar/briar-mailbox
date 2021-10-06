@@ -36,9 +36,6 @@ abstract class JdbcDatabaseTest {
     @Throws(Exception::class)
     open fun testPersistence() {
         // Store some records
-        var db: Database = open(false)
-        var txn = db.startTransaction(false)
-
         val contact1 = Contact(
             1,
             "4291ad1d-897d-4db4-9de9-ea3f78c5262e",
@@ -51,37 +48,35 @@ abstract class JdbcDatabaseTest {
             "7931fa7a-077e-403a-8487-63261027d6d2",
             "12a61ca3-af0a-41d1-acc1-a0f4625f6e42"
         )
+        var db: Database = open(false)
+        db.transaction(false) { txn ->
 
-        db.addContact(txn, contact1)
-        db.addContact(txn, contact2)
-
-        db.commitTransaction(txn)
+            db.addContact(txn, contact1)
+            db.addContact(txn, contact2)
+        }
         db.close()
 
         // Check that the records are still there
         db = open(true)
-        txn = db.startTransaction(false)
-        val contact1Reloaded1 = db.getContact(txn, 1)
-        val contact2Reloaded1 = db.getContact(txn, 2)
-        assertEquals(contact1, contact1Reloaded1)
-        assertEquals(contact2, contact2Reloaded1)
+        db.transaction(false) { txn ->
+            val contact1Reloaded1 = db.getContact(txn, 1)
+            val contact2Reloaded1 = db.getContact(txn, 2)
+            assertEquals(contact1, contact1Reloaded1)
+            assertEquals(contact2, contact2Reloaded1)
 
-        // Delete one of the records
-        db.removeContact(txn, 1)
-
-        db.commitTransaction(txn)
+            // Delete one of the records
+            db.removeContact(txn, 1)
+        }
         db.close()
 
         // Check that the record is gone
         db = open(true)
-        txn = db.startTransaction(true)
-
-        val contact1Reloaded2 = db.getContact(txn, 1)
-        val contact2Reloaded2 = db.getContact(txn, 2)
-        assertNull(contact1Reloaded2)
-        assertEquals(contact2, contact2Reloaded2)
-
-        db.commitTransaction(txn)
+        db.transaction(true) { txn ->
+            val contact1Reloaded2 = db.getContact(txn, 1)
+            val contact2Reloaded2 = db.getContact(txn, 2)
+            assertNull(contact1Reloaded2)
+            assertEquals(contact2, contact2Reloaded2)
+        }
         db.close()
     }
 
@@ -98,17 +93,15 @@ abstract class JdbcDatabaseTest {
         merged["baz"] = "qux"
 
         var db: Database = open(false)
-        var txn = db.startTransaction(false)
+        var txn = db.transaction(false) { txn ->
+            // store 'before'
+            db.mergeSettings(txn, before, "namespace")
+            assertEquals(before, db.getSettings(txn, "namespace"))
 
-        // store 'before'
-        db.mergeSettings(txn, before, "namespace")
-        assertEquals(before, db.getSettings(txn, "namespace"))
-
-        // merge 'update'
-        db.mergeSettings(txn, update, "namespace")
-        assertEquals(merged, db.getSettings(txn, "namespace"))
-
-        db.commitTransaction(txn)
+            // merge 'update'
+            db.mergeSettings(txn, update, "namespace")
+            assertEquals(merged, db.getSettings(txn, "namespace"))
+        }
         db.close()
     }
 

@@ -1,7 +1,9 @@
 package org.briarproject.mailbox.core.db
 
+import java.sql.Connection
+
 class Transaction(
-    private val txn: Any,
+    private val txn: Connection,
     /**
      * Returns true if the transaction can only be used for reading.
      */
@@ -18,7 +20,7 @@ class Transaction(
      * Returns the database transaction. The type of the returned object
      * depends on the database implementation.
      */
-    fun unbox(): Any {
+    fun unbox(): Connection {
         return txn
     }
 

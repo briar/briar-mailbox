@@ -75,9 +75,9 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
             throw DbException(e)
         }
         // Open the database and create the tables and indexes if necessary
-        val compact: Boolean
-        var connection = startTransaction()
-        try {
+        var compact = false
+        transaction(false) { txn ->
+            val connection = txn.unbox()
             compact = if (reopen) {
                 val s: Settings = getSettings(connection, DB_SETTINGS_NAMESPACE)
                 wasDirtyOnInitialisation = isDirty(s)
@@ -92,10 +92,6 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
                 LOG.info("db dirty? $wasDirtyOnInitialisation")
             }
             createIndexes(connection)
-            commitTransaction(connection)
-        } catch (e: DbException) {
-            abortTransaction(connection)
-            throw e
         }
         // Compact the database if necessary
         if (compact) {
@@ -105,13 +101,8 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
             logDuration(LOG, { "Compacting database" }, start)
             // Allow the next transaction to reopen the DB
             synchronized(connectionsLock) { closed = false }
-            connection = startTransaction()
-            try {
-                storeLastCompacted(connection)
-                commitTransaction(connection)
-            } catch (e: DbException) {
-                abortTransaction(connection)
-                throw e
+            transaction(false) { txn ->
+                storeLastCompacted(txn.unbox())
             }
         }
     }
@@ -169,7 +160,15 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     @Throws(DbException::class)
     protected abstract fun compactAndClose()
 
-    override fun startTransaction(readOnly: Boolean): Transaction {
+    /**
+     * Starts a new transaction and returns an object representing it.
+     *
+     * This method acquires locks, so it must not be called while holding a
+     * lock.
+     *
+     * @param readOnly true if the transaction will only be used for reading.
+     */
+    private fun startTransaction(readOnly: Boolean): Transaction {
         // Don't allow reentrant locking
         check(lock.readHoldCount <= 0)
         check(lock.writeHoldCount <= 0)
@@ -506,15 +505,24 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         }
     }
 
+    /**
+     * Commits a transaction to the database.
+     */
     @Throws(DbException::class)
-    override fun commitTransaction(txn: Transaction) {
+    private fun commitTransaction(txn: Transaction) {
         val connection: Connection = txn.unbox() as Connection
         check(!txn.isCommitted)
         txn.setCommitted()
         commitTransaction(connection)
     }
 
-    override fun endTransaction(txn: Transaction) {
+    /**
+     * Ends a transaction. If the transaction has not been committed,
+     * it will be aborted. If the transaction has been committed,
+     * any events attached to the transaction are broadcast.
+     * The database lock will be released in either case.
+     */
+    private fun endTransaction(txn: Transaction) {
         try {
             val connection: Connection = txn.unbox() as Connection
             if (!txn.isCommitted) {
