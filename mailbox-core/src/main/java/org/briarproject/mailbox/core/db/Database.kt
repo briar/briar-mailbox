@@ -2,9 +2,8 @@ package org.briarproject.mailbox.core.db
 
 import org.briarproject.mailbox.core.api.Contact
 import org.briarproject.mailbox.core.settings.Settings
-import java.sql.Connection
 
-interface Database<T> {
+interface Database : TransactionManager {
 
     /**
      * Opens the database and returns true if the database already existed.
@@ -18,38 +17,19 @@ interface Database<T> {
     @Throws(DbException::class)
     fun close()
 
-    /**
-     * Starts a new transaction and returns an object representing it.
-     */
     @Throws(DbException::class)
-    fun startTransaction(): T
-
-    /**
-     * Aborts the given transaction - no changes made during the transaction
-     * will be applied to the database.
-     */
-    fun abortTransaction(txn: T)
-
-    /**
-     * Commits the given transaction - all changes made during the transaction
-     * will be applied to the database.
-     */
-    @Throws(DbException::class)
-    fun commitTransaction(txn: T)
+    fun getSettings(txn: Transaction, namespace: String): Settings
 
     @Throws(DbException::class)
-    fun getSettings(txn: Connection, namespace: String?): Settings
+    fun mergeSettings(txn: Transaction, s: Settings, namespace: String)
 
     @Throws(DbException::class)
-    fun mergeSettings(txn: Connection, s: Settings, namespace: String?)
+    fun addContact(txn: Transaction, contact: Contact)
 
     @Throws(DbException::class)
-    fun addContact(txn: T, contact: Contact)
+    fun getContact(txn: Transaction, id: Int): Contact?
 
     @Throws(DbException::class)
-    fun getContact(txn: T, id: Int): Contact?
-
-    @Throws(DbException::class)
-    fun removeContact(txn: T, id: Int)
+    fun removeContact(txn: Transaction, id: Int)
 
 }

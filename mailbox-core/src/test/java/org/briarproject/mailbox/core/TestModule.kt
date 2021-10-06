@@ -8,6 +8,7 @@ import org.briarproject.mailbox.core.db.DatabaseConfig
 import org.briarproject.mailbox.core.db.DatabaseModule
 import org.briarproject.mailbox.core.lifecycle.LifecycleModule
 import org.briarproject.mailbox.core.server.WebServerModule
+import org.briarproject.mailbox.core.settings.SettingsModule
 import org.briarproject.mailbox.core.system.Clock
 import java.io.File
 import javax.inject.Singleton
@@ -17,6 +18,7 @@ import javax.inject.Singleton
         LifecycleModule::class,
         DatabaseModule::class,
         WebServerModule::class,
+        SettingsModule::class,
         // no Tor module
     ]
 )

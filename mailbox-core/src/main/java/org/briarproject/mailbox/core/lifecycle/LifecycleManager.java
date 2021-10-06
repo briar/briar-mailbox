@@ -1,6 +1,6 @@
 package org.briarproject.mailbox.core.lifecycle;
 
-import org.briarproject.mailbox.core.db.DatabaseComponent;
+import org.briarproject.mailbox.core.db.Database;
 import org.briarproject.mailbox.core.system.Wakeful;
 
 import java.util.concurrent.ExecutorService;
@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow;
 
 /**
  * Manages the lifecycle of the app: opening and closing the
- * {@link DatabaseComponent} starting and stopping {@link Service Services},
+ * {@link Database} starting and stopping {@link Service Services},
  * and shutting down {@link ExecutorService ExecutorServices}.
  */
 public interface LifecycleManager {
@@ -29,8 +29,13 @@ public interface LifecycleManager {
      */
     enum LifecycleState {
 
-        STOPPED, STARTING, MIGRATING_DATABASE, COMPACTING_DATABASE, STARTING_SERVICES,
-        RUNNING, STOPPING;
+        STOPPED,
+        STARTING,
+        MIGRATING_DATABASE,
+        COMPACTING_DATABASE,
+        STARTING_SERVICES,
+        RUNNING,
+        STOPPING;
 
         public boolean isAfter(LifecycleState state) {
             return ordinal() > state.ordinal();
@@ -57,7 +62,7 @@ public interface LifecycleManager {
     void registerForShutdown(ExecutorService e);
 
     /**
-     * Opens the {@link DatabaseComponent} using the given key and starts any
+     * Opens the {@link Database} using the given key and starts any
      * registered {@link Service Services}.
      */
     @Wakeful
@@ -66,18 +71,18 @@ public interface LifecycleManager {
     /**
      * Stops any registered {@link Service Services}, shuts down any
      * registered {@link ExecutorService ExecutorServices}, and closes the
-     * {@link DatabaseComponent}.
+     * {@link Database}.
      */
     @Wakeful
     void stopServices();
 
     /**
-     * Waits for the {@link DatabaseComponent} to be opened before returning.
+     * Waits for the {@link Database} to be opened before returning.
      */
     void waitForDatabase() throws InterruptedException;
 
     /**
-     * Waits for the {@link DatabaseComponent} to be opened and all registered
+     * Waits for the {@link Database} to be opened and all registered
      * {@link Service Services} to start before returning.
      */
     void waitForStartup() throws InterruptedException;
@@ -85,7 +90,7 @@ public interface LifecycleManager {
     /**
      * Waits for all registered {@link Service Services} to stop, all
      * registered {@link ExecutorService ExecutorServices} to shut down, and
-     * the {@link DatabaseComponent} to be closed before returning.
+     * the {@link Database} to be closed before returning.
      */
     void waitForShutdown() throws InterruptedException;
 

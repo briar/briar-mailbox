@@ -22,10 +22,11 @@ import java.util.Arrays
 import java.util.LinkedList
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
 import javax.annotation.concurrent.GuardedBy
 
 abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val clock: Clock) :
-    Database<Connection> {
+    Database {
 
     internal companion object {
 
@@ -64,6 +65,8 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     @Volatile
     private var wasDirtyOnInitialisation = false
 
+    private val lock = ReentrantReadWriteLock(true)
+
     fun open(driverClass: String, reopen: Boolean, listener: MigrationListener?) {
         // Load the JDBC driver
         try {
@@ -72,27 +75,23 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
             throw DbException(e)
         }
         // Open the database and create the tables and indexes if necessary
-        val compact: Boolean
-        var txn = startTransaction()
-        try {
+        var compact = false
+        transaction(false) { txn ->
+            val connection = txn.unbox()
             compact = if (reopen) {
-                val s: Settings = getSettings(txn, DB_SETTINGS_NAMESPACE)
+                val s: Settings = getSettings(connection, DB_SETTINGS_NAMESPACE)
                 wasDirtyOnInitialisation = isDirty(s)
-                migrateSchema(txn, s, listener) || isCompactionDue(s)
+                migrateSchema(connection, s, listener) || isCompactionDue(s)
             } else {
                 wasDirtyOnInitialisation = false
-                createTables(txn)
-                initialiseSettings(txn)
+                createTables(connection)
+                initialiseSettings(connection)
                 false
             }
             if (LOG.isInfoEnabled) {
                 LOG.info("db dirty? $wasDirtyOnInitialisation")
             }
-            createIndexes(txn)
-            commitTransaction(txn)
-        } catch (e: DbException) {
-            abortTransaction(txn)
-            throw e
+            createIndexes(connection)
         }
         // Compact the database if necessary
         if (compact) {
@@ -102,13 +101,8 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
             logDuration(LOG, { "Compacting database" }, start)
             // Allow the next transaction to reopen the DB
             synchronized(connectionsLock) { closed = false }
-            txn = startTransaction()
-            try {
-                storeLastCompacted(txn)
-                commitTransaction(txn)
-            } catch (e: DbException) {
-                abortTransaction(txn)
-                throw e
+            transaction(false) { txn ->
+                storeLastCompacted(txn.unbox())
             }
         }
     }
@@ -126,7 +120,11 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
      * current code and cannot be migrated
      */
     @Throws(DbException::class)
-    private fun migrateSchema(txn: Connection, s: Settings, listener: MigrationListener?): Boolean {
+    private fun migrateSchema(
+        connection: Connection,
+        s: Settings,
+        listener: MigrationListener?,
+    ): Boolean {
         var dataSchemaVersion = s.getInt(SCHEMA_VERSION_KEY, -1)
         if (dataSchemaVersion == -1) throw DbException()
         if (dataSchemaVersion == CODE_SCHEMA_VERSION) return false
@@ -139,9 +137,9 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
                 if (LOG.isInfoEnabled) LOG.info("Migrating from schema $start to $end")
                 listener?.onDatabaseMigration()
                 // Apply the migration
-                m.migrate(txn)
+                m.migrate(connection)
                 // Store the new schema version
-                storeSchemaVersion(txn, end)
+                storeSchemaVersion(connection, end)
                 dataSchemaVersion = end
             }
         }
@@ -162,20 +160,51 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     @Throws(DbException::class)
     protected abstract fun compactAndClose()
 
-    override fun startTransaction(): Connection {
-        var txn: Connection?
+    /**
+     * Starts a new transaction and returns an object representing it.
+     *
+     * This method acquires locks, so it must not be called while holding a
+     * lock.
+     *
+     * @param readOnly true if the transaction will only be used for reading.
+     */
+    private fun startTransaction(readOnly: Boolean): Transaction {
+        // Don't allow reentrant locking
+        check(lock.readHoldCount <= 0)
+        check(lock.writeHoldCount <= 0)
+        val start = now()
+        if (readOnly) {
+            lock.readLock().lock()
+            logDuration(LOG, { "Waiting for read lock" }, start)
+        } else {
+            lock.writeLock().lock()
+            logDuration(LOG, { "Waiting for write lock" }, start)
+        }
+        return try {
+            Transaction(startTransaction(), readOnly)
+        } catch (e: DbException) {
+            if (readOnly) lock.readLock().unlock() else lock.writeLock().unlock()
+            throw e
+        } catch (e: RuntimeException) {
+            if (readOnly) lock.readLock().unlock() else lock.writeLock().unlock()
+            throw e
+        }
+    }
+
+    private fun startTransaction(): Connection {
+        var connection: Connection?
         connectionsLock.lock()
-        txn = try {
+        connection = try {
             if (closed) throw DbClosedException()
             connections.poll()
         } finally {
             connectionsLock.unlock()
         }
         try {
-            if (txn == null) {
+            if (connection == null) {
                 // Open a new connection
-                txn = createConnection()
-                txn.autoCommit = false
+                connection = createConnection()
+                connection.autoCommit = false
                 connectionsLock.lock()
                 try {
                     openConnections++
@@ -186,15 +215,15 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         } catch (e: SQLException) {
             throw DbException(e)
         }
-        return txn
+        return connection
     }
 
-    override fun abortTransaction(txn: Connection) {
+    private fun abortTransaction(connection: Connection) {
         try {
-            txn.rollback()
+            connection.rollback()
             connectionsLock.lock()
             try {
-                connections.add(txn)
+                connections.add(connection)
                 connectionsChanged.signalAll()
             } finally {
                 connectionsLock.unlock()
@@ -202,7 +231,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         } catch (e: SQLException) {
             // Try to close the connection
             logException(LOG, e)
-            tryToClose(txn, LOG)
+            tryToClose(connection, LOG)
             // Whatever happens, allow the database to close
             connectionsLock.lock()
             try {
@@ -214,15 +243,15 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         }
     }
 
-    override fun commitTransaction(txn: Connection) {
+    private fun commitTransaction(connection: Connection) {
         try {
-            txn.commit()
+            connection.commit()
         } catch (e: SQLException) {
             throw DbException(e)
         }
         connectionsLock.lock()
         try {
-            connections.add(txn)
+            connections.add(connection)
             connectionsChanged.signalAll()
         } finally {
             connectionsLock.unlock()
@@ -260,10 +289,10 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     }
 
     @Throws(DbException::class)
-    fun setDirty(txn: Connection, dirty: Boolean) {
+    fun setDirty(connection: Connection, dirty: Boolean) {
         val s = Settings()
         s.putBoolean(DIRTY_KEY, dirty)
-        mergeSettings(txn, s, DB_SETTINGS_NAMESPACE)
+        mergeSettings(connection, s, DB_SETTINGS_NAMESPACE)
     }
 
     private fun isCompactionDue(s: Settings): Boolean {
@@ -274,32 +303,32 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     }
 
     @Throws(DbException::class)
-    private fun storeSchemaVersion(txn: Connection, version: Int) {
+    private fun storeSchemaVersion(connection: Connection, version: Int) {
         val s = Settings()
         s.putInt(SCHEMA_VERSION_KEY, version)
-        mergeSettings(txn, s, DB_SETTINGS_NAMESPACE)
+        mergeSettings(connection, s, DB_SETTINGS_NAMESPACE)
     }
 
     @Throws(DbException::class)
-    private fun storeLastCompacted(txn: Connection) {
+    private fun storeLastCompacted(connection: Connection) {
         val s = Settings()
         s.putLong(LAST_COMPACTED_KEY, clock.currentTimeMillis())
-        mergeSettings(txn, s, DB_SETTINGS_NAMESPACE)
+        mergeSettings(connection, s, DB_SETTINGS_NAMESPACE)
     }
 
     @Throws(DbException::class)
-    private fun initialiseSettings(txn: Connection) {
+    private fun initialiseSettings(connection: Connection) {
         val s = Settings()
         s.putInt(SCHEMA_VERSION_KEY, CODE_SCHEMA_VERSION)
         s.putLong(LAST_COMPACTED_KEY, clock.currentTimeMillis())
-        mergeSettings(txn, s, DB_SETTINGS_NAMESPACE)
+        mergeSettings(connection, s, DB_SETTINGS_NAMESPACE)
     }
 
     @Throws(DbException::class)
-    private fun createTables(txn: Connection) {
+    private fun createTables(connection: Connection) {
         var s: Statement? = null
         try {
-            s = txn.createStatement()
+            s = connection.createStatement()
             s.executeUpdate(dbTypes.replaceTypes(CREATE_SETTINGS))
             s.executeUpdate(dbTypes.replaceTypes(CREATE_CONTACTS))
             s.close()
@@ -310,10 +339,10 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     }
 
     @Throws(DbException::class)
-    private fun createIndexes(txn: Connection) {
+    private fun createIndexes(connection: Connection) {
         var s: Statement? = null
         try {
-            s = txn.createStatement()
+            s = connection.createStatement()
             // s.executeUpdate(INDEX_SOMETABLE_BY_SOMECOLUMN)
             s.close()
         } catch (e: SQLException) {
@@ -323,7 +352,13 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     }
 
     @Throws(DbException::class)
-    override fun getSettings(txn: Connection, namespace: String?): Settings {
+    override fun getSettings(txn: Transaction, namespace: String): Settings {
+        val connection: Connection = txn.unbox() as Connection
+        return getSettings(connection, namespace)
+    }
+
+    @Throws(DbException::class)
+    private fun getSettings(connection: Connection, namespace: String): Settings {
         var ps: PreparedStatement? = null
         var rs: ResultSet? = null
         return try {
@@ -332,7 +367,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
                        WHERE namespace = ?
             """.trimIndent()
 
-            ps = txn.prepareStatement(sql)
+            ps = connection.prepareStatement(sql)
             ps.setString(1, namespace)
             rs = ps.executeQuery()
             val s = Settings()
@@ -348,7 +383,13 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     }
 
     @Throws(DbException::class)
-    override fun mergeSettings(txn: Connection, s: Settings, namespace: String?) {
+    override fun mergeSettings(txn: Transaction, s: Settings, namespace: String) {
+        val connection: Connection = txn.unbox() as Connection
+        mergeSettings(connection, s, namespace)
+    }
+
+    @Throws(DbException::class)
+    fun mergeSettings(connection: Connection, s: Settings, namespace: String) {
         var ps: PreparedStatement? = null
         try {
             // Update any settings that already exist
@@ -357,7 +398,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
                        WHERE namespace = ? AND settingKey = ?
             """.trimIndent()
 
-            ps = txn.prepareStatement(sql)
+            ps = connection.prepareStatement(sql)
             for ((key, value) in s) {
                 ps.setString(1, value)
                 ps.setString(2, namespace)
@@ -376,7 +417,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
                             VALUES (?, ?, ?)
             """.trimIndent()
 
-            ps = txn.prepareStatement(sql)
+            ps = connection.prepareStatement(sql)
             var updateIndex = 0
             var inserted = 0
             for ((key, value) in s) {
@@ -400,13 +441,14 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     }
 
     @Throws(DbException::class)
-    override fun addContact(txn: Connection, contact: Contact) {
+    override fun addContact(txn: Transaction, contact: Contact) {
+        val connection: Connection = txn.unbox() as Connection
         var ps: PreparedStatement? = null
         try {
             val sql = """INSERT INTO contacts (contactId, token, inbox, outbox)
                                 VALUES (?, ?, ?, ?)
             """.trimIndent()
-            ps = txn.prepareStatement(sql)
+            ps = connection.prepareStatement(sql)
             ps.setInt(1, contact.id)
             ps.setString(2, contact.token)
             ps.setString(3, contact.inboxId)
@@ -421,14 +463,15 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     }
 
     @Throws(DbException::class)
-    override fun getContact(txn: Connection, id: Int): Contact? {
+    override fun getContact(txn: Transaction, id: Int): Contact? {
+        val connection: Connection = txn.unbox() as Connection
         var ps: PreparedStatement? = null
         var rs: ResultSet? = null
         try {
             val sql = """SELECT token, inbox, outbox FROM contacts
                                 WHERE contactId = ?
             """.trimIndent()
-            ps = txn.prepareStatement(sql)
+            ps = connection.prepareStatement(sql)
             ps.setInt(1, id)
             rs = ps.executeQuery()
             if (!rs.next()) return null
@@ -446,11 +489,12 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     }
 
     @Throws(DbException::class)
-    override fun removeContact(txn: Connection, id: Int) {
+    override fun removeContact(txn: Transaction, id: Int) {
+        val connection: Connection = txn.unbox() as Connection
         var ps: PreparedStatement? = null
         try {
             val sql = "DELETE FROM contacts WHERE contactId = ?"
-            ps = txn.prepareStatement(sql)
+            ps = connection.prepareStatement(sql)
             ps.setInt(1, id)
             val affected = ps.executeUpdate()
             if (affected != 1) throw DbStateException()
@@ -458,6 +502,55 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         } catch (e: SQLException) {
             tryToClose(ps, LOG)
             throw DbException(e)
+        }
+    }
+
+    /**
+     * Commits a transaction to the database.
+     */
+    @Throws(DbException::class)
+    private fun commitTransaction(txn: Transaction) {
+        val connection: Connection = txn.unbox() as Connection
+        check(!txn.isCommitted)
+        txn.setCommitted()
+        commitTransaction(connection)
+    }
+
+    /**
+     * Ends a transaction. If the transaction has not been committed,
+     * it will be aborted. If the transaction has been committed,
+     * any events attached to the transaction are broadcast.
+     * The database lock will be released in either case.
+     */
+    private fun endTransaction(txn: Transaction) {
+        try {
+            val connection: Connection = txn.unbox() as Connection
+            if (!txn.isCommitted) {
+                abortTransaction(connection)
+            }
+        } finally {
+            if (txn.isReadOnly) lock.readLock().unlock() else lock.writeLock().unlock()
+        }
+    }
+
+    override fun transaction(readOnly: Boolean, task: (Transaction) -> Unit) {
+        val txn = startTransaction(readOnly)
+        try {
+            task(txn)
+            commitTransaction(txn)
+        } finally {
+            endTransaction(txn)
+        }
+    }
+
+    override fun <R> transactionWithResult(readOnly: Boolean, task: (Transaction) -> R): R {
+        val txn = startTransaction(readOnly)
+        try {
+            val result = task(txn)
+            commitTransaction(txn)
+            return result
+        } finally {
+            endTransaction(txn)
         }
     }
 
