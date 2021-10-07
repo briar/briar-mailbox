@@ -80,9 +80,11 @@ any hardware supporting Java (e.g. unix server, raspberry pi) could be added.
 * Push-like message notification for the owner to decrease battery drain
 
 ## Useful links 
-[briarproject.org](https://briarproject.org/) 
-
 [Source code](https://code.briarproject.org/briar/briar-mailbox/-/tree/main) 
+
+[Mailbox Architecture](https://code.briarproject.org/briar/briar/-/wikis/Mailbox-Architecture)
+
+[briarproject.org](https://briarproject.org/)
 
 
 ## Donate 
