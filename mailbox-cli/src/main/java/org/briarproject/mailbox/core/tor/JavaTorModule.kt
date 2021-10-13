@@ -7,6 +7,7 @@ import dagger.hilt.components.SingletonComponent
 import org.briarproject.mailbox.core.event.EventBus
 import org.briarproject.mailbox.core.lifecycle.IoExecutor
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.settings.SettingsManager
 import org.briarproject.mailbox.core.system.Clock
 import org.briarproject.mailbox.core.system.LocationUtils
 import org.briarproject.mailbox.core.system.ResourceProvider
@@ -37,6 +38,7 @@ internal class JavaTorModule {
     @Singleton
     fun provideJavaTorPlugin(
         @IoExecutor ioExecutor: Executor,
+        settingsManager: SettingsManager,
         networkManager: NetworkManager,
         locationUtils: LocationUtils,
         clock: Clock,
@@ -51,6 +53,7 @@ internal class JavaTorModule {
         val torDir = File(mailboxDir, "tor")
         return JavaTorPlugin(
             ioExecutor,
+            settingsManager,
             networkManager,
             locationUtils,
             clock,

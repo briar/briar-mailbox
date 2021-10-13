@@ -1,16 +1,12 @@
 package org.briarproject.mailbox.core.tor;
 
-import static android.os.Build.VERSION.SDK_INT;
-import static org.briarproject.mailbox.core.util.LogUtils.info;
-import static org.slf4j.LoggerFactory.getLogger;
-import static java.util.Arrays.asList;
-
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 
+import org.briarproject.mailbox.core.settings.SettingsManager;
 import org.briarproject.mailbox.core.system.AndroidWakeLock;
 import org.briarproject.mailbox.core.system.AndroidWakeLockManager;
 import org.briarproject.mailbox.core.system.Clock;
@@ -31,6 +27,11 @@ import java.util.zip.ZipInputStream;
 
 import javax.annotation.Nullable;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static java.util.Arrays.asList;
+import static org.briarproject.mailbox.core.util.LogUtils.info;
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class AndroidTorPlugin extends TorPlugin {
 
     private static final List<String> LIBRARY_ARCHITECTURES =
@@ -47,6 +48,7 @@ public class AndroidTorPlugin extends TorPlugin {
 
     AndroidTorPlugin(Executor ioExecutor,
                      Context ctx,
+                     SettingsManager settingsManager,
                      NetworkManager networkManager,
                      LocationUtils locationUtils,
                      Clock clock,
@@ -56,7 +58,7 @@ public class AndroidTorPlugin extends TorPlugin {
                      Backoff backoff,
                      @Nullable String architecture,
                      File torDirectory) {
-        super(ioExecutor, networkManager, locationUtils, clock, resourceProvider, circumventionProvider, backoff, architecture, torDirectory);
+        super(ioExecutor, settingsManager, networkManager, locationUtils, clock, resourceProvider, circumventionProvider, backoff, architecture, torDirectory);
         this.ctx = ctx;
         wakeLock = wakeLockManager.createWakeLock("TorPlugin");
         String nativeLibDir = ctx.getApplicationInfo().nativeLibraryDir;
