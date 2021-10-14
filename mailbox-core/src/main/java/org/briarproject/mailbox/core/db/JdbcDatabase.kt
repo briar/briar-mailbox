@@ -353,7 +353,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
 
     @Throws(DbException::class)
     override fun getSettings(txn: Transaction, namespace: String): Settings {
-        val connection: Connection = txn.unbox() as Connection
+        val connection: Connection = txn.unbox()
         return getSettings(connection, namespace)
     }
 
@@ -384,7 +384,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
 
     @Throws(DbException::class)
     override fun mergeSettings(txn: Transaction, s: Settings, namespace: String) {
-        val connection: Connection = txn.unbox() as Connection
+        val connection: Connection = txn.unbox()
         mergeSettings(connection, s, namespace)
     }
 
@@ -442,7 +442,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
 
     @Throws(DbException::class)
     override fun addContact(txn: Transaction, contact: Contact) {
-        val connection: Connection = txn.unbox() as Connection
+        val connection: Connection = txn.unbox()
         var ps: PreparedStatement? = null
         try {
             val sql = """INSERT INTO contacts (contactId, token, inbox, outbox)
@@ -464,7 +464,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
 
     @Throws(DbException::class)
     override fun getContact(txn: Transaction, id: Int): Contact? {
-        val connection: Connection = txn.unbox() as Connection
+        val connection: Connection = txn.unbox()
         var ps: PreparedStatement? = null
         var rs: ResultSet? = null
         try {
@@ -490,7 +490,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
 
     @Throws(DbException::class)
     override fun removeContact(txn: Transaction, id: Int) {
-        val connection: Connection = txn.unbox() as Connection
+        val connection: Connection = txn.unbox()
         var ps: PreparedStatement? = null
         try {
             val sql = "DELETE FROM contacts WHERE contactId = ?"
@@ -510,7 +510,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
      */
     @Throws(DbException::class)
     private fun commitTransaction(txn: Transaction) {
-        val connection: Connection = txn.unbox() as Connection
+        val connection: Connection = txn.unbox()
         check(!txn.isCommitted)
         txn.setCommitted()
         commitTransaction(connection)
@@ -524,7 +524,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
      */
     private fun endTransaction(txn: Transaction) {
         try {
-            val connection: Connection = txn.unbox() as Connection
+            val connection: Connection = txn.unbox()
             if (!txn.isCommitted) {
                 abortTransaction(connection)
             }

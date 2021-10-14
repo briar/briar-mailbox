@@ -93,7 +93,7 @@ abstract class JdbcDatabaseTest {
         merged["baz"] = "qux"
 
         var db: Database = open(false)
-        var txn = db.transaction(false) { txn ->
+        db.transaction(false) { txn ->
             // store 'before'
             db.mergeSettings(txn, before, "namespace")
             assertEquals(before, db.getSettings(txn, "namespace"))

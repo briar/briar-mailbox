@@ -17,8 +17,7 @@ class Transaction(
         private set
 
     /**
-     * Returns the database transaction. The type of the returned object
-     * depends on the database implementation.
+     * Returns the database connection.
      */
     fun unbox(): Connection {
         return txn
@@ -26,7 +25,7 @@ class Transaction(
 
     /**
      * Marks the transaction as committed. This method should only be called
-     * by the DatabaseComponent. It must not be called more than once.
+     * by the Database. It must not be called more than once.
      */
     fun setCommitted() {
         check(!isCommitted)
