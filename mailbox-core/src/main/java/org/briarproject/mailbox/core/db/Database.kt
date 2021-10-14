@@ -30,6 +30,9 @@ interface Database : TransactionManager {
     fun getContact(txn: Transaction, id: Int): Contact?
 
     @Throws(DbException::class)
+    fun getContacts(txn: Transaction): List<Contact>
+
+    @Throws(DbException::class)
     fun removeContact(txn: Transaction, id: Int)
 
     @Throws(DbException::class)

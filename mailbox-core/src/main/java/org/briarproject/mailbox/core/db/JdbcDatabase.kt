@@ -489,6 +489,33 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     }
 
     @Throws(DbException::class)
+    override fun getContacts(txn: Transaction): List<Contact> {
+        val contacts = ArrayList<Contact>()
+        val connection: Connection = txn.unbox()
+        var ps: PreparedStatement? = null
+        var rs: ResultSet? = null
+        try {
+            val sql = "SELECT contactId, token, inbox, outbox FROM contacts"
+            ps = connection.prepareStatement(sql)
+            rs = ps.executeQuery()
+            while (rs.next()) {
+                val id = rs.getInt(1)
+                val token = rs.getString(2)
+                val inboxId = rs.getString(3)
+                val outboxId = rs.getString(4)
+                contacts.add(Contact(id, token, inboxId, outboxId))
+            }
+            rs.close()
+            ps.close()
+            return contacts
+        } catch (e: SQLException) {
+            tryToClose(rs, LOG)
+            tryToClose(ps, LOG)
+            throw DbException(e)
+        }
+    }
+
+    @Throws(DbException::class)
     override fun removeContact(txn: Transaction, id: Int) {
         val connection: Connection = txn.unbox()
         var ps: PreparedStatement? = null
