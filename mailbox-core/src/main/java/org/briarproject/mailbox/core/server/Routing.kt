@@ -1,6 +1,7 @@
 package org.briarproject.mailbox.core.server
 
 import io.ktor.application.Application
+import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.auth.authenticate
 import io.ktor.http.ContentType
@@ -13,6 +14,9 @@ import io.ktor.routing.post
 import io.ktor.routing.put
 import io.ktor.routing.route
 import io.ktor.routing.routing
+import io.ktor.util.getOrFail
+import org.briarproject.mailbox.core.files.FileManager
+import org.briarproject.mailbox.core.system.InvalidIdException
 
 internal const val V = "/" // TODO set to "/v1" for release
 
@@ -21,7 +25,7 @@ internal fun Application.configureBasicApi() = routing {
         get {
             call.respondText("Hello world!", ContentType.Text.Plain)
         }
-        authenticate(AuthContext.ownerOnly) {
+        authenticate {
             delete {
                 call.respond(HttpStatusCode.OK, "delete: Not yet implemented")
             }
@@ -33,7 +37,7 @@ internal fun Application.configureBasicApi() = routing {
 }
 
 internal fun Application.configureContactApi() = routing {
-    authenticate(AuthContext.ownerOnly) {
+    authenticate {
         route("$V/contacts") {
             put("/{contactId}") {
                 call.respond(
@@ -56,47 +60,53 @@ internal fun Application.configureContactApi() = routing {
     }
 }
 
-internal fun Application.configureFilesApi() = routing {
+internal fun Application.configureFilesApi(fileManager: FileManager) = routing {
 
-    authenticate(AuthContext.ownerAndContacts) {
+    authenticate {
         route("$V/files/{folderId}") {
             post {
-                call.respond(
-                    HttpStatusCode.OK,
-                    "post: Not yet implemented. " +
-                        "folderId: ${call.parameters["folderId"]}"
-                )
+                call.handle {
+                    fileManager.postFile(call, call.parameters.getOrFail("folderId"))
+                }
             }
             get {
-                call.respond(
-                    HttpStatusCode.OK,
-                    "get: Not yet implemented. " +
-                        "folderId: ${call.parameters["folderId"]}"
-                )
+                call.handle {
+                    fileManager.listFiles(call, call.parameters.getOrFail("folderId"))
+                }
             }
             route("/{fileId}") {
                 get {
-                    call.respond(
-                        HttpStatusCode.OK,
-                        "get: Not yet implemented. " +
-                            "folderId: ${call.parameters["folderId"]} " +
-                            "fileId: ${call.parameters["fileId"]}"
-                    )
+                    val folderId = call.parameters.getOrFail("folderId")
+                    val fileId = call.parameters.getOrFail("fileId")
+                    call.handle {
+                        fileManager.getFile(call, folderId, fileId)
+                    }
                 }
                 delete {
-                    call.respond(
-                        HttpStatusCode.OK,
-                        "delete: Not yet implemented. " +
-                            "folderId: ${call.parameters["folderId"]} " +
-                            "fileId: ${call.parameters["fileId"]}"
-                    )
+                    val folderId = call.parameters.getOrFail("folderId")
+                    val fileId = call.parameters.getOrFail("fileId")
+                    call.handle {
+                        fileManager.deleteFile(call, folderId, fileId)
+                    }
                 }
             }
         }
     }
-    authenticate(AuthContext.ownerOnly) {
-        get("$V/mailboxes") {
-            call.respond(HttpStatusCode.OK, "get: Not yet implemented")
+    authenticate {
+        get("$V/folders") {
+            call.handle {
+                fileManager.listFoldersWithFiles(call)
+            }
         }
+    }
+}
+
+private suspend fun ApplicationCall.handle(block: suspend () -> Unit) {
+    try {
+        block()
+    } catch (e: AuthenticationException) {
+        respond(HttpStatusCode.Unauthorized, HttpStatusCode.Unauthorized.description)
+    } catch (e: InvalidIdException) {
+        respond(HttpStatusCode.BadRequest, "Malformed ID: ${e.id}")
     }
 }

@@ -22,7 +22,14 @@ class RandomIdManager @Inject constructor() {
         return idRegex.matches(id)
     }
 
+    @Throws(InvalidIdException::class)
+    fun assertIsRandomId(id: String) {
+        if (!isValidRandomId(id)) throw InvalidIdException(id)
+    }
+
 }
+
+class InvalidIdException(val id: String) : IllegalStateException()
 
 fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte ->
     "%02x".format(eachByte)

@@ -8,7 +8,6 @@ import io.ktor.auth.AuthenticationFailedCause
 import io.ktor.auth.AuthenticationFunction
 import io.ktor.auth.AuthenticationPipeline
 import io.ktor.auth.AuthenticationProvider
-import io.ktor.auth.Principal
 import io.ktor.auth.UnauthorizedResponse
 import io.ktor.auth.parseAuthorizationHeader
 import io.ktor.http.auth.HttpAuthHeader
@@ -24,7 +23,7 @@ private val LOG = getLogger(BearerAuthenticationProvider::class.java)
 internal class BearerAuthenticationProvider constructor(config: Configuration) :
     AuthenticationProvider(config) {
 
-    internal var realm: String = config.realm ?: "Ktor Server"
+    internal val realm: String = "Briar Mailbox"
     internal val authHeader: (ApplicationCall) -> HttpAuthHeader? = { call ->
         try {
             call.request.parseAuthorizationHeader()
@@ -38,13 +37,11 @@ internal class BearerAuthenticationProvider constructor(config: Configuration) :
     internal class Configuration internal constructor(name: String?) :
         AuthenticationProvider.Configuration(name) {
 
-        var realm: String? = null
-
         /**
-         * This function is applied to every call with [Credentials].
-         * @return a principal (usually an instance of [Principal]) or `null`
+         * This function is applied to every call with a [String] auth token.
+         * @return a [MailboxPrincipal] or `null`
          */
-        var authenticationFunction: AuthenticationFunction<Credentials> = {
+        var authenticationFunction: AuthenticationFunction<String> = {
             throw NotImplementedError(
                 "Bearer auth authenticationFunction is not specified." +
                     "Use bearer { authenticationFunction = { ... } } to fix."
@@ -82,21 +79,17 @@ private suspend fun PipelineContext<AuthenticationContext, ApplicationCall>.auth
     }
 
     try {
-        // TODO try faking accessType with X-Http-Method-Override header
-        val accessType = call.request.httpMethod.toAccessType()
         val token = (authHeader as? HttpAuthHeader.Single)?.blob
-        if (accessType == null || token == null) {
+        if (token == null) {
             context.unauthorizedResponse(AuthenticationFailedCause.InvalidCredentials, provider)
             return
         }
-        val folderId = call.parameters["folderId"]
 
         // TODO remove logging before release
         LOG.debug { "name: $name" }
         LOG.debug { "httpMethod: ${call.request.httpMethod}" }
 
-        val credentials = Credentials(accessType, token, folderId)
-        val principal = provider.authenticationFunction(call, credentials)
+        val principal = provider.authenticationFunction(call, token)
         if (principal == null) {
             context.unauthorizedResponse(AuthenticationFailedCause.InvalidCredentials, provider)
         } else {
