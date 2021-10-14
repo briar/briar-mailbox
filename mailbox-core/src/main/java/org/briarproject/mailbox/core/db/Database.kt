@@ -32,4 +32,7 @@ interface Database : TransactionManager {
     @Throws(DbException::class)
     fun removeContact(txn: Transaction, id: Int)
 
+    @Throws(DbException::class)
+    fun getContactWithToken(txn: Transaction, token: String): Contact?
+
 }
