@@ -3,6 +3,8 @@ package org.briarproject.mailbox.core.server
 import io.ktor.auth.Principal
 import org.briarproject.mailbox.core.api.Contact
 import org.briarproject.mailbox.core.db.Database
+import org.briarproject.mailbox.core.server.MailboxPrincipal.ContactPrincipal
+import org.briarproject.mailbox.core.server.MailboxPrincipal.OwnerPrincipal
 import org.briarproject.mailbox.core.settings.SettingsManager
 import org.briarproject.mailbox.core.system.RandomIdManager
 import javax.inject.Inject
@@ -28,62 +30,62 @@ class AuthManager @Inject constructor(
         return db.transactionWithResult(true) { txn ->
             val contact = db.getContactWithToken(txn, token)
             if (contact != null) {
-                MailboxPrincipal.ContactPrincipal(contact)
+                ContactPrincipal(contact)
             } else {
                 val settings = settingsManager.getSettings(txn, SETTINGS_NAMESPACE_OWNER)
-                if (token == settings[SETTINGS_OWNER_TOKEN]) MailboxPrincipal.Owner
+                if (token == settings[SETTINGS_OWNER_TOKEN]) OwnerPrincipal
                 else null
             }
         }
     }
 
     /**
-     * @throws [AuthenticationException] when given [principal] is NOT allowed
+     * @throws [AuthException] when given [principal] is NOT allowed
      * to download or delete from the given [folderId] which is assumed to be validated already.
      */
-    @Throws(AuthenticationException::class)
+    @Throws(AuthException::class)
     fun assertCanDownloadFromFolder(principal: MailboxPrincipal?, folderId: String) {
-        if (principal == null) throw AuthenticationException()
+        if (principal == null) throw AuthException()
 
-        if (principal is MailboxPrincipal.Owner) {
+        if (principal is OwnerPrincipal) {
             val contacts = db.transactionWithResult(true) { txn -> db.getContacts(txn) }
             val noOutboxFound = contacts.none { c -> folderId == c.outboxId }
-            if (noOutboxFound) throw AuthenticationException()
-        } else if (principal is MailboxPrincipal.ContactPrincipal) {
-            if (folderId != principal.contact.inboxId) throw AuthenticationException()
+            if (noOutboxFound) throw AuthException()
+        } else if (principal is ContactPrincipal) {
+            if (folderId != principal.contact.inboxId) throw AuthException()
         }
     }
 
     /**
-     * @throws [AuthenticationException] when given [principal] is NOT allowed
+     * @throws [AuthException] when given [principal] is NOT allowed
      * to post to the given [folderId] which is assumed to be validated already.
      */
-    @Throws(AuthenticationException::class)
+    @Throws(AuthException::class)
     fun assertCanPostToFolder(principal: MailboxPrincipal?, folderId: String) {
-        if (principal == null) throw AuthenticationException()
+        if (principal == null) throw AuthException()
 
-        if (principal is MailboxPrincipal.Owner) {
+        if (principal is OwnerPrincipal) {
             val contacts = db.transactionWithResult(true) { txn -> db.getContacts(txn) }
             val noInboxFound = contacts.none { c -> folderId == c.inboxId }
-            if (noInboxFound) throw AuthenticationException()
-        } else if (principal is MailboxPrincipal.ContactPrincipal) {
-            if (folderId != principal.contact.outboxId) throw AuthenticationException()
+            if (noInboxFound) throw AuthException()
+        } else if (principal is ContactPrincipal) {
+            if (folderId != principal.contact.outboxId) throw AuthException()
         }
     }
 
     /**
-     * @throws [AuthenticationException] when given [principal] is NOT the mailbox owner.
+     * @throws [AuthException] when given [principal] is NOT the mailbox owner.
      */
-    @Throws(AuthenticationException::class)
+    @Throws(AuthException::class)
     fun assertIsOwner(principal: MailboxPrincipal?) {
-        if (principal !is MailboxPrincipal.Owner) throw AuthenticationException()
+        if (principal !is OwnerPrincipal) throw AuthException()
     }
 
 }
 
 sealed class MailboxPrincipal : Principal {
-    object Owner : MailboxPrincipal()
+    object OwnerPrincipal : MailboxPrincipal()
     class ContactPrincipal(val contact: Contact) : MailboxPrincipal()
 }
 
-class AuthenticationException : IllegalStateException()
+class AuthException : IllegalStateException()

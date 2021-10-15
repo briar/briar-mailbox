@@ -104,7 +104,7 @@ internal fun Application.configureFilesApi(fileManager: FileManager) = routing {
 private suspend fun ApplicationCall.handle(block: suspend () -> Unit) {
     try {
         block()
-    } catch (e: AuthenticationException) {
+    } catch (e: AuthException) {
         respond(HttpStatusCode.Unauthorized, HttpStatusCode.Unauthorized.description)
     } catch (e: InvalidIdException) {
         respond(HttpStatusCode.BadRequest, "Malformed ID: ${e.id}")

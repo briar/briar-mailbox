@@ -5,8 +5,8 @@ import io.ktor.auth.principal
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import org.briarproject.mailbox.core.db.Database
+import org.briarproject.mailbox.core.server.AuthException
 import org.briarproject.mailbox.core.server.AuthManager
-import org.briarproject.mailbox.core.server.AuthenticationException
 import org.briarproject.mailbox.core.server.MailboxPrincipal
 import org.briarproject.mailbox.core.system.InvalidIdException
 import org.briarproject.mailbox.core.system.RandomIdManager
@@ -21,12 +21,12 @@ class FileManager @Inject constructor(
     /**
      * Used by contacts to send files to the owner and by the owner to send files to contacts.
      *
-     * Checks if provided auth token is allowed to upload to given [folderId],
+     * Checks if the authenticated [MailboxPrincipal] is allowed to upload to given [folderId],
      * Responds with 200 (OK) if upload was successful
      * (no 201 as the uploader doesn't need to know the $fileId)
      * The mailbox chooses a random ID string for the file ID.
      */
-    @Throws(AuthenticationException::class, InvalidIdException::class)
+    @Throws(AuthException::class, InvalidIdException::class)
     suspend fun postFile(call: ApplicationCall, folderId: String) {
         val principal: MailboxPrincipal? = call.principal()
         randomIdManager.assertIsRandomId(folderId)
@@ -40,7 +40,7 @@ class FileManager @Inject constructor(
     /**
      * Used by owner and contacts to list their files to retrieve.
      *
-     * Checks if provided auth token is allowed to download from [folderId].
+     * Checks if the authenticated [MailboxPrincipal] is allowed to download from [folderId].
      * Responds with 200 (OK) with the list of files in JSON.
      */
     suspend fun listFiles(call: ApplicationCall, folderId: String) {
@@ -56,10 +56,10 @@ class FileManager @Inject constructor(
     /**
      * Used by owner and contacts to retrieve a file.
      *
-     * Checks if provided auth token is allowed to download from $folderId
+     * Checks if the authenticated [MailboxPrincipal] is allowed to download from $folderId
      * Returns 200 (OK) if successful with the files' bytes in the response body
      */
-    @Throws(AuthenticationException::class, InvalidIdException::class)
+    @Throws(AuthException::class, InvalidIdException::class)
     suspend fun getFile(call: ApplicationCall, folderId: String, fileId: String) {
         val principal: MailboxPrincipal? = call.principal()
         randomIdManager.assertIsRandomId(folderId)
@@ -77,7 +77,7 @@ class FileManager @Inject constructor(
     /**
      * Used by owner and contacts to delete files.
      *
-     * Checks if provided auth token is allowed to download from [folderId].
+     * Checks if the authenticated [MailboxPrincipal] is allowed to download from [folderId].
      * Responds with 200 (OK) if deletion was successful.
      */
     suspend fun deleteFile(call: ApplicationCall, folderId: String, fileId: String) {
