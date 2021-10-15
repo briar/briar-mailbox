@@ -4,6 +4,7 @@ import org.briarproject.mailbox.core.TestUtils.deleteTestDirectory
 import org.briarproject.mailbox.core.api.Contact
 import org.briarproject.mailbox.core.settings.Settings
 import org.briarproject.mailbox.core.system.Clock
+import org.briarproject.mailbox.core.system.RandomIdManager
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -14,6 +15,8 @@ abstract class JdbcDatabaseTest {
 
     @TempDir
     lateinit var testDir: File
+
+    private val randomIdManager = RandomIdManager()
 
     protected abstract fun createDatabase(
         config: DatabaseConfig,
@@ -37,16 +40,16 @@ abstract class JdbcDatabaseTest {
     open fun testPersistence() {
         // Store some records
         val contact1 = Contact(
-            1,
-            "4291ad1d-897d-4db4-9de9-ea3f78c5262e",
-            "f21467bd-afb0-4c0e-9090-cae45ea1eae9",
-            "880629fb-3226-41d8-a978-7b28cf44d57d"
+            id = 1,
+            token = randomIdManager.getNewRandomId(),
+            inboxId = randomIdManager.getNewRandomId(),
+            outboxId = randomIdManager.getNewRandomId()
         )
         val contact2 = Contact(
-            2,
-            "fbbe9a63-2f28-46d4-a465-e6ca57a5d811",
-            "7931fa7a-077e-403a-8487-63261027d6d2",
-            "12a61ca3-af0a-41d1-acc1-a0f4625f6e42"
+            id = 2,
+            token = randomIdManager.getNewRandomId(),
+            inboxId = randomIdManager.getNewRandomId(),
+            outboxId = randomIdManager.getNewRandomId()
         )
         var db: Database = open(false)
         db.transaction(false) { txn ->
@@ -63,6 +66,9 @@ abstract class JdbcDatabaseTest {
             val contact2Reloaded1 = db.getContact(txn, 2)
             assertEquals(contact1, contact1Reloaded1)
             assertEquals(contact2, contact2Reloaded1)
+            assertEquals(contact1, db.getContactWithToken(txn, contact1.token))
+            assertEquals(contact2, db.getContactWithToken(txn, contact2.token))
+            assertNull(db.getContactWithToken(txn, randomIdManager.getNewRandomId()))
 
             // Delete one of the records
             db.removeContact(txn, 1)
@@ -92,7 +98,7 @@ abstract class JdbcDatabaseTest {
         merged["foo"] = "bar"
         merged["baz"] = "qux"
 
-        var db: Database = open(false)
+        val db: Database = open(false)
         db.transaction(false) { txn ->
             // store 'before'
             db.mergeSettings(txn, before, "namespace")

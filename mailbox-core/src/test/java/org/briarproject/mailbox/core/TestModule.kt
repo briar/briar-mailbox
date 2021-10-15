@@ -32,7 +32,7 @@ internal class TestModule(private val tempDir: File) {
     @Provides
     fun provideDatabaseConfig() = object : DatabaseConfig {
         override fun getDatabaseDirectory(): File {
-            return tempDir
+            return File(tempDir, "db")
         }
     }
 }

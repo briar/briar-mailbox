@@ -6,6 +6,10 @@ import javax.inject.Inject
 private const val ID_SIZE = 32
 private const val ID_HEX_SIZE = ID_SIZE * 2
 
+/**
+ * Generates and validates random IDs
+ * that are being used for auth tokens, folder IDs and file names.
+ */
 class RandomIdManager @Inject constructor() {
 
     private val secureRandom = SecureRandom()
@@ -22,7 +26,14 @@ class RandomIdManager @Inject constructor() {
         return idRegex.matches(id)
     }
 
+    @Throws(InvalidIdException::class)
+    fun assertIsRandomId(id: String) {
+        if (!isValidRandomId(id)) throw InvalidIdException(id)
+    }
+
 }
+
+class InvalidIdException(val id: String) : IllegalStateException()
 
 fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte ->
     "%02x".format(eachByte)

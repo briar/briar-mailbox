@@ -19,9 +19,10 @@ dependencies {
 
     implementation 'org.briarproject:jtorctl:0.3'
 
-    def ktorVersion = '1.6.2'
-    implementation "io.ktor:ktor-server-core:$ktorVersion"
-    implementation "io.ktor:ktor-server-netty:$ktorVersion"
+    def ktor_version = '1.6.2'
+    implementation "io.ktor:ktor-server-core:$ktor_version"
+    implementation "io.ktor:ktor-server-netty:$ktor_version"
+    implementation "io.ktor:ktor-auth:$ktor_version"
     api "org.slf4j:slf4j-api:1.7.32"
 
     implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
@@ -32,7 +33,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-engine:$junit_version"
     testImplementation "io.mockk:mockk:$mockk_version"
     testImplementation "ch.qos.logback:logback-classic:1.2.5"
-    testImplementation "io.ktor:ktor-client-cio:$ktorVersion"
+    testImplementation "io.ktor:ktor-client-cio:$ktor_version"
     testImplementation "com.google.dagger:hilt-core:$hilt_version"
     kaptTest "com.google.dagger:dagger-compiler:$hilt_version"
 }

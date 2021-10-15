@@ -147,8 +147,8 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         return true
     }
 
-    // Public access for testing
-    fun getMigrations(): List<Migration<Connection>> {
+    @Suppress("MemberVisibilityCanBePrivate") // visible for testing
+    internal fun getMigrations(): List<Migration<Connection>> {
         return Arrays.asList<Migration<Connection>>(
             // Migration1_2(dbTypes),
         )
@@ -489,6 +489,33 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     }
 
     @Throws(DbException::class)
+    override fun getContacts(txn: Transaction): List<Contact> {
+        val contacts = ArrayList<Contact>()
+        val connection: Connection = txn.unbox()
+        var ps: PreparedStatement? = null
+        var rs: ResultSet? = null
+        try {
+            val sql = "SELECT contactId, token, inbox, outbox FROM contacts"
+            ps = connection.prepareStatement(sql)
+            rs = ps.executeQuery()
+            while (rs.next()) {
+                val id = rs.getInt(1)
+                val token = rs.getString(2)
+                val inboxId = rs.getString(3)
+                val outboxId = rs.getString(4)
+                contacts.add(Contact(id, token, inboxId, outboxId))
+            }
+            rs.close()
+            ps.close()
+            return contacts
+        } catch (e: SQLException) {
+            tryToClose(rs, LOG)
+            tryToClose(ps, LOG)
+            throw DbException(e)
+        }
+    }
+
+    @Throws(DbException::class)
     override fun removeContact(txn: Transaction, id: Int) {
         val connection: Connection = txn.unbox()
         var ps: PreparedStatement? = null
@@ -500,6 +527,31 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
             if (affected != 1) throw DbStateException()
             ps.close()
         } catch (e: SQLException) {
+            tryToClose(ps, LOG)
+            throw DbException(e)
+        }
+    }
+
+    override fun getContactWithToken(txn: Transaction, token: String): Contact? {
+        val connection: Connection = txn.unbox()
+        var ps: PreparedStatement? = null
+        var rs: ResultSet? = null
+        try {
+            val sql = """SELECT contactId, inbox, outbox FROM contacts
+                                WHERE token = ?
+            """.trimIndent()
+            ps = connection.prepareStatement(sql)
+            ps.setString(1, token)
+            rs = ps.executeQuery()
+            if (!rs.next()) return null
+            val id = rs.getInt(1)
+            val inboxId = rs.getString(2)
+            val outboxId = rs.getString(3)
+            rs.close()
+            ps.close()
+            return Contact(id, token, inboxId, outboxId)
+        } catch (e: SQLException) {
+            tryToClose(rs, LOG)
             tryToClose(ps, LOG)
             throw DbException(e)
         }
