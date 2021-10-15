@@ -4,6 +4,7 @@ import dagger.Component
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.settings.SettingsManager
+import org.briarproject.mailbox.core.system.RandomIdManager
 import javax.inject.Singleton
 
 @Singleton
@@ -17,4 +18,5 @@ interface TestComponent {
     fun getLifecycleManager(): LifecycleManager
     fun getSettingsManager(): SettingsManager
     fun getDatabase(): Database
+    fun getRandomIdManager(): RandomIdManager
 }
