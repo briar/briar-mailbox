@@ -3,8 +3,10 @@ package org.briarproject.mailbox.core.files
 import io.ktor.application.ApplicationCall
 import io.ktor.auth.principal
 import io.ktor.http.HttpStatusCode
+import io.ktor.request.receiveStream
 import io.ktor.response.respond
-import org.briarproject.mailbox.core.db.Database
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.briarproject.mailbox.core.server.AuthException
 import org.briarproject.mailbox.core.server.AuthManager
 import org.briarproject.mailbox.core.server.MailboxPrincipal
@@ -13,8 +15,8 @@ import org.briarproject.mailbox.core.system.RandomIdManager
 import javax.inject.Inject
 
 class FileManager @Inject constructor(
-    private val db: Database,
     private val authManager: AuthManager,
+    private val fileProvider: FileProvider,
     private val randomIdManager: RandomIdManager,
 ) {
 
@@ -32,9 +34,19 @@ class FileManager @Inject constructor(
         randomIdManager.assertIsRandomId(folderId)
         authManager.assertCanPostToFolder(principal, folderId)
 
-        // TODO implement
+        val fileId = randomIdManager.getNewRandomId()
+        withContext(Dispatchers.IO) {
+            val tmpFile = fileProvider.getTemporaryFile(fileId)
+            tmpFile.outputStream().use { outputStream ->
+                call.receiveStream().use { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+            val file = fileProvider.getFile(folderId, fileId)
+            if (!tmpFile.renameTo(file)) error("Error moving file")
+        }
 
-        call.respond(HttpStatusCode.OK, "post: Not yet implemented. folderId: $folderId}")
+        call.respond(HttpStatusCode.OK)
     }
 
     /**
