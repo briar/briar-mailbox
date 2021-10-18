@@ -221,4 +221,68 @@ class FileManagerIntegrationTest : IntegrationTest() {
         }
         assertEquals(HttpStatusCode.NotFound.value, response.status.value)
     }
+
+    @Test
+    fun `list folders rejects contacts`(): Unit = runBlocking {
+        val response: HttpResponse = httpClient.get("$baseUrl/folders") {
+            authenticateWithToken(contact1.token)
+        }
+        assertEquals(HttpStatusCode.Unauthorized.value, response.status.value)
+    }
+
+    @Test
+    fun `list folders allows owner, returns empty result`(): Unit = runBlocking {
+        val response: HttpResponse = httpClient.get("$baseUrl/folders") {
+            authenticateWithToken(ownerToken)
+        }
+        assertEquals(HttpStatusCode.OK.value, response.status.value)
+        assertEquals("""{"folders":[]}""", response.readText())
+    }
+
+    @Test
+    fun `list folders returns more than a single folder`(): Unit = runBlocking {
+        // contact1 uploads a file
+        val response1: HttpResponse = httpClient.post("$baseUrl/files/${contact1.outboxId}") {
+            authenticateWithToken(contact1.token)
+            body = bytes
+        }
+        assertEquals(HttpStatusCode.OK.value, response1.status.value)
+
+        // contact2 uploads a file
+        val response2: HttpResponse = httpClient.post("$baseUrl/files/${contact2.outboxId}") {
+            authenticateWithToken(contact2.token)
+            body = bytes
+        }
+        assertEquals(HttpStatusCode.OK.value, response2.status.value)
+
+        // owner now sees both contacts' outboxes in folders list
+        val folderListResponse: FolderListResponse = httpClient.get("$baseUrl/folders") {
+            authenticateWithToken(ownerToken)
+        }
+        val folderList =
+            listOf(FolderResponse(contact1.outboxId), FolderResponse(contact2.outboxId))
+        assertEquals(FolderListResponse(folderList), folderListResponse)
+
+        // get the file IDs to be able to delete them to not interfere with other tests
+        val fileListResponse1: FileListResponse =
+            httpClient.get("$baseUrl/files/${contact1.outboxId}") {
+                authenticateWithToken(ownerToken)
+            }
+        val id1 = fileListResponse1.files[0].name
+        val deleteResponse1: HttpResponse =
+            httpClient.delete("$baseUrl/files/${contact1.outboxId}/$id1") {
+                authenticateWithToken(ownerToken)
+            }
+        assertEquals(HttpStatusCode.OK.value, deleteResponse1.status.value)
+        val fileListResponse2: FileListResponse =
+            httpClient.get("$baseUrl/files/${contact2.outboxId}") {
+                authenticateWithToken(ownerToken)
+            }
+        val id2 = fileListResponse2.files[0].name
+        val deleteResponse2: HttpResponse =
+            httpClient.delete("$baseUrl/files/${contact2.outboxId}/$id2") {
+                authenticateWithToken(ownerToken)
+            }
+        assertEquals(HttpStatusCode.OK.value, deleteResponse2.status.value)
+    }
 }

@@ -8,6 +8,7 @@ import io.ktor.response.respond
 import io.ktor.response.respondFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.AuthException
 import org.briarproject.mailbox.core.server.AuthManager
 import org.briarproject.mailbox.core.server.MailboxPrincipal
@@ -16,6 +17,7 @@ import org.briarproject.mailbox.core.system.RandomIdManager
 import javax.inject.Inject
 
 class FileManager @Inject constructor(
+    private val db: Database,
     private val authManager: AuthManager,
     private val fileProvider: FileProvider,
     private val randomIdManager: RandomIdManager,
@@ -118,12 +120,23 @@ class FileManager @Inject constructor(
         val principal: MailboxPrincipal? = call.principal()
         authManager.assertIsOwner(principal)
 
-        // TODO implement
-
-        call.respond(HttpStatusCode.OK, "get: Not yet implemented")
+        val folderListResponse = withContext(Dispatchers.IO) {
+            val list = ArrayList<FolderResponse>()
+            val contacts = db.transactionWithResult(true) { txn -> db.getContacts(txn) }
+            contacts.forEach { c ->
+                val id = c.outboxId
+                val folder = fileProvider.getFolder(id)
+                if (folder.listFiles()?.isNotEmpty() == true) {
+                    list.add(FolderResponse(id))
+                }
+            }
+            FolderListResponse(list)
+        }
+        call.respond(folderListResponse)
     }
-
 }
 
-data class FileListResponse(val files: ArrayList<FileResponse>)
+data class FileListResponse(val files: List<FileResponse>)
 data class FileResponse(val name: String, val time: Long)
+data class FolderListResponse(val folders: List<FolderResponse>)
+data class FolderResponse(val id: String)

@@ -13,6 +13,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.TestUtils.getNewRandomId
+import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.AuthManager
 import org.briarproject.mailbox.core.server.MailboxPrincipal
 import org.briarproject.mailbox.core.system.RandomIdManager
@@ -27,11 +28,12 @@ import kotlin.test.assertTrue
 
 class FileManagerTest {
 
+    private val db: Database = mockk()
     private val authManager: AuthManager = mockk()
     private val fileProvider: FileProvider = mockk()
     private val randomIdManager = RandomIdManager()
 
-    private val fileManager = FileManager(authManager, fileProvider, randomIdManager)
+    private val fileManager = FileManager(db, authManager, fileProvider, randomIdManager)
 
     private val call: ApplicationCall = mockk()
     private val id = getNewRandomId()
