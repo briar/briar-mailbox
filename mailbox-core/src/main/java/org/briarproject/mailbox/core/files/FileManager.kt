@@ -60,9 +60,14 @@ class FileManager @Inject constructor(
         randomIdManager.assertIsRandomId(folderId)
         authManager.assertCanDownloadFromFolder(principal, folderId)
 
-        // TODO implement
-
-        call.respond(HttpStatusCode.OK, "get: Not yet implemented. folderId: $folderId")
+        val fileListResponse = withContext(Dispatchers.IO) {
+            val list = ArrayList<FileResponse>()
+            fileProvider.getFolder(folderId).listFiles()?.forEach { file ->
+                list.add(FileResponse(file.name, file.lastModified()))
+            }
+            FileListResponse(list)
+        }
+        call.respond(HttpStatusCode.OK, fileListResponse)
     }
 
     /**
@@ -122,3 +127,6 @@ class FileManager @Inject constructor(
     }
 
 }
+
+data class FileListResponse(val files: ArrayList<FileResponse>)
+data class FileResponse(val name: String, val time: Long)
