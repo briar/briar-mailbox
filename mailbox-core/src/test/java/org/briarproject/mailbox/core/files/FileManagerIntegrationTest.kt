@@ -4,11 +4,13 @@ import io.ktor.client.call.receive
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.readBytes
 import io.ktor.client.statement.readText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.TestUtils.getNewRandomId
 import org.briarproject.mailbox.core.server.IntegrationTest
+import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
@@ -71,8 +73,14 @@ class FileManagerIntegrationTest : IntegrationTest() {
         val fileList: FileListResponse = listResponse.receive()
         assertEquals(1, fileList.files.size)
 
-        // TODO fetch the file later to see that it was uploaded correctly
+        // contact can download the file
         val fileId = fileList.files[0].name
+        val fileResponse: HttpResponse =
+            httpClient.get("$baseUrl/files/${contact1.inboxId}/$fileId") {
+                authenticateWithToken(contact1.token)
+            }
+        assertEquals(HttpStatusCode.OK.value, fileResponse.status.value)
+        assertArrayEquals(bytes, fileResponse.readBytes())
 
         // TODO delete the file to clean up again
     }
@@ -115,4 +123,53 @@ class FileManagerIntegrationTest : IntegrationTest() {
         assertEquals("""{"files":[]}""", response.readText())
     }
 
+    @Test
+    fun `get file rejects wrong token`(): Unit = runBlocking {
+        val response: HttpResponse =
+            httpClient.get("$baseUrl/files/${getNewRandomId()}/${getNewRandomId()}") {
+                authenticateWithToken(token)
+                body = bytes
+            }
+        assertEquals(HttpStatusCode.Unauthorized.value, response.status.value)
+    }
+
+    @Test
+    fun `get file rejects unauthorized folder ID`(): Unit = runBlocking {
+        val response: HttpResponse =
+            httpClient.get("$baseUrl/files/${contact1.inboxId}/${getNewRandomId()}") {
+                authenticateWithToken(ownerToken)
+                body = bytes
+            }
+        assertEquals(HttpStatusCode.Unauthorized.value, response.status.value)
+    }
+
+    @Test
+    fun `get file rejects invalid folder ID`(): Unit = runBlocking {
+        val response: HttpResponse = httpClient.get("$baseUrl/files/foo/${getNewRandomId()}") {
+            authenticateWithToken(ownerToken)
+            body = bytes
+        }
+        assertEquals(HttpStatusCode.BadRequest.value, response.status.value)
+        assertEquals("Malformed ID: foo", response.readText())
+    }
+
+    @Test
+    fun `get file rejects invalid file ID`(): Unit = runBlocking {
+        val response: HttpResponse = httpClient.get("$baseUrl/files/${contact1.outboxId}/bar") {
+            authenticateWithToken(ownerToken)
+            body = bytes
+        }
+        assertEquals(HttpStatusCode.BadRequest.value, response.status.value)
+        assertEquals("Malformed ID: bar", response.readText())
+    }
+
+    @Test
+    fun `get file gives 404 response for unknown file`(): Unit = runBlocking {
+        val id = getNewRandomId()
+        val response: HttpResponse = httpClient.get("$baseUrl/files/${contact1.outboxId}/$id") {
+            authenticateWithToken(ownerToken)
+            body = bytes
+        }
+        assertEquals(HttpStatusCode.NotFound.value, response.status.value)
+    }
 }

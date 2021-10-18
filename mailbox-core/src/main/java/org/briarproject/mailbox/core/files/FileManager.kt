@@ -5,6 +5,7 @@ import io.ktor.auth.principal
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveStream
 import io.ktor.response.respond
+import io.ktor.response.respondFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.briarproject.mailbox.core.server.AuthException
@@ -83,12 +84,9 @@ class FileManager @Inject constructor(
         randomIdManager.assertIsRandomId(fileId)
         authManager.assertCanDownloadFromFolder(principal, folderId)
 
-        // TODO implement
-
-        call.respond(
-            HttpStatusCode.OK,
-            "get: Not yet implemented. folderId: $folderId fileId: $fileId"
-        )
+        val file = fileProvider.getFile(folderId, fileId)
+        if (file.isFile) call.respondFile(file)
+        else call.respond(HttpStatusCode.NotFound)
     }
 
     /**
