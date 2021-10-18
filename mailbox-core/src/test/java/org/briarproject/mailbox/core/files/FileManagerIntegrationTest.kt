@@ -1,6 +1,7 @@
 package org.briarproject.mailbox.core.files
 
 import io.ktor.client.call.receive
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
@@ -82,14 +83,25 @@ class FileManagerIntegrationTest : IntegrationTest() {
         assertEquals(HttpStatusCode.OK.value, fileResponse.status.value)
         assertArrayEquals(bytes, fileResponse.readBytes())
 
-        // TODO delete the file to clean up again
+        // contact can delete the file
+        val deleteResponse: HttpResponse =
+            httpClient.delete("$baseUrl/files/${contact1.inboxId}/$fileId") {
+                authenticateWithToken(contact1.token)
+            }
+        assertEquals(HttpStatusCode.OK.value, deleteResponse.status.value)
+
+        // now the list of files in that folder is empty again
+        val emptyFileListResponse: FileListResponse =
+            httpClient.get("$baseUrl/files/${contact1.inboxId}") {
+                authenticateWithToken(contact1.token)
+            }
+        assertEquals(0, emptyFileListResponse.files.size)
     }
 
     @Test
     fun `list files rejects wrong token`(): Unit = runBlocking {
         val response: HttpResponse = httpClient.get("$baseUrl/files/${getNewRandomId()}") {
             authenticateWithToken(token)
-            body = bytes
         }
         assertEquals(HttpStatusCode.Unauthorized.value, response.status.value)
     }
@@ -98,7 +110,6 @@ class FileManagerIntegrationTest : IntegrationTest() {
     fun `list files rejects unauthorized folder ID`(): Unit = runBlocking {
         val response: HttpResponse = httpClient.get("$baseUrl/files/${contact1.inboxId}") {
             authenticateWithToken(ownerToken)
-            body = bytes
         }
         assertEquals(HttpStatusCode.Unauthorized.value, response.status.value)
     }
@@ -107,7 +118,6 @@ class FileManagerIntegrationTest : IntegrationTest() {
     fun `list files rejects invalid folder ID`(): Unit = runBlocking {
         val response: HttpResponse = httpClient.get("$baseUrl/files/foo") {
             authenticateWithToken(ownerToken)
-            body = bytes
         }
         assertEquals(HttpStatusCode.BadRequest.value, response.status.value)
         assertEquals("Malformed ID: foo", response.readText())
@@ -117,7 +127,6 @@ class FileManagerIntegrationTest : IntegrationTest() {
     fun `list files gives empty response for empty folder`(): Unit = runBlocking {
         val response: HttpResponse = httpClient.get("$baseUrl/files/${contact1.outboxId}") {
             authenticateWithToken(ownerToken)
-            body = bytes
         }
         assertEquals(HttpStatusCode.OK.value, response.status.value)
         assertEquals("""{"files":[]}""", response.readText())
@@ -128,7 +137,6 @@ class FileManagerIntegrationTest : IntegrationTest() {
         val response: HttpResponse =
             httpClient.get("$baseUrl/files/${getNewRandomId()}/${getNewRandomId()}") {
                 authenticateWithToken(token)
-                body = bytes
             }
         assertEquals(HttpStatusCode.Unauthorized.value, response.status.value)
     }
@@ -138,7 +146,6 @@ class FileManagerIntegrationTest : IntegrationTest() {
         val response: HttpResponse =
             httpClient.get("$baseUrl/files/${contact1.inboxId}/${getNewRandomId()}") {
                 authenticateWithToken(ownerToken)
-                body = bytes
             }
         assertEquals(HttpStatusCode.Unauthorized.value, response.status.value)
     }
@@ -147,7 +154,6 @@ class FileManagerIntegrationTest : IntegrationTest() {
     fun `get file rejects invalid folder ID`(): Unit = runBlocking {
         val response: HttpResponse = httpClient.get("$baseUrl/files/foo/${getNewRandomId()}") {
             authenticateWithToken(ownerToken)
-            body = bytes
         }
         assertEquals(HttpStatusCode.BadRequest.value, response.status.value)
         assertEquals("Malformed ID: foo", response.readText())
@@ -157,7 +163,6 @@ class FileManagerIntegrationTest : IntegrationTest() {
     fun `get file rejects invalid file ID`(): Unit = runBlocking {
         val response: HttpResponse = httpClient.get("$baseUrl/files/${contact1.outboxId}/bar") {
             authenticateWithToken(ownerToken)
-            body = bytes
         }
         assertEquals(HttpStatusCode.BadRequest.value, response.status.value)
         assertEquals("Malformed ID: bar", response.readText())
@@ -168,7 +173,51 @@ class FileManagerIntegrationTest : IntegrationTest() {
         val id = getNewRandomId()
         val response: HttpResponse = httpClient.get("$baseUrl/files/${contact1.outboxId}/$id") {
             authenticateWithToken(ownerToken)
-            body = bytes
+        }
+        assertEquals(HttpStatusCode.NotFound.value, response.status.value)
+    }
+
+    @Test
+    fun `delete file rejects wrong token`(): Unit = runBlocking {
+        val response: HttpResponse =
+            httpClient.delete("$baseUrl/files/${getNewRandomId()}/${getNewRandomId()}") {
+                authenticateWithToken(token)
+            }
+        assertEquals(HttpStatusCode.Unauthorized.value, response.status.value)
+    }
+
+    @Test
+    fun `delete file rejects unauthorized folder ID`(): Unit = runBlocking {
+        val response: HttpResponse =
+            httpClient.delete("$baseUrl/files/${contact1.inboxId}/${getNewRandomId()}") {
+                authenticateWithToken(ownerToken)
+            }
+        assertEquals(HttpStatusCode.Unauthorized.value, response.status.value)
+    }
+
+    @Test
+    fun `delete file rejects invalid folder ID`(): Unit = runBlocking {
+        val response: HttpResponse = httpClient.delete("$baseUrl/files/foo/${getNewRandomId()}") {
+            authenticateWithToken(ownerToken)
+        }
+        assertEquals(HttpStatusCode.BadRequest.value, response.status.value)
+        assertEquals("Malformed ID: foo", response.readText())
+    }
+
+    @Test
+    fun `delete file rejects invalid file ID`(): Unit = runBlocking {
+        val response: HttpResponse = httpClient.delete("$baseUrl/files/${contact1.outboxId}/bar") {
+            authenticateWithToken(ownerToken)
+        }
+        assertEquals(HttpStatusCode.BadRequest.value, response.status.value)
+        assertEquals("Malformed ID: bar", response.readText())
+    }
+
+    @Test
+    fun `delete file gives 404 response for unknown file`(): Unit = runBlocking {
+        val id = getNewRandomId()
+        val response: HttpResponse = httpClient.delete("$baseUrl/files/${contact1.outboxId}/$id") {
+            authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.NotFound.value, response.status.value)
     }

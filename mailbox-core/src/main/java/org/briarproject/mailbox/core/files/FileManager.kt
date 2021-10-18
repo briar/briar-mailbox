@@ -101,12 +101,11 @@ class FileManager @Inject constructor(
         randomIdManager.assertIsRandomId(fileId)
         authManager.assertCanDownloadFromFolder(principal, folderId)
 
-        // TODO implement
-
-        call.respond(
-            HttpStatusCode.OK,
-            "delete: Not yet implemented. folderId: $folderId fileId: $fileId"
-        )
+        val file = fileProvider.getFile(folderId, fileId)
+        if (file.isFile) {
+            if (file.delete()) call.respond(HttpStatusCode.OK)
+            else call.respond(HttpStatusCode.InternalServerError)
+        } else call.respond(HttpStatusCode.NotFound)
     }
 
     /**
