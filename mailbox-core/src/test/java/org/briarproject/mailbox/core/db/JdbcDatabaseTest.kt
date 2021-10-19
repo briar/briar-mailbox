@@ -1,7 +1,7 @@
 package org.briarproject.mailbox.core.db
 
 import org.briarproject.mailbox.core.TestUtils.deleteTestDirectory
-import org.briarproject.mailbox.core.api.Contact
+import org.briarproject.mailbox.core.contacts.Contact
 import org.briarproject.mailbox.core.settings.Settings
 import org.briarproject.mailbox.core.system.Clock
 import org.briarproject.mailbox.core.system.RandomIdManager
@@ -40,13 +40,13 @@ abstract class JdbcDatabaseTest {
     open fun testPersistence() {
         // Store some records
         val contact1 = Contact(
-            id = 1,
+            contactId = 1,
             token = randomIdManager.getNewRandomId(),
             inboxId = randomIdManager.getNewRandomId(),
             outboxId = randomIdManager.getNewRandomId()
         )
         val contact2 = Contact(
-            id = 2,
+            contactId = 2,
             token = randomIdManager.getNewRandomId(),
             inboxId = randomIdManager.getNewRandomId(),
             outboxId = randomIdManager.getNewRandomId()

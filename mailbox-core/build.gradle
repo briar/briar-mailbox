@@ -23,6 +23,7 @@ dependencies {
     implementation "io.ktor:ktor-server-core:$ktor_version"
     implementation "io.ktor:ktor-server-netty:$ktor_version"
     implementation "io.ktor:ktor-auth:$ktor_version"
+    implementation "io.ktor:ktor-jackson:$ktor_version"
     api "org.slf4j:slf4j-api:1.7.32"
 
     implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6

@@ -1,7 +1,7 @@
-package org.briarproject.mailbox.core.api
+package org.briarproject.mailbox.core.contacts
 
 data class Contact(
-    val id: Int,
+    val contactId: Int,
     val token: String,
     val inboxId: String,
     val outboxId: String,
