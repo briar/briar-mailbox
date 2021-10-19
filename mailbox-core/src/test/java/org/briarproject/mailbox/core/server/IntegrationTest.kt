@@ -2,6 +2,8 @@ package org.briarproject.mailbox.core.server
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.features.json.JacksonSerializer
+import io.ktor.client.features.json.JsonFeature
 import org.briarproject.mailbox.core.DaggerTestComponent
 import org.briarproject.mailbox.core.TestComponent
 import org.briarproject.mailbox.core.TestModule
@@ -20,6 +22,9 @@ abstract class IntegrationTest {
     private val lifecycleManager by lazy { testComponent.getLifecycleManager() }
     protected val httpClient = HttpClient(CIO) {
         expectSuccess = false // prevents exceptions on non-success responses
+        install(JsonFeature) {
+            serializer = JacksonSerializer()
+        }
     }
     protected val baseUrl = "http://127.0.0.1:$PORT"
 
