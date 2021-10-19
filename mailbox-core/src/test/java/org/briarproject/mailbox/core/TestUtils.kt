@@ -27,6 +27,11 @@ object TestUtils {
         outboxId = getNewRandomId(),
     )
 
+    /**
+     * Allows you to mock [Database] access happening within a [Transaction] more comfortably.
+     * Calls to [Database.transactionWithResult] will be mocked.
+     * The given lambda [block] will get captured and invoked.
+     */
     fun <T> everyTransactionWithResult(db: Database, readOnly: Boolean, block: (Transaction) -> T) {
         val txn = Transaction(mockk(), readOnly)
         every { db.transactionWithResult<T>(true, captureLambda()) } answers {
