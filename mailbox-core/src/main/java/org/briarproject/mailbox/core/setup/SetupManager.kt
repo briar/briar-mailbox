@@ -1,7 +1,14 @@
 package org.briarproject.mailbox.core.setup
 
+import io.ktor.application.ApplicationCall
+import io.ktor.auth.principal
+import io.ktor.http.HttpStatusCode
+import io.ktor.response.respond
 import org.briarproject.mailbox.core.db.DbException
 import org.briarproject.mailbox.core.db.Transaction
+import org.briarproject.mailbox.core.server.AuthException
+import org.briarproject.mailbox.core.server.MailboxPrincipal
+import org.briarproject.mailbox.core.server.MailboxPrincipal.SetupPrincipal
 import org.briarproject.mailbox.core.settings.Settings
 import org.briarproject.mailbox.core.settings.SettingsManager
 import org.briarproject.mailbox.core.system.RandomIdManager
@@ -22,26 +29,68 @@ class SetupManager @Inject constructor(
     fun restartSetup() {
         val settings = Settings()
         settings[SETTINGS_SETUP_TOKEN] = randomIdManager.getNewRandomId()
-        settings[SETTINGS_OWNER_TOKEN] = "" // we can't remove or null or, so we need to empty it
+        settings[SETTINGS_OWNER_TOKEN] = "" // we can't remove or null, so we need to empty it
         settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE_OWNER)
+    }
+
+    /**
+     * Handler for `PUT /setup` API endpoint.
+     *
+     * Wipes setup token and responds with new owner token and 201 status code.
+     */
+    @Throws(AuthException::class)
+    suspend fun onSetupRequest(call: ApplicationCall) {
+        val principal: MailboxPrincipal? = call.principal()
+        if (principal !is SetupPrincipal) throw AuthException()
+
+        // set new owner token and clear single-use setup token
+        val ownerToken = randomIdManager.getNewRandomId()
+        setToken(null, ownerToken)
+        val response = SetupResponse(ownerToken)
+
+        call.respond(HttpStatusCode.Created, response)
     }
 
     /**
      * Visible for testing, consider private.
      */
     @Throws(DbException::class)
-    internal fun setOwnerToken(token: String) {
+    internal fun setToken(setupToken: String?, ownerToken: String?) {
         val settings = Settings()
-        settings[SETTINGS_OWNER_TOKEN] = token
+        if (setupToken == null) {
+            settings[SETTINGS_SETUP_TOKEN] = ""
+        } else {
+            randomIdManager.assertIsRandomId(setupToken)
+            settings[SETTINGS_SETUP_TOKEN] = setupToken
+        }
+        if (ownerToken == null) {
+            settings[SETTINGS_OWNER_TOKEN] = ""
+        } else {
+            randomIdManager.assertIsRandomId(ownerToken)
+            settings[SETTINGS_OWNER_TOKEN] = ownerToken
+        }
         settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE_OWNER)
+    }
+
+    fun getSetupToken(txn: Transaction): String? {
+        val settings = settingsManager.getSettings(txn, SETTINGS_NAMESPACE_OWNER)
+        return settings[SETTINGS_SETUP_TOKEN].nullify()
     }
 
     @Throws(DbException::class)
     fun getOwnerToken(txn: Transaction): String? {
         val settings = settingsManager.getSettings(txn, SETTINGS_NAMESPACE_OWNER)
-        val ownerToken = settings[SETTINGS_OWNER_TOKEN]
-        return if (ownerToken.isNullOrEmpty()) null
-        else ownerToken
+        return settings[SETTINGS_OWNER_TOKEN].nullify()
+    }
+
+    /**
+     * @return the same string or null if it is empty
+     */
+    private fun String?.nullify(): String? {
+        return if (isNullOrEmpty()) null
+        else this
     }
 
 }
+
+internal data class SetupResponse(val token: String)

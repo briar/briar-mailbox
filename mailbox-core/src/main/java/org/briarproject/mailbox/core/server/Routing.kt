@@ -21,11 +21,12 @@ import io.ktor.routing.routing
 import io.ktor.util.getOrFail
 import org.briarproject.mailbox.core.contacts.ContactsManager
 import org.briarproject.mailbox.core.files.FileManager
+import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.InvalidIdException
 
 internal const val V = "/" // TODO set to "/v1" for release
 
-internal fun Application.configureBasicApi() = routing {
+internal fun Application.configureBasicApi(setupManager: SetupManager) = routing {
     route(V) {
         get {
             call.respondText("Hello world!", ContentType.Text.Plain)
@@ -35,7 +36,9 @@ internal fun Application.configureBasicApi() = routing {
                 call.respond(HttpStatusCode.OK, "delete: Not yet implemented")
             }
             put("/setup") {
-                call.respond(HttpStatusCode.OK, "put: Not yet implemented")
+                call.handle {
+                    setupManager.onSetupRequest(call)
+                }
             }
         }
     }

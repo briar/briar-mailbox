@@ -11,6 +11,7 @@ import org.briarproject.mailbox.core.contacts.ContactsManager
 import org.briarproject.mailbox.core.files.FileManager
 import org.briarproject.mailbox.core.lifecycle.Service
 import org.briarproject.mailbox.core.server.WebServerManager.Companion.PORT
+import org.briarproject.mailbox.core.setup.SetupManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
@@ -25,6 +26,7 @@ interface WebServerManager : Service {
 @Singleton
 internal class WebServerManagerImpl @Inject constructor(
     private val authManager: AuthManager,
+    private val setupManager: SetupManager,
     private val contactsManager: ContactsManager,
     private val fileManager: FileManager,
 ) : WebServerManager {
@@ -48,7 +50,7 @@ internal class WebServerManagerImpl @Inject constructor(
             install(ContentNegotiation) {
                 jackson()
             }
-            configureBasicApi()
+            configureBasicApi(setupManager)
             configureContactApi(contactsManager)
             configureFilesApi(fileManager)
         }

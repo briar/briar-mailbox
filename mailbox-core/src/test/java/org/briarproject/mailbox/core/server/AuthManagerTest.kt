@@ -7,6 +7,7 @@ import org.briarproject.mailbox.core.TestUtils.getNewRandomContact
 import org.briarproject.mailbox.core.TestUtils.getNewRandomId
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.MailboxPrincipal.OwnerPrincipal
+import org.briarproject.mailbox.core.server.MailboxPrincipal.SetupPrincipal
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.InvalidIdException
 import org.briarproject.mailbox.core.system.RandomIdManager
@@ -61,9 +62,21 @@ class AuthManagerTest {
         everyTransactionWithResult(db, true) { txn ->
             every { db.getContactWithToken(txn, id) } returns null
             every { setupManager.getOwnerToken(txn) } returns otherId
+            every { setupManager.getSetupToken(txn) } returns otherId
         }
 
         assertNull(authManager.getPrincipal(id))
+    }
+
+    @Test
+    fun `getPrincipal() returns SetupPrincipal`() {
+        everyTransactionWithResult(db, true) { txn ->
+            every { db.getContactWithToken(txn, id) } returns null
+            every { setupManager.getOwnerToken(txn) } returns otherId
+            every { setupManager.getSetupToken(txn) } returns id
+        }
+
+        assertEquals(SetupPrincipal, authManager.getPrincipal(id))
     }
 
     @Test

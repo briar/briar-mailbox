@@ -57,7 +57,7 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
     }
 
     protected fun addOwnerToken() {
-        testComponent.getSetupManager().setOwnerToken(ownerToken)
+        testComponent.getSetupManager().setToken(null, ownerToken)
     }
 
     protected fun addContact(c: Contact) {

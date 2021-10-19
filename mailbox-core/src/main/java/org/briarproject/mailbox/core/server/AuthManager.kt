@@ -5,6 +5,7 @@ import org.briarproject.mailbox.core.contacts.Contact
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.MailboxPrincipal.ContactPrincipal
 import org.briarproject.mailbox.core.server.MailboxPrincipal.OwnerPrincipal
+import org.briarproject.mailbox.core.server.MailboxPrincipal.SetupPrincipal
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.RandomIdManager
 import javax.inject.Inject
@@ -25,11 +26,11 @@ class AuthManager @Inject constructor(
         randomIdManager.assertIsRandomId(token)
         return db.transactionWithResult(true) { txn ->
             val contact = db.getContactWithToken(txn, token)
-            if (contact != null) {
-                ContactPrincipal(contact)
-            } else {
-                if (token == setupManager.getOwnerToken(txn)) OwnerPrincipal
-                else null
+            when {
+                contact != null -> ContactPrincipal(contact)
+                setupManager.getOwnerToken(txn) == token -> OwnerPrincipal
+                setupManager.getSetupToken(txn) == token -> SetupPrincipal
+                else -> null
             }
         }
     }
@@ -79,6 +80,7 @@ class AuthManager @Inject constructor(
 }
 
 sealed class MailboxPrincipal : Principal {
+    object SetupPrincipal : MailboxPrincipal()
     object OwnerPrincipal : MailboxPrincipal()
     data class ContactPrincipal(val contact: Contact) : MailboxPrincipal()
 }
