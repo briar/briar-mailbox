@@ -23,6 +23,7 @@ dependencies {
     implementation "io.ktor:ktor-server-core:$ktor_version"
     implementation "io.ktor:ktor-server-netty:$ktor_version"
     implementation "io.ktor:ktor-auth:$ktor_version"
+    implementation "io.ktor:ktor-jackson:$ktor_version"
     api "org.slf4j:slf4j-api:1.7.32"
 
     implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
@@ -34,6 +35,7 @@ dependencies {
     testImplementation "io.mockk:mockk:$mockk_version"
     testImplementation "ch.qos.logback:logback-classic:1.2.5"
     testImplementation "io.ktor:ktor-client-cio:$ktor_version"
+    testImplementation "io.ktor:ktor-client-jackson:$ktor_version"
     testImplementation "com.google.dagger:hilt-core:$hilt_version"
     kaptTest "com.google.dagger:dagger-compiler:$hilt_version"
 }

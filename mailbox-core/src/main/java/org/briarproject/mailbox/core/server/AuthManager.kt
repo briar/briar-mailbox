@@ -1,7 +1,7 @@
 package org.briarproject.mailbox.core.server
 
 import io.ktor.auth.Principal
-import org.briarproject.mailbox.core.api.Contact
+import org.briarproject.mailbox.core.contacts.Contact
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.MailboxPrincipal.ContactPrincipal
 import org.briarproject.mailbox.core.server.MailboxPrincipal.OwnerPrincipal

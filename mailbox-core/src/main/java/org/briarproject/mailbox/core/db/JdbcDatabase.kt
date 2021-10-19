@@ -1,6 +1,6 @@
 package org.briarproject.mailbox.core.db
 
-import org.briarproject.mailbox.core.api.Contact
+import org.briarproject.mailbox.core.contacts.Contact
 import org.briarproject.mailbox.core.db.DatabaseConstants.Companion.DB_SETTINGS_NAMESPACE
 import org.briarproject.mailbox.core.db.DatabaseConstants.Companion.DIRTY_KEY
 import org.briarproject.mailbox.core.db.DatabaseConstants.Companion.LAST_COMPACTED_KEY
@@ -449,7 +449,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
                                 VALUES (?, ?, ?, ?)
             """.trimIndent()
             ps = connection.prepareStatement(sql)
-            ps.setInt(1, contact.id)
+            ps.setInt(1, contact.contactId)
             ps.setString(2, contact.token)
             ps.setString(3, contact.inboxId)
             ps.setString(4, contact.outboxId)

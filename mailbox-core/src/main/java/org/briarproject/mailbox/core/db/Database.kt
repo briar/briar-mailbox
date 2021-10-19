@@ -1,6 +1,6 @@
 package org.briarproject.mailbox.core.db
 
-import org.briarproject.mailbox.core.api.Contact
+import org.briarproject.mailbox.core.contacts.Contact
 import org.briarproject.mailbox.core.settings.Settings
 
 interface Database : TransactionManager {

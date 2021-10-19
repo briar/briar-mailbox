@@ -3,7 +3,7 @@ package org.briarproject.mailbox.core.system
 import java.security.SecureRandom
 import javax.inject.Inject
 
-private const val ID_SIZE = 32
+internal const val ID_SIZE = 32
 private const val ID_HEX_SIZE = ID_SIZE * 2
 
 /**
