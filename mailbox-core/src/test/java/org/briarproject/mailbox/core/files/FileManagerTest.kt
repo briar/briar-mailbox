@@ -16,6 +16,7 @@ import org.briarproject.mailbox.core.TestUtils.getNewRandomId
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.AuthManager
 import org.briarproject.mailbox.core.server.MailboxPrincipal
+import org.briarproject.mailbox.core.server.MailboxPrincipal.OwnerPrincipal
 import org.briarproject.mailbox.core.system.RandomIdManager
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Test
@@ -50,8 +51,8 @@ class FileManagerTest {
         val tmpFile = File(tempDir, "tmp")
         val finalFile = File(tempDir, "final")
 
-        every { call.principal<MailboxPrincipal>() } returns MailboxPrincipal.OwnerPrincipal
-        every { authManager.assertCanPostToFolder(MailboxPrincipal.OwnerPrincipal, id) } just Runs
+        every { call.principal<MailboxPrincipal>() } returns OwnerPrincipal
+        every { authManager.assertCanPostToFolder(OwnerPrincipal, id) } just Runs
         every { fileProvider.getTemporaryFile(any()) } returns tmpFile
         coEvery { call.receiveStream() } returns ByteArrayInputStream(bytes)
         every { fileProvider.getFile(id, any()) } returns finalFile

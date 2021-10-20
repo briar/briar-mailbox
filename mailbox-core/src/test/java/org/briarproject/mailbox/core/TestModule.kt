@@ -41,10 +41,10 @@ internal class TestModule(private val tempDir: File) {
     @Provides
     fun provideFileProvider() = object : FileProvider {
         private val tempFilesDir = File(tempDir, "tmp").also { it.mkdirs() }
-        private val filesDir = File(tempDir, "folders")
+        override val folderRoot = File(tempDir, "folders")
 
         override fun getTemporaryFile(fileId: String) = File(tempFilesDir, fileId)
-        override fun getFolder(folderId: String) = File(filesDir, folderId).also { it.mkdirs() }
+        override fun getFolder(folderId: String) = File(folderRoot, folderId).also { it.mkdirs() }
         override fun getFile(folderId: String, fileId: String) = File(getFolder(folderId), fileId)
     }
 }

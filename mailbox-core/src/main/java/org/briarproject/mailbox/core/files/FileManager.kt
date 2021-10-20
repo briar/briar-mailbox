@@ -14,7 +14,10 @@ import org.briarproject.mailbox.core.server.AuthManager
 import org.briarproject.mailbox.core.server.MailboxPrincipal
 import org.briarproject.mailbox.core.system.InvalidIdException
 import org.briarproject.mailbox.core.system.RandomIdManager
+import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
+
+private val LOG = getLogger(FileManager::class.java)
 
 class FileManager @Inject constructor(
     private val db: Database,
@@ -133,6 +136,20 @@ class FileManager @Inject constructor(
             FolderListResponse(list)
         }
         call.respond(folderListResponse)
+    }
+
+    fun deleteAllFiles(): Boolean {
+        var allDeleted = true
+        fileProvider.folderRoot.listFiles()?.forEach { folder ->
+            if (!folder.deleteRecursively()) {
+                allDeleted = false
+                LOG.warn("Not everything in $folder could get deleted.")
+            }
+        } ?: run {
+            allDeleted = false
+            LOG.warn("Could not delete folders.")
+        }
+        return allDeleted
     }
 }
 
