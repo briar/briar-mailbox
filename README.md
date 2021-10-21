@@ -82,6 +82,8 @@ any hardware supporting Java (e.g. unix server, raspberry pi) could be added.
 ## Useful links 
 [Source code](https://code.briarproject.org/briar/briar-mailbox/-/tree/main) 
 
+[API documentation](https://code.briarproject.org/briar/briar-mailbox/-/blob/main/API.md)
+
 [Mailbox Architecture](https://code.briarproject.org/briar/briar/-/wikis/Mailbox-Architecture)
 
 [briarproject.org](https://briarproject.org/)
