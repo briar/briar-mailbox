@@ -13,6 +13,7 @@ import org.briarproject.mailbox.core.TestUtils.getNewRandomId
 import org.briarproject.mailbox.core.server.IntegrationTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertArrayEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 import kotlin.test.assertEquals
@@ -21,7 +22,8 @@ class FileManagerIntegrationTest : IntegrationTest() {
 
     private val bytes = Random.nextBytes(2048)
 
-    override fun initDb() {
+    @BeforeEach
+    fun initDb() {
         addOwnerToken()
         addContact(contact1)
         addContact(contact2)
