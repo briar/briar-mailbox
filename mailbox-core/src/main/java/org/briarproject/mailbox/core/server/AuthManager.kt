@@ -85,7 +85,7 @@ class AuthManager @Inject constructor(
 
 sealed class MailboxPrincipal : Principal {
     object OwnerPrincipal : MailboxPrincipal()
-    class ContactPrincipal(val contact: Contact) : MailboxPrincipal()
+    data class ContactPrincipal(val contact: Contact) : MailboxPrincipal()
 }
 
 class AuthException : IllegalStateException()
