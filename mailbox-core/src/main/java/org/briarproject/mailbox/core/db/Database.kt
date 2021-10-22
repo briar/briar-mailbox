@@ -18,6 +18,9 @@ interface Database : TransactionManager {
     fun close()
 
     @Throws(DbException::class)
+    fun clearDatabase(txn: Transaction)
+
+    @Throws(DbException::class)
     fun getSettings(txn: Transaction, namespace: String): Settings
 
     @Throws(DbException::class)

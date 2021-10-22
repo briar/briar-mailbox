@@ -23,14 +23,16 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 @TestInstance(Lifecycle.PER_CLASS)
-abstract class IntegrationTest {
+abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
 
     protected lateinit var testComponent: TestComponent
     private val lifecycleManager by lazy { testComponent.getLifecycleManager() }
     protected val httpClient = HttpClient(CIO) {
         expectSuccess = false // prevents exceptions on non-success responses
-        install(JsonFeature) {
-            serializer = JacksonSerializer()
+        if (installJsonFeature) {
+            install(JsonFeature) {
+                serializer = JacksonSerializer()
+            }
         }
     }
     protected val baseUrl = "http://127.0.0.1:$PORT"
@@ -47,11 +49,6 @@ abstract class IntegrationTest {
         testComponent.injectCoreEagerSingletons()
         lifecycleManager.startServices()
         lifecycleManager.waitForStartup()
-        initDb()
-    }
-
-    open fun initDb() {
-        // sub-classes can initialize the DB here as needed
     }
 
     @AfterAll
