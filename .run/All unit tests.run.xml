@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+	<configuration default="false" name="All unit tests" type="CompoundRunConfigurationType">
+		<toRun name="mailbox [ktlintCheck]" type="GradleRunConfiguration" />
+		<toRun name=":mailbox-android:test" type="GradleRunConfiguration" />
+		<toRun name=":mailbox-core:test" type="GradleRunConfiguration" />
+		<toRun name=":mailbox-cli:test" type="GradleRunConfiguration" />
+		<method v="2" />
+	</configuration>
+</component>
