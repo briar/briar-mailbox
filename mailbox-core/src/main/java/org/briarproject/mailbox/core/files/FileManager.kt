@@ -3,18 +3,26 @@ package org.briarproject.mailbox.core.files
 import io.ktor.application.ApplicationCall
 import io.ktor.auth.principal
 import io.ktor.http.HttpStatusCode
+import io.ktor.request.receiveStream
 import io.ktor.response.respond
+import io.ktor.response.respondFile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.AuthException
 import org.briarproject.mailbox.core.server.AuthManager
 import org.briarproject.mailbox.core.server.MailboxPrincipal
 import org.briarproject.mailbox.core.system.InvalidIdException
 import org.briarproject.mailbox.core.system.RandomIdManager
+import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
+
+private val LOG = getLogger(FileManager::class.java)
 
 class FileManager @Inject constructor(
     private val db: Database,
     private val authManager: AuthManager,
+    private val fileProvider: FileProvider,
     private val randomIdManager: RandomIdManager,
 ) {
 
@@ -32,9 +40,19 @@ class FileManager @Inject constructor(
         randomIdManager.assertIsRandomId(folderId)
         authManager.assertCanPostToFolder(principal, folderId)
 
-        // TODO implement
+        val fileId = randomIdManager.getNewRandomId()
+        withContext(Dispatchers.IO) {
+            val tmpFile = fileProvider.getTemporaryFile(fileId)
+            tmpFile.outputStream().use { outputStream ->
+                call.receiveStream().use { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+            val file = fileProvider.getFile(folderId, fileId)
+            if (!tmpFile.renameTo(file)) error("Error moving file")
+        }
 
-        call.respond(HttpStatusCode.OK, "post: Not yet implemented. folderId: $folderId}")
+        call.respond(HttpStatusCode.OK)
     }
 
     /**
@@ -48,9 +66,14 @@ class FileManager @Inject constructor(
         randomIdManager.assertIsRandomId(folderId)
         authManager.assertCanDownloadFromFolder(principal, folderId)
 
-        // TODO implement
-
-        call.respond(HttpStatusCode.OK, "get: Not yet implemented. folderId: $folderId")
+        val fileListResponse = withContext(Dispatchers.IO) {
+            val list = ArrayList<FileResponse>()
+            fileProvider.getFolder(folderId).listFiles()?.forEach { file ->
+                list.add(FileResponse(file.name, file.lastModified()))
+            }
+            FileListResponse(list)
+        }
+        call.respond(HttpStatusCode.OK, fileListResponse)
     }
 
     /**
@@ -66,12 +89,9 @@ class FileManager @Inject constructor(
         randomIdManager.assertIsRandomId(fileId)
         authManager.assertCanDownloadFromFolder(principal, folderId)
 
-        // TODO implement
-
-        call.respond(
-            HttpStatusCode.OK,
-            "get: Not yet implemented. folderId: $folderId fileId: $fileId"
-        )
+        val file = fileProvider.getFile(folderId, fileId)
+        if (file.isFile) call.respondFile(file)
+        else call.respond(HttpStatusCode.NotFound)
     }
 
     /**
@@ -86,12 +106,11 @@ class FileManager @Inject constructor(
         randomIdManager.assertIsRandomId(fileId)
         authManager.assertCanDownloadFromFolder(principal, folderId)
 
-        // TODO implement
-
-        call.respond(
-            HttpStatusCode.OK,
-            "delete: Not yet implemented. folderId: $folderId fileId: $fileId"
-        )
+        val file = fileProvider.getFile(folderId, fileId)
+        if (file.isFile) {
+            if (file.delete()) call.respond(HttpStatusCode.OK)
+            else call.respond(HttpStatusCode.InternalServerError)
+        } else call.respond(HttpStatusCode.NotFound)
     }
 
     /**
@@ -104,9 +123,37 @@ class FileManager @Inject constructor(
         val principal: MailboxPrincipal? = call.principal()
         authManager.assertIsOwner(principal)
 
-        // TODO implement
-
-        call.respond(HttpStatusCode.OK, "get: Not yet implemented")
+        val folderListResponse = withContext(Dispatchers.IO) {
+            val list = ArrayList<FolderResponse>()
+            val contacts = db.transactionWithResult(true) { txn -> db.getContacts(txn) }
+            contacts.forEach { c ->
+                val id = c.outboxId
+                val folder = fileProvider.getFolder(id)
+                if (folder.listFiles()?.isNotEmpty() == true) {
+                    list.add(FolderResponse(id))
+                }
+            }
+            FolderListResponse(list)
+        }
+        call.respond(folderListResponse)
     }
 
+    fun deleteAllFiles(): Boolean {
+        var allDeleted = true
+        fileProvider.folderRoot.listFiles()?.forEach { folder ->
+            if (!folder.deleteRecursively()) {
+                allDeleted = false
+                LOG.warn("Not everything in $folder could get deleted.")
+            }
+        } ?: run {
+            allDeleted = false
+            LOG.warn("Could not delete folders.")
+        }
+        return allDeleted
+    }
 }
+
+data class FileListResponse(val files: List<FileResponse>)
+data class FileResponse(val name: String, val time: Long)
+data class FolderListResponse(val folders: List<FolderResponse>)
+data class FolderResponse(val id: String)

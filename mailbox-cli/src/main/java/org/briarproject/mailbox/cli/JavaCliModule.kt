@@ -7,6 +7,7 @@ import dagger.hilt.components.SingletonComponent
 import org.briarproject.mailbox.core.CoreModule
 import org.briarproject.mailbox.core.db.DatabaseConfig
 import org.briarproject.mailbox.core.event.DefaultEventExecutorModule
+import org.briarproject.mailbox.core.files.FileProvider
 import org.briarproject.mailbox.core.system.DefaultTaskSchedulerModule
 import org.briarproject.mailbox.core.tor.JavaTorModule
 import org.briarproject.mailbox.core.util.LogUtils.info
@@ -41,22 +42,7 @@ internal class JavaCliModule {
         private const val DATAHOME_SUBDIR = "briar-mailbox"
     }
 
-    @Singleton
-    @Provides
-    fun provideDatabaseConfig() = object : DatabaseConfig {
-        override fun getDatabaseDirectory(): File {
-            val dataDir = getDataDir()
-            val dbDir = File(dataDir, "db")
-            if (!dbDir.exists() && !dbDir.mkdirs()) {
-                throw IOException("dbDir could not be created: ${dbDir.absolutePath}")
-            } else if (!dbDir.isDirectory) {
-                throw IOException("dbDir is not a directory: ${dbDir.absolutePath}")
-            }
-            return dbDir
-        }
-    }
-
-    private fun getDataDir(): File {
+    private val dataDir: File by lazy {
         val dataHome = when (val custom = System.getenv("XDG_DATA_HOME").orEmpty()) {
             "" -> File(DEFAULT_DATAHOME)
             else -> File(custom)
@@ -79,7 +65,32 @@ internal class JavaCliModule {
         setPosixFilePermissions(dataDir.toPath(), perms)
 
         LOG.info { "Datadir set to: ${dataDir.absolutePath}" }
-        return dataDir
+        dataDir
+    }
+
+    @Singleton
+    @Provides
+    fun provideDatabaseConfig() = object : DatabaseConfig {
+        override fun getDatabaseDirectory(): File {
+            val dbDir = File(dataDir, "db")
+            if (!dbDir.exists() && !dbDir.mkdirs()) {
+                throw IOException("dbDir could not be created: ${dbDir.absolutePath}")
+            } else if (!dbDir.isDirectory) {
+                throw IOException("dbDir is not a directory: ${dbDir.absolutePath}")
+            }
+            return dbDir
+        }
+    }
+
+    @Singleton
+    @Provides
+    fun provideFileProvider() = object : FileProvider {
+        private val tempFilesDir = File(dataDir, "tmp").also { it.mkdirs() }
+        override val folderRoot = File(dataDir, "folders").also { it.mkdirs() }
+
+        override fun getTemporaryFile(fileId: String) = File(tempFilesDir, fileId)
+        override fun getFolder(folderId: String) = File(folderRoot, folderId).also { it.mkdirs() }
+        override fun getFile(folderId: String, fileId: String) = File(getFolder(folderId), fileId)
     }
 
 }
