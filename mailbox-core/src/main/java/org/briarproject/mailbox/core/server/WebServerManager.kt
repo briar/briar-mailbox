@@ -12,6 +12,7 @@ import org.briarproject.mailbox.core.files.FileManager
 import org.briarproject.mailbox.core.lifecycle.Service
 import org.briarproject.mailbox.core.server.WebServerManager.Companion.PORT
 import org.briarproject.mailbox.core.setup.SetupManager
+import org.briarproject.mailbox.core.setup.WipeManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
@@ -29,6 +30,7 @@ internal class WebServerManagerImpl @Inject constructor(
     private val setupManager: SetupManager,
     private val contactsManager: ContactsManager,
     private val fileManager: FileManager,
+    private val wipeManager: WipeManager,
 ) : WebServerManager {
 
     internal companion object {
@@ -50,7 +52,7 @@ internal class WebServerManagerImpl @Inject constructor(
             install(ContentNegotiation) {
                 jackson()
             }
-            configureBasicApi(setupManager)
+            configureBasicApi(setupManager, wipeManager)
             configureContactApi(contactsManager)
             configureFilesApi(fileManager)
         }

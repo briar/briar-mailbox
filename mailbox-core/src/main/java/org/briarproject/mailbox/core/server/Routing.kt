@@ -7,7 +7,6 @@ import io.ktor.auth.authenticate
 import io.ktor.features.BadRequestException
 import io.ktor.features.MissingRequestParameterException
 import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.response.respond
@@ -22,18 +21,24 @@ import io.ktor.util.getOrFail
 import org.briarproject.mailbox.core.contacts.ContactsManager
 import org.briarproject.mailbox.core.files.FileManager
 import org.briarproject.mailbox.core.setup.SetupManager
+import org.briarproject.mailbox.core.setup.WipeManager
 import org.briarproject.mailbox.core.system.InvalidIdException
 
 internal const val V = "/" // TODO set to "/v1" for release
 
-internal fun Application.configureBasicApi(setupManager: SetupManager) = routing {
+internal fun Application.configureBasicApi(
+    setupManager: SetupManager,
+    wipeManager: WipeManager,
+) = routing {
     route(V) {
         get {
             call.respondText("Hello world!", ContentType.Text.Plain)
         }
         authenticate {
             delete {
-                call.respond(HttpStatusCode.OK, "delete: Not yet implemented")
+                call.handle {
+                    wipeManager.onWipeRequest(call)
+                }
             }
             put("/setup") {
                 call.handle {
