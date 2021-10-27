@@ -1,3 +1,6 @@
 include ':mailbox-core'
 include ':mailbox-android'
 include ':mailbox-cli'
+include ':mailbox-cli'
+
+include ':dont-kill-me-lib'
