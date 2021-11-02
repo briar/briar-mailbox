@@ -30,6 +30,8 @@ dependencies {
 
     // Base 32
     implementation 'dev.keiji.rfc4648:rfc4648:1.0.0'
+    // QrCode
+    implementation 'com.google.zxing:core:3.4.1'
 
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"

@@ -1,5 +1,8 @@
 package org.briarproject.mailbox.core.setup
 
+import com.google.zxing.BarcodeFormat.QR_CODE
+import com.google.zxing.common.BitMatrix
+import com.google.zxing.qrcode.QRCodeWriter
 import dev.keiji.util.Base32
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.db.DbException
@@ -8,6 +11,7 @@ import org.briarproject.mailbox.core.util.LogUtils.logException
 import org.briarproject.mailbox.core.util.StringUtils.fromHexString
 import org.slf4j.LoggerFactory.getLogger
 import java.nio.ByteBuffer
+import java.nio.charset.Charset
 import javax.inject.Inject
 
 private const val VERSION = 32
@@ -19,7 +23,14 @@ class QrCodeEncoder @Inject constructor(
     private val torPlugin: TorPlugin,
 ) {
 
-    fun getQrCodeBytes(): ByteArray? {
+    fun getQrCodeBitMatrix(edgeLen: Int = 0): BitMatrix? {
+        val bytes = getQrCodeBytes() ?: return null
+        // Use ISO 8859-1 to encode bytes directly as a string
+        val content = String(bytes, Charset.forName("ISO-8859-1"))
+        return QRCodeWriter().encode(content, QR_CODE, edgeLen, edgeLen)
+    }
+
+    private fun getQrCodeBytes(): ByteArray? {
         val hiddenServiceBytes = getHiddenServiceBytes() ?: return null
         val setupTokenBytes = getSetupTokenBytes() ?: return null
         return ByteBuffer.allocate(65)
