@@ -28,6 +28,9 @@ dependencies {
 
     implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
 
+    // Base 32
+    implementation 'dev.keiji.rfc4648:rfc4648:1.0.0'
+
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junit_version"

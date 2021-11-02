@@ -63,7 +63,8 @@ import static org.briarproject.mailbox.core.util.LogUtils.warn;
 import static org.briarproject.mailbox.core.util.PrivacyUtils.scrubOnion;
 import static org.slf4j.LoggerFactory.getLogger;
 
-abstract class TorPlugin implements Service, EventHandler, EventListener {
+public abstract class TorPlugin
+        implements Service, EventHandler, EventListener {
 
     private static final Logger LOG = getLogger(TorPlugin.class);
 
@@ -376,12 +377,18 @@ abstract class TorPlugin implements Service, EventHandler, EventListener {
 
         if (privKey == null) {
             s.put(HS_PRIVATE_KEY_V3, response.get(HS_PRIVKEY));
+            try {
+                settingsManager.mergeSettings(s, SETTINGS_NAMESPACE);
+            } catch (DbException e) {
+                logException(LOG, e);
+            }
         }
-        try {
-            settingsManager.mergeSettings(s, SETTINGS_NAMESPACE);
-        } catch (DbException e) {
-            logException(LOG, e);
-        }
+    }
+
+    @Nullable
+    public String getHiddenServiceAddress() throws DbException {
+        Settings s = settingsManager.getSettings(SETTINGS_NAMESPACE);
+        return s.get(HS_ADDRESS_V3);
     }
 
     protected void enableNetwork(boolean enable) throws IOException {
