@@ -14,7 +14,6 @@ import org.briarproject.mailbox.core.TestUtils.getNewRandomContact
 import org.briarproject.mailbox.core.TestUtils.getNewRandomId
 import org.briarproject.mailbox.core.contacts.Contact
 import org.briarproject.mailbox.core.server.WebServerManager.Companion.PORT
-import org.briarproject.mailbox.core.settings.Settings
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
@@ -58,10 +57,7 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
     }
 
     protected fun addOwnerToken() {
-        val settingsManager = testComponent.getSettingsManager()
-        val settings = Settings()
-        settings[SETTINGS_OWNER_TOKEN] = ownerToken
-        settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE_OWNER)
+        testComponent.getSetupManager().setToken(null, ownerToken)
     }
 
     protected fun addContact(c: Contact) {

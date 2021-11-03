@@ -5,19 +5,16 @@ import org.briarproject.mailbox.core.contacts.Contact
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.MailboxPrincipal.ContactPrincipal
 import org.briarproject.mailbox.core.server.MailboxPrincipal.OwnerPrincipal
-import org.briarproject.mailbox.core.settings.SettingsManager
+import org.briarproject.mailbox.core.server.MailboxPrincipal.SetupPrincipal
+import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.RandomIdManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// We might want to move this somewhere else later
-internal const val SETTINGS_NAMESPACE_OWNER = "owner"
-internal const val SETTINGS_OWNER_TOKEN = "ownerToken"
-
 @Singleton
 class AuthManager @Inject constructor(
     private val db: Database,
-    private val settingsManager: SettingsManager,
+    private val setupManager: SetupManager,
     private val randomIdManager: RandomIdManager,
 ) {
 
@@ -29,12 +26,11 @@ class AuthManager @Inject constructor(
         randomIdManager.assertIsRandomId(token)
         return db.transactionWithResult(true) { txn ->
             val contact = db.getContactWithToken(txn, token)
-            if (contact != null) {
-                ContactPrincipal(contact)
-            } else {
-                val settings = settingsManager.getSettings(txn, SETTINGS_NAMESPACE_OWNER)
-                if (token == settings[SETTINGS_OWNER_TOKEN]) OwnerPrincipal
-                else null
+            when {
+                contact != null -> ContactPrincipal(contact)
+                setupManager.getOwnerToken(txn) == token -> OwnerPrincipal
+                setupManager.getSetupToken(txn) == token -> SetupPrincipal
+                else -> null
             }
         }
     }
@@ -84,6 +80,7 @@ class AuthManager @Inject constructor(
 }
 
 sealed class MailboxPrincipal : Principal {
+    object SetupPrincipal : MailboxPrincipal()
     object OwnerPrincipal : MailboxPrincipal()
     data class ContactPrincipal(val contact: Contact) : MailboxPrincipal()
 }

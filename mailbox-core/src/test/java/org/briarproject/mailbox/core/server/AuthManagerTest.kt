@@ -7,8 +7,8 @@ import org.briarproject.mailbox.core.TestUtils.getNewRandomContact
 import org.briarproject.mailbox.core.TestUtils.getNewRandomId
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.MailboxPrincipal.OwnerPrincipal
-import org.briarproject.mailbox.core.settings.Settings
-import org.briarproject.mailbox.core.settings.SettingsManager
+import org.briarproject.mailbox.core.server.MailboxPrincipal.SetupPrincipal
+import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.InvalidIdException
 import org.briarproject.mailbox.core.system.RandomIdManager
 import org.briarproject.mailbox.core.system.toHex
@@ -21,10 +21,10 @@ import kotlin.test.assertNull
 class AuthManagerTest {
 
     private val db: Database = mockk()
-    private val settingsManager: SettingsManager = mockk()
+    private val setupManager: SetupManager = mockk()
     private val randomIdManager = RandomIdManager()
 
-    private val authManager = AuthManager(db, settingsManager, randomIdManager)
+    private val authManager = AuthManager(db, setupManager, randomIdManager)
 
     private val id = getNewRandomId()
     private val otherId = getNewRandomId()
@@ -49,13 +49,9 @@ class AuthManagerTest {
 
     @Test
     fun `getPrincipal() returns authenticated owner`() {
-        val settings = Settings().apply {
-            put(SETTINGS_OWNER_TOKEN, id)
-        }
-
         everyTransactionWithResult(db, true) { txn ->
             every { db.getContactWithToken(txn, id) } returns null
-            every { settingsManager.getSettings(txn, SETTINGS_NAMESPACE_OWNER) } returns settings
+            every { setupManager.getOwnerToken(txn) } returns id
         }
 
         assertEquals(OwnerPrincipal, authManager.getPrincipal(id))
@@ -63,16 +59,24 @@ class AuthManagerTest {
 
     @Test
     fun `getPrincipal() returns null when unauthenticated`() {
-        val settings = Settings().apply {
-            put(SETTINGS_OWNER_TOKEN, otherId)
-        }
-
         everyTransactionWithResult(db, true) { txn ->
             every { db.getContactWithToken(txn, id) } returns null
-            every { settingsManager.getSettings(txn, SETTINGS_NAMESPACE_OWNER) } returns settings
+            every { setupManager.getOwnerToken(txn) } returns otherId
+            every { setupManager.getSetupToken(txn) } returns otherId
         }
 
         assertNull(authManager.getPrincipal(id))
+    }
+
+    @Test
+    fun `getPrincipal() returns SetupPrincipal`() {
+        everyTransactionWithResult(db, true) { txn ->
+            every { db.getContactWithToken(txn, id) } returns null
+            every { setupManager.getOwnerToken(txn) } returns otherId
+            every { setupManager.getSetupToken(txn) } returns id
+        }
+
+        assertEquals(SetupPrincipal, authManager.getPrincipal(id))
     }
 
     @Test
