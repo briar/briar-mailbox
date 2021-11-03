@@ -4,6 +4,17 @@ import java.util.Hashtable
 
 class Settings : Hashtable<String, String>() {
 
+    override fun put(key: String, value: String?): String? {
+        return if (value == null) super.put(key, "")
+        else super.put(key, value)
+    }
+
+    override fun get(key: String): String? {
+        val value = super.get(key)
+        return if (value.isNullOrEmpty()) null
+        else value
+    }
+
     fun getBoolean(key: String, defaultValue: Boolean): Boolean {
         val s = get(key) ?: return defaultValue
         if ("true" == s) return true

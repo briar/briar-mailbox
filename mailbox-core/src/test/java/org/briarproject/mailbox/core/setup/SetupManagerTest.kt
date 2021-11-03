@@ -97,4 +97,13 @@ class SetupManagerTest : IntegrationTest() {
         }
     }
 
+    @Test
+    fun `authentication doesn't work with empty string`() = runBlocking {
+        // use it for setup PUT request
+        val response: HttpResponse = httpClient.put("$baseUrl/setup") {
+            authenticateWithToken("")
+        }
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
+    }
+
 }

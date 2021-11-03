@@ -57,38 +57,22 @@ class SetupManager @Inject constructor(
     @Throws(DbException::class)
     internal fun setToken(setupToken: String?, ownerToken: String?) {
         val settings = Settings()
-        if (setupToken == null) {
-            settings[SETTINGS_SETUP_TOKEN] = ""
-        } else {
-            randomIdManager.assertIsRandomId(setupToken)
-            settings[SETTINGS_SETUP_TOKEN] = setupToken
-        }
-        if (ownerToken == null) {
-            settings[SETTINGS_OWNER_TOKEN] = ""
-        } else {
-            randomIdManager.assertIsRandomId(ownerToken)
-            settings[SETTINGS_OWNER_TOKEN] = ownerToken
-        }
+        if (setupToken != null) randomIdManager.assertIsRandomId(setupToken)
+        settings[SETTINGS_SETUP_TOKEN] = setupToken
+        if (ownerToken != null) randomIdManager.assertIsRandomId(ownerToken)
+        settings[SETTINGS_OWNER_TOKEN] = ownerToken
         settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE_OWNER)
     }
 
     fun getSetupToken(txn: Transaction): String? {
         val settings = settingsManager.getSettings(txn, SETTINGS_NAMESPACE_OWNER)
-        return settings[SETTINGS_SETUP_TOKEN].nullify()
+        return settings[SETTINGS_SETUP_TOKEN]
     }
 
     @Throws(DbException::class)
     fun getOwnerToken(txn: Transaction): String? {
         val settings = settingsManager.getSettings(txn, SETTINGS_NAMESPACE_OWNER)
-        return settings[SETTINGS_OWNER_TOKEN].nullify()
-    }
-
-    /**
-     * @return the same string or null if it is empty
-     */
-    private fun String?.nullify(): String? {
-        return if (isNullOrEmpty()) null
-        else this
+        return settings[SETTINGS_OWNER_TOKEN]
     }
 
 }
