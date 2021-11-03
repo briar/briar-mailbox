@@ -2,12 +2,12 @@ package org.briarproject.mailbox.core
 
 import org.briarproject.mailbox.core.system.AndroidTaskScheduler
 import org.briarproject.mailbox.core.tor.AndroidNetworkManager
-import org.briarproject.mailbox.core.tor.AndroidTorPlugin
+import org.briarproject.mailbox.core.tor.TorPlugin
 import javax.inject.Inject
 
 @Suppress("unused")
 internal class AndroidEagerSingletons @Inject constructor(
     val androidTaskScheduler: AndroidTaskScheduler,
     val androidNetworkManager: AndroidNetworkManager,
-    val androidTorPlugin: AndroidTorPlugin,
+    val androidTorPlugin: TorPlugin,
 )

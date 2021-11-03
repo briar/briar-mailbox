@@ -47,7 +47,7 @@ internal class JavaTorModule {
         backoff: Backoff,
         lifecycleManager: LifecycleManager,
         eventBus: EventBus,
-    ): JavaTorPlugin {
+    ): TorPlugin {
         val configDir = File(System.getProperty("user.home") + File.separator + ".config")
         val mailboxDir = File(configDir, ".briar-mailbox")
         val torDir = File(mailboxDir, "tor")

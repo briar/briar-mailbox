@@ -8,7 +8,10 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import org.briarproject.mailbox.core.CoreEagerSingletons
 import org.briarproject.mailbox.core.JavaCliEagerSingletons
+import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.setup.QrCodeEncoder
+import org.briarproject.mailbox.core.setup.SetupManager
 import org.slf4j.LoggerFactory.getLogger
 import java.util.logging.Level.ALL
 import java.util.logging.Level.INFO
@@ -37,6 +40,15 @@ class Main : CliktCommand(
 
     @Inject
     internal lateinit var lifecycleManager: LifecycleManager
+
+    @Inject
+    internal lateinit var db: Database
+
+    @Inject
+    internal lateinit var setupManager: SetupManager
+
+    @Inject
+    internal lateinit var qrCodeEncoder: QrCodeEncoder
 
     override fun run() {
         // logging
@@ -68,6 +80,18 @@ class Main : CliktCommand(
 
         lifecycleManager.startServices()
         lifecycleManager.waitForStartup()
+
+        // TODO this is obviously not the final code, just a stub to get us started
+        val setupTokenExists = db.transactionWithResult(true) { txn ->
+            setupManager.getSetupToken(txn) != null
+        }
+        val ownerTokenExists = db.transactionWithResult(true) { txn ->
+            setupManager.getOwnerToken(txn) != null
+        }
+        if (!setupTokenExists && !ownerTokenExists) setupManager.restartSetup()
+        qrCodeEncoder.getQrCodeBitMatrix()?.let {
+            println(QrCodeRenderer.getQrString(it))
+        }
     }
 
 }

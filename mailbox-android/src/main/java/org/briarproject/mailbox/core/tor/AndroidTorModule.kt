@@ -54,7 +54,7 @@ internal class AndroidTorModule {
         backoff: Backoff,
         lifecycleManager: LifecycleManager,
         eventBus: EventBus,
-    ) = AndroidTorPlugin(
+    ): TorPlugin = AndroidTorPlugin(
         ioExecutor,
         app,
         settingsManager,
