@@ -4,6 +4,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
     id 'org.jetbrains.kotlin.kapt'
     id "org.jlleitschuh.gradle.ktlint" version "$ktlint_plugin_version"
+    id 'checkstyle'
 }
 
 sourceCompatibility = 1.8
