@@ -6,6 +6,7 @@ plugins {
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id "org.jlleitschuh.gradle.ktlint" version "$ktlint_plugin_version"
+    id 'checkstyle'
 }
 
 android {

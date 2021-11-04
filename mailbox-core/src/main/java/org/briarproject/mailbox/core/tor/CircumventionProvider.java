@@ -6,7 +6,7 @@ public interface CircumventionProvider {
 
 	/**
 	 * Countries where Tor is blocked, i.e. vanilla Tor connection won't work.
-	 *
+	 * <p>
 	 * See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 	 * and https://trac.torproject.org/projects/tor/wiki/doc/OONI/censorshipwiki
 	 */
@@ -16,7 +16,7 @@ public interface CircumventionProvider {
 	 * Countries where obfs4 or meek bridge connections are likely to work.
 	 * Should be a subset of {@link #BLOCKED}.
 	 */
-	String[] BRIDGES = { "CN", "IR", "EG", "BY", "TR", "SY", "VE" };
+	String[] BRIDGES = {"CN", "IR", "EG", "BY", "TR", "SY", "VE"};
 
 	/**
 	 * Countries where obfs4 bridges won't work and meek is needed.

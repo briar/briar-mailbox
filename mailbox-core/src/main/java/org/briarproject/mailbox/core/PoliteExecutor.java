@@ -36,7 +36,7 @@ public class PoliteExecutor implements Executor {
 	 * concurrently
 	 */
 	public PoliteExecutor(String tag, Executor delegate,
-                          int maxConcurrentTasks) {
+			int maxConcurrentTasks) {
 		this.delegate = delegate;
 		this.maxConcurrentTasks = maxConcurrentTasks;
 		log = Logger.getLogger(tag);
