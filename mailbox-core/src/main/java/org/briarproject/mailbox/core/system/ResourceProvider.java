@@ -4,5 +4,5 @@ import java.io.InputStream;
 
 public interface ResourceProvider {
 
-    InputStream getResourceInputStream(String name, String extension);
+	InputStream getResourceInputStream(String name, String extension);
 }

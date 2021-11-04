@@ -5,15 +5,15 @@ package org.briarproject.mailbox.core.lifecycle;
  */
 public class ServiceException extends Exception {
 
-    public ServiceException() {
-        super();
-    }
+	public ServiceException() {
+		super();
+	}
 
-    public ServiceException(String msg) {
-        super(msg);
-    }
+	public ServiceException(String msg) {
+		super(msg);
+	}
 
-    public ServiceException(Throwable cause) {
-        super(cause);
-    }
+	public ServiceException(Throwable cause) {
+		super(cause);
+	}
 }
