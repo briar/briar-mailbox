@@ -25,7 +25,7 @@ class SettingsManagerTest {
 
     @Test
     @Throws(java.lang.Exception::class)
-    open fun testMergeSettings() {
+    fun testMergeSettings() {
         val before = Settings()
         before["foo"] = "bar"
         before["baz"] = "bam"
