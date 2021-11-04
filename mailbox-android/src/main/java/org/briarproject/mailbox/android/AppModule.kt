@@ -6,9 +6,13 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import org.briarproject.android.dontkillmelib.DozeHelper
+import org.briarproject.android.dontkillmelib.DozeHelperImpl
 import org.briarproject.mailbox.core.CoreModule
 import org.briarproject.mailbox.core.db.DatabaseConfig
 import org.briarproject.mailbox.core.files.FileProvider
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.system.DozeWatchdog
 import java.io.File
 import javax.inject.Singleton
 
@@ -38,4 +42,14 @@ internal class AppModule {
         override fun getFolder(folderId: String) = File(folderRoot, folderId).also { it.mkdirs() }
         override fun getFile(folderId: String, fileId: String) = File(getFolder(folderId), fileId)
     }
+
+    @Singleton
+    @Provides
+    fun provideDozeWatchdog(app: Application, lifecycleManager: LifecycleManager): DozeWatchdog {
+        return DozeWatchdog(app).also { lifecycleManager.registerService(it) }
+    }
+
+    @Singleton
+    @Provides
+    fun provideDozeHelper(): DozeHelper = DozeHelperImpl()
 }
