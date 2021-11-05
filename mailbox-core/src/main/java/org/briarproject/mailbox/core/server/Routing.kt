@@ -7,6 +7,7 @@ import io.ktor.auth.authenticate
 import io.ktor.features.BadRequestException
 import io.ktor.features.MissingRequestParameterException
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.response.respond
@@ -32,7 +33,9 @@ internal fun Application.configureBasicApi(
 ) = routing {
     route(V) {
         get {
-            call.respondText("Hello world!", ContentType.Text.Plain)
+            call.respondText("Hello, I'm a Briar teapot",
+                ContentType.Text.Plain,
+                HttpStatusCode(418, "I'm a teapot"))
         }
         authenticate {
             delete {
