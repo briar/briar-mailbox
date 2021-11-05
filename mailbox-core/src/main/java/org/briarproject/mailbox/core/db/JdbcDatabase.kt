@@ -76,7 +76,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         }
         // Open the database and create the tables and indexes if necessary
         var compact = false
-        transaction(false) { txn ->
+        write { txn ->
             val connection = txn.unbox()
             compact = if (reopen) {
                 val s: Settings = getSettings(connection, DB_SETTINGS_NAMESPACE)
@@ -101,7 +101,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
             logDuration(LOG, { "Compacting database" }, start)
             // Allow the next transaction to reopen the DB
             synchronized(connectionsLock) { closed = false }
-            transaction(false) { txn ->
+            write { txn ->
                 storeLastCompacted(txn.unbox())
             }
         }
@@ -602,6 +602,14 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         } finally {
             if (txn.isReadOnly) lock.readLock().unlock() else lock.writeLock().unlock()
         }
+    }
+
+    override fun read(task: (Transaction) -> Unit) {
+        transaction(true, task)
+    }
+
+    override fun write(task: (Transaction) -> Unit) {
+        transaction(false, task)
     }
 
     override fun transaction(readOnly: Boolean, task: (Transaction) -> Unit) {

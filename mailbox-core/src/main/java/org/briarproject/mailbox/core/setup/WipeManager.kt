@@ -26,7 +26,7 @@ class WipeManager @Inject constructor(
         val principal = call.principal<MailboxPrincipal>()
         if (principal !is MailboxPrincipal.OwnerPrincipal) throw AuthException()
 
-        db.transaction(false) { txn ->
+        db.write { txn ->
             db.clearDatabase(txn)
         }
         fileManager.deleteAllFiles()

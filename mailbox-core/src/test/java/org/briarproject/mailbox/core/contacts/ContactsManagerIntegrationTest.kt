@@ -35,7 +35,7 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
 
     @AfterEach
     fun clearDb() {
-        db.transaction(false) { txn ->
+        db.write { txn ->
             db.clearDatabase(txn)
         }
     }
@@ -124,7 +124,7 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
         }
         assertJson("""{ "contacts": [ 1, 2, 3 ] }""", response2)
 
-        db.transaction(true) { txn ->
+        db.read { txn ->
             assertEquals(c1, db.getContact(txn, 1))
             assertEquals(c2, db.getContact(txn, 2))
             assertEquals(c3, db.getContact(txn, 3))

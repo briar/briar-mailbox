@@ -8,7 +8,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import org.briarproject.mailbox.core.CoreEagerSingletons
 import org.briarproject.mailbox.core.JavaCliEagerSingletons
-import org.briarproject.mailbox.core.db.Database
+import org.briarproject.mailbox.core.db.TransactionManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.setup.QrCodeEncoder
 import org.briarproject.mailbox.core.setup.SetupManager
@@ -42,7 +42,7 @@ class Main : CliktCommand(
     internal lateinit var lifecycleManager: LifecycleManager
 
     @Inject
-    internal lateinit var db: Database
+    internal lateinit var db: TransactionManager
 
     @Inject
     internal lateinit var setupManager: SetupManager
