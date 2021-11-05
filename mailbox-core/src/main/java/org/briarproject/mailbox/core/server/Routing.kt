@@ -4,6 +4,7 @@ import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.auth.authenticate
+import io.ktor.auth.principal
 import io.ktor.features.BadRequestException
 import io.ktor.features.MissingRequestParameterException
 import io.ktor.http.ContentType
@@ -33,11 +34,20 @@ internal fun Application.configureBasicApi(
 ) = routing {
     route(V) {
         get {
-            call.respondText("Hello, I'm a Briar teapot",
+            call.respondText(
+                "Hello, I'm a Briar teapot",
                 ContentType.Text.Plain,
-                HttpStatusCode(418, "I'm a teapot"))
+                HttpStatusCode(418, "I'm a teapot")
+            )
         }
         authenticate {
+            get("/status") {
+                call.handle {
+                    if (call.principal<MailboxPrincipal>() !is MailboxPrincipal.OwnerPrincipal)
+                        throw AuthException()
+                    call.respond(HttpStatusCode.OK)
+                }
+            }
             delete {
                 call.handle {
                     wipeManager.onWipeRequest(call)
