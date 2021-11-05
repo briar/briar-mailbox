@@ -95,6 +95,13 @@ class SetupManagerTest : IntegrationTest() {
             assertNull(setupManager.getSetupToken(txn))
             assertEquals(setupManager.getOwnerToken(txn), response.token)
         }
+        // setup token can no longer be used
+        assertEquals(
+            HttpStatusCode.Unauthorized,
+            httpClient.put<HttpResponse>("$baseUrl/setup") {
+                authenticateWithToken(token)
+            }.status
+        )
     }
 
     @Test
