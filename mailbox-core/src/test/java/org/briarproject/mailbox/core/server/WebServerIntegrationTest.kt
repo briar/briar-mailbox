@@ -10,10 +10,10 @@ import kotlin.test.assertEquals
 class WebServerIntegrationTest : IntegrationTest() {
 
     @Test
-    fun routeRespondsWithHelloWorldString(): Unit = runBlocking {
+    fun routeRespondsWithTeapot(): Unit = runBlocking {
         val response: HttpResponse = httpClient.get("$baseUrl/")
-        assertEquals(200, response.status.value)
-        assertEquals("Hello world!", response.readText())
+        assertEquals(418, response.status.value)
+        assertEquals("Hello, I'm a Briar teapot", response.readText())
     }
 
     @Test
