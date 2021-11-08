@@ -7,8 +7,8 @@ import io.ktor.http.HttpStatusCode
 import io.mockk.every
 import io.mockk.mockk
 import org.briarproject.mailbox.core.contacts.Contact
-import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.db.Transaction
+import org.briarproject.mailbox.core.db.TransactionManager
 import org.briarproject.mailbox.core.system.ID_SIZE
 import org.briarproject.mailbox.core.system.toHex
 import org.briarproject.mailbox.core.util.IoUtils
@@ -33,13 +33,32 @@ object TestUtils {
     )
 
     /**
-     * Allows you to mock [Database] access happening within a [Transaction] more comfortably.
-     * Calls to [Database.transactionWithResult] will be mocked.
+     * Allows you to mock [TransactionManager] access
+     * happening within a [Transaction] more comfortably.
+     * Calls to [TransactionManager.read] will be mocked.
      * The given lambda [block] will get captured and invoked.
      */
-    fun <T> everyTransactionWithResult(db: Database, readOnly: Boolean, block: (Transaction) -> T) {
-        val txn = Transaction(mockk(), readOnly)
-        every { db.transactionWithResult<T>(true, captureLambda()) } answers {
+    fun <T> TransactionManager.everyRead(
+        block: (Transaction) -> T,
+    ) {
+        val txn = Transaction(mockk(), true)
+        every { read<T>(captureLambda()) } answers {
+            lambda<(Transaction) -> T>().captured.invoke(txn)
+        }
+        block(txn)
+    }
+
+    /**
+     * Allows you to mock [TransactionManager] access
+     * happening within a [Transaction] more comfortably.
+     * Calls to [TransactionManager.write] will be mocked.
+     * The given lambda [block] will get captured and invoked.
+     */
+    fun <T> TransactionManager.everyWrite(
+        block: (Transaction) -> T,
+    ) {
+        val txn = Transaction(mockk(), true)
+        every { write<T>(captureLambda()) } answers {
             lambda<(Transaction) -> T>().captured.invoke(txn)
         }
         block(txn)

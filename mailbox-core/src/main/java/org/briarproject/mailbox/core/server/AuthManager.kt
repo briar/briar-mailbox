@@ -24,7 +24,7 @@ class AuthManager @Inject constructor(
      */
     fun getPrincipal(token: String): MailboxPrincipal? {
         randomIdManager.assertIsRandomId(token)
-        return db.transactionWithResult(true) { txn ->
+        return db.read { txn ->
             val contact = db.getContactWithToken(txn, token)
             when {
                 contact != null -> ContactPrincipal(contact)
@@ -44,7 +44,7 @@ class AuthManager @Inject constructor(
         if (principal == null) throw AuthException()
 
         if (principal is OwnerPrincipal) {
-            val contacts = db.transactionWithResult(true) { txn -> db.getContacts(txn) }
+            val contacts = db.read { txn -> db.getContacts(txn) }
             val noOutboxFound = contacts.none { c -> folderId == c.outboxId }
             if (noOutboxFound) throw AuthException()
         } else if (principal is ContactPrincipal) {
@@ -61,7 +61,7 @@ class AuthManager @Inject constructor(
         if (principal == null) throw AuthException()
 
         if (principal is OwnerPrincipal) {
-            val contacts = db.transactionWithResult(true) { txn -> db.getContacts(txn) }
+            val contacts = db.read { txn -> db.getContacts(txn) }
             val noInboxFound = contacts.none { c -> folderId == c.inboxId }
             if (noInboxFound) throw AuthException()
         } else if (principal is ContactPrincipal) {

@@ -125,7 +125,7 @@ class FileManager @Inject constructor(
 
         val folderListResponse = withContext(Dispatchers.IO) {
             val list = ArrayList<FolderResponse>()
-            val contacts = db.transactionWithResult(true) { txn -> db.getContacts(txn) }
+            val contacts = db.read { txn -> db.getContacts(txn) }
             contacts.forEach { c ->
                 val id = c.outboxId
                 val folder = fileProvider.getFolder(id)

@@ -34,7 +34,7 @@ class ContactsManager @Inject constructor(
     suspend fun listContacts(call: ApplicationCall) {
         authManager.assertIsOwner(call.principal())
 
-        val contacts = db.transactionWithResult(true) { txn ->
+        val contacts = db.read { txn ->
             db.getContacts(txn)
         }
         val contactIds = contacts.map { contact -> contact.contactId }
@@ -60,7 +60,7 @@ class ContactsManager @Inject constructor(
         randomIdManager.assertIsRandomId(c.inboxId)
         randomIdManager.assertIsRandomId(c.outboxId)
 
-        val status = db.transactionWithResult(false) { txn ->
+        val status = db.write { txn ->
             if (db.getContact(txn, c.contactId) != null) {
                 Conflict
             } else {
@@ -83,7 +83,7 @@ class ContactsManager @Inject constructor(
             throw BadRequestException("Invalid value for parameter contactId")
         }
 
-        val status = db.transactionWithResult(false) { txn ->
+        val status = db.write { txn ->
             if (db.getContact(txn, contactId) == null) {
                 NotFound
             } else {

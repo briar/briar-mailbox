@@ -3,27 +3,15 @@ package org.briarproject.mailbox.core.db
 interface TransactionManager {
 
     /**
-     * Runs the given task within a read-only transaction.
+     * Runs the given task within a read-only transaction and returns its result.
      */
     @Throws(DbException::class)
-    fun read(task: (Transaction) -> Unit)
+    fun <R> read(task: (Transaction) -> R): R
 
     /**
-     * Runs the given task within a read/write transaction.
+     * Runs the given task within a read/write transaction and returns its result.
      */
     @Throws(DbException::class)
-    fun write(task: (Transaction) -> Unit)
+    fun <R> write(task: (Transaction) -> R): R
 
-    /**
-     * Runs the given task within a transaction.
-     */
-    @Throws(DbException::class)
-    fun transaction(readOnly: Boolean, task: (Transaction) -> Unit)
-
-    /**
-     * Runs the given task within a transaction and returns the result of the
-     * task.
-     */
-    @Throws(DbException::class)
-    fun <R> transactionWithResult(readOnly: Boolean, task: (Transaction) -> R): R
 }

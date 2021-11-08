@@ -62,7 +62,7 @@ class QrCodeEncoder @Inject constructor(
 
     private fun getSetupTokenBytes(): ByteArray? {
         val tokenString = try {
-            db.transactionWithResult(true) { txn ->
+            db.read { txn ->
                 setupManager.getSetupToken(txn)
             }
         } catch (e: DbException) {

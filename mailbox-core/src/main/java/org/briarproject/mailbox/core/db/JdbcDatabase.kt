@@ -18,7 +18,6 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
 import java.sql.Statement
-import java.util.Arrays
 import java.util.LinkedList
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
@@ -149,7 +148,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
 
     @Suppress("MemberVisibilityCanBePrivate") // visible for testing
     internal fun getMigrations(): List<Migration<Connection>> {
-        return Arrays.asList<Migration<Connection>>(
+        return listOf(
             // Migration1_2(dbTypes),
         )
     }
@@ -604,25 +603,19 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         }
     }
 
-    override fun read(task: (Transaction) -> Unit) {
-        transaction(true, task)
+    override fun <R> read(task: (Transaction) -> R): R {
+        return transaction(true, task)
     }
 
-    override fun write(task: (Transaction) -> Unit) {
-        transaction(false, task)
+    override fun <R> write(task: (Transaction) -> R): R {
+        return transaction(false, task)
     }
 
-    override fun transaction(readOnly: Boolean, task: (Transaction) -> Unit) {
-        val txn = startTransaction(readOnly)
-        try {
-            task(txn)
-            commitTransaction(txn)
-        } finally {
-            endTransaction(txn)
-        }
-    }
-
-    override fun <R> transactionWithResult(readOnly: Boolean, task: (Transaction) -> R): R {
+    /**
+     * Runs the given task within a transaction and returns the result of the
+     * task.
+     */
+    private fun <R> transaction(readOnly: Boolean, task: (Transaction) -> R): R {
         val txn = startTransaction(readOnly)
         try {
             val result = task(txn)

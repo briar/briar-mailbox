@@ -54,11 +54,11 @@ class WipeManagerTest : IntegrationTest() {
         assertEquals(HttpStatusCode.NoContent, response.status)
 
         // no more contacts in DB
-        val contacts = db.transactionWithResult(true) { db.getContacts(it) }
+        val contacts = db.read { db.getContacts(it) }
         assertEquals(0, contacts.size)
 
         // owner token was cleared as well
-        val token = db.transactionWithResult(true) { txn ->
+        val token = db.read { txn ->
             testComponent.getSetupManager().getOwnerToken(txn)
         }
         assertNull(token)

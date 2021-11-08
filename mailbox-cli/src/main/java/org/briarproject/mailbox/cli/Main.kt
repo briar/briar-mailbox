@@ -82,10 +82,10 @@ class Main : CliktCommand(
         lifecycleManager.waitForStartup()
 
         // TODO this is obviously not the final code, just a stub to get us started
-        val setupTokenExists = db.transactionWithResult(true) { txn ->
+        val setupTokenExists = db.read { txn ->
             setupManager.getSetupToken(txn) != null
         }
-        val ownerTokenExists = db.transactionWithResult(true) { txn ->
+        val ownerTokenExists = db.read { txn ->
             setupManager.getOwnerToken(txn) != null
         }
         if (!setupTokenExists && !ownerTokenExists) setupManager.restartSetup()
