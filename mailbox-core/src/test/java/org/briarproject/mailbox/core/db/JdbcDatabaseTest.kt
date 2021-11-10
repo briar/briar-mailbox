@@ -52,7 +52,7 @@ abstract class JdbcDatabaseTest {
             outboxId = randomIdManager.getNewRandomId()
         )
         var db: Database = open(false)
-        db.transaction(false) { txn ->
+        db.write { txn ->
 
             db.addContact(txn, contact1)
             db.addContact(txn, contact2)
@@ -61,7 +61,7 @@ abstract class JdbcDatabaseTest {
 
         // Check that the records are still there
         db = open(true)
-        db.transaction(false) { txn ->
+        db.write { txn ->
             val contact1Reloaded1 = db.getContact(txn, 1)
             val contact2Reloaded1 = db.getContact(txn, 2)
             assertEquals(contact1, contact1Reloaded1)
@@ -77,7 +77,7 @@ abstract class JdbcDatabaseTest {
 
         // Check that the record is gone
         db = open(true)
-        db.transaction(true) { txn ->
+        db.read { txn ->
             val contact1Reloaded2 = db.getContact(txn, 1)
             val contact2Reloaded2 = db.getContact(txn, 2)
             assertNull(contact1Reloaded2)
@@ -99,7 +99,7 @@ abstract class JdbcDatabaseTest {
         merged["baz"] = "qux"
 
         val db: Database = open(false)
-        db.transaction(false) { txn ->
+        db.write { txn ->
             // store 'before'
             db.mergeSettings(txn, before, "namespace")
             assertEquals(before, db.getSettings(txn, "namespace"))

@@ -4,8 +4,8 @@ import com.google.zxing.BarcodeFormat.QR_CODE
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.QRCodeWriter
 import dev.keiji.util.Base32
-import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.db.DbException
+import org.briarproject.mailbox.core.db.TransactionManager
 import org.briarproject.mailbox.core.tor.TorPlugin
 import org.briarproject.mailbox.core.util.LogUtils.logException
 import org.briarproject.mailbox.core.util.StringUtils.fromHexString
@@ -18,7 +18,7 @@ private const val VERSION = 32
 private val LOG = getLogger(QrCodeEncoder::class.java)
 
 class QrCodeEncoder @Inject constructor(
-    private val db: Database,
+    private val db: TransactionManager,
     private val setupManager: SetupManager,
     private val torPlugin: TorPlugin,
 ) {
@@ -62,7 +62,7 @@ class QrCodeEncoder @Inject constructor(
 
     private fun getSetupTokenBytes(): ByteArray? {
         val tokenString = try {
-            db.transactionWithResult(true) { txn ->
+            db.read { txn ->
                 setupManager.getSetupToken(txn)
             }
         } catch (e: DbException) {

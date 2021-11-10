@@ -62,7 +62,7 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
 
     protected fun addContact(c: Contact) {
         val db = testComponent.getDatabase()
-        db.transaction(false) { txn ->
+        db.write { txn ->
             db.addContact(txn, c)
         }
     }

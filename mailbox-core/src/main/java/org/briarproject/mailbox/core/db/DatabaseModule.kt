@@ -17,4 +17,9 @@ internal class DatabaseModule {
         return H2Database(config, clock)
     }
 
+    @Provides
+    fun provideTransactionManager(db: Database): TransactionManager {
+        return db
+    }
+
 }

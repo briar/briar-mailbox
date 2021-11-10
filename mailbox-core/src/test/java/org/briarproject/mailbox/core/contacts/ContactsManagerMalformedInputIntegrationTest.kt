@@ -27,7 +27,7 @@ class ContactsManagerMalformedInputIntegrationTest : IntegrationTest(false) {
     @AfterEach
     fun clearDb() {
         val db = testComponent.getDatabase()
-        db.transaction(false) { txn ->
+        db.write { txn ->
             db.clearDatabase(txn)
         }
     }
@@ -62,7 +62,7 @@ class ContactsManagerMalformedInputIntegrationTest : IntegrationTest(false) {
         TestUtils.assertJson("""{ "contacts": [ 1, 2, 3 ] }""", response2)
 
         val db = testComponent.getDatabase()
-        db.transaction(true) { txn ->
+        db.read { txn ->
             assertEquals(c1, db.getContact(txn, 1))
             assertEquals(c2, db.getContact(txn, 2))
             assertEquals(c3, db.getContact(txn, 3))
@@ -220,7 +220,7 @@ class ContactsManagerMalformedInputIntegrationTest : IntegrationTest(false) {
         TestUtils.assertJson("""{ "contacts": [ 1, 2 ] }""", response2)
 
         val db = testComponent.getDatabase()
-        db.transaction(true) { txn ->
+        db.read { txn ->
             assertEquals(c1, db.getContact(txn, 1))
             assertEquals(c2, db.getContact(txn, 2))
         }

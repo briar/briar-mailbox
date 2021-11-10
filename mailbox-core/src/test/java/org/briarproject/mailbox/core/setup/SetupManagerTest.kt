@@ -25,21 +25,21 @@ class SetupManagerTest : IntegrationTest() {
     @Test
     fun `restarting setup wipes owner token and creates setup token`() {
         // initially, there's no setup and no owner token
-        db.transaction(true) { txn ->
+        db.read { txn ->
             assertNull(setupManager.getSetupToken(txn))
             assertNull(setupManager.getOwnerToken(txn))
         }
 
         // setting an owner token stores it in DB
         setupManager.setToken(null, ownerToken)
-        db.transaction(true) { txn ->
+        db.read { txn ->
             assertNull(setupManager.getSetupToken(txn))
             assertEquals(ownerToken, setupManager.getOwnerToken(txn))
         }
 
         // restarting setup wipes owner token, creates setup token
         setupManager.restartSetup()
-        db.transaction(true) { txn ->
+        db.read { txn ->
             val setupToken = setupManager.getSetupToken(txn)
             assertNotNull(setupToken)
             testComponent.getRandomIdManager().assertIsRandomId(setupToken)
@@ -50,7 +50,7 @@ class SetupManagerTest : IntegrationTest() {
     @Test
     fun `setup request gets rejected when using non-setup token`() = runBlocking {
         // initially, there's no setup and no owner token
-        db.transaction(true) { txn ->
+        db.read { txn ->
             assertNull(setupManager.getSetupToken(txn))
             assertNull(setupManager.getOwnerToken(txn))
         }
@@ -91,7 +91,7 @@ class SetupManagerTest : IntegrationTest() {
             authenticateWithToken(token)
         }
         // setup token got wiped and new owner token from response got stored
-        db.transaction(true) { txn ->
+        db.read { txn ->
             assertNull(setupManager.getSetupToken(txn))
             assertEquals(setupManager.getOwnerToken(txn), response.token)
         }

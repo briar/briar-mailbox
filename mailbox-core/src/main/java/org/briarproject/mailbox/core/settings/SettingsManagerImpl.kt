@@ -11,7 +11,7 @@ internal class SettingsManagerImpl @Inject constructor(private val db: Database)
 
     @Throws(DbException::class)
     override fun getSettings(namespace: String): Settings {
-        return db.transactionWithResult(true) { txn ->
+        return db.read { txn ->
             db.getSettings(txn, namespace)
         }
     }
@@ -23,6 +23,6 @@ internal class SettingsManagerImpl @Inject constructor(private val db: Database)
 
     @Throws(DbException::class)
     override fun mergeSettings(s: Settings, namespace: String) {
-        db.transaction(false) { txn -> db.mergeSettings(txn, s, namespace) }
+        db.write { txn -> db.mergeSettings(txn, s, namespace) }
     }
 }

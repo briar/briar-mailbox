@@ -2,7 +2,7 @@ package org.briarproject.mailbox.core.server
 
 import io.mockk.every
 import io.mockk.mockk
-import org.briarproject.mailbox.core.TestUtils.everyTransactionWithResult
+import org.briarproject.mailbox.core.TestUtils.everyRead
 import org.briarproject.mailbox.core.TestUtils.getNewRandomContact
 import org.briarproject.mailbox.core.TestUtils.getNewRandomId
 import org.briarproject.mailbox.core.db.Database
@@ -41,7 +41,7 @@ class AuthManagerTest {
 
     @Test
     fun `getPrincipal() returns authenticated contact`() {
-        everyTransactionWithResult(db, true) { txn ->
+        db.everyRead { txn ->
             every { db.getContactWithToken(txn, id) } returns contactPrincipal.contact
         }
         assertEquals(contactPrincipal, authManager.getPrincipal(id))
@@ -49,7 +49,7 @@ class AuthManagerTest {
 
     @Test
     fun `getPrincipal() returns authenticated owner`() {
-        everyTransactionWithResult(db, true) { txn ->
+        db.everyRead { txn ->
             every { db.getContactWithToken(txn, id) } returns null
             every { setupManager.getOwnerToken(txn) } returns id
         }
@@ -59,7 +59,7 @@ class AuthManagerTest {
 
     @Test
     fun `getPrincipal() returns null when unauthenticated`() {
-        everyTransactionWithResult(db, true) { txn ->
+        db.everyRead { txn ->
             every { db.getContactWithToken(txn, id) } returns null
             every { setupManager.getOwnerToken(txn) } returns otherId
             every { setupManager.getSetupToken(txn) } returns otherId
@@ -70,7 +70,7 @@ class AuthManagerTest {
 
     @Test
     fun `getPrincipal() returns SetupPrincipal`() {
-        everyTransactionWithResult(db, true) { txn ->
+        db.everyRead { txn ->
             every { db.getContactWithToken(txn, id) } returns null
             every { setupManager.getOwnerToken(txn) } returns otherId
             every { setupManager.getSetupToken(txn) } returns id
@@ -88,7 +88,7 @@ class AuthManagerTest {
 
     @Test
     fun `assertCanDownloadFromFolder() throws if owner wants non-existent folder`() {
-        everyTransactionWithResult(db, true) { txn ->
+        db.everyRead { txn ->
             every { db.getContacts(txn) } returns emptyList()
         }
 
@@ -109,7 +109,7 @@ class AuthManagerTest {
 
     @Test
     fun `assertCanDownloadFromFolder() lets owner access contact's outbox folder`() {
-        everyTransactionWithResult(db, true) { txn ->
+        db.everyRead { txn ->
             every { db.getContacts(txn) } returns listOf(contact, getNewRandomContact())
         }
 
@@ -130,7 +130,7 @@ class AuthManagerTest {
 
     @Test
     fun `assertCanPostToFolder() throws if owner wants non-existent folder`() {
-        everyTransactionWithResult(db, true) { txn ->
+        db.everyRead { txn ->
             every { db.getContacts(txn) } returns emptyList()
         }
 
@@ -151,7 +151,7 @@ class AuthManagerTest {
 
     @Test
     fun `assertCanPostToFolder() lets owner access contact's inbox folder`() {
-        everyTransactionWithResult(db, true) { txn ->
+        db.everyRead { txn ->
             every { db.getContacts(txn) } returns listOf(contact, getNewRandomContact())
         }
 

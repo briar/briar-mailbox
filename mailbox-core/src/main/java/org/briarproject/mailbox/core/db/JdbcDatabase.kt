@@ -18,7 +18,6 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
 import java.sql.Statement
-import java.util.Arrays
 import java.util.LinkedList
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
@@ -76,7 +75,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         }
         // Open the database and create the tables and indexes if necessary
         var compact = false
-        transaction(false) { txn ->
+        write { txn ->
             val connection = txn.unbox()
             compact = if (reopen) {
                 val s: Settings = getSettings(connection, DB_SETTINGS_NAMESPACE)
@@ -101,7 +100,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
             logDuration(LOG, { "Compacting database" }, start)
             // Allow the next transaction to reopen the DB
             synchronized(connectionsLock) { closed = false }
-            transaction(false) { txn ->
+            write { txn ->
                 storeLastCompacted(txn.unbox())
             }
         }
@@ -149,7 +148,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
 
     @Suppress("MemberVisibilityCanBePrivate") // visible for testing
     internal fun getMigrations(): List<Migration<Connection>> {
-        return Arrays.asList<Migration<Connection>>(
+        return listOf(
             // Migration1_2(dbTypes),
         )
     }
@@ -604,17 +603,19 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         }
     }
 
-    override fun transaction(readOnly: Boolean, task: (Transaction) -> Unit) {
-        val txn = startTransaction(readOnly)
-        try {
-            task(txn)
-            commitTransaction(txn)
-        } finally {
-            endTransaction(txn)
-        }
+    override fun <R> read(task: (Transaction) -> R): R {
+        return transaction(true, task)
     }
 
-    override fun <R> transactionWithResult(readOnly: Boolean, task: (Transaction) -> R): R {
+    override fun <R> write(task: (Transaction) -> R): R {
+        return transaction(false, task)
+    }
+
+    /**
+     * Runs the given task within a transaction and returns the result of the
+     * task.
+     */
+    private fun <R> transaction(readOnly: Boolean, task: (Transaction) -> R): R {
         val txn = startTransaction(readOnly)
         try {
             val result = task(txn)

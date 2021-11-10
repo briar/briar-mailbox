@@ -8,7 +8,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import org.briarproject.mailbox.core.CoreEagerSingletons
 import org.briarproject.mailbox.core.JavaCliEagerSingletons
-import org.briarproject.mailbox.core.db.Database
+import org.briarproject.mailbox.core.db.TransactionManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.setup.QrCodeEncoder
 import org.briarproject.mailbox.core.setup.SetupManager
@@ -42,7 +42,7 @@ class Main : CliktCommand(
     internal lateinit var lifecycleManager: LifecycleManager
 
     @Inject
-    internal lateinit var db: Database
+    internal lateinit var db: TransactionManager
 
     @Inject
     internal lateinit var setupManager: SetupManager
@@ -82,10 +82,10 @@ class Main : CliktCommand(
         lifecycleManager.waitForStartup()
 
         // TODO this is obviously not the final code, just a stub to get us started
-        val setupTokenExists = db.transactionWithResult(true) { txn ->
+        val setupTokenExists = db.read { txn ->
             setupManager.getSetupToken(txn) != null
         }
-        val ownerTokenExists = db.transactionWithResult(true) { txn ->
+        val ownerTokenExists = db.read { txn ->
             setupManager.getOwnerToken(txn) != null
         }
         if (!setupTokenExists && !ownerTokenExists) setupManager.restartSetup()
