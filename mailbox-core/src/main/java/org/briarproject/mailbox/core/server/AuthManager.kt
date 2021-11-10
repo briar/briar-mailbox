@@ -6,6 +6,7 @@ import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.MailboxPrincipal.ContactPrincipal
 import org.briarproject.mailbox.core.server.MailboxPrincipal.OwnerPrincipal
 import org.briarproject.mailbox.core.server.MailboxPrincipal.SetupPrincipal
+import org.briarproject.mailbox.core.settings.MetadataManager
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.RandomIdManager
 import javax.inject.Inject
@@ -15,6 +16,7 @@ import javax.inject.Singleton
 class AuthManager @Inject constructor(
     private val db: Database,
     private val setupManager: SetupManager,
+    private val metadataManager: MetadataManager,
     private val randomIdManager: RandomIdManager,
 ) {
 
@@ -24,7 +26,7 @@ class AuthManager @Inject constructor(
      */
     fun getPrincipal(token: String): MailboxPrincipal? {
         randomIdManager.assertIsRandomId(token)
-        return db.read { txn ->
+        val principal = db.read { txn ->
             val contact = db.getContactWithToken(txn, token)
             when {
                 contact != null -> ContactPrincipal(contact)
@@ -33,6 +35,10 @@ class AuthManager @Inject constructor(
                 else -> null
             }
         }
+        // We register the owner connection here before further call validation.
+        // It can still happen that the owner sends invalid requests, but that's fine here.
+        if (principal is OwnerPrincipal) metadataManager.onOwnerConnected()
+        return principal
     }
 
     /**
@@ -75,6 +81,14 @@ class AuthManager @Inject constructor(
     @Throws(AuthException::class)
     fun assertIsOwner(principal: MailboxPrincipal?) {
         if (principal !is OwnerPrincipal) throw AuthException()
+    }
+
+    /**
+     * @throws [AuthException] when given [principal] is NOT the setup token.
+     */
+    @Throws(AuthException::class)
+    fun assertIsSetup(principal: MailboxPrincipal?) {
+        if (principal !is SetupPrincipal) throw AuthException()
     }
 
 }

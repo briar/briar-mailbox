@@ -1,15 +1,16 @@
-package org.briarproject.mailbox.core.server
+package org.briarproject.mailbox.core.settings
 
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.readText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
+import org.briarproject.mailbox.core.server.IntegrationTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class StatusIntegrationTest : IntegrationTest() {
+class MetadataRouteManagerTest : IntegrationTest() {
 
     @BeforeEach
     fun initDb() {

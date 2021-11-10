@@ -1,6 +1,8 @@
 package org.briarproject.mailbox.core.server
 
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import org.briarproject.mailbox.core.TestUtils.everyRead
 import org.briarproject.mailbox.core.TestUtils.getNewRandomContact
@@ -8,6 +10,7 @@ import org.briarproject.mailbox.core.TestUtils.getNewRandomId
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.MailboxPrincipal.OwnerPrincipal
 import org.briarproject.mailbox.core.server.MailboxPrincipal.SetupPrincipal
+import org.briarproject.mailbox.core.settings.MetadataManager
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.InvalidIdException
 import org.briarproject.mailbox.core.system.RandomIdManager
@@ -22,9 +25,10 @@ class AuthManagerTest {
 
     private val db: Database = mockk()
     private val setupManager: SetupManager = mockk()
+    private val metadataManager: MetadataManager = mockk()
     private val randomIdManager = RandomIdManager()
 
-    private val authManager = AuthManager(db, setupManager, randomIdManager)
+    private val authManager = AuthManager(db, setupManager, metadataManager, randomIdManager)
 
     private val id = getNewRandomId()
     private val otherId = getNewRandomId()
@@ -53,6 +57,7 @@ class AuthManagerTest {
             every { db.getContactWithToken(txn, id) } returns null
             every { setupManager.getOwnerToken(txn) } returns id
         }
+        every { metadataManager.onOwnerConnected() } just Runs
 
         assertEquals(OwnerPrincipal, authManager.getPrincipal(id))
     }

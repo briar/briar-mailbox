@@ -15,6 +15,8 @@ import org.briarproject.mailbox.core.util.IoUtils
 import java.io.File
 import kotlin.random.Random
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 
 object TestUtils {
 
@@ -77,6 +79,14 @@ object TestUtils {
         val actualValue: Any = mapper.readValue(response.readText(), Any::class.java)
         val actual = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(actualValue)
         assertEquals(expected, actual)
+    }
+
+    fun assertTimestampRecent(timestamp: Long) {
+        assertNotEquals(0, timestamp)
+        assertTrue(
+            System.currentTimeMillis() - timestamp < 1000,
+            "Timestamp is ${System.currentTimeMillis() - timestamp}ms old."
+        )
     }
 
 }

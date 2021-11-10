@@ -1,6 +1,7 @@
 package org.briarproject.mailbox.core.lifecycle;
 
 import org.briarproject.mailbox.core.db.Database;
+import org.briarproject.mailbox.core.db.Transaction;
 import org.briarproject.mailbox.core.system.Wakeful;
 
 import java.util.concurrent.ExecutorService;
@@ -107,6 +108,6 @@ public interface LifecycleManager {
 		 * {@link #waitForDatabase()} returns.
 		 */
 		@Wakeful
-		void onDatabaseOpened();
+		void onDatabaseOpened(Transaction txn);
 	}
 }

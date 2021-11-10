@@ -4,10 +4,9 @@ import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.db.DbException
 import org.briarproject.mailbox.core.db.Transaction
 import javax.annotation.concurrent.Immutable
-import javax.inject.Inject
 
 @Immutable
-internal class SettingsManagerImpl @Inject constructor(private val db: Database) : SettingsManager {
+internal class SettingsManagerImpl(private val db: Database) : SettingsManager {
 
     @Throws(DbException::class)
     override fun getSettings(namespace: String): Settings {

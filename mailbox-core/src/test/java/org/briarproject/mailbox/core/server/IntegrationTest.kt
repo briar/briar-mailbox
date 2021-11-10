@@ -25,7 +25,9 @@ import java.io.File
 abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
 
     protected lateinit var testComponent: TestComponent
+    protected val db by lazy { testComponent.getDatabase() }
     private val lifecycleManager by lazy { testComponent.getLifecycleManager() }
+    protected val metadataManager by lazy { testComponent.getMetadataManager() }
     protected val httpClient = HttpClient(CIO) {
         expectSuccess = false // prevents exceptions on non-success responses
         if (installJsonFeature) {

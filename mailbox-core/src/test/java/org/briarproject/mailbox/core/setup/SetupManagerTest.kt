@@ -13,13 +13,16 @@ import kotlin.test.assertNull
 
 class SetupManagerTest : IntegrationTest() {
 
-    private val db by lazy { testComponent.getDatabase() }
     private val setupManager by lazy { testComponent.getSetupManager() }
 
     @AfterEach
     fun resetToken() {
-        // re-set both token to not interfere with other tests
-        setupManager.setToken(null, null)
+        db.write { txn ->
+            // re-set both token to not interfere with other tests
+            db.clearDatabase(txn)
+            // clears [metadataManager.ownerConnectionTime]
+            metadataManager.onDatabaseOpened(txn)
+        }
     }
 
     @Test
