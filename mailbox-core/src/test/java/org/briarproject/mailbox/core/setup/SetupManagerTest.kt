@@ -5,7 +5,6 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.server.IntegrationTest
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -14,16 +13,6 @@ import kotlin.test.assertNull
 class SetupManagerTest : IntegrationTest() {
 
     private val setupManager by lazy { testComponent.getSetupManager() }
-
-    @AfterEach
-    fun resetToken() {
-        db.write { txn ->
-            // re-set both token to not interfere with other tests
-            db.clearDatabase(txn)
-            // clears [metadataManager.ownerConnectionTime]
-            metadataManager.onDatabaseOpened(txn)
-        }
-    }
 
     @Test
     fun `restarting setup wipes owner token and creates setup token`() {

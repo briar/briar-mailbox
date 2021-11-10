@@ -11,7 +11,6 @@ import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.TestUtils
 import org.briarproject.mailbox.core.TestUtils.getNewRandomContact
 import org.briarproject.mailbox.core.server.IntegrationTest
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
@@ -20,16 +19,9 @@ import kotlin.test.assertEquals
 class ContactsManagerMalformedInputIntegrationTest : IntegrationTest(false) {
 
     @BeforeEach
-    fun initDb() {
+    override fun initDb() {
+        super.initDb()
         addOwnerToken()
-    }
-
-    @AfterEach
-    fun clearDb() {
-        val db = testComponent.getDatabase()
-        db.write { txn ->
-            db.clearDatabase(txn)
-        }
     }
 
     /**

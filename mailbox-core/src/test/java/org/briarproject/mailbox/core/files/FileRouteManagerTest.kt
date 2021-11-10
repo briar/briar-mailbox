@@ -27,14 +27,14 @@ import kotlin.random.Random
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class FileManagerTest {
+class FileRouteManagerTest {
 
     private val db: Database = mockk()
     private val authManager: AuthManager = mockk()
     private val fileProvider: FileProvider = mockk()
     private val randomIdManager = RandomIdManager()
 
-    private val fileManager = FileManager(db, authManager, fileProvider, randomIdManager)
+    private val fileRouteManager = FileRouteManager(db, authManager, fileProvider, randomIdManager)
 
     private val call: ApplicationCall = mockk()
     private val id = getNewRandomId()
@@ -58,7 +58,7 @@ class FileManagerTest {
         every { fileProvider.getFile(id, any()) } returns finalFile
         coEvery { call.respond(HttpStatusCode.OK) } just Runs
 
-        fileManager.postFile(call, id)
+        fileRouteManager.postFile(call, id)
 
         assertFalse(tmpFile.exists())
         assertTrue(finalFile.exists())

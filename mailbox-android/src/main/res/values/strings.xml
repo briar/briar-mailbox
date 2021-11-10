@@ -5,6 +5,7 @@
 	<string name="notification_mailbox_content">Waiting for messages…</string>
 	<string name="start">Start mailbox</string>
 	<string name="stop">Stop mailbox</string>
+	<string name="wipe">Wipe mailbox</string>
 
 	<!-- TODO: We might want to copy string from don't kill me lib,
 	      so translation memory can auto-translate most of them. -->

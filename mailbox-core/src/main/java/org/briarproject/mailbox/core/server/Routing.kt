@@ -20,10 +20,10 @@ import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.util.getOrFail
 import org.briarproject.mailbox.core.contacts.ContactsManager
-import org.briarproject.mailbox.core.files.FileManager
+import org.briarproject.mailbox.core.files.FileRouteManager
 import org.briarproject.mailbox.core.settings.MetadataRouteManager
 import org.briarproject.mailbox.core.setup.SetupRouteManager
-import org.briarproject.mailbox.core.setup.WipeManager
+import org.briarproject.mailbox.core.setup.WipeRouteManager
 import org.briarproject.mailbox.core.system.InvalidIdException
 
 internal const val V = "/" // TODO set to "/v1" for release
@@ -31,7 +31,7 @@ internal const val V = "/" // TODO set to "/v1" for release
 internal fun Application.configureBasicApi(
     metadataRouteManager: MetadataRouteManager,
     setupRouteManager: SetupRouteManager,
-    wipeManager: WipeManager,
+    wipeRouteManager: WipeRouteManager,
 ) = routing {
     route(V) {
         get {
@@ -49,7 +49,7 @@ internal fun Application.configureBasicApi(
             }
             delete {
                 call.handle {
-                    wipeManager.onWipeRequest(call)
+                    wipeRouteManager.onWipeRequest(call)
                 }
             }
             put("/setup") {
@@ -85,18 +85,18 @@ internal fun Application.configureContactApi(contactsManager: ContactsManager) =
         }
     }
 
-internal fun Application.configureFilesApi(fileManager: FileManager) = routing {
+internal fun Application.configureFilesApi(fileRouteManager: FileRouteManager) = routing {
 
     authenticate {
         route("$V/files/{folderId}") {
             post {
                 call.handle {
-                    fileManager.postFile(call, call.parameters.getOrFail("folderId"))
+                    fileRouteManager.postFile(call, call.parameters.getOrFail("folderId"))
                 }
             }
             get {
                 call.handle {
-                    fileManager.listFiles(call, call.parameters.getOrFail("folderId"))
+                    fileRouteManager.listFiles(call, call.parameters.getOrFail("folderId"))
                 }
             }
             route("/{fileId}") {
@@ -104,14 +104,14 @@ internal fun Application.configureFilesApi(fileManager: FileManager) = routing {
                     val folderId = call.parameters.getOrFail("folderId")
                     val fileId = call.parameters.getOrFail("fileId")
                     call.handle {
-                        fileManager.getFile(call, folderId, fileId)
+                        fileRouteManager.getFile(call, folderId, fileId)
                     }
                 }
                 delete {
                     val folderId = call.parameters.getOrFail("folderId")
                     val fileId = call.parameters.getOrFail("fileId")
                     call.handle {
-                        fileManager.deleteFile(call, folderId, fileId)
+                        fileRouteManager.deleteFile(call, folderId, fileId)
                     }
                 }
             }
@@ -120,7 +120,7 @@ internal fun Application.configureFilesApi(fileManager: FileManager) = routing {
     authenticate {
         get("$V/folders") {
             call.handle {
-                fileManager.listFoldersWithFiles(call)
+                fileRouteManager.listFoldersWithFiles(call)
             }
         }
     }

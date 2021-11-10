@@ -17,7 +17,9 @@ import org.briarproject.mailbox.core.TestUtils.getNewRandomId
 import org.briarproject.mailbox.core.contacts.Contact
 import org.briarproject.mailbox.core.server.WebServerManager.Companion.PORT
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.junit.jupiter.api.io.TempDir
@@ -61,6 +63,21 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
     fun tearDown() {
         lifecycleManager.stopServices()
         lifecycleManager.waitForShutdown()
+    }
+
+    @BeforeEach
+    open fun initDb() {
+        // need to reopen database here because we're closing it after each test
+        db.open(null)
+        db.read { txn ->
+            // clears [metadataManager.ownerConnectionTime]
+            metadataManager.onDatabaseOpened(txn)
+        }
+    }
+
+    @AfterEach
+    open fun clearDb() {
+        db.dropAllTablesAndClose()
     }
 
     protected fun addOwnerToken() {

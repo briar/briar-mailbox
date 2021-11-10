@@ -9,6 +9,7 @@ import org.briarproject.mailbox.core.db.DatabaseConstants.Companion.SCHEMA_VERSI
 import org.briarproject.mailbox.core.db.JdbcUtils.tryToClose
 import org.briarproject.mailbox.core.settings.Settings
 import org.briarproject.mailbox.core.system.Clock
+import org.briarproject.mailbox.core.util.LogUtils.info
 import org.briarproject.mailbox.core.util.LogUtils.logDuration
 import org.briarproject.mailbox.core.util.LogUtils.logException
 import org.briarproject.mailbox.core.util.LogUtils.now
@@ -50,7 +51,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         """.trimIndent()
     }
 
-    private val connectionsLock: Lock = ReentrantLock()
+    protected val connectionsLock: Lock = ReentrantLock()
     private val connectionsChanged = connectionsLock.newCondition()
 
     @GuardedBy("connectionsLock")
@@ -60,21 +61,29 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     private var openConnections = 0
 
     @GuardedBy("connectionsLock")
-    private var closed = false
+    protected var closed = false
 
     @Volatile
     private var wasDirtyOnInitialisation = false
 
     private val lock = ReentrantReadWriteLock(true)
 
-    fun open(driverClass: String, reopen: Boolean, listener: MigrationListener?) {
-        // Load the JDBC driver
+    /*
+     * Returns true if the database already existed
+     */
+    internal fun open(driverClass: String, listener: MigrationListener?): Boolean {
         try {
             Class.forName(driverClass)
         } catch (e: ClassNotFoundException) {
             throw DbException(e)
         }
         // Open the database and create the tables and indexes if necessary
+        LOG.info { "checking for settings table" }
+        val reopen = databaseHasSettingsTable()
+        LOG.info {
+            if (reopen) "settings table found, reopening"
+            else "settings table not found, not reopening"
+        }
         var compact = false
         write { txn ->
             val connection = txn.unbox()
@@ -88,9 +97,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
                 initialiseSettings(connection)
                 false
             }
-            if (LOG.isInfoEnabled) {
-                LOG.info("db dirty? $wasDirtyOnInitialisation")
-            }
+            LOG.info { "db dirty? $wasDirtyOnInitialisation" }
             createIndexes(connection)
         }
         // Compact the database if necessary
@@ -100,12 +107,21 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
             compactAndClose()
             logDuration(LOG, { "Compacting database" }, start)
             // Allow the next transaction to reopen the DB
-            synchronized(connectionsLock) { closed = false }
+            connectionsLock.lock()
+            try {
+                closed = false
+            } finally {
+                connectionsLock.unlock()
+            }
             write { txn ->
                 storeLastCompacted(txn.unbox())
             }
         }
+        return reopen
     }
+
+    @Throws(DbException::class, SQLException::class)
+    protected abstract fun databaseHasSettingsTable(): Boolean
 
     /**
      * Compares the schema version stored in the database with the schema
@@ -352,10 +368,18 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     }
 
     @Throws(DbException::class)
-    override fun clearDatabase(txn: Transaction) {
-        val connection: Connection = txn.unbox()
-        execute(connection, "DELETE FROM settings")
-        execute(connection, "DELETE FROM contacts")
+    override fun dropAllTablesAndClose() {
+        connectionsLock.lock()
+        try {
+            write { txn ->
+                val connection: Connection = txn.unbox()
+                execute(connection, "DROP TABLE settings")
+                execute(connection, "DROP TABLE contacts")
+            }
+            closeAllConnections()
+        } finally {
+            connectionsLock.unlock()
+        }
     }
 
     private fun execute(connection: Connection, sql: String) {

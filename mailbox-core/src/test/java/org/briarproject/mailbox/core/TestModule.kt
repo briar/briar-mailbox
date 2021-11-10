@@ -5,7 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.briarproject.mailbox.core.db.DatabaseConfig
-import org.briarproject.mailbox.core.db.DatabaseModule
+import org.briarproject.mailbox.core.db.TestDatabaseModule
 import org.briarproject.mailbox.core.files.FileProvider
 import org.briarproject.mailbox.core.lifecycle.LifecycleModule
 import org.briarproject.mailbox.core.server.WebServerModule
@@ -17,7 +17,7 @@ import javax.inject.Singleton
 @Module(
     includes = [
         LifecycleModule::class,
-        DatabaseModule::class,
+        TestDatabaseModule::class,
         WebServerModule::class,
         SettingsModule::class,
         // no Tor module

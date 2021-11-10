@@ -20,12 +20,29 @@ import javax.inject.Inject
 private val LOG = getLogger(FileManager::class.java)
 
 class FileManager @Inject constructor(
+    private val fileProvider: FileProvider,
+) {
+    fun deleteAllFiles(): Boolean {
+        var allDeleted = true
+        fileProvider.folderRoot.listFiles()?.forEach { folder ->
+            if (!folder.deleteRecursively()) {
+                allDeleted = false
+                LOG.warn("Not everything in $folder could get deleted.")
+            }
+        } ?: run {
+            allDeleted = false
+            LOG.warn("Could not delete folders.")
+        }
+        return allDeleted
+    }
+}
+
+class FileRouteManager @Inject constructor(
     private val db: Database,
     private val authManager: AuthManager,
     private val fileProvider: FileProvider,
     private val randomIdManager: RandomIdManager,
 ) {
-
     /**
      * Used by contacts to send files to the owner and by the owner to send files to contacts.
      *
@@ -136,20 +153,6 @@ class FileManager @Inject constructor(
             FolderListResponse(list)
         }
         call.respond(folderListResponse)
-    }
-
-    fun deleteAllFiles(): Boolean {
-        var allDeleted = true
-        fileProvider.folderRoot.listFiles()?.forEach { folder ->
-            if (!folder.deleteRecursively()) {
-                allDeleted = false
-                LOG.warn("Not everything in $folder could get deleted.")
-            }
-        } ?: run {
-            allDeleted = false
-            LOG.warn("Could not delete folders.")
-        }
-        return allDeleted
     }
 }
 

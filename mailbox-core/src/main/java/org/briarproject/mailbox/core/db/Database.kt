@@ -6,7 +6,8 @@ import org.briarproject.mailbox.core.settings.Settings
 interface Database : TransactionManager {
 
     /**
-     * Opens the database and returns true if the database already existed.
+     * Opens the database and returns true if the database already existed. Existence of the
+     * database is defined as the database files exists and the database contains a valid schema.
      */
     fun open(listener: MigrationListener?): Boolean
 
@@ -18,7 +19,7 @@ interface Database : TransactionManager {
     fun close()
 
     @Throws(DbException::class)
-    fun clearDatabase(txn: Transaction)
+    fun dropAllTablesAndClose()
 
     @Throws(DbException::class)
     fun getSettings(txn: Transaction, namespace: String): Settings
