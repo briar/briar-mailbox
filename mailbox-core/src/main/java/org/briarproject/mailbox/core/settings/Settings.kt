@@ -4,11 +4,17 @@ import java.util.Hashtable
 
 class Settings : Hashtable<String, String>() {
 
+    /**
+     * Note that null values will get stored as empty string.
+     */
     override fun put(key: String, value: String?): String? {
         return if (value == null) super.put(key, "")
         else super.put(key, value)
     }
 
+    /**
+     * Note that empty strings get returned as null.
+     */
     override fun get(key: String): String? {
         val value = super.get(key)
         return if (value.isNullOrEmpty()) null

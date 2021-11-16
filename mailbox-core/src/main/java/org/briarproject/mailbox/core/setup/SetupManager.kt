@@ -29,7 +29,7 @@ class SetupManager @Inject constructor(
     fun restartSetup() {
         val settings = Settings()
         settings[SETTINGS_SETUP_TOKEN] = randomIdManager.getNewRandomId()
-        settings[SETTINGS_OWNER_TOKEN] = "" // we can't remove or null, so we need to empty it
+        settings[SETTINGS_OWNER_TOKEN] = null
         settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE_OWNER)
     }
 
