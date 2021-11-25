@@ -80,6 +80,12 @@ internal class LifecycleManagerImpl @Inject constructor(private val db: Database
             val reopened = db.open(this)
             if (reopened) logDuration(LOG, { "Reopening database" }, start)
             else logDuration(LOG, { "Creating database" }, start)
+            // Inform hooks that DB was opened
+            db.write { txn ->
+                for (hook in openDatabaseHooks) {
+                    hook.onDatabaseOpened(txn)
+                }
+            }
             LOG.info("Starting services")
             state.value = STARTING_SERVICES
             dbLatch.countDown()

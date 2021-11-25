@@ -4,7 +4,6 @@ import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.auth.authenticate
-import io.ktor.auth.principal
 import io.ktor.features.BadRequestException
 import io.ktor.features.MissingRequestParameterException
 import io.ktor.http.ContentType
@@ -22,14 +21,16 @@ import io.ktor.routing.routing
 import io.ktor.util.getOrFail
 import org.briarproject.mailbox.core.contacts.ContactsManager
 import org.briarproject.mailbox.core.files.FileManager
-import org.briarproject.mailbox.core.setup.SetupManager
+import org.briarproject.mailbox.core.settings.MetadataRouteManager
+import org.briarproject.mailbox.core.setup.SetupRouteManager
 import org.briarproject.mailbox.core.setup.WipeManager
 import org.briarproject.mailbox.core.system.InvalidIdException
 
 internal const val V = "/" // TODO set to "/v1" for release
 
 internal fun Application.configureBasicApi(
-    setupManager: SetupManager,
+    metadataRouteManager: MetadataRouteManager,
+    setupRouteManager: SetupRouteManager,
     wipeManager: WipeManager,
 ) = routing {
     route(V) {
@@ -43,9 +44,7 @@ internal fun Application.configureBasicApi(
         authenticate {
             get("/status") {
                 call.handle {
-                    if (call.principal<MailboxPrincipal>() !is MailboxPrincipal.OwnerPrincipal)
-                        throw AuthException()
-                    call.respond(HttpStatusCode.OK)
+                    metadataRouteManager.onStatusRequest(call)
                 }
             }
             delete {
@@ -55,7 +54,7 @@ internal fun Application.configureBasicApi(
             }
             put("/setup") {
                 call.handle {
-                    setupManager.onSetupRequest(call)
+                    setupRouteManager.onSetupRequest(call)
                 }
             }
         }

@@ -14,8 +14,6 @@ import kotlin.test.assertTrue
 
 class WipeManagerTest : IntegrationTest() {
 
-    private val db by lazy { testComponent.getDatabase() }
-
     @Test
     fun `wipe request rejects non-owners`() = runBlocking {
         addOwnerToken()

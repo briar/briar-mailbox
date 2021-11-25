@@ -7,8 +7,7 @@ import io.ktor.response.respond
 import org.briarproject.mailbox.core.db.DbException
 import org.briarproject.mailbox.core.db.Transaction
 import org.briarproject.mailbox.core.server.AuthException
-import org.briarproject.mailbox.core.server.MailboxPrincipal
-import org.briarproject.mailbox.core.server.MailboxPrincipal.SetupPrincipal
+import org.briarproject.mailbox.core.server.AuthManager
 import org.briarproject.mailbox.core.settings.Settings
 import org.briarproject.mailbox.core.settings.SettingsManager
 import org.briarproject.mailbox.core.system.RandomIdManager
@@ -31,24 +30,6 @@ class SetupManager @Inject constructor(
         settings[SETTINGS_SETUP_TOKEN] = randomIdManager.getNewRandomId()
         settings[SETTINGS_OWNER_TOKEN] = null
         settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE_OWNER)
-    }
-
-    /**
-     * Handler for `PUT /setup` API endpoint.
-     *
-     * Wipes setup token and responds with new owner token and 201 status code.
-     */
-    @Throws(AuthException::class)
-    suspend fun onSetupRequest(call: ApplicationCall) {
-        val principal: MailboxPrincipal? = call.principal()
-        if (principal !is SetupPrincipal) throw AuthException()
-
-        // set new owner token and clear single-use setup token
-        val ownerToken = randomIdManager.getNewRandomId()
-        setToken(null, ownerToken)
-        val response = SetupResponse(ownerToken)
-
-        call.respond(HttpStatusCode.Created, response)
     }
 
     /**
@@ -75,6 +56,29 @@ class SetupManager @Inject constructor(
         return settings[SETTINGS_OWNER_TOKEN]
     }
 
+}
+
+class SetupRouteManager @Inject constructor(
+    private val authManager: AuthManager,
+    private val setupManager: SetupManager,
+    private val randomIdManager: RandomIdManager,
+) {
+    /**
+     * Handler for `PUT /setup` API endpoint.
+     *
+     * Wipes setup token and responds with new owner token and 201 status code.
+     */
+    @Throws(AuthException::class)
+    suspend fun onSetupRequest(call: ApplicationCall) {
+        authManager.assertIsSetup(call.principal())
+
+        // set new owner token and clear single-use setup token
+        val ownerToken = randomIdManager.getNewRandomId()
+        setupManager.setToken(null, ownerToken)
+        val response = SetupResponse(ownerToken)
+
+        call.respond(HttpStatusCode.Created, response)
+    }
 }
 
 internal data class SetupResponse(val token: String)

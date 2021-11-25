@@ -15,8 +15,8 @@ import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.TestUtils.assertJson
+import org.briarproject.mailbox.core.TestUtils.assertTimestampRecent
 import org.briarproject.mailbox.core.TestUtils.getNewRandomContact
-import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.IntegrationTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -24,9 +24,6 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class ContactsManagerIntegrationTest : IntegrationTest() {
-
-    val db: Database
-        get() = testComponent.getDatabase()
 
     @BeforeEach
     fun initDb() {
@@ -37,15 +34,20 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
     fun clearDb() {
         db.write { txn ->
             db.clearDatabase(txn)
+            // clears [metadataManager.ownerConnectionTime]
+            metadataManager.onDatabaseOpened(txn)
         }
     }
 
     @Test
     fun `get contacts is initially empty`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
         val response: HttpResponse = httpClient.get("$baseUrl/contacts") {
             authenticateWithToken(ownerToken)
         }
         assertJson("""{ "contacts": [ ] }""", response)
+
+        assertTimestampRecent(metadataManager.ownerConnectionTime.value)
     }
 
     @Test
@@ -60,12 +62,14 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
 
     @Test
     fun `get contacts rejects unauthorized for contacts`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
         addContact(contact1)
         addContact(contact2)
         val response: HttpResponse = httpClient.get("$baseUrl/contacts") {
             authenticateWithToken(contact1.token)
         }
         assertEquals(Unauthorized, response.status)
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
     }
 
     @Test
@@ -108,6 +112,7 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
 
     @Test
     fun `owner can add contacts`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
         val c1 = getNewRandomContact(1).also { addContact(it) }
         val c2 = getNewRandomContact(2).also { addContact(it) }
         val c3 = getNewRandomContact(3)
@@ -118,6 +123,8 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
             body = c3
         }
         assertEquals(Created, response1.status)
+
+        assertTimestampRecent(metadataManager.ownerConnectionTime.value)
 
         val response2: HttpResponse = httpClient.get("$baseUrl/contacts") {
             authenticateWithToken(ownerToken)
@@ -154,6 +161,7 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
 
     @Test
     fun `owner can remove contacts`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
         addContact(getNewRandomContact(1))
         addContact(getNewRandomContact(2))
 
@@ -161,6 +169,8 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(OK, response1.status)
+
+        assertTimestampRecent(metadataManager.ownerConnectionTime.value)
 
         val response2: HttpResponse = httpClient.get("$baseUrl/contacts") {
             authenticateWithToken(ownerToken)
@@ -170,6 +180,7 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
 
     @Test
     fun `contact cannot remove contacts`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
         addContact(contact1)
         addContact(contact2)
 
@@ -177,6 +188,7 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(contact2.token)
         }
         assertEquals(Unauthorized, response1.status)
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
 
         val response2: HttpResponse = httpClient.get("$baseUrl/contacts") {
             authenticateWithToken(ownerToken)
@@ -207,6 +219,7 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
 
     @Test
     fun `removing non-existent contacts fails gracefully`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
         addContact(getNewRandomContact(1))
         addContact(getNewRandomContact(2))
 
@@ -214,6 +227,9 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(NotFound, response1.status)
+
+        // still registers owner connection
+        assertTimestampRecent(metadataManager.ownerConnectionTime.value)
 
         val response2: HttpResponse = httpClient.get("$baseUrl/contacts") {
             authenticateWithToken(ownerToken)

@@ -5,6 +5,7 @@ import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.files.FileManager
 import org.briarproject.mailbox.core.files.FileProvider
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.settings.MetadataManager
 import org.briarproject.mailbox.core.settings.SettingsManager
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.RandomIdManager
@@ -25,4 +26,5 @@ interface TestComponent {
     fun getDatabase(): Database
     fun getRandomIdManager(): RandomIdManager
     fun getFileProvider(): FileProvider
+    fun getMetadataManager(): MetadataManager
 }

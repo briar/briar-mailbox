@@ -11,7 +11,8 @@ import org.briarproject.mailbox.core.contacts.ContactsManager
 import org.briarproject.mailbox.core.files.FileManager
 import org.briarproject.mailbox.core.lifecycle.Service
 import org.briarproject.mailbox.core.server.WebServerManager.Companion.PORT
-import org.briarproject.mailbox.core.setup.SetupManager
+import org.briarproject.mailbox.core.settings.MetadataRouteManager
+import org.briarproject.mailbox.core.setup.SetupRouteManager
 import org.briarproject.mailbox.core.setup.WipeManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
@@ -27,7 +28,8 @@ interface WebServerManager : Service {
 @Singleton
 internal class WebServerManagerImpl @Inject constructor(
     private val authManager: AuthManager,
-    private val setupManager: SetupManager,
+    private val metadataRouteManager: MetadataRouteManager,
+    private val setupRouteManager: SetupRouteManager,
     private val contactsManager: ContactsManager,
     private val fileManager: FileManager,
     private val wipeManager: WipeManager,
@@ -52,7 +54,7 @@ internal class WebServerManagerImpl @Inject constructor(
             install(ContentNegotiation) {
                 jackson()
             }
-            configureBasicApi(setupManager, wipeManager)
+            configureBasicApi(metadataRouteManager, setupRouteManager, wipeManager)
             configureContactApi(contactsManager)
             configureFilesApi(fileManager)
         }

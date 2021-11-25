@@ -9,6 +9,7 @@ import io.ktor.client.statement.readBytes
 import io.ktor.client.statement.readText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
+import org.briarproject.mailbox.core.TestUtils.assertTimestampRecent
 import org.briarproject.mailbox.core.TestUtils.getNewRandomId
 import org.briarproject.mailbox.core.server.IntegrationTest
 import org.junit.jupiter.api.AfterEach
@@ -32,6 +33,11 @@ class FileManagerIntegrationTest : IntegrationTest() {
     @AfterEach
     fun cleanUp() {
         testComponent.getFileManager().deleteAllFiles()
+        db.write { txn ->
+            db.clearDatabase(txn)
+            // clears [metadataManager.ownerConnectionTime]
+            metadataManager.onDatabaseOpened(txn)
+        }
     }
 
     @Test
@@ -64,12 +70,15 @@ class FileManagerIntegrationTest : IntegrationTest() {
 
     @Test
     fun `post new file, list, download and delete it`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
         // owner uploads the file
         val response: HttpResponse = httpClient.post("$baseUrl/files/${contact1.inboxId}") {
             authenticateWithToken(ownerToken)
             body = bytes
         }
         assertEquals(HttpStatusCode.OK, response.status)
+        // owner connection got registered
+        assertTimestampRecent(metadataManager.ownerConnectionTime.value)
 
         // contact can list the file
         val listResponse: HttpResponse = httpClient.get("$baseUrl/files/${contact1.inboxId}") {
@@ -105,10 +114,12 @@ class FileManagerIntegrationTest : IntegrationTest() {
 
     @Test
     fun `list files rejects wrong token`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
         val response: HttpResponse = httpClient.get("$baseUrl/files/${getNewRandomId()}") {
             authenticateWithToken(token)
         }
         assertEquals(HttpStatusCode.Unauthorized, response.status)
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
 
         // upload a real file
         val postResponse: HttpResponse = httpClient.post("$baseUrl/files/${contact1.inboxId}") {
@@ -148,11 +159,14 @@ class FileManagerIntegrationTest : IntegrationTest() {
 
     @Test
     fun `list files gives empty response for empty folder`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
         val response: HttpResponse = httpClient.get("$baseUrl/files/${contact1.outboxId}") {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.OK, response.status)
         assertEquals("""{"files":[]}""", response.readText())
+        // owner connection got registered
+        assertTimestampRecent(metadataManager.ownerConnectionTime.value)
     }
 
     @Test
@@ -201,6 +215,17 @@ class FileManagerIntegrationTest : IntegrationTest() {
     }
 
     @Test
+    fun `get file for contact does not update owner timestamp`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
+        val id = getNewRandomId()
+        val response: HttpResponse = httpClient.get("$baseUrl/files/${contact1.inboxId}/$id") {
+            authenticateWithToken(contact1.token)
+        }
+        assertEquals(HttpStatusCode.NotFound, response.status)
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
+    }
+
+    @Test
     fun `delete file rejects wrong token`(): Unit = runBlocking {
         val response: HttpResponse =
             httpClient.delete("$baseUrl/files/${getNewRandomId()}/${getNewRandomId()}") {
@@ -238,32 +263,52 @@ class FileManagerIntegrationTest : IntegrationTest() {
 
     @Test
     fun `delete file gives 404 response for unknown file`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
         val id = getNewRandomId()
         val response: HttpResponse = httpClient.delete("$baseUrl/files/${contact1.outboxId}/$id") {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.NotFound, response.status)
+        // owner connection still got registered
+        assertTimestampRecent(metadataManager.ownerConnectionTime.value)
+    }
+
+    @Test
+    fun `delete file for contact does not update owner timestamp`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
+        val id = getNewRandomId()
+        val response: HttpResponse = httpClient.delete("$baseUrl/files/${contact1.inboxId}/$id") {
+            authenticateWithToken(contact1.token)
+        }
+        assertEquals(HttpStatusCode.NotFound, response.status)
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
     }
 
     @Test
     fun `list folders rejects contacts`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
         val response: HttpResponse = httpClient.get("$baseUrl/folders") {
             authenticateWithToken(contact1.token)
         }
         assertEquals(HttpStatusCode.Unauthorized, response.status)
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
     }
 
     @Test
     fun `list folders allows owner, returns empty result`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
         val response: HttpResponse = httpClient.get("$baseUrl/folders") {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.OK, response.status)
         assertEquals("""{"folders":[]}""", response.readText())
+        // owner connection got registered
+        assertTimestampRecent(metadataManager.ownerConnectionTime.value)
     }
 
     @Test
     fun `list folders returns more than a single folder`(): Unit = runBlocking {
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
         // contact1 uploads a file
         val response1: HttpResponse = httpClient.post("$baseUrl/files/${contact1.outboxId}") {
             authenticateWithToken(contact1.token)
@@ -277,6 +322,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             body = bytes
         }
         assertEquals(HttpStatusCode.OK, response2.status)
+        assertEquals(0L, metadataManager.ownerConnectionTime.value)
 
         // owner now sees both contacts' outboxes in folders list
         val folderListResponse: FolderListResponse = httpClient.get("$baseUrl/folders") {
@@ -284,5 +330,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
         }
         val folderList = setOf(FolderResponse(contact1.outboxId), FolderResponse(contact2.outboxId))
         assertEquals(folderList, folderListResponse.folders.toSet())
+        // owner connection got registered
+        assertTimestampRecent(metadataManager.ownerConnectionTime.value)
     }
 }
