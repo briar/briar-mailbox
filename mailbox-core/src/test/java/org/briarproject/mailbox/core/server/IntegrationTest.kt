@@ -4,6 +4,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.features.logging.LogLevel
+import io.ktor.client.features.logging.Logging
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.headers
 import io.ktor.http.HttpHeaders
@@ -32,6 +34,9 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
             install(JsonFeature) {
                 serializer = JacksonSerializer()
             }
+        }
+        install(Logging) {
+            level = LogLevel.ALL
         }
     }
     protected val baseUrl = "http://127.0.0.1:$PORT"
