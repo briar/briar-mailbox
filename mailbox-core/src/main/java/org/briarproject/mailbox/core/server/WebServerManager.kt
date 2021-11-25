@@ -1,5 +1,6 @@
 package org.briarproject.mailbox.core.server
 
+import com.fasterxml.jackson.databind.MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES
 import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.features.CallLogging
@@ -52,7 +53,9 @@ internal class WebServerManagerImpl @Inject constructor(
                 }
             }
             install(ContentNegotiation) {
-                jackson()
+                jackson {
+                    enable(BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
+                }
             }
             configureBasicApi(metadataRouteManager, setupRouteManager, wipeManager)
             configureContactApi(contactsManager)
