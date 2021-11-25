@@ -21,6 +21,8 @@ import org.briarproject.mailbox.core.server.IntegrationTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.test.assertEquals
 
 class ContactsManagerIntegrationTest : IntegrationTest() {
@@ -57,7 +59,7 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
         val response: HttpResponse = httpClient.get("$baseUrl/contacts") {
             authenticateWithToken(ownerToken)
         }
-        assertJson("""{ "contacts": [ ${contact1.contactId}, ${contact2.contactId} ] }""", response)
+        assertJson("""{ "contacts": ${getJsonArray(contact1, contact2)} }""", response)
     }
 
     @Test
@@ -154,7 +156,7 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertJson(
-            """{ "contacts": [ ${contact1.contactId}, ${contact2.contactId} ] }""",
+            """{ "contacts": ${getJsonArray(contact1, contact2)} }""",
             response2
         )
     }
@@ -194,7 +196,7 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertJson(
-            """{ "contacts": [ ${contact1.contactId}, ${contact2.contactId} ] }""",
+            """{ "contacts": ${getJsonArray(contact1, contact2)} }""",
             response2
         )
     }
@@ -262,5 +264,15 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
         }
         assertEquals(BadRequest, response.status)
         assertEquals("Bad request: Invalid value for parameter contactId", response.readText())
+    }
+
+    /**
+     * Getting contacts with a PRIMARY KEY seems to automatically order them by that key.
+     * So we need to sort the JSON array for a proper comparison.
+     */
+    private fun getJsonArray(c1: Contact, c2: Contact): String {
+        val lowId = min(c1.contactId, c2.contactId)
+        val highId = max(c1.contactId, c2.contactId)
+        return "[ $lowId, $highId ]"
     }
 }

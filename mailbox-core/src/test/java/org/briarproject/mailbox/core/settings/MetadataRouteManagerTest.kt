@@ -6,6 +6,7 @@ import io.ktor.client.statement.readText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.server.IntegrationTest
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -17,6 +18,13 @@ class MetadataRouteManagerTest : IntegrationTest() {
         addOwnerToken()
         addContact(contact1)
         addContact(contact2)
+    }
+
+    @AfterEach
+    fun clearDb() {
+        db.write { txn ->
+            db.clearDatabase(txn)
+        }
     }
 
     @Test
