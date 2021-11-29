@@ -24,20 +24,17 @@ class FileManagerIntegrationTest : IntegrationTest() {
     private val bytes = Random.nextBytes(2048)
 
     @BeforeEach
-    fun initDb() {
+    override fun initDb() {
+        super.initDb()
         addOwnerToken()
         addContact(contact1)
         addContact(contact2)
     }
 
     @AfterEach
-    fun cleanUp() {
+    override fun clearDb() {
+        super.clearDb()
         testComponent.getFileManager().deleteAllFiles()
-        db.write { txn ->
-            db.clearDatabase(txn)
-            // clears [metadataManager.ownerConnectionTime]
-            metadataManager.onDatabaseOpened(txn)
-        }
     }
 
     @Test

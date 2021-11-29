@@ -9,12 +9,12 @@ import io.ktor.jackson.jackson
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.briarproject.mailbox.core.contacts.ContactsManager
-import org.briarproject.mailbox.core.files.FileManager
+import org.briarproject.mailbox.core.files.FileRouteManager
 import org.briarproject.mailbox.core.lifecycle.Service
 import org.briarproject.mailbox.core.server.WebServerManager.Companion.PORT
 import org.briarproject.mailbox.core.settings.MetadataRouteManager
 import org.briarproject.mailbox.core.setup.SetupRouteManager
-import org.briarproject.mailbox.core.setup.WipeManager
+import org.briarproject.mailbox.core.setup.WipeRouteManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
@@ -32,8 +32,8 @@ internal class WebServerManagerImpl @Inject constructor(
     private val metadataRouteManager: MetadataRouteManager,
     private val setupRouteManager: SetupRouteManager,
     private val contactsManager: ContactsManager,
-    private val fileManager: FileManager,
-    private val wipeManager: WipeManager,
+    private val fileRouteManager: FileRouteManager,
+    private val wipeRouteManager: WipeRouteManager,
 ) : WebServerManager {
 
     internal companion object {
@@ -57,9 +57,9 @@ internal class WebServerManagerImpl @Inject constructor(
                     enable(BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
                 }
             }
-            configureBasicApi(metadataRouteManager, setupRouteManager, wipeManager)
+            configureBasicApi(metadataRouteManager, setupRouteManager, wipeRouteManager)
             configureContactApi(contactsManager)
-            configureFilesApi(fileManager)
+            configureFilesApi(fileRouteManager)
         }
     }
 

@@ -18,7 +18,6 @@ import org.briarproject.mailbox.core.TestUtils.assertJson
 import org.briarproject.mailbox.core.TestUtils.assertTimestampRecent
 import org.briarproject.mailbox.core.TestUtils.getNewRandomContact
 import org.briarproject.mailbox.core.server.IntegrationTest
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.math.max
@@ -28,17 +27,9 @@ import kotlin.test.assertEquals
 class ContactsManagerIntegrationTest : IntegrationTest() {
 
     @BeforeEach
-    fun initDb() {
+    override fun initDb() {
+        super.initDb()
         addOwnerToken()
-    }
-
-    @AfterEach
-    fun clearDb() {
-        db.write { txn ->
-            db.clearDatabase(txn)
-            // clears [metadataManager.ownerConnectionTime]
-            metadataManager.onDatabaseOpened(txn)
-        }
     }
 
     @Test

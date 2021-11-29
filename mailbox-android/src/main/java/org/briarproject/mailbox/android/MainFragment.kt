@@ -23,6 +23,7 @@ class MainFragment : Fragment() {
     private val viewModel: MailboxViewModel by activityViewModels()
     private lateinit var statusTextView: TextView
     private lateinit var startStopButton: Button
+    private lateinit var wipeButton: Button
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,6 +38,7 @@ class MainFragment : Fragment() {
         val button = v.findViewById<Button>(R.id.button)
         statusTextView = v.findViewById(R.id.statusTextView)
         startStopButton = v.findViewById(R.id.startStopButton)
+        wipeButton = v.findViewById(R.id.wipeButton)
 
         button.setOnClickListener {
             viewModel.updateText("Tested")
@@ -60,7 +62,7 @@ class MainFragment : Fragment() {
     }
 
     private fun onLifecycleStateChanged(state: LifecycleManager.LifecycleState) = when (state) {
-        LifecycleManager.LifecycleState.STOPPED -> {
+        LifecycleManager.LifecycleState.NOT_STARTED -> {
             statusTextView.text = state.name
             startStopButton.setText(R.string.start)
             startStopButton.setOnClickListener { viewModel.startLifecycle() }
@@ -70,11 +72,14 @@ class MainFragment : Fragment() {
             statusTextView.text = state.name
             startStopButton.setText(R.string.stop)
             startStopButton.setOnClickListener { viewModel.stopLifecycle() }
+            wipeButton.setOnClickListener { viewModel.wipe() }
             startStopButton.isEnabled = true
+            wipeButton.isEnabled = true
         }
         else -> {
             statusTextView.text = state.name
             startStopButton.isEnabled = false
+            wipeButton.isEnabled = false
         }
     }
 

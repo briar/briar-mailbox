@@ -3,18 +3,20 @@ package org.briarproject.mailbox.core.db
 import org.briarproject.mailbox.core.db.JdbcUtils.tryToClose
 import org.briarproject.mailbox.core.system.Clock
 import org.briarproject.mailbox.core.util.IoUtils.isNonEmptyDirectory
+import org.briarproject.mailbox.core.util.LogUtils.info
 import org.briarproject.mailbox.core.util.LogUtils.logFileOrDir
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.sql.Connection
 import java.sql.DriverManager
+import java.sql.ResultSet
 import java.sql.SQLException
 import java.sql.Statement
 import java.util.Properties
 
-class H2Database(
+open class H2Database(
     private val config: DatabaseConfig,
-    val clock: Clock,
+    clock: Clock,
 ) : JdbcDatabase(dbTypes, clock) {
 
     internal companion object {
@@ -35,32 +37,58 @@ class H2Database(
 
     override fun open(listener: MigrationListener?): Boolean {
         val dir = config.getDatabaseDirectory()
-        if (LOG.isInfoEnabled) {
-            LOG.info("Contents of account directory before opening DB:")
-            logFileOrDir(LOG, dir.parentFile)
-        }
-        val reopen = isNonEmptyDirectory(dir)
-        if (LOG.isInfoEnabled) LOG.info("Reopening DB: $reopen")
-        if (!reopen && dir.mkdirs()) LOG.info("Created database directory")
-        super.open("org.h2.Driver", reopen, listener)
-        if (LOG.isInfoEnabled) {
-            LOG.info("Contents of account directory after opening DB:")
-            logFileOrDir(LOG, dir.parentFile)
-        }
+        LOG.info { "Contents of account directory before opening DB:" }
+        logFileOrDir(LOG, dir.parentFile)
+        val databaseDirNonEmpty = isNonEmptyDirectory(dir)
+        if (!databaseDirNonEmpty && dir.mkdirs()) LOG.info("Created database directory")
+        val reopen = super.open("org.h2.Driver", listener)
+        LOG.info { "Contents of account directory after opening DB:" }
+        logFileOrDir(LOG, dir.parentFile)
         return reopen
     }
 
+    override fun databaseHasSettingsTable(): Boolean {
+        return read { txn ->
+            val connection = txn.unbox()
+            var tables: ResultSet? = null
+            try {
+                // Need to check for PUBLIC schema as there is another table called SETTINGS on the
+                // INFORMATION_SCHEMA schema.
+                tables = connection.metaData.getTables(null, "PUBLIC", "SETTINGS", null)
+                // if that query returns any rows, the settings table does exist
+                tables.next()
+            } catch (e: SQLException) {
+                LOG.warn("Error while checking for settings table existence", e)
+                tryToClose(tables, LOG)
+                false
+            }
+        }
+    }
+
     override fun close() {
-        // H2 will close the database when the last connection closes
-        var c: Connection? = null
+        connectionsLock.lock()
         try {
-            c = createConnection()
-            super.closeAllConnections()
-            setDirty(c, false)
-            c.close()
-        } catch (e: SQLException) {
-            tryToClose(c, LOG)
-            throw DbException(e)
+            // This extra check is mainly added for tests where we might have closed the database
+            // already by resetting the database after each test and then the lifecycle manager
+            // tries to close again. However closing an already closed database doesn't make
+            // sense, also in production, so bail out quickly here.
+            // This is important especially after the database has been cleared, because the
+            // settings table is gone and if we allowed the flow to continue further, we would try
+            // to store the dirty flag in the no longer existing settings table.
+            if (closed) return
+            // H2 will close the database when the last connection closes
+            var c: Connection? = null
+            try {
+                c = createConnection()
+                super.closeAllConnections()
+                setDirty(c, false)
+                c.close()
+            } catch (e: SQLException) {
+                tryToClose(c, LOG)
+                throw DbException(e)
+            }
+        } finally {
+            connectionsLock.unlock()
         }
     }
 

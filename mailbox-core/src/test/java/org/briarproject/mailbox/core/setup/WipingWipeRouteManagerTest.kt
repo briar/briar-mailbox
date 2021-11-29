@@ -5,32 +5,17 @@ import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
+import org.briarproject.mailbox.core.db.DbException
 import org.briarproject.mailbox.core.server.IntegrationTest
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class WipeManagerTest : IntegrationTest() {
-
-    @Test
-    fun `wipe request rejects non-owners`() = runBlocking {
-        addOwnerToken()
-        addContact(contact1)
-
-        // Unauthorized with random token
-        val response1 = httpClient.delete<HttpResponse>("$baseUrl/") {
-            authenticateWithToken(token)
-        }
-        assertEquals(HttpStatusCode.Unauthorized, response1.status)
-
-        // Unauthorized with contact's token
-        val response2 = httpClient.delete<HttpResponse>("$baseUrl/") {
-            authenticateWithToken(contact1.token)
-        }
-        assertEquals(HttpStatusCode.Unauthorized, response2.status)
-    }
+class WipingWipeRouteManagerTest : IntegrationTest() {
 
     @Test
     fun `wipe request deletes files and db for owner`() = runBlocking {
@@ -51,19 +36,40 @@ class WipeManagerTest : IntegrationTest() {
         }
         assertEquals(HttpStatusCode.NoContent, response.status)
 
-        // no more contacts in DB
-        val contacts = db.read { db.getContacts(it) }
-        assertEquals(0, contacts.size)
-
-        // owner token was cleared as well
-        val token = db.read { txn ->
-            testComponent.getSetupManager().getOwnerToken(txn)
-        }
-        assertNull(token)
+        // assert that database is gone
+        assertFalse(testComponent.getDatabaseConfig().getDatabaseDirectory().exists())
 
         // no more files are stored
         val folderRoot = testComponent.getFileProvider().folderRoot
         assertTrue(folderRoot.listFiles()?.isEmpty() ?: false)
+
+        // no more contacts in DB - contacts table is gone
+        // it actually fails because db is closed though
+        assertFailsWith<DbException> { db.read { db.getContacts(it) } }
+
+        // owner token was cleared as well - settings table is gone
+        // it actually fails because db is closed though
+        assertFailsWith<DbException> {
+            db.read { txn ->
+                testComponent.getSetupManager().getOwnerToken(txn)
+            }
+        }
+
+        // re-open the database
+        db.open(null)
+
+        // reopening re-created the database directory
+        assertTrue(testComponent.getDatabaseConfig().getDatabaseDirectory().exists())
+
+        // no more contacts in DB
+        assertTrue(db.read { db.getContacts(it) }.isEmpty())
+
+        // owner token was cleared as well
+        assertNull(
+            db.read { txn ->
+                testComponent.getSetupManager().getOwnerToken(txn)
+            }
+        )
     }
 
 }

@@ -30,13 +30,15 @@ public interface LifecycleManager {
 	 */
 	enum LifecycleState {
 
-		STOPPED,
+		NOT_STARTED,
 		STARTING,
 		MIGRATING_DATABASE,
 		COMPACTING_DATABASE,
 		STARTING_SERVICES,
 		RUNNING,
-		STOPPING;
+		WIPING,
+		STOPPING,
+		STOPPED;
 
 		public boolean isAfter(LifecycleState state) {
 			return ordinal() > state.ordinal();
@@ -78,6 +80,15 @@ public interface LifecycleManager {
 	void stopServices();
 
 	/**
+	 * Wipes entire database as well as stored files. Also stops all services
+	 * by launching stopServices() on a new thread after wiping completes.
+	 *
+	 * @return true if wiping was successful, false otherwise
+	 */
+	@Wakeful
+	boolean wipeMailbox();
+
+	/**
 	 * Waits for the {@link Database} to be opened before returning.
 	 */
 	void waitForDatabase() throws InterruptedException;
@@ -106,6 +117,9 @@ public interface LifecycleManager {
 		/**
 		 * Called when the database is being opened, before
 		 * {@link #waitForDatabase()} returns.
+		 * <p>
+		 * Don't call any methods from the {@link LifecycleManager} here as
+		 * this is most likely going to end up in a deadlock.
 		 */
 		@Wakeful
 		void onDatabaseOpened(Transaction txn);

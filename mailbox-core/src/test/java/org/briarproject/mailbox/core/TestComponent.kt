@@ -2,6 +2,7 @@ package org.briarproject.mailbox.core
 
 import dagger.Component
 import org.briarproject.mailbox.core.db.Database
+import org.briarproject.mailbox.core.db.DatabaseConfig
 import org.briarproject.mailbox.core.files.FileManager
 import org.briarproject.mailbox.core.files.FileProvider
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
@@ -23,6 +24,7 @@ interface TestComponent {
     fun getSettingsManager(): SettingsManager
     fun getSetupManager(): SetupManager
     fun getFileManager(): FileManager
+    fun getDatabaseConfig(): DatabaseConfig
     fun getDatabase(): Database
     fun getRandomIdManager(): RandomIdManager
     fun getFileProvider(): FileProvider
