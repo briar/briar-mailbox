@@ -45,7 +45,8 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
                            (contactId INT NOT NULL,
                            token _STRING NOT NULL,
                            inbox _STRING NOT NULL,
-                           outbox _STRING NOT NULL)
+                           outbox _STRING NOT NULL,
+                           PRIMARY KEY (contactId))
         """.trimIndent()
     }
 

@@ -1,11 +1,13 @@
 package org.briarproject.mailbox.core.db
 
 import org.briarproject.mailbox.core.TestUtils.deleteTestDirectory
+import org.briarproject.mailbox.core.TestUtils.getNewRandomContact
 import org.briarproject.mailbox.core.contacts.Contact
 import org.briarproject.mailbox.core.settings.Settings
 import org.briarproject.mailbox.core.system.Clock
 import org.briarproject.mailbox.core.system.RandomIdManager
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.assertEquals
@@ -84,6 +86,17 @@ abstract class JdbcDatabaseTest {
             assertEquals(contact2, contact2Reloaded2)
         }
         db.close()
+    }
+
+    @Test
+    fun `test that there can not be two contacts with same ID`() {
+        val db: Database = open(false)
+        db.write { txn ->
+            db.addContact(txn, getNewRandomContact(id = 1))
+            assertThrows<DbException> {
+                db.addContact(txn, getNewRandomContact(id = 1))
+            }
+        }
     }
 
     @Test

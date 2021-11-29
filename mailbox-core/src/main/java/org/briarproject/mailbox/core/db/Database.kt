@@ -26,6 +26,10 @@ interface Database : TransactionManager {
     @Throws(DbException::class)
     fun mergeSettings(txn: Transaction, s: Settings, namespace: String)
 
+    /**
+     * Adds a contact to the database. It is the callers responsibility to use [getContact] before
+     * to check if a contact with the same ID already exists.
+     */
     @Throws(DbException::class)
     fun addContact(txn: Transaction, contact: Contact)
 
