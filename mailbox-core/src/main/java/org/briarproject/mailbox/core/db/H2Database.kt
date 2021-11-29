@@ -33,7 +33,7 @@ open class H2Database(
     }
 
     private val dbPath: String get() = File(config.getDatabaseDirectory(), "db").absolutePath
-    private val url: String = ("jdbc:h2:split:$dbPath;MULTI_THREADED=1;WRITE_DELAY=0")
+    private val url: String = ("jdbc:h2:split:$dbPath;WRITE_DELAY=0")
 
     override fun open(listener: MigrationListener?): Boolean {
         val dir = config.getDatabaseDirectory()
