@@ -1,0 +1,7 @@
+<component name="CopyrightManager">
+  <settings>
+    <module2copyright>
+      <element module="src/main/java" copyright="AGPL-3.0-or-later" />
+    </module2copyright>
+  </settings>
+</component>

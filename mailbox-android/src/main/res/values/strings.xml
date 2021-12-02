@@ -1,15 +1,15 @@
 <resources>
-	<string name="app_name">Briar Mailbox</string>
-	<string name="notification_channel_name">Briar Mailbox Channel</string>
-	<string name="notification_mailbox_title">Briar Mailbox running</string>
-	<string name="notification_mailbox_content">Waiting for messages…</string>
-	<string name="start">Start mailbox</string>
-	<string name="stop">Stop mailbox</string>
-	<string name="wipe">Wipe mailbox</string>
+    <string name="app_name">Briar Mailbox</string>
+    <string name="notification_channel_name">Briar Mailbox Channel</string>
+    <string name="notification_mailbox_title">Briar Mailbox running</string>
+    <string name="notification_mailbox_content">Waiting for messages…</string>
+    <string name="start">Start mailbox</string>
+    <string name="stop">Stop mailbox</string>
+    <string name="wipe">Wipe mailbox</string>
 
-	<!-- TODO: We might want to copy string from don't kill me lib,
-	      so translation memory can auto-translate most of them. -->
-	<string name="warning_dozed">Briar Mailbox was unable to run in the background</string>
-	<string name="fix">Fix</string>
-	<string name="cancel">Cancel</string>
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Briar Mailbox was unable to run in the background</string>
+    <string name="fix">Fix</string>
+    <string name="cancel">Cancel</string>
 </resources>

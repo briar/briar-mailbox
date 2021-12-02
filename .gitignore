@@ -22,6 +22,8 @@ local.properties
 !.idea/runConfigurations/
 !.idea/codeStyleSettings.xml
 !.idea/codeStyles
+!.idea/scopes/
+!.idea/copyright/
 .gradle
 build/
 captures
