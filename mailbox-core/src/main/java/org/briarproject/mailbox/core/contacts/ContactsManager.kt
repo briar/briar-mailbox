@@ -29,7 +29,10 @@ class ContactsManager @Inject constructor(
     }
 
     /**
-     * Used by owner to list contacts.
+     * Used by owner to list contacts managed by the mailbox.
+     *
+     * Checks if provided auth token is the owner.
+     * Responds with 200 (OK) with the list of contact IDs in JSON.
      */
     suspend fun listContacts(call: ApplicationCall) {
         authManager.assertIsOwner(call.principal())
@@ -42,7 +45,14 @@ class ContactsManager @Inject constructor(
     }
 
     /**
-     * Used by owner to add new contacts.
+     * Used by owner to add a new contact to the mailbox.
+     *
+     * Briar generates 32 bytes of random data for bearer token, inboxId and outboxId, encodes
+     * them as hexadecimal strings and sends them along with its contactId.
+     *
+     * Checks if provided auth token is the owner.
+     * Responds with 201 (CREATED) for a successful POST. If the contactId is already in use,
+     * 409 (CONFLICT) is returned.
      */
     suspend fun postContact(call: ApplicationCall) {
         authManager.assertIsOwner(call.principal())
@@ -72,7 +82,10 @@ class ContactsManager @Inject constructor(
     }
 
     /**
-     * Used by owner to add remove contacts.
+     * Used by owner to remove a contact.
+     *
+     * [paramContactId] is the integer contact ID the contact was added with.
+     * Returns 200 (OK) when deletion was successful.
      */
     fun deleteContact(call: ApplicationCall, paramContactId: String) {
         authManager.assertIsOwner(call.principal())
