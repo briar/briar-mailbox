@@ -30,7 +30,6 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.server.AuthException
 import org.briarproject.mailbox.core.server.MailboxPrincipal
 import org.briarproject.mailbox.core.server.MailboxPrincipal.OwnerPrincipal
-import org.briarproject.mailbox.core.util.IoUtils
 import javax.inject.Inject
 
 class WipeManager @Inject constructor(
@@ -44,8 +43,6 @@ class WipeManager @Inject constructor(
      */
     fun wipeDatabaseAndFiles() {
         db.dropAllTablesAndClose()
-        val dir = databaseConfig.getDatabaseDirectory()
-        IoUtils.deleteFileOrDir(dir)
         fileManager.deleteAllFiles()
     }
 

@@ -89,21 +89,17 @@ internal class JavaCliModule {
 
     @Singleton
     @Provides
-    fun provideDatabaseConfig() = object : DatabaseConfig {
+    fun provideDatabaseConfig(fileProvider: FileProvider) = object : DatabaseConfig {
         override fun getDatabaseDirectory(): File {
-            val dbDir = File(dataDir, "db")
-            if (!dbDir.exists() && !dbDir.mkdirs()) {
-                throw IOException("dbDir could not be created: ${dbDir.absolutePath}")
-            } else if (!dbDir.isDirectory) {
-                throw IOException("dbDir is not a directory: ${dbDir.absolutePath}")
-            }
-            return dbDir
+            // The database itself does mkdirs() and we use the existence to see if DB exists
+            return File(fileProvider.root, "db")
         }
     }
 
     @Singleton
     @Provides
     fun provideFileProvider() = object : FileProvider {
+        override val root: File get() = dataDir
         private val tempFilesDir = File(dataDir, "tmp").also { it.mkdirs() }
         override val folderRoot = File(dataDir, "folders").also { it.mkdirs() }
 

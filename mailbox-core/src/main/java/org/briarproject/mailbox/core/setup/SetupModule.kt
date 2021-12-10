@@ -17,18 +17,23 @@
  *
  */
 
-package org.briarproject.mailbox.core.files
+package org.briarproject.mailbox.core.setup
 
-import java.io.File
+import dagger.Module
+import dagger.Provides
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import javax.inject.Singleton
 
-interface FileProvider {
-    /**
-     * The root files directory.
-     * Attention: This is not guaranteed to be the parent of other files on all platforms.
-     */
-    val root: File
-    val folderRoot: File
-    fun getTemporaryFile(fileId: String): File
-    fun getFolder(folderId: String): File
-    fun getFile(folderId: String, fileId: String): File
+@Module
+class SetupModule {
+    @Provides
+    @Singleton
+    fun provideSetupManager(
+        lifecycleManager: LifecycleManager,
+        setupManagerImpl: SetupManagerImpl,
+    ): SetupManager {
+        return setupManagerImpl.also {
+            lifecycleManager.registerOpenDatabaseHook(it)
+        }
+    }
 }

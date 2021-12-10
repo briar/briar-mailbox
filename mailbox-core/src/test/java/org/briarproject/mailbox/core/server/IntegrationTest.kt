@@ -24,6 +24,8 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @TestInstance(Lifecycle.PER_CLASS)
 abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
@@ -31,7 +33,9 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
     protected lateinit var testComponent: TestComponent
     protected val db by lazy { testComponent.getDatabase() }
     private val lifecycleManager by lazy { testComponent.getLifecycleManager() }
+    protected val setupManager by lazy { testComponent.getSetupManager() }
     protected val metadataManager by lazy { testComponent.getMetadataManager() }
+    private val wipeManager by lazy { testComponent.getWipeManager() }
     protected val httpClient = HttpClient(CIO) {
         expectSuccess = false // prevents exceptions on non-success responses
         if (installJsonFeature) {
@@ -55,6 +59,7 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
     fun setUp(@TempDir tempDir: File) {
         testComponent = DaggerTestComponent.builder().testModule(TestModule(tempDir)).build()
         testComponent.injectCoreEagerSingletons()
+        assertFalse(setupManager.hasDb)
         lifecycleManager.startServices()
         lifecycleManager.waitForStartup()
     }
@@ -73,11 +78,13 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
             // clears [metadataManager.ownerConnectionTime]
             metadataManager.onDatabaseOpened(txn)
         }
+        assertTrue(setupManager.hasDb)
     }
 
     @AfterEach
-    open fun clearDb() {
-        db.dropAllTablesAndClose()
+    open fun wipe() {
+        wipeManager.wipeDatabaseAndFiles()
+        assertFalse(setupManager.hasDb)
     }
 
     protected fun addOwnerToken() {

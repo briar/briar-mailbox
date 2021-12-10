@@ -41,4 +41,11 @@ interface SettingsManager {
      */
     @Throws(DbException::class)
     fun mergeSettings(s: Settings, namespace: String)
+
+    /**
+     * Merges the given settings with any existing settings in the given
+     * namespace.
+     */
+    @Throws(DbException::class)
+    fun mergeSettings(txn: Transaction, s: Settings, namespace: String)
 }

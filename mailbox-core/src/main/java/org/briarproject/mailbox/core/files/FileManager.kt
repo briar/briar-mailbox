@@ -28,9 +28,12 @@ import io.ktor.response.respondFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.briarproject.mailbox.core.db.Database
+import org.briarproject.mailbox.core.db.DatabaseConfig
 import org.briarproject.mailbox.core.server.AuthException
 import org.briarproject.mailbox.core.server.AuthManager
 import org.briarproject.mailbox.core.server.MailboxPrincipal
+import org.briarproject.mailbox.core.setup.SetupManager
+import org.briarproject.mailbox.core.setup.WipeManager
 import org.briarproject.mailbox.core.system.InvalidIdException
 import org.briarproject.mailbox.core.system.RandomIdManager
 import org.slf4j.LoggerFactory.getLogger
@@ -40,10 +43,24 @@ private val LOG = getLogger(FileManager::class.java)
 
 class FileManager @Inject constructor(
     private val fileProvider: FileProvider,
+    private val dbConfig: DatabaseConfig,
 ) {
+
+    /**
+     * Used by [SetupManager] to test for the existence of the database.
+     */
+    fun hasDbFile(): Boolean {
+        val dbDir = dbConfig.getDatabaseDirectory()
+        println("${dbDir.absolutePath} exists: ${dbDir.exists()} isDirectory: ${dbDir.isDirectory}")
+        return dbDir.isDirectory
+    }
+
+    /**
+     * Used by [WipeManager] to wipe all files.
+     */
     fun deleteAllFiles(): Boolean {
         var allDeleted = true
-        fileProvider.folderRoot.listFiles()?.forEach { folder ->
+        fileProvider.root.listFiles()?.forEach { folder ->
             if (!folder.deleteRecursively()) {
                 allDeleted = false
                 LOG.warn("Not everything in $folder could get deleted.")

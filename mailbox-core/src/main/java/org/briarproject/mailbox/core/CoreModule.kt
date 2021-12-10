@@ -28,6 +28,7 @@ import org.briarproject.mailbox.core.event.EventModule
 import org.briarproject.mailbox.core.lifecycle.LifecycleModule
 import org.briarproject.mailbox.core.server.WebServerModule
 import org.briarproject.mailbox.core.settings.SettingsModule
+import org.briarproject.mailbox.core.setup.SetupModule
 import org.briarproject.mailbox.core.system.Clock
 import org.briarproject.mailbox.core.tor.TorModule
 import javax.inject.Singleton
@@ -37,6 +38,7 @@ import javax.inject.Singleton
         EventModule::class,
         LifecycleModule::class,
         DatabaseModule::class,
+        SetupModule::class,
         WebServerModule::class,
         SettingsModule::class,
         TorModule::class,

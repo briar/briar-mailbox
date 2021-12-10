@@ -9,7 +9,7 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.settings.MetadataManager
 import org.briarproject.mailbox.core.settings.SettingsManager
 import org.briarproject.mailbox.core.setup.SetupManager
-import org.briarproject.mailbox.core.system.RandomIdManager
+import org.briarproject.mailbox.core.setup.WipeManager
 import javax.inject.Singleton
 
 @Singleton
@@ -26,7 +26,7 @@ interface TestComponent {
     fun getFileManager(): FileManager
     fun getDatabaseConfig(): DatabaseConfig
     fun getDatabase(): Database
-    fun getRandomIdManager(): RandomIdManager
     fun getFileProvider(): FileProvider
     fun getMetadataManager(): MetadataManager
+    fun getWipeManager(): WipeManager
 }

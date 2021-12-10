@@ -100,6 +100,7 @@ class Main : CliktCommand(
             }
         )
 
+        // This is a cli app, we'll always want this fully up when started, so start lifecycle
         lifecycleManager.startServices()
         lifecycleManager.waitForStartup()
 
@@ -110,16 +111,14 @@ class Main : CliktCommand(
             exitProcess(1)
         }
 
-        // TODO this is obviously not the final code, just a stub to get us started
-        val setupTokenExists = db.read { txn ->
-            setupManager.getSetupToken(txn) != null
-        }
         val ownerTokenExists = db.read { txn ->
             setupManager.getOwnerToken(txn) != null
         }
-        if (!setupTokenExists && !ownerTokenExists) setupManager.restartSetup()
-        qrCodeEncoder.getQrCodeBitMatrix()?.let {
-            println(QrCodeRenderer.getQrString(it))
+        if (!ownerTokenExists) {
+            // If not set up, show QR code for manual setup
+            qrCodeEncoder.getQrCodeBitMatrix()?.let {
+                println(QrCodeRenderer.getQrString(it))
+            }
         }
     }
 
