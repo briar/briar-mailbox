@@ -59,10 +59,14 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import kotlinx.coroutines.flow.MutableStateFlow;
+import kotlinx.coroutines.flow.StateFlow;
+
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.Objects.requireNonNull;
+import static kotlinx.coroutines.flow.StateFlowKt.MutableStateFlow;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
 import static org.briarproject.mailbox.core.tor.TorConstants.CONTROL_PORT;
@@ -70,7 +74,6 @@ import static org.briarproject.mailbox.core.tor.TorConstants.HS_ADDRESS_V3;
 import static org.briarproject.mailbox.core.tor.TorConstants.HS_PRIVATE_KEY_V3;
 import static org.briarproject.mailbox.core.tor.TorConstants.SETTINGS_NAMESPACE;
 import static org.briarproject.mailbox.core.tor.TorPlugin.State.ACTIVE;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.DISABLED;
 import static org.briarproject.mailbox.core.tor.TorPlugin.State.ENABLING;
 import static org.briarproject.mailbox.core.tor.TorPlugin.State.INACTIVE;
 import static org.briarproject.mailbox.core.tor.TorPlugin.State.STARTING_STOPPING;
@@ -153,6 +156,10 @@ public abstract class TorPlugin
 
 	protected File getObfs4ExecutableFile() {
 		return new File(torDirectory, "obfs4proxy");
+	}
+
+	public StateFlow<State> getState() {
+		return state.state;
 	}
 
 	@Override
@@ -404,6 +411,7 @@ public abstract class TorPlugin
 				logException(LOG, e);
 			}
 		}
+		state.setServicePublished();
 	}
 
 	@Nullable
@@ -534,7 +542,6 @@ public abstract class TorPlugin
 				else LOG.info("Country code: " + country);
 			}
 
-			int reasonsDisabled = 0;
 			boolean enableNetwork = false;
 			boolean enableBridges = false;
 			boolean useMeek = false;
@@ -557,7 +564,6 @@ public abstract class TorPlugin
 					LOG.info("Not using bridges");
 				}
 			}
-			state.setReasonsDisabled(reasonsDisabled);
 			try {
 				if (enableNetwork) {
 					enableBridges(enableBridges, useMeek);
@@ -581,7 +587,10 @@ public abstract class TorPlugin
 	}
 
 	@ThreadSafe
-	protected class PluginState {
+	protected static class PluginState {
+
+		private final MutableStateFlow<State> state =
+				MutableStateFlow(STARTING_STOPPING);
 
 		@GuardedBy("this")
 		private boolean started = false,
@@ -590,10 +599,7 @@ public abstract class TorPlugin
 				networkEnabled = false,
 				bootstrapped = false,
 				circuitBuilt = false,
-				settingsChecked = false;
-
-		@GuardedBy("this")
-		private int reasonsDisabled = 0;
+				servicePublished = false;
 
 		@GuardedBy("this")
 		@Nullable
@@ -601,7 +607,7 @@ public abstract class TorPlugin
 
 		synchronized void setStarted() {
 			started = true;
-//            callback.pluginStateChanged(getState());
+			state.setValue(getCurrentState());
 		}
 
 		synchronized boolean isTorRunning() {
@@ -613,62 +619,51 @@ public abstract class TorPlugin
 			stopped = true;
 			ServerSocket ss = serverSocket;
 			serverSocket = null;
-//            callback.pluginStateChanged(getState());
+			state.setValue(getCurrentState());
 			return ss;
 		}
 
 		synchronized void setBootstrapped() {
 			bootstrapped = true;
-//            callback.pluginStateChanged(getState());
+			state.setValue(getCurrentState());
 		}
 
 		synchronized boolean getAndSetCircuitBuilt() {
 			boolean firstCircuit = !circuitBuilt;
 			circuitBuilt = true;
-//            callback.pluginStateChanged(getState());
+			state.setValue(getCurrentState());
 			return firstCircuit;
+		}
+
+		synchronized void setServicePublished() {
+			servicePublished = true;
+			state.setValue(getCurrentState());
 		}
 
 		synchronized void enableNetwork(boolean enable) {
 			networkInitialised = true;
 			networkEnabled = enable;
 			if (!enable) circuitBuilt = false;
-//            callback.pluginStateChanged(getState());
+			state.setValue(getCurrentState());
 		}
 
-		synchronized void setReasonsDisabled(int reasonsDisabled) {
-			settingsChecked = true;
-			this.reasonsDisabled = reasonsDisabled;
-//            callback.pluginStateChanged(getState());
-		}
-
-		synchronized State getState() {
-			if (!started || stopped || !settingsChecked) {
+		private synchronized State getCurrentState() {
+			if (!started || stopped) {
 				return STARTING_STOPPING;
 			}
-			if (reasonsDisabled != 0) return DISABLED;
 			if (!networkInitialised) return ENABLING;
 			if (!networkEnabled) return INACTIVE;
-			return bootstrapped && circuitBuilt ? ACTIVE : ENABLING;
-		}
-
-		synchronized int getReasonsDisabled() {
-			return getState() == DISABLED ? reasonsDisabled : 0;
+			return bootstrapped && circuitBuilt && servicePublished ?
+					ACTIVE : ENABLING;
 		}
 
 	}
 
-	enum State {
-
+	public enum State {
 		/**
 		 * The plugin has not finished starting or has been stopped.
 		 */
 		STARTING_STOPPING,
-
-		/**
-		 * The plugin is disabled by settings.
-		 */
-		DISABLED,
 
 		/**
 		 * The plugin is being enabled and can't yet make or receive

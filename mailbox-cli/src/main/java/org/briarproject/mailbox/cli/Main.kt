@@ -25,6 +25,8 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.counted
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
+import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.CoreEagerSingletons
 import org.briarproject.mailbox.core.JavaCliEagerSingletons
 import org.briarproject.mailbox.core.db.TransactionManager
@@ -33,6 +35,7 @@ import org.briarproject.mailbox.core.setup.QrCodeEncoder
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.setup.WipeManager
 import org.briarproject.mailbox.core.system.InvalidIdException
+import org.briarproject.mailbox.core.tor.TorPlugin
 import org.slf4j.LoggerFactory.getLogger
 import java.util.logging.Level.ALL
 import java.util.logging.Level.INFO
@@ -76,6 +79,9 @@ class Main : CliktCommand(
 
     @Inject
     internal lateinit var wipeManager: WipeManager
+
+    @Inject
+    internal lateinit var torPlugin: TorPlugin
 
     @Inject
     internal lateinit var qrCodeEncoder: QrCodeEncoder
@@ -138,11 +144,20 @@ class Main : CliktCommand(
             setupManager.getOwnerToken(txn) != null
         }
         if (!ownerTokenExists) {
-            // TODO remove before release
-            val token = setupToken ?: db.read { setupManager.getSetupToken(it) }
-            println("curl -v -H \"Authorization: Bearer $token\" -X PUT http://localhost:8000/setup")
-            // FIXME: We need to wait for the hidden service address to become available
+            if (debug) {
+                val token = setupToken ?: db.read { setupManager.getSetupToken(it) }
+                println(
+                    "curl -v -H \"Authorization: Bearer $token\" -X PUT " +
+                        "http://localhost:8000/setup"
+                )
+            }
             // If not set up, show QR code for manual setup
+            runBlocking {
+                // wait until Tor becomes active and published the onion service
+                torPlugin.state.takeWhile { state ->
+                    state != TorPlugin.State.ACTIVE
+                }
+            }
             qrCodeEncoder.getQrCodeBitMatrix()?.let {
                 println(QrCodeRenderer.getQrString(it))
             }
