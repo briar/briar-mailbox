@@ -31,6 +31,7 @@ import org.briarproject.mailbox.core.db.TransactionManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.setup.QrCodeEncoder
 import org.briarproject.mailbox.core.setup.SetupManager
+import org.briarproject.mailbox.core.setup.WipeManager
 import org.briarproject.mailbox.core.system.InvalidIdException
 import org.slf4j.LoggerFactory.getLogger
 import java.util.logging.Level.ALL
@@ -44,6 +45,10 @@ class Main : CliktCommand(
     name = "briar-mailbox",
     help = "Command line interface for the Briar Mailbox"
 ) {
+    private val wipe by option(
+        "--wipe",
+        help = "Deletes entire mailbox, will require new setup",
+    ).flag(default = false)
     private val debug by option("--debug", "-d", help = "Enable printing of debug messages").flag(
         default = false
     )
@@ -68,6 +73,9 @@ class Main : CliktCommand(
 
     @Inject
     internal lateinit var setupManager: SetupManager
+
+    @Inject
+    internal lateinit var wipeManager: WipeManager
 
     @Inject
     internal lateinit var qrCodeEncoder: QrCodeEncoder
@@ -104,17 +112,36 @@ class Main : CliktCommand(
         lifecycleManager.startServices()
         lifecycleManager.waitForStartup()
 
-        if (setupToken != null) try {
-            setupManager.setToken(setupToken, null)
-        } catch (e: InvalidIdException) {
-            System.err.println("Invalid setup token")
-            exitProcess(1)
+        if (wipe) {
+            // FIXME this can cause a deadlock
+            //  see: https://code.briarproject.org/briar/briar-mailbox/-/issues/76
+            val wipeResult = lifecycleManager.wipeMailbox()
+            lifecycleManager.stopServices()
+            lifecycleManager.waitForShutdown()
+            if (wipeResult) {
+                println("Mailbox wiped successfully \\o/")
+                exitProcess(0)
+            } else {
+                println("ERROR: Mailbox was not wiped cleanly")
+                exitProcess(1)
+            }
+        } else if (setupToken != null) {
+            try {
+                setupManager.setToken(setupToken, null)
+            } catch (e: InvalidIdException) {
+                System.err.println("Invalid setup token")
+                exitProcess(1)
+            }
         }
 
         val ownerTokenExists = db.read { txn ->
             setupManager.getOwnerToken(txn) != null
         }
         if (!ownerTokenExists) {
+            // TODO remove before release
+            val token = setupToken ?: db.read { setupManager.getSetupToken(it) }
+            println("curl -v -H \"Authorization: Bearer $token\" -X PUT http://localhost:8000/setup")
+            // FIXME: We need to wait for the hidden service address to become available
             // If not set up, show QR code for manual setup
             qrCodeEncoder.getQrCodeBitMatrix()?.let {
                 println(QrCodeRenderer.getQrString(it))
