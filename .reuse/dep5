@@ -1,0 +1,24 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Briar Mailbox
+Upstream-Contact: Torsten Grote <torsten at briarproject.org>
+Source: https://code.briarproject.org/briar/briar-mailbox
+
+# do not kill me library
+Files: dont-kill-me-lib/*
+Copyright: 2021 The Briar Project <contact at briarproject.org>
+License: AGPL-3.0-or-later
+
+# Mailbox
+Files: mailbox-android/* mailbox-cli/* mailbox-core/* .gitlab-ci.yml *.gradle .run/* *.md artwork/*
+Copyright: 2021 The Briar Project <contact at briarproject.org>
+License: AGPL-3.0-or-later
+
+# Gradle files
+Files: gradlew gradlew.bat gradle/wrapper/*
+Copyright: 2015-2021 the original authors
+License: Apache-2.0
+
+# Insignificant files
+Files: .gitignore gradle.properties .idea/* config/checkstyle/checkstyle.xml
+Copyright: 2015-2021 the original authors
+License: CC0-1.0

@@ -93,5 +93,11 @@ any hardware supporting Java (e.g. unix server, raspberry pi) could be added.
 [![Donate using Liberapay](https://briarproject.org/img/liberapay.svg)](https://liberapay.com/Briar/donate) [![Flattr this](https://briarproject.org/img/flattr-badge-large.png "Flattr this")](https://flattr.com/t/592836/)   
 Bitcoin and BCH: 1NZCKkUCtJV2U2Y9hDb9uq8S7ksFCFGR6K
 
+## License
 
+This program is free software: you can redistribute it and/or modify it
+under the terms of the [GNU Affero General Public License](LICENSES/AGPL-3.0-or-later.txt)
+as published by the Free Software Foundation, either version 3 of the License,
+or (at your option) any later version.
 
+Compliant with version 3.0 of the [REUSE Specification](https://reuse.software).
