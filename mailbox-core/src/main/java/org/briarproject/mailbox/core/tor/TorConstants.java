@@ -26,7 +26,7 @@ public interface TorConstants {
 	String HS_PRIVATE_KEY_V3 = "onionPrivKey3";
 	String HS_ADDRESS_V3 = "onionAddress3";
 
-	int SOCKS_PORT = 59052;
-	int CONTROL_PORT = 59053;
+	int SOCKS_PORT = 59054;
+	int CONTROL_PORT = 59055;
 
 }
