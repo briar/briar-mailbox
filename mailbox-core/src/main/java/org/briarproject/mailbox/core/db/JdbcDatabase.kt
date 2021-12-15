@@ -43,6 +43,7 @@ import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import javax.annotation.concurrent.GuardedBy
+import kotlin.concurrent.withLock
 
 abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val clock: Clock) :
     Database {
@@ -70,6 +71,20 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         """.trimIndent()
     }
 
+    /**
+     * This lock is used for making sure that either one writable or alternatively an arbitrary
+     * number of read-only transactions is in progress at the same time. It acts as a barrier
+     * that blocks threads that try to start a transaction that cannot currently be started
+     * because of that invariant.
+     */
+    private val transactionLock = ReentrantReadWriteLock(true)
+
+    /**
+     * In the case of readers, multiple threads can be accessing the database simultaneously.
+     * To synchronise access to shared fields, we use this lock.
+     *
+     * Do not start any transactions while holding [connectionsLock] as this is deadlock-prone.
+     */
     protected val connectionsLock: Lock = ReentrantLock()
     private val connectionsChanged = connectionsLock.newCondition()
 
@@ -80,15 +95,14 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     private var openConnections = 0
 
     @GuardedBy("connectionsLock")
-    protected var closed = false
+    protected var closed = true
 
     @Volatile
     private var wasDirtyOnInitialisation = false
 
-    private val lock = ReentrantReadWriteLock(true)
-
-    /*
-     * Returns true if the database already existed
+    /**
+     * Returns true if the database already existed. It is not safe to call this method
+     * concurrently with [dropAllTablesAndClose]
      */
     internal fun open(driverClass: String, listener: MigrationListener?): Boolean {
         try {
@@ -97,6 +111,11 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
             throw DbException(e)
         }
         // Open the database and create the tables and indexes if necessary
+        // First: mark the database as not closed
+        connectionsLock.withLock {
+            closed = false
+        }
+        // Check if we have the settings table to determine if we're reopening an existing database
         LOG.info { "checking for settings table" }
         val reopen = databaseHasSettingsTable()
         LOG.info {
@@ -126,11 +145,8 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
             compactAndClose()
             logDuration(LOG, start) { "Compacting database" }
             // Allow the next transaction to reopen the DB
-            connectionsLock.lock()
-            try {
+            connectionsLock.withLock {
                 closed = false
-            } finally {
-                connectionsLock.unlock()
             }
             write { txn ->
                 storeLastCompacted(txn.unbox())
@@ -205,46 +221,41 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
      */
     private fun startTransaction(readOnly: Boolean): Transaction {
         // Don't allow reentrant locking
-        check(lock.readHoldCount <= 0)
-        check(lock.writeHoldCount <= 0)
+        check(transactionLock.readHoldCount <= 0)
+        check(transactionLock.writeHoldCount <= 0)
         val start = now()
         if (readOnly) {
-            lock.readLock().lock()
+            transactionLock.readLock().lock()
             logDuration(LOG, start) { "Waiting for read lock" }
         } else {
-            lock.writeLock().lock()
+            transactionLock.writeLock().lock()
             logDuration(LOG, start) { "Waiting for write lock" }
         }
         return try {
             Transaction(startTransaction(), readOnly)
         } catch (e: DbException) {
-            if (readOnly) lock.readLock().unlock() else lock.writeLock().unlock()
+            if (readOnly) transactionLock.readLock().unlock() else transactionLock.writeLock()
+                .unlock()
             throw e
         } catch (e: RuntimeException) {
-            if (readOnly) lock.readLock().unlock() else lock.writeLock().unlock()
+            if (readOnly) transactionLock.readLock().unlock() else transactionLock.writeLock()
+                .unlock()
             throw e
         }
     }
 
     private fun startTransaction(): Connection {
-        var connection: Connection?
-        connectionsLock.lock()
-        connection = try {
+        var connection = connectionsLock.withLock {
             if (closed) throw DbClosedException()
             connections.poll()
-        } finally {
-            connectionsLock.unlock()
         }
         try {
             if (connection == null) {
                 // Open a new connection
                 connection = createConnection()
                 connection.autoCommit = false
-                connectionsLock.lock()
-                try {
+                connectionsLock.withLock {
                     openConnections++
-                } finally {
-                    connectionsLock.unlock()
                 }
             }
         } catch (e: SQLException) {
@@ -256,24 +267,18 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
     private fun abortTransaction(connection: Connection) {
         try {
             connection.rollback()
-            connectionsLock.lock()
-            try {
+            connectionsLock.withLock {
                 connections.add(connection)
                 connectionsChanged.signalAll()
-            } finally {
-                connectionsLock.unlock()
             }
         } catch (e: SQLException) {
             // Try to close the connection
             logException(LOG, e) { "Error while aborting transaction" }
             tryToClose(connection, LOG)
             // Whatever happens, allow the database to close
-            connectionsLock.lock()
-            try {
+            connectionsLock.withLock {
                 openConnections--
                 connectionsChanged.signalAll()
-            } finally {
-                connectionsLock.unlock()
             }
         }
     }
@@ -284,20 +289,16 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         } catch (e: SQLException) {
             throw DbException(e)
         }
-        connectionsLock.lock()
-        try {
+        connectionsLock.withLock {
             connections.add(connection)
             connectionsChanged.signalAll()
-        } finally {
-            connectionsLock.unlock()
         }
     }
 
     @Throws(SQLException::class)
     fun closeAllConnections() {
         var interrupted = false
-        connectionsLock.lock()
-        try {
+        connectionsLock.withLock {
             closed = true
             for (c in connections) c.close()
             openConnections -= connections.size
@@ -313,8 +314,6 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
                 openConnections -= connections.size
                 connections.clear()
             }
-        } finally {
-            connectionsLock.unlock()
         }
         if (interrupted) Thread.currentThread().interrupt()
     }
@@ -388,16 +387,20 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
 
     @Throws(DbException::class)
     override fun dropAllTablesAndClose() {
-        connectionsLock.lock()
-        try {
-            write { txn ->
-                val connection: Connection = txn.unbox()
-                execute(connection, "DROP TABLE settings")
-                execute(connection, "DROP TABLE contacts")
+        connectionsLock.withLock {
+            if (closed) throw DbClosedException()
+            var c: Connection? = null
+            try {
+                c = createConnection()
+                // Prevent new transactions from starting, wait for any ongoing transactions to finish
+                closeAllConnections()
+                execute(c, "DROP TABLE settings")
+                execute(c, "DROP TABLE contacts")
+                c.close()
+            } catch (e: SQLException) {
+                tryToClose(c, LOG)
+                throw DbException(e)
             }
-            closeAllConnections()
-        } finally {
-            connectionsLock.unlock()
         }
     }
 
@@ -643,7 +646,8 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
                 abortTransaction(connection)
             }
         } finally {
-            if (txn.isReadOnly) lock.readLock().unlock() else lock.writeLock().unlock()
+            if (txn.isReadOnly) transactionLock.readLock().unlock() else transactionLock.writeLock()
+                .unlock()
         }
     }
 

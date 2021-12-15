@@ -32,6 +32,7 @@ import java.sql.ResultSet
 import java.sql.SQLException
 import java.sql.Statement
 import java.util.Properties
+import kotlin.concurrent.withLock
 
 open class H2Database(
     private val config: DatabaseConfig,
@@ -85,8 +86,7 @@ open class H2Database(
     }
 
     override fun close() {
-        connectionsLock.lock()
-        try {
+        connectionsLock.withLock {
             // This extra check is mainly added for tests where we might have closed the database
             // already by resetting the database after each test and then the lifecycle manager
             // tries to close again. However closing an already closed database doesn't make
@@ -106,8 +106,6 @@ open class H2Database(
                 tryToClose(c, LOG)
                 throw DbException(e)
             }
-        } finally {
-            connectionsLock.unlock()
         }
     }
 
