@@ -74,7 +74,7 @@ class MailboxNotificationManager @Inject constructor(
             return NotificationCompat.Builder(ctx, CHANNEL_ID)
                 .setContentTitle(ctx.getString(R.string.notification_mailbox_title))
                 .setContentText(ctx.getString(R.string.notification_mailbox_content))
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_notification_foreground)
                 .setContentIntent(pendingIntent)
                 .setPriority(PRIORITY_MIN)
                 .build()
