@@ -35,7 +35,6 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.S
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.WIPING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.OpenDatabaseHook
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
 import org.briarproject.mailbox.core.setup.WipeManager
@@ -85,33 +84,37 @@ internal class LifecycleManagerImpl @Inject constructor(
     }
 
     override fun registerService(s: Service) {
-        LOG.info { "Registering service ${s.javaClass.simpleName}" }
+        LOG.info { "Registering service ${s.name()}" }
         services.add(s)
     }
 
     override fun registerOpenDatabaseHook(hook: OpenDatabaseHook) {
-        LOG.info { "Registering open database hook ${hook.javaClass.simpleName}" }
+        LOG.info { "Registering open database hook ${hook.name()}" }
         openDatabaseHooks.add(hook)
     }
 
     override fun registerForShutdown(e: ExecutorService) {
-        LOG.info { "Registering executor ${e.javaClass.simpleName}" }
+        LOG.info { "Registering executor ${e.name()}" }
         executors.add(e)
     }
 
     @GuardedBy("startStopWipeSemaphore")
     override fun startServices(): StartResult {
-        if (!startStopWipeSemaphore.tryAcquire()) {
-            LOG.info("Already starting or stopping")
-            return ALREADY_RUNNING
+        try {
+            startStopWipeSemaphore.acquire()
+        } catch (e: InterruptedException) {
+            LOG.warn("Interrupted while waiting to start services")
+            return SERVICE_ERROR
         }
-        state.compareAndSet(NOT_STARTED, STARTING)
+        if (!state.compareAndSet(NOT_STARTED, STARTING)) {
+            return SERVICE_ERROR
+        }
         return try {
             LOG.info("Opening database")
             var start = now()
             val reopened = db.open(this)
-            if (reopened) logDuration(LOG, { "Reopening database" }, start)
-            else logDuration(LOG, { "Creating database" }, start)
+            if (reopened) logDuration(LOG, start) { "Reopening database" }
+            else logDuration(LOG, start) { "Creating database" }
             // Inform hooks that DB was opened
             db.write { txn ->
                 for (hook in openDatabaseHooks) {
@@ -124,7 +127,7 @@ internal class LifecycleManagerImpl @Inject constructor(
             for (s in services) {
                 start = now()
                 s.startService()
-                logDuration(LOG, { "Starting service  ${s.javaClass.simpleName}" }, start)
+                logDuration(LOG, start) { "Starting service  ${s.name()}" }
             }
             state.compareAndSet(STARTING_SERVICES, RUNNING)
             startupLatch.countDown()
@@ -166,15 +169,10 @@ internal class LifecycleManagerImpl @Inject constructor(
             val wiped = state.value == WIPING
             LOG.info("Stopping services")
             state.value = STOPPING
-            for (s in services) {
-                val start = now()
-                s.stopService()
-                logDuration(LOG, { "Stopping service " + s.javaClass.simpleName }, start)
-            }
-            for (e in executors) {
-                LOG.trace { "Stopping executor ${e.javaClass.simpleName}" }
-                e.shutdownNow()
-            }
+
+            stopAllServices()
+            stopAllExecutors()
+
             if (wiped) {
                 // If we just wiped, the database has already been closed, so we should not call
                 // close(). Since the services are being shut down after wiping (so that the web
@@ -182,18 +180,37 @@ internal class LifecycleManagerImpl @Inject constructor(
                 // API call created some files in the meantime. To make sure we delete those in
                 // case of a wipe, repeat deletion of files here after the services have been
                 // stopped.
-                wipeManager.wipe(wipeDatabase = false)
+                run("wiping files again") {
+                    wipeManager.wipeFilesOnly()
+                }
             } else {
-                val start = now()
-                db.close()
-                logDuration(LOG, { "Closing database" }, start)
+                run("closing database") {
+                    db.close()
+                }
             }
+
             shutdownLatch.countDown()
-        } catch (e: ServiceException) {
-            logException(LOG, e)
         } finally {
             state.compareAndSet(STOPPING, STOPPED)
             startStopWipeSemaphore.release()
+        }
+    }
+
+    @GuardedBy("startStopWipeSemaphore")
+    private fun stopAllServices() {
+        for (s in services) {
+            run("stopping service ${s.name()}") {
+                s.stopService()
+            }
+        }
+    }
+
+    @GuardedBy("startStopWipeSemaphore")
+    private fun stopAllExecutors() {
+        for (e in executors) {
+            run("stopping executor ${e.name()}") {
+                e.shutdownNow()
+            }
         }
     }
 
@@ -209,8 +226,9 @@ internal class LifecycleManagerImpl @Inject constructor(
             return false
         }
         try {
-            wipeManager.wipe(wipeDatabase = true)
-
+            run("wiping database and files") {
+                wipeManager.wipeDatabaseAndFiles()
+            }
             // We need to move this to a thread so that the webserver call can finish when it calls
             // this. Otherwise we'll end up in a deadlock: the same thread trying to stop the
             // webserver from within a call that wants to send a response on the very same webserver.
@@ -219,7 +237,6 @@ internal class LifecycleManagerImpl @Inject constructor(
             thread {
                 stopServices()
             }
-
             return true
         } finally {
             startStopWipeSemaphore.release()
@@ -227,25 +244,28 @@ internal class LifecycleManagerImpl @Inject constructor(
     }
 
     @Throws(InterruptedException::class)
-    override fun waitForDatabase() {
-        dbLatch.await()
-    }
+    override fun waitForDatabase() = dbLatch.await()
 
     @Throws(InterruptedException::class)
-    override fun waitForStartup() {
-        startupLatch.await()
-    }
+    override fun waitForStartup() = startupLatch.await()
 
     @Throws(InterruptedException::class)
-    override fun waitForShutdown() {
-        shutdownLatch.await()
+    override fun waitForShutdown() = shutdownLatch.await()
+
+    override fun getLifecycleState() = state.value
+
+    override fun getLifecycleStateFlow(): StateFlow<LifecycleState> = state
+
+    private fun run(name: String, task: () -> Unit) {
+        LOG.trace { name }
+        val start = now()
+        try {
+            task()
+        } catch (throwable: Throwable) {
+            logException(LOG, throwable) { "Error while $name" }
+        }
+        logDuration(LOG, start) { name }
     }
 
-    override fun getLifecycleState(): LifecycleState {
-        return state.value
-    }
-
-    override fun getLifecycleStateFlow(): StateFlow<LifecycleState> {
-        return state
-    }
+    private fun Any.name() = javaClass.simpleName
 }

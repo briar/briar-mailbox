@@ -43,7 +43,7 @@ public class AndroidTaskSchedulerModule {
 			AndroidWakeLockManager wakeLockManager,
 			ScheduledExecutorService scheduledExecutorService) {
 		AndroidTaskScheduler scheduler = new AndroidTaskScheduler(app,
-				wakeLockManager, scheduledExecutorService);
+				scheduledExecutorService);
 		lifecycleManager.registerService(scheduler);
 		return scheduler;
 	}

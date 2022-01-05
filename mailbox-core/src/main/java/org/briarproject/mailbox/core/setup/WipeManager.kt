@@ -42,12 +42,17 @@ class WipeManager @Inject constructor(
     /*
      * This must only be called by the LifecycleManager
      */
-    fun wipe(wipeDatabase: Boolean) {
-        if (wipeDatabase) {
-            db.dropAllTablesAndClose()
-            val dir = databaseConfig.getDatabaseDirectory()
-            IoUtils.deleteFileOrDir(dir)
-        }
+    fun wipeDatabaseAndFiles() {
+        db.dropAllTablesAndClose()
+        val dir = databaseConfig.getDatabaseDirectory()
+        IoUtils.deleteFileOrDir(dir)
+        fileManager.deleteAllFiles()
+    }
+
+    /*
+     * This must only be called by the LifecycleManager
+     */
+    fun wipeFilesOnly() {
         fileManager.deleteAllFiles()
     }
 

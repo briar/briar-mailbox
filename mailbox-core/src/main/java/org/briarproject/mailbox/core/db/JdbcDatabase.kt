@@ -124,7 +124,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
             listener?.onDatabaseCompaction()
             val start: Long = now()
             compactAndClose()
-            logDuration(LOG, { "Compacting database" }, start)
+            logDuration(LOG, start) { "Compacting database" }
             // Allow the next transaction to reopen the DB
             connectionsLock.lock()
             try {
@@ -210,10 +210,10 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         val start = now()
         if (readOnly) {
             lock.readLock().lock()
-            logDuration(LOG, { "Waiting for read lock" }, start)
+            logDuration(LOG, start) { "Waiting for read lock" }
         } else {
             lock.writeLock().lock()
-            logDuration(LOG, { "Waiting for write lock" }, start)
+            logDuration(LOG, start) { "Waiting for write lock" }
         }
         return try {
             Transaction(startTransaction(), readOnly)

@@ -29,13 +29,13 @@ import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.android.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
+import org.briarproject.mailbox.core.system.AndroidWakeLock
 import org.briarproject.mailbox.core.system.AndroidWakeLockManager
 import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 @AndroidEntryPoint
@@ -70,52 +70,60 @@ class MailboxService : Service() {
     @Inject
     internal lateinit var notificationManager: MailboxNotificationManager
 
+    private lateinit var lifecycleWakeLock: AndroidWakeLock
+
     override fun onCreate() {
         super.onCreate()
 
         LOG.info("Created")
         if (created.getAndSet(true)) {
             LOG.warn("Already created")
-            // FIXME when can this happen? Next line will kill app
+            // This is a canary to notify us about strange behavior concerning service creation
+            // in logs and bug reports. Calling stopSelf() kills the app.
             stopSelf()
             return
         }
 
-        // Hold a wake lock during startup
-        wakeLockManager.runWakefully({
-            startForeground(NOTIFICATION_MAIN_ID, notificationManager.serviceNotification)
-            // Start the services in a background thread
-            wakeLockManager.executeWakefully({
-                val result: StartResult = lifecycleManager.startServices()
-                when {
-                    result === SUCCESS -> started = true
-                    result === ALREADY_RUNNING -> {
-                        LOG.warn("Already running")
-                        // FIXME when can this happen? Next line will kill app
-                        stopSelf()
-                    }
-                    else -> {
-                        if (LOG.isWarnEnabled) LOG.warn("Startup failed: $result")
-                        // TODO: implement this
-                        //  and start activity in new process, so we can kill this one
-                        // showStartupFailure(result)
-                        stopSelf()
-                    }
-                }
-            }, "LifecycleStartup")
-            // Register for device shutdown broadcasts
-            receiver = object : BroadcastReceiver() {
-                override fun onReceive(context: Context, intent: Intent) {
-                    LOG.info("Device is shutting down")
+        startForeground(NOTIFICATION_MAIN_ID, notificationManager.serviceNotification)
+
+        // We hold a wake lock during the whole lifecycle. We have a one-to-one relationship
+        // between MailboxService and the LifecycleManager. As we do not support lifecycle restarts
+        // only a single MailboxService is allowed to start and stop with the LifecycleManager
+        // singleton. Should the service be killed and restarted, the LifecycleManager must also
+        // have been destroyed and there is no way to recover except via a restart of the app.
+        // So should a second MailboxService be started anytime, this is a unrecoverable situation
+        // and we stop the app.
+        // Acquiring the wakelock here and releasing it as the last thing before exitProcess()
+        // during onDestroy() makes sure it is being held during the whole lifecycle.
+        lifecycleWakeLock = wakeLockManager.createWakeLock("Lifecycle")
+        lifecycleWakeLock.acquire()
+
+        // Start the services in a background thread
+        thread {
+            val result = lifecycleManager.startServices()
+            when {
+                result === SUCCESS -> started = true
+                else -> {
+                    if (LOG.isWarnEnabled) LOG.warn("Startup failed: $result")
+                    // TODO: implement this
+                    //  and start activity in new process, so we can kill this one
+                    // showStartupFailure(result)
                     stopSelf()
                 }
             }
-            val filter = IntentFilter()
-            filter.addAction(Intent.ACTION_SHUTDOWN)
-            filter.addAction("android.intent.action.QUICKBOOT_POWEROFF")
-            filter.addAction("com.htc.intent.action.QUICKBOOT_POWEROFF")
-            registerReceiver(receiver, filter)
-        }, "LifecycleStartup")
+        }
+        // Register for device shutdown broadcasts
+        receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                LOG.info("Device is shutting down")
+                stopSelf()
+            }
+        }
+        val filter = IntentFilter()
+        filter.addAction(Intent.ACTION_SHUTDOWN)
+        filter.addAction("android.intent.action.QUICKBOOT_POWEROFF")
+        filter.addAction("com.htc.intent.action.QUICKBOOT_POWEROFF")
+        registerReceiver(receiver, filter)
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -123,23 +131,23 @@ class MailboxService : Service() {
     }
 
     override fun onDestroy() {
-        wakeLockManager.runWakefully({
-            super.onDestroy()
-            LOG.info("Destroyed")
-            stopForeground(true)
-            if (receiver != null) unregisterReceiver(receiver)
-            wakeLockManager.executeWakefully({
-                try {
-                    if (started) {
-                        lifecycleManager.stopServices()
-                        lifecycleManager.waitForShutdown()
-                    }
-                } catch (e: InterruptedException) {
-                    LOG.info("Interrupted while waiting for shutdown")
-                }
-                LOG.info("Exiting")
-                exitProcess(0)
-            }, "LifecycleShutdown")
-        }, "LifecycleShutdown")
+        super.onDestroy()
+        LOG.info("Destroyed")
+        stopForeground(true)
+        if (receiver != null) unregisterReceiver(receiver)
+        if (started) {
+            try {
+                lifecycleManager.stopServices()
+                lifecycleManager.waitForShutdown()
+            } catch (e: InterruptedException) {
+                LOG.info("Interrupted while waiting for shutdown")
+            }
+        }
+        // Do not exit within wakeful execution, otherwise we will never release the wake locks.
+        // Or maybe we want to do precisely that to make sure exiting really happens and the app
+        // doesn't get suspended before it gets a chance to exit?
+        lifecycleWakeLock.release()
+        LOG.info("Exiting")
+        exitProcess(0)
     }
 }

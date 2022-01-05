@@ -63,7 +63,6 @@ public class AndroidTaskScheduler implements TaskScheduler, Service {
 	private static final long ALARM_MS = INTERVAL_FIFTEEN_MINUTES;
 
 	private final Application app;
-	private final AndroidWakeLockManager wakeLockManager;
 	private final ScheduledExecutorService scheduledExecutorService;
 	private final AlarmManager alarmManager;
 
@@ -72,10 +71,8 @@ public class AndroidTaskScheduler implements TaskScheduler, Service {
 	private final Queue<ScheduledTask> tasks = new PriorityQueue<>();
 
 	AndroidTaskScheduler(Application app,
-			AndroidWakeLockManager wakeLockManager,
 			ScheduledExecutorService scheduledExecutorService) {
 		this.app = app;
-		this.wakeLockManager = wakeLockManager;
 		this.scheduledExecutorService = scheduledExecutorService;
 		alarmManager = (AlarmManager) requireNonNull(
 				app.getSystemService(ALARM_SERVICE));
@@ -107,29 +104,25 @@ public class AndroidTaskScheduler implements TaskScheduler, Service {
 	}
 
 	public void onAlarm(Intent intent) {
-		wakeLockManager.runWakefully(() -> {
-			int extraPid = intent.getIntExtra(EXTRA_PID, -1);
-			int currentPid = Process.myPid();
-			if (extraPid == currentPid) {
-				LOG.info("Alarm");
-				rescheduleAlarm();
-				runDueTasks();
-			} else {
-				info(LOG, () -> "Ignoring alarm with PID " + extraPid +
-						", current PID is " +
-						currentPid);
-			}
-		}, "TaskAlarm");
+		int extraPid = intent.getIntExtra(EXTRA_PID, -1);
+		int currentPid = Process.myPid();
+		if (extraPid == currentPid) {
+			LOG.info("Alarm");
+			rescheduleAlarm();
+			runDueTasks();
+		} else {
+			info(LOG, () -> "Ignoring alarm with PID " + extraPid +
+					", current PID is " + currentPid);
+		}
 	}
 
 	private Cancellable schedule(Runnable task, Executor executor, long delay,
 			TimeUnit unit, AtomicBoolean cancelled) {
 		long now = SystemClock.elapsedRealtime();
 		long dueMillis = now + MILLISECONDS.convert(delay, unit);
-		Runnable wakeful = () ->
-				wakeLockManager.executeWakefully(task, executor, "TaskHandoff");
+		Runnable wrapped = () -> executor.execute(task);
 		Future<?> check = scheduleCheckForDueTasks(delay, unit);
-		ScheduledTask s = new ScheduledTask(wakeful, dueMillis, check,
+		ScheduledTask s = new ScheduledTask(wrapped, dueMillis, check,
 				cancelled);
 		synchronized (lock) {
 			tasks.add(s);
@@ -149,9 +142,8 @@ public class AndroidTaskScheduler implements TaskScheduler, Service {
 	}
 
 	private Future<?> scheduleCheckForDueTasks(long delay, TimeUnit unit) {
-		Runnable wakeful = () -> wakeLockManager.runWakefully(
-				this::runDueTasks, "TaskScheduler");
-		return scheduledExecutorService.schedule(wakeful, delay, unit);
+		return scheduledExecutorService
+				.schedule(this::runDueTasks, delay, unit);
 	}
 
 	@Wakeful
