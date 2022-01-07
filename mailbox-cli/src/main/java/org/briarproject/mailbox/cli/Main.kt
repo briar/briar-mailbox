@@ -31,12 +31,14 @@ import org.briarproject.mailbox.core.db.TransactionManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.setup.QrCodeEncoder
 import org.briarproject.mailbox.core.setup.SetupManager
+import org.briarproject.mailbox.core.system.InvalidIdException
 import org.slf4j.LoggerFactory.getLogger
 import java.util.logging.Level.ALL
 import java.util.logging.Level.INFO
 import java.util.logging.Level.WARNING
 import java.util.logging.LogManager
 import javax.inject.Inject
+import kotlin.system.exitProcess
 
 class Main : CliktCommand(
     name = "briar-mailbox",
@@ -50,6 +52,7 @@ class Main : CliktCommand(
         "-v",
         help = "Print verbose log messages"
     ).counted()
+    private val setupToken: String? by option("--setup-token", hidden = true)
 
     @Inject
     internal lateinit var coreEagerSingletons: CoreEagerSingletons
@@ -99,6 +102,13 @@ class Main : CliktCommand(
 
         lifecycleManager.startServices()
         lifecycleManager.waitForStartup()
+
+        if (setupToken != null) try {
+            setupManager.setToken(setupToken, null)
+        } catch (e: InvalidIdException) {
+            System.err.println("Invalid setup token")
+            exitProcess(1)
+        }
 
         // TODO this is obviously not the final code, just a stub to get us started
         val setupTokenExists = db.read { txn ->
