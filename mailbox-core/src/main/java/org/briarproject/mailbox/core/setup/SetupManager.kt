@@ -51,11 +51,8 @@ class SetupManager @Inject constructor(
         settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE_OWNER)
     }
 
-    /**
-     * Visible for testing, consider private.
-     */
     @Throws(DbException::class)
-    internal fun setToken(setupToken: String?, ownerToken: String?) {
+    fun setToken(setupToken: String?, ownerToken: String?) {
         val settings = Settings()
         if (setupToken != null) randomIdManager.assertIsRandomId(setupToken)
         settings[SETTINGS_SETUP_TOKEN] = setupToken
