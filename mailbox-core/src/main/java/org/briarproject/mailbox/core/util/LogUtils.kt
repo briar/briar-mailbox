@@ -68,11 +68,16 @@ object LogUtils {
      * @param start  the start time of the task, as returned by [now]
      */
     @JvmStatic
-    fun logDuration(logger: Logger, msg: () -> String, start: Long) {
+    fun logDuration(logger: Logger, start: Long, msg: () -> String) {
         logger.trace {
             val duration = now() - start
             "${msg()} took $duration ms"
         }
+    }
+
+    @JvmStatic
+    fun logException(logger: Logger, t: Throwable, message: () -> String) {
+        if (logger.isWarnEnabled) logger.warn(message(), t)
     }
 
     @JvmStatic

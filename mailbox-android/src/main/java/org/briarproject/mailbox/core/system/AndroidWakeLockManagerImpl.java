@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.PowerManager;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
@@ -64,57 +63,6 @@ class AndroidWakeLockManagerImpl implements AndroidWakeLockManager {
 	@Override
 	public AndroidWakeLock createWakeLock(String tag) {
 		return new AndroidWakeLockImpl(sharedWakeLock, tag);
-	}
-
-	@Override
-	public void runWakefully(Runnable r, String tag) {
-		AndroidWakeLock wakeLock = createWakeLock(tag);
-		wakeLock.acquire();
-		try {
-			r.run();
-		} finally {
-			wakeLock.release();
-		}
-	}
-
-	@Override
-	public void executeWakefully(Runnable r, Executor executor, String tag) {
-		AndroidWakeLock wakeLock = createWakeLock(tag);
-		wakeLock.acquire();
-		try {
-			executor.execute(() -> {
-				try {
-					r.run();
-				} finally {
-					// Release the wake lock if the task throws an exception
-					wakeLock.release();
-				}
-			});
-		} catch (Exception e) {
-			// Release the wake lock if the executor throws an exception when
-			// we submit the task (in which case the release() call above won't
-			// happen)
-			wakeLock.release();
-			throw e;
-		}
-	}
-
-	@Override
-	public void executeWakefully(Runnable r, String tag) {
-		AndroidWakeLock wakeLock = createWakeLock(tag);
-		wakeLock.acquire();
-		try {
-			new Thread(() -> {
-				try {
-					r.run();
-				} finally {
-					wakeLock.release();
-				}
-			}).start();
-		} catch (Exception e) {
-			wakeLock.release();
-			throw e;
-		}
 	}
 
 	private String getWakeLockTag(Context ctx) {

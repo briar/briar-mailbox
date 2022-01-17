@@ -30,9 +30,9 @@ import kotlinx.coroutines.flow.StateFlow
 import org.briarproject.android.dontkillmelib.DozeHelper
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
-import org.briarproject.mailbox.core.system.AndroidWakeLockManager
 import org.briarproject.mailbox.core.system.DozeWatchdog
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 @HiltViewModel
 class MailboxViewModel @Inject constructor(
@@ -41,7 +41,6 @@ class MailboxViewModel @Inject constructor(
     private val dozeWatchdog: DozeWatchdog,
     handle: SavedStateHandle,
     private val lifecycleManager: LifecycleManager,
-    private val wakeLockManager: AndroidWakeLockManager,
 ) : AndroidViewModel(app) {
 
     val needToShowDoNotKillMeFragment get() = dozeHelper.needToShowDoNotKillMeFragment(app)
@@ -68,10 +67,11 @@ class MailboxViewModel @Inject constructor(
     }
 
     fun wipe() {
-        wakeLockManager.executeWakefully({
+        thread {
+            // TODO: handle return value
             lifecycleManager.wipeMailbox()
             MailboxService.stopService(getApplication())
-        }, "LifecycleWipe")
+        }
     }
 
     fun getAndResetDozeFlag() = dozeWatchdog.andResetDozeFlag

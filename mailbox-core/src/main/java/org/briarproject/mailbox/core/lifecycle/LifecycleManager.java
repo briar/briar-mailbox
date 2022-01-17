@@ -38,7 +38,6 @@ public interface LifecycleManager {
 	 * The result of calling {@link #startServices()}.
 	 */
 	enum StartResult {
-		ALREADY_RUNNING,
 		SERVICE_ERROR,
 		SUCCESS
 	}
