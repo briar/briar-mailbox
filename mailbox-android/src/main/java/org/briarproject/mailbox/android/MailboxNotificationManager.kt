@@ -24,9 +24,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.NotificationManager.IMPORTANCE_LOW
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context
 import android.content.Intent
-import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_MIN
@@ -50,7 +51,7 @@ class MailboxNotificationManager @Inject constructor(
     private val nm = getSystemService(ctx, NotificationManager::class.java)!!
 
     init {
-        if (Build.VERSION.SDK_INT >= 26) createNotificationChannels()
+        if (SDK_INT >= 26) createNotificationChannels()
     }
 
     @RequiresApi(26)
@@ -68,8 +69,9 @@ class MailboxNotificationManager @Inject constructor(
     val serviceNotification: Notification
         get() {
             val notificationIntent = Intent(ctx, MainActivity::class.java)
+            val flags = if (SDK_INT >= 23) FLAG_IMMUTABLE else 0
             val pendingIntent = PendingIntent.getActivity(
-                ctx, 0, notificationIntent, 0
+                ctx, 0, notificationIntent, flags
             )
             return NotificationCompat.Builder(ctx, CHANNEL_ID)
                 .setContentTitle(ctx.getString(R.string.notification_mailbox_title))

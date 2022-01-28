@@ -46,6 +46,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import static android.app.AlarmManager.ELAPSED_REALTIME_WAKEUP;
 import static android.app.AlarmManager.INTERVAL_FIFTEEN_MINUTES;
 import static android.app.PendingIntent.FLAG_CANCEL_CURRENT;
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.content.Context.ALARM_SERVICE;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Objects.requireNonNull;
@@ -194,8 +195,9 @@ public class AndroidTaskScheduler implements TaskScheduler, Service {
 	private PendingIntent getAlarmPendingIntent() {
 		Intent i = new Intent(app, AlarmReceiver.class);
 		i.putExtra(EXTRA_PID, Process.myPid());
-		return PendingIntent
-				.getBroadcast(app, REQUEST_ALARM, i, FLAG_CANCEL_CURRENT);
+		int flags = SDK_INT >= 23 ? FLAG_CANCEL_CURRENT | FLAG_IMMUTABLE :
+				FLAG_CANCEL_CURRENT;
+		return PendingIntent.getBroadcast(app, REQUEST_ALARM, i, flags);
 	}
 
 	private class ScheduledTask
