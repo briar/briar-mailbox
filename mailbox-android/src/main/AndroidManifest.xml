@@ -20,7 +20,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Briarmailbox">
+        android:theme="@style/Theme.BriarMailbox">
 
         <service android:name=".android.MailboxService" />
 
@@ -33,6 +33,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".android.ui.OnboardingActivity" />
 
         <receiver android:name=".core.system.AlarmReceiver" />
 

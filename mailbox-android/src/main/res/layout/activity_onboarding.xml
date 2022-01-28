@@ -7,5 +7,5 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:defaultNavHost="true"
-    app:navGraph="@navigation/nav_main"
-    tools:context=".android.MainActivity" />
+    app:navGraph="@navigation/nav_onboarding"
+    tools:context=".android.ui.OnboardingActivity" />

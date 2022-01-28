@@ -7,4 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="briar_green">#74B816</color>
+    <color name="briar_night">#435B77</color>
 </resources>

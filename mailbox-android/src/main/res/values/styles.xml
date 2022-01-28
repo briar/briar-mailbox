@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TextButton" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">?attr/colorSecondary</item>
+    </style>
+
+</resources>
