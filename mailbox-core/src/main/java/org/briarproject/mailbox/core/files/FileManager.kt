@@ -51,7 +51,6 @@ class FileManager @Inject constructor(
      */
     fun hasDbFile(): Boolean {
         val dbDir = dbConfig.getDatabaseDirectory()
-        println("${dbDir.absolutePath} exists: ${dbDir.exists()} isDirectory: ${dbDir.isDirectory}")
         return dbDir.isDirectory
     }
 

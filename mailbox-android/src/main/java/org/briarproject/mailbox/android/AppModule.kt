@@ -57,10 +57,10 @@ internal class AppModule {
     fun provideFileProvider(app: Application) = object : FileProvider {
         override val root: File get() = app.applicationContext.filesDir
         override val folderRoot = app.applicationContext.getDir("folders", MODE_PRIVATE)
-        private val tempFilesDir = File(app.applicationContext.cacheDir, "tmp").also { it.mkdirs() }
+        private val tempFilesDir = File(app.applicationContext.cacheDir, "tmp").apply { mkdirs() }
 
         override fun getTemporaryFile(fileId: String) = File(tempFilesDir, fileId)
-        override fun getFolder(folderId: String) = File(folderRoot, folderId).also { it.mkdirs() }
+        override fun getFolder(folderId: String) = File(folderRoot, folderId).apply { mkdirs() }
         override fun getFile(folderId: String, fileId: String) = File(getFolder(folderId), fileId)
     }
 

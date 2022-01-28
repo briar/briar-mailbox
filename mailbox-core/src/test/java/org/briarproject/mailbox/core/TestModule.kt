@@ -44,13 +44,14 @@ internal class TestModule(private val tempDir: File) {
     fun provideFileProvider() = object : FileProvider {
         override val root: File get() = tempDir
         override val folderRoot = File(tempDir, "folders")
-        private val tempFilesDir = File(tempDir, "tmp").also { it.mkdirs() }
+        private val tempFilesDir = File(tempDir, "tmp").apply { mkdirs() }
 
-        override fun getTemporaryFile(fileId: String) = File(tempFilesDir, fileId).also { file ->
+        override fun getTemporaryFile(fileId: String) = File(tempFilesDir, fileId).apply {
             // we delete root at the end of each test, so tempFilesDir gets deleted as well
-            file.parentFile.mkdirs()
+            parentFile.mkdirs()
         }
-        override fun getFolder(folderId: String) = File(folderRoot, folderId).also { it.mkdirs() }
+
+        override fun getFolder(folderId: String) = File(folderRoot, folderId).apply { mkdirs() }
         override fun getFile(folderId: String, fileId: String) = File(getFolder(folderId), fileId)
     }
 }

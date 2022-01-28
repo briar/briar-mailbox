@@ -25,6 +25,9 @@ interface FileProvider {
     /**
      * The root files directory.
      * Attention: This is not guaranteed to be the parent of other files on all platforms.
+     *            Also this directory and all of its content are deleted during wipe,
+     *            so make sure this is a directory where this doesn't do any harm,
+     *            i.e. a directory used for the mailbox only.
      */
     val root: File
     val folderRoot: File

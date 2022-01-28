@@ -95,28 +95,29 @@ void jarFactory(Jar jarTask, jarArchitecture) {
     }
     jarTask.manifest {
         attributes(
-                'Main-Class': application.mainClassName
+                'Main-Class': application.getMainClass()
         )
     }
     jarTask.setArchiveClassifier(jarArchitecture)
     jarTask.from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-            {
-                it.duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-                String[] architectures = ["linux-aarch64", "linux-armhf", "linux-x86_64"]
-                for (String arch : architectures) {
-                    if (arch != jarArchitecture) {
-                        exclude "obfs4proxy_" + arch + ".zip"
-                        exclude "tor_" + arch + ".zip"
-                    }
-                }
-                exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+        configurations.runtimeClasspath.collect { file ->
+            file.isDirectory() ? file : zipTree(file)
+        }
+    } { copySpec ->
+        copySpec.duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+        String[] architectures = ["linux-aarch64", "linux-armhf", "linux-x86_64"]
+        for (String arch : architectures) {
+            if (arch != jarArchitecture) {
+                exclude "obfs4proxy_" + arch + ".zip"
+                exclude "tor_" + arch + ".zip"
             }
+        }
+        exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+    }
     jarTask.with jar
     jarTask.doLast {
         // Rename the original jar
-        File jar = jarTask.archivePath
+        File jar = getArchiveFile().get().getAsFile()
         String srcPath = jar.toString().replaceFirst('\\.jar$', '.unsorted.jar')
         File srcFile = new File(srcPath)
         jar.renameTo(srcFile)
@@ -142,10 +143,13 @@ void jarFactory(Jar jarTask, jarArchitecture) {
         destStream.close()
         srcJarFile.close()
         println 'Building ' + jarArchitecture + ' version has finished'
+        println 'JAR: mailbox-cli/build/libs/mailbox-cli-linux-x86_64.jar'
     }
 }
 
 task x86LinuxJar(type: Jar) {
+    group = "Build"
+    description = "Assembles a runnable fat jar for x86-64 Linux"
     jarFactory(it, 'linux-x86_64')
 }
 

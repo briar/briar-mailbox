@@ -24,7 +24,6 @@ import io.ktor.auth.principal
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import org.briarproject.mailbox.core.db.Database
-import org.briarproject.mailbox.core.db.DatabaseConfig
 import org.briarproject.mailbox.core.files.FileManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.server.AuthException
@@ -34,20 +33,23 @@ import javax.inject.Inject
 
 class WipeManager @Inject constructor(
     private val db: Database,
-    private val databaseConfig: DatabaseConfig,
     private val fileManager: FileManager,
 ) {
 
-    /*
-     * This must only be called by the LifecycleManager
+    /**
+     * Drops database tables and then deletes all files, includes the database files.
+     *
+     * This must only be called by the [LifecycleManager].
      */
     fun wipeDatabaseAndFiles() {
         db.dropAllTablesAndClose()
         fileManager.deleteAllFiles()
     }
 
-    /*
-     * This must only be called by the LifecycleManager
+    /**
+     * Deletes all files, includes the database files.
+     *
+     * This must only be called by the [LifecycleManager].
      */
     fun wipeFilesOnly() {
         fileManager.deleteAllFiles()

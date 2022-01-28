@@ -50,6 +50,7 @@ interface SetupManager : OpenDatabaseHook {
     @Throws(DbException::class)
     fun setToken(setupToken: String?, ownerToken: String?)
 
+    @Throws(DbException::class)
     fun getSetupToken(txn: Transaction): String?
 
     @Throws(DbException::class)
@@ -64,6 +65,7 @@ class SetupManagerImpl @Inject constructor(
 
     override val hasDb: Boolean get() = fileManager.hasDbFile()
 
+    @Throws(DbException::class)
     override fun onDatabaseOpened(txn: Transaction) {
         val settings = settingsManager.getSettings(txn, SETTINGS_NAMESPACE_OWNER)
         val setupToken = settings[SETTINGS_SETUP_TOKEN]
@@ -90,6 +92,7 @@ class SetupManagerImpl @Inject constructor(
         settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE_OWNER)
     }
 
+    @Throws(DbException::class)
     override fun getSetupToken(txn: Transaction): String? {
         val settings = settingsManager.getSettings(txn, SETTINGS_NAMESPACE_OWNER)
         return settings[SETTINGS_SETUP_TOKEN]
