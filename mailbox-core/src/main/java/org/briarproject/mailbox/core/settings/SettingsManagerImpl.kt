@@ -43,4 +43,8 @@ internal class SettingsManagerImpl(private val db: Database) : SettingsManager {
     override fun mergeSettings(s: Settings, namespace: String) {
         db.write { txn -> db.mergeSettings(txn, s, namespace) }
     }
+
+    override fun mergeSettings(txn: Transaction, s: Settings, namespace: String) {
+        db.mergeSettings(txn, s, namespace)
+    }
 }

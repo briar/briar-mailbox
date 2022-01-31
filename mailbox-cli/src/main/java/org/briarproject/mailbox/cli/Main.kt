@@ -25,13 +25,17 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.counted
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
+import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.CoreEagerSingletons
 import org.briarproject.mailbox.core.JavaCliEagerSingletons
 import org.briarproject.mailbox.core.db.TransactionManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.setup.QrCodeEncoder
 import org.briarproject.mailbox.core.setup.SetupManager
+import org.briarproject.mailbox.core.setup.WipeManager
 import org.briarproject.mailbox.core.system.InvalidIdException
+import org.briarproject.mailbox.core.tor.TorPlugin
 import org.slf4j.LoggerFactory.getLogger
 import java.util.logging.Level.ALL
 import java.util.logging.Level.INFO
@@ -44,6 +48,10 @@ class Main : CliktCommand(
     name = "briar-mailbox",
     help = "Command line interface for the Briar Mailbox"
 ) {
+    private val wipe by option(
+        "--wipe",
+        help = "Deletes entire mailbox, will require new setup",
+    ).flag(default = false)
     private val debug by option("--debug", "-d", help = "Enable printing of debug messages").flag(
         default = false
     )
@@ -70,6 +78,12 @@ class Main : CliktCommand(
     internal lateinit var setupManager: SetupManager
 
     @Inject
+    internal lateinit var wipeManager: WipeManager
+
+    @Inject
+    internal lateinit var torPlugin: TorPlugin
+
+    @Inject
     internal lateinit var qrCodeEncoder: QrCodeEncoder
 
     override fun run() {
@@ -93,6 +107,15 @@ class Main : CliktCommand(
         val javaCliComponent = DaggerJavaCliComponent.builder().build()
         javaCliComponent.inject(this)
 
+        if (wipe) {
+            wipeManager.wipeFilesOnly()
+            println("Mailbox wiped successfully \\o/")
+            exitProcess(0)
+        }
+        startLifecycle()
+    }
+
+    private fun startLifecycle() {
         Runtime.getRuntime().addShutdownHook(
             Thread {
                 lifecycleManager.stopServices()
@@ -103,23 +126,36 @@ class Main : CliktCommand(
         lifecycleManager.startServices()
         lifecycleManager.waitForStartup()
 
-        if (setupToken != null) try {
-            setupManager.setToken(setupToken, null)
-        } catch (e: InvalidIdException) {
-            System.err.println("Invalid setup token")
-            exitProcess(1)
+        if (setupToken != null) {
+            try {
+                setupManager.setToken(setupToken, null)
+            } catch (e: InvalidIdException) {
+                System.err.println("Invalid setup token")
+                exitProcess(1)
+            }
         }
 
-        // TODO this is obviously not the final code, just a stub to get us started
-        val setupTokenExists = db.read { txn ->
-            setupManager.getSetupToken(txn) != null
-        }
         val ownerTokenExists = db.read { txn ->
             setupManager.getOwnerToken(txn) != null
         }
-        if (!setupTokenExists && !ownerTokenExists) setupManager.restartSetup()
-        qrCodeEncoder.getQrCodeBitMatrix()?.let {
-            println(QrCodeRenderer.getQrString(it))
+        if (!ownerTokenExists) {
+            if (debug) {
+                val token = setupToken ?: db.read { setupManager.getSetupToken(it) }
+                println(
+                    "curl -v -H \"Authorization: Bearer $token\" -X PUT " +
+                        "http://localhost:8000/setup"
+                )
+            }
+            // If not set up, show QR code for manual setup
+            runBlocking {
+                // wait until Tor becomes active and published the onion service
+                torPlugin.state.takeWhile { state ->
+                    state != TorPlugin.State.ACTIVE
+                }
+            }
+            qrCodeEncoder.getQrCodeBitMatrix()?.let {
+                println(QrCodeRenderer.getQrString(it))
+            }
         }
     }
 

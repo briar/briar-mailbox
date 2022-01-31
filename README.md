@@ -88,6 +88,11 @@ any hardware supporting Java (e.g. unix server, raspberry pi) could be added.
 
 [briarproject.org](https://briarproject.org/)
 
+## Server CLI version
+
+A fat JAR for running on a GNU/Linux server can be compiled with
+
+    ./gradlew x86LinuxJar
 
 ## Donate 
 [![Donate using Liberapay](https://briarproject.org/img/liberapay.svg)](https://liberapay.com/Briar/donate) [![Flattr this](https://briarproject.org/img/flattr-badge-large.png "Flattr this")](https://flattr.com/t/592836/)   

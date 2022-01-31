@@ -61,6 +61,11 @@ internal class JavaCliModule {
         private const val DATAHOME_SUBDIR = "briar-mailbox"
     }
 
+    /**
+     * Returns the [File] for the data directory of the mailbox.
+     * If XDG_DATA_HOME is defined, it returns "$XDG_DATA_HOME/briar-mailbox"
+     * and otherwise it returns "~/.local/share/briar-mailbox".
+     */
     private val dataDir: File by lazy {
         val dataHome = when (val custom = System.getenv("XDG_DATA_HOME").orEmpty()) {
             "" -> File(DEFAULT_DATAHOME)
@@ -89,26 +94,22 @@ internal class JavaCliModule {
 
     @Singleton
     @Provides
-    fun provideDatabaseConfig() = object : DatabaseConfig {
+    fun provideDatabaseConfig(fileProvider: FileProvider) = object : DatabaseConfig {
         override fun getDatabaseDirectory(): File {
-            val dbDir = File(dataDir, "db")
-            if (!dbDir.exists() && !dbDir.mkdirs()) {
-                throw IOException("dbDir could not be created: ${dbDir.absolutePath}")
-            } else if (!dbDir.isDirectory) {
-                throw IOException("dbDir is not a directory: ${dbDir.absolutePath}")
-            }
-            return dbDir
+            // The database itself does mkdirs() and we use the existence to see if DB exists
+            return File(fileProvider.root, "db")
         }
     }
 
     @Singleton
     @Provides
     fun provideFileProvider() = object : FileProvider {
-        private val tempFilesDir = File(dataDir, "tmp").also { it.mkdirs() }
-        override val folderRoot = File(dataDir, "folders").also { it.mkdirs() }
+        override val root: File get() = dataDir
+        private val tempFilesDir = File(dataDir, "tmp").apply { mkdirs() }
+        override val folderRoot = File(dataDir, "folders").apply { mkdirs() }
 
         override fun getTemporaryFile(fileId: String) = File(tempFilesDir, fileId)
-        override fun getFolder(folderId: String) = File(folderRoot, folderId).also { it.mkdirs() }
+        override fun getFolder(folderId: String) = File(folderRoot, folderId).apply { mkdirs() }
         override fun getFile(folderId: String, fileId: String) = File(getFolder(folderId), fileId)
     }
 

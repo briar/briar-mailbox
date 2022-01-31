@@ -27,6 +27,7 @@ import android.content.Intent.ACTION_MY_PACKAGE_REPLACED
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.NOT_STARTED
+import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.util.LogUtils.debug
 import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
@@ -39,9 +40,15 @@ class StartReceiver : BroadcastReceiver() {
     @Inject
     internal lateinit var lifecycleManager: LifecycleManager
 
+    @Inject
+    internal lateinit var setupManager: SetupManager
+
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
         if (action != ACTION_BOOT_COMPLETED && action != ACTION_MY_PACKAGE_REPLACED) return
+
+        // don't start, if we don't even have a database
+        if (!setupManager.hasDb) return
 
         val lifecycleState = lifecycleManager.lifecycleStateFlow.value
         LOG.debug { "Received $action in state ${lifecycleState.name}" }

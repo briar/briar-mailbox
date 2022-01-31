@@ -12,7 +12,6 @@ import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.TestUtils.assertTimestampRecent
 import org.briarproject.mailbox.core.TestUtils.getNewRandomId
 import org.briarproject.mailbox.core.server.IntegrationTest
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,12 +28,6 @@ class FileManagerIntegrationTest : IntegrationTest() {
         addOwnerToken()
         addContact(contact1)
         addContact(contact2)
-    }
-
-    @AfterEach
-    override fun clearDb() {
-        super.clearDb()
-        testComponent.getFileManager().deleteAllFiles()
     }
 
     @Test

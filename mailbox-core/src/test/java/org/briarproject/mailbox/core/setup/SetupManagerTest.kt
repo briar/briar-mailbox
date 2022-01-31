@@ -7,37 +7,9 @@ import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.server.IntegrationTest
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class SetupManagerTest : IntegrationTest() {
-
-    private val setupManager by lazy { testComponent.getSetupManager() }
-
-    @Test
-    fun `restarting setup wipes owner token and creates setup token`() {
-        // initially, there's no setup and no owner token
-        db.read { txn ->
-            assertNull(setupManager.getSetupToken(txn))
-            assertNull(setupManager.getOwnerToken(txn))
-        }
-
-        // setting an owner token stores it in DB
-        setupManager.setToken(null, ownerToken)
-        db.read { txn ->
-            assertNull(setupManager.getSetupToken(txn))
-            assertEquals(ownerToken, setupManager.getOwnerToken(txn))
-        }
-
-        // restarting setup wipes owner token, creates setup token
-        setupManager.restartSetup()
-        db.read { txn ->
-            val setupToken = setupManager.getSetupToken(txn)
-            assertNotNull(setupToken)
-            testComponent.getRandomIdManager().assertIsRandomId(setupToken)
-            assertNull(setupManager.getOwnerToken(txn))
-        }
-    }
 
     @Test
     fun `setup request gets rejected when using non-setup token`() = runBlocking {
@@ -77,6 +49,9 @@ class SetupManagerTest : IntegrationTest() {
     fun `setup request clears setup token and sets new owner token`() = runBlocking {
         // set a setup-token
         setupManager.setToken(token, null)
+
+        // we are not yet set up
+        assertNull(db.read { txn -> setupManager.getOwnerToken(txn) })
 
         // use it for setup PUT request
         val response: SetupResponse = httpClient.put("$baseUrl/setup") {

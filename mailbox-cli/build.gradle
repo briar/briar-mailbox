@@ -1,3 +1,9 @@
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+import java.util.jar.JarOutputStream
+
+import static java.util.Collections.list
+
 plugins {
     id 'application'
     id 'idea'
@@ -81,6 +87,70 @@ task unpackTorBinaries {
 processResources {
     inputs.dir torBinariesDir
     dependsOn unpackTorBinaries
+}
+
+void jarFactory(Jar jarTask, jarArchitecture) {
+    jarTask.doFirst {
+        println 'Building ' + jarArchitecture + ' version has started'
+    }
+    jarTask.manifest {
+        attributes(
+                'Main-Class': application.getMainClass()
+        )
+    }
+    jarTask.setArchiveClassifier(jarArchitecture)
+    jarTask.from {
+        configurations.runtimeClasspath.collect { file ->
+            file.isDirectory() ? file : zipTree(file)
+        }
+    } { copySpec ->
+        copySpec.duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+        String[] architectures = ["linux-aarch64", "linux-armhf", "linux-x86_64"]
+        for (String arch : architectures) {
+            if (arch != jarArchitecture) {
+                exclude "obfs4proxy_" + arch + ".zip"
+                exclude "tor_" + arch + ".zip"
+            }
+        }
+        exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+    }
+    jarTask.with jar
+    jarTask.doLast {
+        // Rename the original jar
+        File jar = getArchiveFile().get().getAsFile()
+        String srcPath = jar.toString().replaceFirst('\\.jar$', '.unsorted.jar')
+        File srcFile = new File(srcPath)
+        jar.renameTo(srcFile)
+        JarFile srcJarFile = new JarFile(srcFile)
+        OutputStream destStream = new JarOutputStream(new FileOutputStream(jar))
+        // Read and sort the entries
+        Map<String, JarEntry> entries = new TreeMap<>()
+        for (JarEntry e : list(srcJarFile.entries())) entries.put(e.getName(), e)
+        // Write the sorted entries
+        for (JarEntry srcEntry : entries.values()) {
+            JarEntry destEntry = new JarEntry(srcEntry.getName())
+            destEntry.setTime(0)
+            destStream.putNextEntry(destEntry)
+            InputStream srcStream = srcJarFile.getInputStream(srcEntry)
+            int read
+            byte[] buf = new byte[4096]
+            while ((read = srcStream.read(buf, 0, buf.length)) != -1) {
+                destStream.write(buf, 0, read)
+            }
+            destStream.closeEntry()
+            srcStream.close()
+        }
+        destStream.close()
+        srcJarFile.close()
+        println 'Building ' + jarArchitecture + ' version has finished'
+        println 'JAR: mailbox-cli/build/libs/mailbox-cli-linux-x86_64.jar'
+    }
+}
+
+task x86LinuxJar(type: Jar) {
+    group = "Build"
+    description = "Assembles a runnable fat jar for x86-64 Linux"
+    jarFactory(it, 'linux-x86_64')
 }
 
 tasks.withType(Test) {

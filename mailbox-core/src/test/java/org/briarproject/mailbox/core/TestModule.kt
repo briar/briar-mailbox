@@ -10,6 +10,7 @@ import org.briarproject.mailbox.core.files.FileProvider
 import org.briarproject.mailbox.core.lifecycle.LifecycleModule
 import org.briarproject.mailbox.core.server.WebServerModule
 import org.briarproject.mailbox.core.settings.SettingsModule
+import org.briarproject.mailbox.core.setup.SetupModule
 import org.briarproject.mailbox.core.system.Clock
 import java.io.File
 import javax.inject.Singleton
@@ -18,6 +19,7 @@ import javax.inject.Singleton
     includes = [
         LifecycleModule::class,
         TestDatabaseModule::class,
+        SetupModule::class,
         WebServerModule::class,
         SettingsModule::class,
         // no Tor module
@@ -40,11 +42,16 @@ internal class TestModule(private val tempDir: File) {
     @Singleton
     @Provides
     fun provideFileProvider() = object : FileProvider {
-        private val tempFilesDir = File(tempDir, "tmp").also { it.mkdirs() }
+        override val root: File get() = tempDir
         override val folderRoot = File(tempDir, "folders")
+        private val tempFilesDir = File(tempDir, "tmp").apply { mkdirs() }
 
-        override fun getTemporaryFile(fileId: String) = File(tempFilesDir, fileId)
-        override fun getFolder(folderId: String) = File(folderRoot, folderId).also { it.mkdirs() }
+        override fun getTemporaryFile(fileId: String) = File(tempFilesDir, fileId).apply {
+            // we delete root at the end of each test, so tempFilesDir gets deleted as well
+            parentFile.mkdirs()
+        }
+
+        override fun getFolder(folderId: String) = File(folderRoot, folderId).apply { mkdirs() }
         override fun getFile(folderId: String, fileId: String) = File(getFolder(folderId), fileId)
     }
 }

@@ -45,20 +45,22 @@ import javax.inject.Singleton
 internal class AppModule {
     @Singleton
     @Provides
-    fun provideDatabaseConfig(app: Application) = object : DatabaseConfig {
+    fun provideDatabaseConfig(fileProvider: FileProvider) = object : DatabaseConfig {
         override fun getDatabaseDirectory(): File {
-            return app.applicationContext.getDir("db", MODE_PRIVATE)
+            // The database itself does mkdirs() and we use the existence to see if DB exists
+            return File(fileProvider.root, "db")
         }
     }
 
     @Singleton
     @Provides
     fun provideFileProvider(app: Application) = object : FileProvider {
-        private val tempFilesDir = File(app.applicationContext.cacheDir, "tmp").also { it.mkdirs() }
+        override val root: File get() = app.applicationContext.filesDir
         override val folderRoot = app.applicationContext.getDir("folders", MODE_PRIVATE)
+        private val tempFilesDir = File(app.applicationContext.cacheDir, "tmp").apply { mkdirs() }
 
         override fun getTemporaryFile(fileId: String) = File(tempFilesDir, fileId)
-        override fun getFolder(folderId: String) = File(folderRoot, folderId).also { it.mkdirs() }
+        override fun getFolder(folderId: String) = File(folderRoot, folderId).apply { mkdirs() }
         override fun getFile(folderId: String, fileId: String) = File(getFolder(folderId), fileId)
     }
 

@@ -25,6 +25,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import org.briarproject.mailbox.core.db.DbException
 import org.briarproject.mailbox.core.db.Transaction
+import org.briarproject.mailbox.core.files.FileManager
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.OpenDatabaseHook
 import org.briarproject.mailbox.core.server.AuthException
 import org.briarproject.mailbox.core.server.AuthManager
 import org.briarproject.mailbox.core.settings.Settings
@@ -36,23 +38,52 @@ private const val SETTINGS_NAMESPACE_OWNER = "owner"
 private const val SETTINGS_SETUP_TOKEN = "setupToken"
 private const val SETTINGS_OWNER_TOKEN = "ownerToken"
 
-class SetupManager @Inject constructor(
-    private val randomIdManager: RandomIdManager,
-    private val settingsManager: SettingsManager,
-) {
-
+interface SetupManager : OpenDatabaseHook {
     /**
-     * Stores a new single-use setup token and wipes the owner auth token, if one existed.
+     * True if a database has been setup.
+     * This is usually the case, if the lifecycle has been started once.
+     * The Mailbox might still need pairing/linking.
+     * This is false after wiping.
      */
-    fun restartSetup() {
-        val settings = Settings()
-        settings[SETTINGS_SETUP_TOKEN] = randomIdManager.getNewRandomId()
-        settings[SETTINGS_OWNER_TOKEN] = null
-        settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE_OWNER)
-    }
+    val hasDb: Boolean
 
     @Throws(DbException::class)
-    fun setToken(setupToken: String?, ownerToken: String?) {
+    fun setToken(setupToken: String?, ownerToken: String?)
+
+    @Throws(DbException::class)
+    fun getSetupToken(txn: Transaction): String?
+
+    @Throws(DbException::class)
+    fun getOwnerToken(txn: Transaction): String?
+}
+
+class SetupManagerImpl @Inject constructor(
+    private val randomIdManager: RandomIdManager,
+    private val settingsManager: SettingsManager,
+    private val fileManager: FileManager,
+) : SetupManager {
+
+    override val hasDb: Boolean get() = fileManager.hasDbFile()
+
+    @Throws(DbException::class)
+    override fun onDatabaseOpened(txn: Transaction) {
+        val settings = settingsManager.getSettings(txn, SETTINGS_NAMESPACE_OWNER)
+        val setupToken = settings[SETTINGS_SETUP_TOKEN]
+        val ownerToken = settings[SETTINGS_OWNER_TOKEN]
+        // ensure that setup token is initialized if both tokens are empty
+        if (setupToken == null && ownerToken == null) {
+            settings[SETTINGS_SETUP_TOKEN] = randomIdManager.getNewRandomId()
+            settingsManager.mergeSettings(txn, settings, SETTINGS_NAMESPACE_OWNER)
+        }
+    }
+
+    /**
+     * Sets either the [setupToken] or the [ownerToken].
+     * Can not set both at once.
+     */
+    @Throws(DbException::class)
+    override fun setToken(setupToken: String?, ownerToken: String?) {
+        require(setupToken == null || ownerToken == null) { "Can not set both tokens" }
         val settings = Settings()
         if (setupToken != null) randomIdManager.assertIsRandomId(setupToken)
         settings[SETTINGS_SETUP_TOKEN] = setupToken
@@ -61,13 +92,14 @@ class SetupManager @Inject constructor(
         settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE_OWNER)
     }
 
-    fun getSetupToken(txn: Transaction): String? {
+    @Throws(DbException::class)
+    override fun getSetupToken(txn: Transaction): String? {
         val settings = settingsManager.getSettings(txn, SETTINGS_NAMESPACE_OWNER)
         return settings[SETTINGS_SETUP_TOKEN]
     }
 
     @Throws(DbException::class)
-    fun getOwnerToken(txn: Transaction): String? {
+    override fun getOwnerToken(txn: Transaction): String? {
         val settings = settingsManager.getSettings(txn, SETTINGS_NAMESPACE_OWNER)
         return settings[SETTINGS_OWNER_TOKEN]
     }

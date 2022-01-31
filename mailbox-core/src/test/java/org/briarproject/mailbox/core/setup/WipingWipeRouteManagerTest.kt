@@ -41,7 +41,11 @@ class WipingWipeRouteManagerTest : IntegrationTest() {
 
         // no more files are stored
         val folderRoot = testComponent.getFileProvider().folderRoot
-        assertTrue(folderRoot.listFiles()?.isEmpty() ?: false)
+        assertFalse(folderRoot.exists())
+
+        // file root has been cleared
+        val root = testComponent.getFileProvider().root
+        assertTrue(root.listFiles()?.isEmpty() ?: false)
 
         // no more contacts in DB - contacts table is gone
         // it actually fails because db is closed though
