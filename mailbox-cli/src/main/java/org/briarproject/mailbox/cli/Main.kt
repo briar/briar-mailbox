@@ -107,6 +107,15 @@ class Main : CliktCommand(
         val javaCliComponent = DaggerJavaCliComponent.builder().build()
         javaCliComponent.inject(this)
 
+        if (wipe) {
+            wipeManager.wipeFilesOnly()
+            println("Mailbox wiped successfully \\o/")
+            exitProcess(0)
+        }
+        startLifecycle()
+    }
+
+    private fun startLifecycle() {
         Runtime.getRuntime().addShutdownHook(
             Thread {
                 lifecycleManager.stopServices()
@@ -114,24 +123,10 @@ class Main : CliktCommand(
             }
         )
 
-        // This is a cli app, we'll always want this fully up when started, so start lifecycle
         lifecycleManager.startServices()
         lifecycleManager.waitForStartup()
 
-        if (wipe) {
-            // FIXME this can cause a deadlock
-            //  see: https://code.briarproject.org/briar/briar-mailbox/-/issues/76
-            val wipeResult = lifecycleManager.wipeMailbox()
-            lifecycleManager.stopServices()
-            lifecycleManager.waitForShutdown()
-            if (wipeResult) {
-                println("Mailbox wiped successfully \\o/")
-                exitProcess(0)
-            } else {
-                println("ERROR: Mailbox was not wiped cleanly")
-                exitProcess(1)
-            }
-        } else if (setupToken != null) {
+        if (setupToken != null) {
             try {
                 setupManager.setToken(setupToken, null)
             } catch (e: InvalidIdException) {

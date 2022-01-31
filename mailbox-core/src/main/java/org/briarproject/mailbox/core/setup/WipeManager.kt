@@ -49,7 +49,8 @@ class WipeManager @Inject constructor(
     /**
      * Deletes all files, includes the database files.
      *
-     * This must only be called by the [LifecycleManager].
+     * This must only be called by the [LifecycleManager]
+     * or by the CLI when no lifecycle was started.
      */
     fun wipeFilesOnly() {
         fileManager.deleteAllFiles()
