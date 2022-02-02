@@ -57,7 +57,7 @@ class JavaCliNetworkManager implements NetworkManager {
 				}
 			}
 		} catch (SocketException e) {
-			logException(LOG, e);
+			logException(LOG, e, "Error while getting network status");
 		}
 		return new NetworkStatus(connected, false, !hasIpv4 && hasIpv6Unicast);
 	}

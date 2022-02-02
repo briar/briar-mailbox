@@ -81,7 +81,8 @@ public class IoUtils {
 		try {
 			if (c != null) c.close();
 		} catch (IOException e) {
-			logException(logger, e);
+			logException(logger, e, () -> "Error while closing " +
+					c.getClass().getSimpleName());
 		}
 	}
 
@@ -89,7 +90,7 @@ public class IoUtils {
 		try {
 			if (s != null) s.close();
 		} catch (IOException e) {
-			logException(logger, e);
+			logException(logger, e, "Error while closing socket");
 		}
 	}
 
@@ -97,7 +98,7 @@ public class IoUtils {
 		try {
 			if (ss != null) ss.close();
 		} catch (IOException e) {
-			logException(logger, e);
+			logException(logger, e, "Error while closing server socket");
 		}
 	}
 

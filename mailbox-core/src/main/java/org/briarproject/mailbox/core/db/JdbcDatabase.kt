@@ -265,7 +265,7 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
             }
         } catch (e: SQLException) {
             // Try to close the connection
-            logException(LOG, e)
+            logException(LOG, e) { "Error while aborting transaction" }
             tryToClose(connection, LOG)
             // Whatever happens, allow the database to close
             connectionsLock.lock()

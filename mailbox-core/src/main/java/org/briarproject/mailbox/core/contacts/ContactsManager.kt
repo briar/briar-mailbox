@@ -78,10 +78,10 @@ class ContactsManager @Inject constructor(
         val c: Contact = try {
             call.receive()
         } catch (e: JacksonException) {
-            logException(LOG, e)
+            logException(LOG, e) { "Error while receiving contact" }
             throw BadRequestException("Unable to deserialise Contact: ${e.message}", e)
         } catch (e: UnsupportedMediaTypeException) {
-            logException(LOG, e)
+            logException(LOG, e) { "Error while receiving contact" }
             throw BadRequestException("Unable to deserialise Contact: ${e.message}", e)
         }
 

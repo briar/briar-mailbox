@@ -133,7 +133,7 @@ internal class LifecycleManagerImpl @Inject constructor(
             startupLatch.countDown()
             SUCCESS
         } catch (e: ServiceException) {
-            logException(LOG, e)
+            logException(LOG, e) { "Error while starting services" }
             SERVICE_ERROR
         } finally {
             startStopWipeSemaphore.release()
