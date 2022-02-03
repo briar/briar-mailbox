@@ -38,7 +38,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-        app:layout_constraintBottom_toTopOf="@+id/bullet1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -59,7 +58,7 @@
         app:layout_constraintEnd_toStartOf="@id/bullet2"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/description"
         app:layout_constraintVertical_bias="1.0"
         app:layout_constraintVertical_chainStyle="packed"
         app:srcCompat="@drawable/ic_circle"
@@ -71,16 +70,13 @@
         android:layout_height="16dp"
         android:layout_marginStart="4dp"
         android:layout_marginLeft="4dp"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="4dp"
         android:layout_marginRight="4dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/topButton"
         app:layout_constraintEnd_toStartOf="@id/bullet3"
         app:layout_constraintStart_toEndOf="@+id/bullet1"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
-        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintTop_toTopOf="@+id/bullet1"
         app:srcCompat="@drawable/ic_circle"
         app:tint="?attr/colorPrimary" />
 
@@ -90,16 +86,13 @@
         android:layout_height="16dp"
         android:layout_marginStart="4dp"
         android:layout_marginLeft="4dp"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="4dp"
         android:layout_marginRight="4dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/topButton"
         app:layout_constraintEnd_toStartOf="@id/bullet4"
         app:layout_constraintStart_toEndOf="@+id/bullet2"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
-        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintTop_toTopOf="@+id/bullet1"
         app:srcCompat="@drawable/ic_circle"
         app:tint="?attr/colorPrimary" />
 
@@ -109,16 +102,13 @@
         android:layout_height="16dp"
         android:layout_marginStart="4dp"
         android:layout_marginLeft="4dp"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/topButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/bullet3"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
-        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintTop_toTopOf="@+id/bullet1"
         app:srcCompat="@drawable/ic_circle"
         app:tint="?attr/colorPrimary" />
 
@@ -132,8 +122,7 @@
         app:layout_constraintBottom_toTopOf="@+id/bottomButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bullet1"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@+id/bullet1" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/bottomButton"
