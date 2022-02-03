@@ -28,22 +28,34 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat.getColorStateList
 import androidx.core.widget.ImageViewCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavController
-import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.activityViewModels
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.databinding.FragmentOnboardingBinding
+
+class Onboarding0Fragment : OnboardingFragment(
+    number = 0,
+    icon = R.mipmap.ic_launcher_round,
+    title = R.string.onboarding_0_title,
+    description = R.string.onboarding_0_description,
+    topButtonAction = { viewModel ->
+        viewModel.selectPage(1)
+    },
+    bottomButtonText = R.string.button_skip_intro,
+    bottomButtonAction = {
+        requireActivity().supportFinishAfterTransition()
+    },
+)
 
 class Onboarding1Fragment : OnboardingFragment(
     number = 1,
     icon = R.mipmap.ic_launcher_round,
     title = R.string.onboarding_1_title,
     description = R.string.onboarding_1_description,
-    topButtonAction = { nav ->
-        nav.navigate(R.id.action_onboarding_1_to_2)
+    topButtonAction = { viewModel ->
+        viewModel.selectPage(2)
     },
-    bottomButtonText = R.string.button_skip_intro,
-    bottomButtonAction = {
-        requireActivity().supportFinishAfterTransition()
+    bottomButtonAction = { viewModel ->
+        viewModel.selectPage(0)
     },
 )
 
@@ -52,11 +64,11 @@ class Onboarding2Fragment : OnboardingFragment(
     icon = R.mipmap.ic_launcher_round,
     title = R.string.onboarding_2_title,
     description = R.string.onboarding_2_description,
-    topButtonAction = { nav ->
-        nav.navigate(R.id.action_onboarding_2_to_3)
+    topButtonAction = { viewModel ->
+        viewModel.selectPage(3)
     },
-    bottomButtonAction = { nav ->
-        nav.popBackStack()
+    bottomButtonAction = { viewModel ->
+        viewModel.selectPage(1)
     },
 )
 
@@ -65,24 +77,11 @@ class Onboarding3Fragment : OnboardingFragment(
     icon = R.mipmap.ic_launcher_round,
     title = R.string.onboarding_3_title,
     description = R.string.onboarding_3_description,
-    topButtonAction = { nav ->
-        nav.navigate(R.id.action_onboarding_3_to_4)
+    topButtonAction = { viewModel ->
+        viewModel.selectPage(4) // finishes activity
     },
-    bottomButtonAction = { nav ->
-        nav.popBackStack()
-    },
-)
-
-class Onboarding4Fragment : OnboardingFragment(
-    number = 4,
-    icon = R.mipmap.ic_launcher_round,
-    title = R.string.onboarding_4_title,
-    description = R.string.onboarding_4_description,
-    topButtonAction = {
-        requireActivity().supportFinishAfterTransition()
-    },
-    bottomButtonAction = { nav ->
-        nav.popBackStack()
+    bottomButtonAction = { viewModel ->
+        viewModel.selectPage(2)
     },
 )
 
@@ -96,10 +95,11 @@ abstract class OnboardingFragment(
     private val description: Int,
     @StringRes
     private val bottomButtonText: Int = R.string.button_back,
-    private val topButtonAction: Fragment.(NavController) -> Unit,
-    private val bottomButtonAction: Fragment.(NavController) -> Unit,
+    private val topButtonAction: Fragment.(OnboardingViewModel) -> Unit,
+    private val bottomButtonAction: Fragment.(OnboardingViewModel) -> Unit,
 ) : Fragment() {
 
+    private val viewModel: OnboardingViewModel by activityViewModels()
     private var _ui: FragmentOnboardingBinding? = null
 
     /**
@@ -121,17 +121,16 @@ abstract class OnboardingFragment(
         ui.title.setText(title)
         ui.description.setText(description)
         listOf(ui.bullet1, ui.bullet2, ui.bullet3, ui.bullet4).forEachIndexed { i, imageView ->
-            val color = if (i + 1 <= number) R.color.briar_green else R.color.briar_night
+            val color = if (i <= number) R.color.briar_green else R.color.briar_night
             val tintList = getColorStateList(requireContext(), color)
             ImageViewCompat.setImageTintList(imageView, tintList)
         }
-        val nav = findNavController()
         ui.topButton.setOnClickListener {
-            topButtonAction(nav)
+            topButtonAction(viewModel)
         }
         ui.bottomButton.setText(bottomButtonText)
         ui.bottomButton.setOnClickListener {
-            bottomButtonAction(nav)
+            bottomButtonAction(viewModel)
         }
     }
 
@@ -140,4 +139,11 @@ abstract class OnboardingFragment(
         _ui = null
     }
 
+}
+
+class FinishFragment : Fragment() {
+    override fun onResume() {
+        super.onResume()
+        requireActivity().supportFinishAfterTransition()
+    }
 }

@@ -20,13 +20,44 @@
 package org.briarproject.mailbox.android.ui
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import org.briarproject.mailbox.R
+import androidx.fragment.app.Fragment
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
+import org.briarproject.mailbox.databinding.ActivityOnboardingBinding
 
 class OnboardingActivity : AppCompatActivity() {
 
+    private val viewModel: OnboardingViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_onboarding)
+        val ui = ActivityOnboardingBinding.inflate(layoutInflater)
+        setContentView(ui.root)
+
+        ui.pager.adapter = OnboardingAdapter(this)
+        ui.pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                viewModel.selectPage(position)
+            }
+        })
+        viewModel.currentPage.observe(this) { position ->
+            ui.pager.setCurrentItem(position, true)
+        }
     }
+
+    class OnboardingAdapter(activity: AppCompatActivity) : FragmentStateAdapter(activity) {
+        override fun getItemCount(): Int = 5
+        override fun createFragment(position: Int): Fragment = when (position) {
+            0 -> Onboarding0Fragment()
+            1 -> Onboarding1Fragment()
+            2 -> Onboarding2Fragment()
+            3 -> Onboarding3Fragment()
+            4 -> FinishFragment()
+            else -> error("Unexpected OnboardingFragment: $position")
+        }
+    }
+
 }

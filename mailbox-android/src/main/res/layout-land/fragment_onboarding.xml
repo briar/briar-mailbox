@@ -37,7 +37,7 @@
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="@string/onboarding_1_title" />
+        tools:text="@string/onboarding_0_title" />
 
     <TextView
         android:id="@+id/description"
@@ -49,7 +49,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/title"
-        tools:text="@string/onboarding_1_description" />
+        tools:text="@string/onboarding_0_description" />
 
     <ImageView
         android:id="@+id/bullet1"

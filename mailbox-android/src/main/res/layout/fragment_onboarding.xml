@@ -30,7 +30,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/icon"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="@string/onboarding_1_title" />
+        tools:text="@string/onboarding_0_title" />
 
     <TextView
         android:id="@+id/description"
@@ -43,7 +43,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title"
-        tools:text="@string/onboarding_1_description" />
+        tools:text="@string/onboarding_0_description" />
 
     <ImageView
         android:id="@+id/bullet1"
