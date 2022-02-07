@@ -27,8 +27,8 @@ import kotlin.test.assertEquals
 class ContactsManagerIntegrationTest : IntegrationTest() {
 
     @BeforeEach
-    override fun initDb() {
-        super.initDb()
+    override fun beforeEach() {
+        super.beforeEach()
         addOwnerToken()
     }
 

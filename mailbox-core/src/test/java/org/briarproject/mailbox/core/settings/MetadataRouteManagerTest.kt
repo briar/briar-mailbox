@@ -13,8 +13,8 @@ import kotlin.test.assertEquals
 class MetadataRouteManagerTest : IntegrationTest() {
 
     @BeforeEach
-    override fun initDb() {
-        super.initDb()
+    override fun beforeEach() {
+        super.beforeEach()
         addOwnerToken()
         addContact(contact1)
         addContact(contact2)

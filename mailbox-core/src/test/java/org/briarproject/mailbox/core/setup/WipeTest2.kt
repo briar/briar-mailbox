@@ -22,11 +22,11 @@ class WipeTest2 : IntegrationTest() {
     }
 
     @Test
-    fun test() {
+    fun `concurrent wipe requests don't interfere and database access doesn't cause deadlocks`() {
         // One of the two dropper threads will succeed, the other will fail.
         val t1 = thread(name = "dropper 1") {
             try {
-                db.dropAllTablesAndClose()
+                wipeManager.wipeDatabaseAndFiles()
                 incrementSuccess()
             } catch (t: Throwable) {
                 incrementFailure()
@@ -34,7 +34,7 @@ class WipeTest2 : IntegrationTest() {
         }
         val t2 = thread(name = "dropper 2") {
             try {
-                db.dropAllTablesAndClose()
+                wipeManager.wipeDatabaseAndFiles()
                 incrementSuccess()
             } catch (t: Throwable) {
                 incrementFailure()
@@ -50,13 +50,17 @@ class WipeTest2 : IntegrationTest() {
         t3.join()
         assertEquals(1, succeeded)
         assertEquals(1, failed)
+
+        // reset flag for exceptions thrown on background threads as this can indeed happen here
+        // and is OK
+        exceptionInBackgroundThread = false
     }
 
     @AfterEach
-    override fun clearDb() {
-        // This is not expected to work because calling dropAllTablesAndClose() on a closed Database
+    override fun afterEach() {
+        // We need to pass false here because calling wipeDatabaseAndFiles() with a closed Database
         // throws a DbClosedException.
-        // super.clearDb()
+        afterEach(false)
     }
 
 }
