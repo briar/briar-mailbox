@@ -23,7 +23,7 @@ configurations {
 dependencies {
     implementation project(path: ':mailbox-core', configuration: 'default')
 
-    implementation "ch.qos.logback:logback-classic:1.2.5"
+    implementation "ch.qos.logback:logback-classic:1.2.10"
     implementation 'com.github.ajalt:clikt:2.2.0'
 
     def jna_version = '5.8.0'

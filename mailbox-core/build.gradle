@@ -39,7 +39,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junit_version"
     testImplementation "org.junit.jupiter:junit-jupiter-engine:$junit_version"
     testImplementation "io.mockk:mockk:$mockk_version"
-    testImplementation "ch.qos.logback:logback-classic:1.2.5"
+    testImplementation "ch.qos.logback:logback-classic:1.2.10"
     testImplementation "io.ktor:ktor-client-cio:$ktor_version"
     testImplementation "io.ktor:ktor-client-jackson:$ktor_version"
     testImplementation "io.ktor:ktor-client-logging:$ktor_version"
