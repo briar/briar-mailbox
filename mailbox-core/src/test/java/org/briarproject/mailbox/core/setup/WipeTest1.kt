@@ -8,9 +8,9 @@ import kotlin.concurrent.thread
 class WipeTest1 : IntegrationTest() {
 
     @Test
-    fun test() {
+    fun `wiping and concurrent database access doesn't cause deadlocks`() {
         val t1 = thread(name = "dropper") {
-            db.dropAllTablesAndClose()
+            wipeManager.wipeDatabaseAndFiles()
         }
         // This most likely throws a DbException within the thread, but if it does is doesn't make
         // the test fail.
@@ -19,13 +19,17 @@ class WipeTest1 : IntegrationTest() {
         }
         t1.join()
         t2.join()
+
+        // reset flag for exceptions thrown on background threads as this can indeed happen here
+        // and is OK
+        exceptionInBackgroundThread = false
     }
 
     @AfterEach
-    override fun clearDb() {
-        // This is not expected to work because calling dropAllTablesAndClose() on a closed Database
+    override fun afterEach() {
+        // We need to pass false here because calling wipeDatabaseAndFiles() with a closed Database
         // throws a DbClosedException.
-        // super.clearDb()
+        afterEach(false)
     }
 
 }

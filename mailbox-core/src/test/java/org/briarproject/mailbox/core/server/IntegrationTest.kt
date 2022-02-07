@@ -22,7 +22,10 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
+import org.junit.jupiter.api.fail
 import org.junit.jupiter.api.io.TempDir
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -30,12 +33,16 @@ import kotlin.test.assertTrue
 @TestInstance(Lifecycle.PER_CLASS)
 abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
 
+    companion object {
+        private val LOG: Logger = LoggerFactory.getLogger(IntegrationTest::class.java)
+    }
+
     protected lateinit var testComponent: TestComponent
     protected val db by lazy { testComponent.getDatabase() }
     private val lifecycleManager by lazy { testComponent.getLifecycleManager() }
     protected val setupManager by lazy { testComponent.getSetupManager() }
     protected val metadataManager by lazy { testComponent.getMetadataManager() }
-    private val wipeManager by lazy { testComponent.getWipeManager() }
+    protected val wipeManager by lazy { testComponent.getWipeManager() }
     protected val httpClient = HttpClient(CIO) {
         expectSuccess = false // prevents exceptions on non-success responses
         if (installJsonFeature) {
@@ -55,6 +62,18 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
     protected val contact1 = getNewRandomContact()
     protected val contact2 = getNewRandomContact()
 
+    @Volatile
+    protected var exceptionInBackgroundThread = false
+
+    init {
+        // Ensure exceptions thrown on worker threads cause tests to fail
+        val fail = Thread.UncaughtExceptionHandler { _: Thread?, throwable: Throwable ->
+            LOG.warn("Caught unhandled exception", throwable)
+            exceptionInBackgroundThread = true
+        }
+        Thread.setDefaultUncaughtExceptionHandler(fail)
+    }
+
     @BeforeAll
     fun setUp(@TempDir tempDir: File) {
         testComponent = DaggerTestComponent.builder().testModule(TestModule(tempDir)).build()
@@ -71,7 +90,8 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
     }
 
     @BeforeEach
-    open fun initDb() {
+    open fun beforeEach() {
+        exceptionInBackgroundThread = false
         // need to reopen database here because we're closing it after each test
         db.open(null)
         db.read { txn ->
@@ -82,9 +102,19 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
     }
 
     @AfterEach
-    open fun wipe() {
-        wipeManager.wipeDatabaseAndFiles()
-        assertFalse(setupManager.hasDb)
+    open fun afterEach() {
+        afterEach(true)
+    }
+
+    fun afterEach(wipe: Boolean) {
+        if (wipe) {
+            wipeManager.wipeDatabaseAndFiles()
+            assertFalse(setupManager.hasDb)
+        }
+
+        if (exceptionInBackgroundThread) {
+            fail("background thread has thrown an exception unexpectedly")
+        }
     }
 
     protected fun addOwnerToken() {
