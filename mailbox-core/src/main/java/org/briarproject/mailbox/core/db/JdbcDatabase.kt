@@ -233,13 +233,12 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
         }
         return try {
             Transaction(startTransaction(), readOnly)
-        } catch (e: DbException) {
-            if (readOnly) transactionLock.readLock().unlock() else transactionLock.writeLock()
-                .unlock()
-            throw e
-        } catch (e: RuntimeException) {
-            if (readOnly) transactionLock.readLock().unlock() else transactionLock.writeLock()
-                .unlock()
+        } catch (e: Throwable) {
+            if (readOnly) {
+                transactionLock.readLock().unlock()
+            } else {
+                transactionLock.writeLock().unlock()
+            }
             throw e
         }
     }
@@ -646,8 +645,11 @@ abstract class JdbcDatabase(private val dbTypes: DatabaseTypes, private val cloc
                 abortTransaction(connection)
             }
         } finally {
-            if (txn.isReadOnly) transactionLock.readLock().unlock() else transactionLock.writeLock()
-                .unlock()
+            if (txn.isReadOnly) {
+                transactionLock.readLock().unlock()
+            } else {
+                transactionLock.writeLock().unlock()
+            }
         }
     }
 
