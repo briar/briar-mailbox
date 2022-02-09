@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat.getColorStateList
@@ -37,9 +38,6 @@ class Onboarding0Fragment : OnboardingFragment(
     icon = R.mipmap.ic_launcher_round,
     title = R.string.onboarding_0_title,
     description = R.string.onboarding_0_description,
-    topButtonAction = { viewModel ->
-        viewModel.selectPage(1)
-    },
     bottomButtonText = R.string.button_skip_intro,
     bottomButtonAction = {
         requireActivity().supportFinishAfterTransition()
@@ -51,12 +49,6 @@ class Onboarding1Fragment : OnboardingFragment(
     icon = R.mipmap.ic_launcher_round,
     title = R.string.onboarding_1_title,
     description = R.string.onboarding_1_description,
-    topButtonAction = { viewModel ->
-        viewModel.selectPage(2)
-    },
-    bottomButtonAction = { viewModel ->
-        viewModel.selectPage(0)
-    },
 )
 
 class Onboarding2Fragment : OnboardingFragment(
@@ -64,12 +56,6 @@ class Onboarding2Fragment : OnboardingFragment(
     icon = R.mipmap.ic_launcher_round,
     title = R.string.onboarding_2_title,
     description = R.string.onboarding_2_description,
-    topButtonAction = { viewModel ->
-        viewModel.selectPage(3)
-    },
-    bottomButtonAction = { viewModel ->
-        viewModel.selectPage(1)
-    },
 )
 
 class Onboarding3Fragment : OnboardingFragment(
@@ -77,12 +63,6 @@ class Onboarding3Fragment : OnboardingFragment(
     icon = R.mipmap.ic_launcher_round,
     title = R.string.onboarding_3_title,
     description = R.string.onboarding_3_description,
-    topButtonAction = { viewModel ->
-        viewModel.selectPage(4) // finishes activity
-    },
-    bottomButtonAction = { viewModel ->
-        viewModel.selectPage(2)
-    },
 )
 
 abstract class OnboardingFragment(
@@ -95,8 +75,12 @@ abstract class OnboardingFragment(
     private val description: Int,
     @StringRes
     private val bottomButtonText: Int = R.string.button_back,
-    private val topButtonAction: Fragment.(OnboardingViewModel) -> Unit,
-    private val bottomButtonAction: Fragment.(OnboardingViewModel) -> Unit,
+    private val topButtonAction: OnboardingFragment.(OnboardingViewModel) -> Unit = { viewModel ->
+        viewModel.selectPage(number + 1)
+    },
+    private val bottomButtonAction: OnboardingFragment.(OnboardingViewModel) -> Unit = { model ->
+        model.selectPage(number - 1)
+    },
 ) : Fragment() {
 
     private val viewModel: OnboardingViewModel by activityViewModels()
@@ -107,12 +91,20 @@ abstract class OnboardingFragment(
      */
     private val ui get() = _ui!!
 
+    // This callback will only be called when this Fragment is at least Resumed, not Started.
+    private val callback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            bottomButtonAction(viewModel)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
         _ui = FragmentOnboardingBinding.inflate(inflater, container, false)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
         return ui.root
     }
 
@@ -132,6 +124,16 @@ abstract class OnboardingFragment(
         ui.bottomButton.setOnClickListener {
             bottomButtonAction(viewModel)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        callback.isEnabled = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        callback.isEnabled = false
     }
 
     override fun onDestroyView() {
