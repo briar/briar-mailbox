@@ -24,6 +24,7 @@ local.properties
 !.idea/codeStyles
 !.idea/scopes/
 !.idea/copyright/
+!.idea/dictionaries/briar.xml
 .gradle
 build/
 captures

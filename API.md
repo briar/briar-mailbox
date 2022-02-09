@@ -115,7 +115,7 @@ Returns `200 OK` with a list of contact IDs like this:
 ```
 
 
-## File Managment (owner and contacts)
+## File Management (owner and contacts)
 
 A file contains a stream of message, events etc.
 

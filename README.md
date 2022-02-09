@@ -47,7 +47,7 @@ graph LR
   subgraph Alice offline
   B-. can't send message .-> A
   end
-  subgraph Alices' Mailbox
+  subgraph Alice's Mailbox
   B-- send message --> RA
   end
   subgraph Alice online
