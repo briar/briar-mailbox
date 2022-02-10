@@ -66,7 +66,7 @@ class QrCodeEncoder @Inject constructor(
         val addressString = try {
             torPlugin.hiddenServiceAddress
         } catch (e: DbException) {
-            logException(LOG, e)
+            logException(LOG, e) { "Error while getting hidden service address" }
             return null
         }
         if (addressString == null) {
@@ -85,7 +85,7 @@ class QrCodeEncoder @Inject constructor(
                 setupManager.getSetupToken(txn)
             }
         } catch (e: DbException) {
-            logException(LOG, e)
+            logException(LOG, e) { "Error while getting setup token" }
             return null
         }
         if (tokenString == null) {

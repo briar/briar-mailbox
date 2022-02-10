@@ -76,13 +76,13 @@ object LogUtils {
     }
 
     @JvmStatic
-    fun logException(logger: Logger, t: Throwable, message: () -> String) {
-        if (logger.isWarnEnabled) logger.warn(message(), t)
+    fun logException(logger: Logger, t: Throwable, message: String) {
+        if (logger.isWarnEnabled) logger.warn(message, t)
     }
 
     @JvmStatic
-    fun logException(logger: Logger, t: Throwable) {
-        if (logger.isWarnEnabled) logger.warn(t.toString(), t)
+    fun logException(logger: Logger, t: Throwable, message: () -> String) {
+        if (logger.isWarnEnabled) logger.warn(message(), t)
     }
 
     fun logFileOrDir(logger: Logger, f: File) {

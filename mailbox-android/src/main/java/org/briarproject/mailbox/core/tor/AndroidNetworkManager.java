@@ -183,7 +183,7 @@ public class AndroidNetworkManager implements NetworkManager, Service {
 			}
 			return hasIpv6Unicast;
 		} catch (SocketException e) {
-			logException(LOG, e);
+			logException(LOG, e, "Error while checking for IPv6 only status");
 			return false;
 		}
 	}

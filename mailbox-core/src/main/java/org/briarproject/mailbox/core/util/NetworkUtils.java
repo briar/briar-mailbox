@@ -43,7 +43,8 @@ public class NetworkUtils {
 			//noinspection ConstantConditions
 			return ifaces == null ? emptyList() : list(ifaces);
 		} catch (SocketException e) {
-			logException(LOG, e);
+			logException(LOG, e,
+					"Error while retrieving list of network interfaces");
 			return emptyList();
 		}
 	}

@@ -363,7 +363,7 @@ public abstract class TorPlugin
 		try {
 			s = settingsManager.getSettings(SETTINGS_NAMESPACE);
 		} catch (DbException e) {
-			logException(LOG, e);
+			logException(LOG, e, "Error while retrieving settings");
 			s = new Settings();
 		}
 		String privateKey3 = s.get(HS_PRIVATE_KEY_V3);
@@ -384,7 +384,7 @@ public abstract class TorPlugin
 				response = controlConnection.addOnion(privKey, portLines);
 			}
 		} catch (IOException e) {
-			logException(LOG, e);
+			logException(LOG, e, "Error while add onion service");
 			return;
 		}
 		if (!response.containsKey(HS_ADDRESS)) {
@@ -408,7 +408,7 @@ public abstract class TorPlugin
 			try {
 				settingsManager.mergeSettings(s, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
-				logException(LOG, e);
+				logException(LOG, e, "Error while merging settings");
 			}
 		}
 		state.setServicePublished();
@@ -456,7 +456,8 @@ public abstract class TorPlugin
 				controlConnection.shutdownTor("TERM");
 				controlSocket.close();
 			} catch (IOException e) {
-				logException(LOG, e);
+				logException(LOG, e,
+						"Error while sending tor shutdown instructions");
 			}
 		}
 	}
@@ -519,7 +520,7 @@ public abstract class TorPlugin
 			try {
 				if (state.isTorRunning()) enableNetwork(false);
 			} catch (IOException ex) {
-				logException(LOG, ex);
+				logException(LOG, ex, "Error while disabling network");
 			}
 		});
 	}
@@ -572,7 +573,7 @@ public abstract class TorPlugin
 				}
 				enableNetwork(enableNetwork);
 			} catch (IOException e) {
-				logException(LOG, e);
+				logException(LOG, e, "Error while updating connetion status");
 			}
 		});
 	}

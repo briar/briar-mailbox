@@ -32,7 +32,7 @@ object JdbcUtils {
         try {
             rs?.close()
         } catch (e: SQLException) {
-            logException(logger, e)
+            logException(logger, e) { "Error while closing result set" }
         }
     }
 
@@ -40,7 +40,7 @@ object JdbcUtils {
         try {
             s?.close()
         } catch (e: SQLException) {
-            logException(logger, e)
+            logException(logger, e) { "Error while closing statement" }
         }
     }
 
@@ -48,7 +48,7 @@ object JdbcUtils {
         try {
             c?.close()
         } catch (e: SQLException) {
-            logException(logger, e)
+            logException(logger, e) { "Error while closing connection" }
         }
     }
 
