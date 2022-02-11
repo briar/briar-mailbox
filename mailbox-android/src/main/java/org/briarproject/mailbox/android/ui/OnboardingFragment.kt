@@ -113,7 +113,7 @@ abstract class OnboardingFragment(
         ui.title.setText(title)
         ui.description.setText(description)
         listOf(ui.bullet1, ui.bullet2, ui.bullet3, ui.bullet4).forEachIndexed { i, imageView ->
-            val color = if (i <= number) R.color.briar_green else R.color.briar_night
+            val color = if (i == number) R.color.briar_green else R.color.briar_night
             val tintList = getColorStateList(requireContext(), color)
             ImageViewCompat.setImageTintList(imageView, tintList)
         }
