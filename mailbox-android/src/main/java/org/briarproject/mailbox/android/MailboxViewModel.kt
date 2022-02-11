@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.StateFlow
 import org.briarproject.android.dontkillmelib.DozeHelper
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
+import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.DozeWatchdog
 import javax.inject.Inject
 import kotlin.concurrent.thread
@@ -41,6 +42,7 @@ class MailboxViewModel @Inject constructor(
     private val dozeWatchdog: DozeWatchdog,
     handle: SavedStateHandle,
     private val lifecycleManager: LifecycleManager,
+    private val setupManager: SetupManager,
 ) : AndroidViewModel(app) {
 
     val needToShowDoNotKillMeFragment get() = dozeHelper.needToShowDoNotKillMeFragment(app)
@@ -52,6 +54,8 @@ class MailboxViewModel @Inject constructor(
     val text: LiveData<String> = _text
 
     val lifecycleState: StateFlow<LifecycleState> = lifecycleManager.lifecycleStateFlow
+
+    val isSetUp: Boolean get() = setupManager.hasDb
 
     @UiThread
     fun onDoNotKillComplete() {

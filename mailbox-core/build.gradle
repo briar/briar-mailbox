@@ -14,6 +14,7 @@ dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     api 'com.google.code.findbugs:jsr305:3.0.2'
     api 'javax.inject:javax.inject:1' // required for @Qualifier in @Wakeful
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version" // used by jackson
 
     implementation "com.google.dagger:hilt-core:$hilt_version"
     kapt "com.google.dagger:dagger-compiler:$hilt_version"

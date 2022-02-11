@@ -19,35 +19,45 @@
 
 package org.briarproject.mailbox.android
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.android.dontkillmelib.PowerUtils.needsDozeWhitelisting
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.ui.OnboardingActivity
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: MailboxViewModel by viewModels()
+    private val nav: NavController by lazy {
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.fragmentContainer) as NavHostFragment
+        navHostFragment.navController
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         viewModel.doNotKillComplete.observe(this) { complete ->
-            if (complete) showFragment(MainFragment())
+            if (complete) nav.popBackStack()
         }
 
         if (savedInstanceState == null) {
-            val f = if (viewModel.needToShowDoNotKillMeFragment) {
-                DoNotKillMeFragment()
-            } else {
-                MainFragment()
+            if (viewModel.needToShowDoNotKillMeFragment) {
+                nav.navigate(R.id.action_mainFragment_to_doNotKillMeFragment)
             }
-            showFragment(f)
+            if (!viewModel.isSetUp) {
+                Intent(this, OnboardingActivity::class.java).also { i ->
+                    startActivity(i)
+                }
+            }
         }
     }
 
@@ -58,16 +68,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showFragment(f: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, f)
-            .commitNow()
-    }
-
     private fun showDozeDialog() = AlertDialog.Builder(this)
         .setMessage(R.string.warning_dozed)
         .setPositiveButton(R.string.fix) { dialog, _ ->
-            showFragment(DoNotKillMeFragment())
+            nav.navigate(R.id.action_mainFragment_to_doNotKillMeFragment)
             dialog.dismiss()
         }
         .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }

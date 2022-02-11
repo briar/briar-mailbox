@@ -6,6 +6,18 @@
     <string name="start">Start mailbox</string>
     <string name="stop">Stop mailbox</string>
     <string name="wipe">Wipe mailbox</string>
+    <string name="button_continue">Continue</string>
+    <string name="button_skip_intro">Skip Intro</string>
+    <string name="button_back">Back</string>
+
+    <string name="onboarding_0_title">Stay Reachable</string>
+    <string name="onboarding_0_description">The Mailbox helps you to stay in touch with your contacts and synchronizes your messages to Briar.</string>
+    <string name="onboarding_1_title">Use a spare device</string>
+    <string name="onboarding_1_description">Install the mailbox app on a spare phone or tablet and leave it connected to power and WiFi. </string>
+    <string name="onboarding_2_title">Message delivery</string>
+    <string name="onboarding_2_description">When your Mailbox is online, your contacts can leave messages for you even if your Briar is offline. The Mailbox will receive the messages, and forward them to Briar when you come online.</string>
+    <string name="onboarding_3_title">Encrypted</string>
+    <string name="onboarding_3_description">Messages going through the Mailbox are encrypted and cannot be read by the Mailbox or this phone. The Mailbox simply forwards them to your Briar Messenger phone.</string>
 
     <!-- TODO: We might want to copy string from don't kill me lib,
           so translation memory can auto-translate most of them. -->
