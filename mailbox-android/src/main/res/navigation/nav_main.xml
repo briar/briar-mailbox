@@ -14,6 +14,6 @@
     </fragment>
     <fragment
         android:id="@+id/doNotKillMeFragment"
-        android:name="org.briarproject.mailbox.android.DoNotKillMeFragment"
+        android:name="org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragment"
         android:label="DoNotKillMeFragment" />
 </navigation>

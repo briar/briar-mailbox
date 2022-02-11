@@ -37,7 +37,7 @@ public class PowerUtils {
 		return i;
 	}
 
-	static void showOnboardingDialog(Context ctx, String text) {
+	public static void showOnboardingDialog(Context ctx, String text) {
 		new AlertDialog.Builder(ctx, R.style.OnboardingDialogTheme)
 				.setMessage(text)
 				.setNeutralButton(R.string.got_it,
@@ -46,7 +46,7 @@ public class PowerUtils {
 	}
 
 	@Nullable
-	static String getSystemProperty(String propName) {
+	public static String getSystemProperty(String propName) {
 		try {
 			Process p = getRuntime().exec("getprop " + propName);
 			Scanner s = new Scanner(p.getInputStream());

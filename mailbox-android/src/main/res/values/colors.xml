@@ -2,6 +2,7 @@
 <resources>
     <color name="briar_green">#74B816</color>
     <color name="briar_night">#435B77</color>
+    <color name="briar_night_800">#212d3b</color>
     <color name="briar_blue">#1F78D1</color>
     <color name="briar_blue_dark">#1A222D</color>
 

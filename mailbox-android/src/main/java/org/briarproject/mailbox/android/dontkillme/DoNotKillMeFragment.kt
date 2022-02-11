@@ -17,11 +17,11 @@
  *
  */
 
-package org.briarproject.mailbox.android
+package org.briarproject.mailbox.android.dontkillme
 
 import androidx.fragment.app.activityViewModels
 import dagger.hilt.android.AndroidEntryPoint
-import org.briarproject.android.dontkillmelib.AbstractDoNotKillMeFragment
+import org.briarproject.mailbox.android.MailboxViewModel
 
 @AndroidEntryPoint
 class DoNotKillMeFragment : AbstractDoNotKillMeFragment() {
