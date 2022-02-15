@@ -51,18 +51,14 @@ abstract class PowerView extends ConstraintLayout {
 
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(LAYOUT_INFLATER_SERVICE);
-		View v = inflater.inflate(R.layout.power_view2, this, true);
+		View v = inflater.inflate(R.layout.power_view, this, true);
 
-		textView = v.findViewById(
-				org.briarproject.android.dontkillmelib.R.id.textView);
-		icon = v.findViewById(org.briarproject.android.dontkillmelib.R.id.icon);
-		checkImage = v.findViewById(
-				org.briarproject.android.dontkillmelib.R.id.checkImage);
-		button = v.findViewById(
-				org.briarproject.android.dontkillmelib.R.id.button);
+		textView = v.findViewById(R.id.textView);
+		icon = v.findViewById(R.id.icon);
+		checkImage = v.findViewById(R.id.checkImage);
+		button = v.findViewById(R.id.button);
 		button.setOnClickListener(view -> onButtonClick());
-		ImageButton helpButton = v.findViewById(
-				org.briarproject.android.dontkillmelib.R.id.helpButton);
+		ImageButton helpButton = v.findViewById(R.id.helpButton);
 		helpButton.setOnClickListener(view -> onHelpButtonClick());
 
 		// we need to manage the checkImage state ourselves, because automatic

@@ -44,28 +44,20 @@ public abstract class AbstractDoNotKillMeFragment extends Fragment
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireActivity().setTitle(getString(
-				org.briarproject.android.dontkillmelib.R.string.setup_doze_title));
+		requireActivity().setTitle(getString(R.string.setup_doze_title));
 		setHasOptionsMenu(false);
-		View v = inflater.inflate(
-				R.layout.fragment_dont_kill_me2,
-				container,
+		View v = inflater.inflate(R.layout.fragment_dont_kill_me, container,
 				false);
-		dozeView = v.findViewById(
-				org.briarproject.android.dontkillmelib.R.id.dozeView);
+		dozeView = v.findViewById(R.id.dozeView);
 		dozeView.setOnCheckedChangedListener(this);
-		huaweiProtectedAppsView = v.findViewById(
-				org.briarproject.android.dontkillmelib.R.id.huaweiProtectedAppsView);
+		huaweiProtectedAppsView = v.findViewById(R.id.huaweiProtectedAppsView);
 		huaweiProtectedAppsView.setOnCheckedChangedListener(this);
-		huaweiAppLaunchView = v.findViewById(
-				org.briarproject.android.dontkillmelib.R.id.huaweiAppLaunchView);
+		huaweiAppLaunchView = v.findViewById(R.id.huaweiAppLaunchView);
 		huaweiAppLaunchView.setOnCheckedChangedListener(this);
-		xiaomiView = v.findViewById(
-				org.briarproject.android.dontkillmelib.R.id.xiaomiView);
+		xiaomiView = v.findViewById(R.id.xiaomiView);
 		xiaomiView.setOnCheckedChangedListener(this);
-		next = v.findViewById(org.briarproject.android.dontkillmelib.R.id.next);
-		ProgressBar progressBar = v.findViewById(
-				org.briarproject.android.dontkillmelib.R.id.progress);
+		next = v.findViewById(R.id.next);
+		ProgressBar progressBar = v.findViewById(R.id.progress);
 
 		dozeView.setOnButtonClickListener(this::askForDozeWhitelisting);
 		next.setOnClickListener(view -> {
