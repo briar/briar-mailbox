@@ -1,12 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.BriarMailbox" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.BriarMailboxBase" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/briar_night</item>
         <item name="colorPrimaryDark">@color/briar_blue</item>
         <item name="colorSecondary">@color/briar_green</item>
         <!-- Customize your theme here. -->
-        <item name="android:statusBarColor" tools:targetApi="21">@color/white</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:statusBarColor" tools:targetApi="21">@color/black</item>
     </style>
+
+    <style name="Theme.BriarMailbox" parent="Theme.BriarMailboxBase" />
 </resources>
