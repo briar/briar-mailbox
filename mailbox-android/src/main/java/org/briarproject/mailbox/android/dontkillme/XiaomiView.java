@@ -9,7 +9,7 @@ import androidx.annotation.UiThread;
 
 import static org.briarproject.android.dontkillmelib.PowerUtils.isMiuiTenOrLater;
 import static org.briarproject.android.dontkillmelib.PowerUtils.isXiaomiOrRedmiDevice;
-import static org.briarproject.android.dontkillmelib.PowerUtils.showOnboardingDialog;
+import static org.briarproject.mailbox.android.dontkillme.DoNotKillMeUtils.showOnboardingDialog;
 
 @UiThread
 public class XiaomiView extends PowerView {

@@ -5,6 +5,8 @@
         <item name="android:textColor">?attr/colorSecondary</item>
     </style>
 
+    <style name="OnboardingDialogTheme" parent="Theme.AppCompat.DayNight.Dialog.MinWidth" />
+
     <style name="PowerIcon">
         <item name="android:background">@drawable/ic_circle</item>
         <!-- Figma had #222E3C as backgroundTint, but the style guide's closest is this -->

@@ -22,7 +22,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-import static org.briarproject.android.dontkillmelib.PowerUtils.showOnboardingDialog;
+import static org.briarproject.mailbox.android.dontkillme.DoNotKillMeUtils.showOnboardingDialog;
 
 @UiThread
 abstract class PowerView extends ConstraintLayout {

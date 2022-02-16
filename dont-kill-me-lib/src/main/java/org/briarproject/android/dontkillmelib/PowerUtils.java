@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Scanner;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 
 import static android.content.Context.POWER_SERVICE;
 import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
@@ -47,14 +46,6 @@ public class PowerUtils {
 		i.setAction(ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
 		i.setData(Uri.parse("package:" + ctx.getPackageName()));
 		return i;
-	}
-
-	public static void showOnboardingDialog(Context ctx, String text) {
-		new AlertDialog.Builder(ctx, R.style.OnboardingDialogTheme)
-				.setMessage(text)
-				.setNeutralButton(R.string.got_it,
-						(dialog, which) -> dialog.cancel())
-				.show();
 	}
 
 	/**
