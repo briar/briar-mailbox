@@ -17,18 +17,37 @@
  *
  */
 
-package org.briarproject.mailbox.android.dontkillme
+package org.briarproject.mailbox.android.ui
 
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import dagger.hilt.android.AndroidEntryPoint
-import org.briarproject.mailbox.android.ui.MailboxViewModel
+import org.briarproject.mailbox.R
 
 @AndroidEntryPoint
-class DoNotKillMeFragment : AbstractDoNotKillMeFragment() {
+class StatusFragment : Fragment() {
 
     private val viewModel: MailboxViewModel by activityViewModels()
+    private lateinit var buttonStop: Button
 
-    override fun onButtonClicked() {
-        viewModel.onDoNotKillComplete()
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View? {
+        return inflater.inflate(R.layout.fragment_status, container, false)
     }
+
+    override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
+        buttonStop = v.findViewById(R.id.buttonStop)
+        buttonStop.setOnClickListener {
+            viewModel.stopLifecycle()
+        }
+    }
+
 }

@@ -1,6 +1,7 @@
 buildscript {
     ext.kotlin_version = '1.6.10'
     ext.hilt_version = '2.40'
+    ext.nav_version = '2.4.0'
     ext.tor_version = '0.3.5.15'
     ext.obfs4_version = '0.0.12-dev-40245c4a'
     ext.junit_version = '5.7.2'
@@ -18,6 +19,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:7.0.4'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
     }
 }
 

@@ -42,6 +42,9 @@ class Onboarding0Fragment : OnboardingFragment(
     bottomButtonAction = {
         requireActivity().supportFinishAfterTransition()
     },
+    backButtonAction = {
+        requireActivity().finishAffinity()
+    },
 )
 
 class Onboarding1Fragment : OnboardingFragment(
@@ -81,6 +84,8 @@ abstract class OnboardingFragment(
     private val bottomButtonAction: OnboardingFragment.(OnboardingViewModel) -> Unit = { model ->
         model.selectPage(number - 1)
     },
+    private val backButtonAction: OnboardingFragment.(OnboardingViewModel) -> Unit =
+        bottomButtonAction,
 ) : Fragment() {
 
     private val viewModel: OnboardingViewModel by activityViewModels()
@@ -94,7 +99,7 @@ abstract class OnboardingFragment(
     // This callback will only be called when this Fragment is at least Resumed, not Started.
     private val callback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
-            bottomButtonAction(viewModel)
+            backButtonAction(viewModel)
         }
     }
 

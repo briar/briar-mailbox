@@ -20,6 +20,7 @@
 package org.briarproject.mailbox.android
 
 import dagger.Component
+import org.briarproject.mailbox.android.ui.MainActivity
 
 @Component(
     modules = [

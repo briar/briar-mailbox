@@ -17,10 +17,13 @@
  *
  */
 
-package org.briarproject.mailbox.android
+package org.briarproject.mailbox.android.ui
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -29,10 +32,12 @@ import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.android.dontkillmelib.PowerUtils.needsDozeWhitelisting
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.ui.OnboardingActivity
+import org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragmentDirections.actionDoNotKillMeFragmentToStartupFragment
+import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToDoNotKillMeFragment
+import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToStartupFragment
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult> {
 
     private val viewModel: MailboxViewModel by viewModels()
     private val nav: NavController by lazy {
@@ -41,23 +46,32 @@ class MainActivity : AppCompatActivity() {
         navHostFragment.navController
     }
 
+    private val startForResult = registerForActivityResult(StartActivityForResult(), this)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         viewModel.doNotKillComplete.observe(this) { complete ->
-            if (complete) nav.popBackStack()
+            if (complete) nav.navigate(actionDoNotKillMeFragmentToStartupFragment())
         }
 
         if (savedInstanceState == null) {
-            if (viewModel.needToShowDoNotKillMeFragment) {
-                nav.navigate(R.id.action_mainFragment_to_doNotKillMeFragment)
-            }
-            if (!viewModel.isSetUp) {
-                Intent(this, OnboardingActivity::class.java).also { i ->
-                    startActivity(i)
+            viewModel.hasDb.observe(this) { hasDb ->
+                if (!hasDb) {
+                    startForResult.launch(Intent(this, OnboardingActivity::class.java))
+                } else {
+                    nav.navigate(actionInitFragmentToStartupFragment())
                 }
             }
+        }
+    }
+
+    override fun onActivityResult(result: ActivityResult?) {
+        if (viewModel.needToShowDoNotKillMeFragment) {
+            nav.navigate(actionInitFragmentToDoNotKillMeFragment())
+        } else {
+            nav.navigate(actionInitFragmentToStartupFragment())
         }
     }
 
@@ -71,7 +85,7 @@ class MainActivity : AppCompatActivity() {
     private fun showDozeDialog() = AlertDialog.Builder(this)
         .setMessage(R.string.warning_dozed)
         .setPositiveButton(R.string.fix) { dialog, _ ->
-            nav.navigate(R.id.action_mainFragment_to_doNotKillMeFragment)
+            nav.navigate(actionInitFragmentToDoNotKillMeFragment())
             dialog.dismiss()
         }
         .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }

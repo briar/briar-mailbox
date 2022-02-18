@@ -34,6 +34,7 @@ import androidx.core.app.NotificationCompat.PRIORITY_MIN
 import androidx.core.content.ContextCompat.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.ui.MainActivity
 import javax.inject.Inject
 import javax.inject.Singleton
 
