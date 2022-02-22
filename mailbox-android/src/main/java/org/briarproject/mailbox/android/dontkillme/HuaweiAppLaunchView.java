@@ -26,10 +26,9 @@ public class HuaweiAppLaunchView extends PowerView {
 	public HuaweiAppLaunchView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		setText(org.briarproject.android.dontkillmelib.R.string.setup_huawei_app_launch_text);
+		setText(R.string.dnkm_huawei_app_launch_text);
 		setIcon(R.drawable.ic_restore_mirrored_white);
-		setButtonText(
-				org.briarproject.android.dontkillmelib.R.string.setup_huawei_app_launch_button);
+		setButtonText(R.string.dnkm_huawei_app_launch_button);
 	}
 
 	@Override
@@ -40,7 +39,7 @@ public class HuaweiAppLaunchView extends PowerView {
 	@Override
 	@StringRes
 	protected int getHelpText() {
-		return org.briarproject.android.dontkillmelib.R.string.setup_huawei_app_launch_help;
+		return R.string.dnkm_huawei_app_launch_help;
 	}
 
 	@Override

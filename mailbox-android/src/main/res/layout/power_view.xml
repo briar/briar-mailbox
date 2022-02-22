@@ -14,7 +14,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/icon"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="@string/setup_huawei_text" />
+        tools:text="@string/dnkm_huawei_protected_text" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/icon"
@@ -23,7 +23,7 @@
         android:layout_height="48dp"
         android:layout_marginEnd="12dp"
         android:layout_marginRight="12dp"
-        android:contentDescription="@string/help"
+        android:contentDescription="@string/dnkm_help"
         android:padding="12dp"
         app:layout_constraintBottom_toBottomOf="@+id/textView"
         app:layout_constraintEnd_toStartOf="@+id/textView"
@@ -53,7 +53,7 @@
         app:layout_constraintEnd_toStartOf="@+id/helpButton"
         app:layout_constraintStart_toEndOf="@+id/icon"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        tools:text="@string/setup_huawei_button" />
+        tools:text="@string/dnkm_huawei_protected_button" />
 
     <ImageButton
         android:id="@+id/helpButton"
@@ -61,7 +61,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/help"
+        android:contentDescription="@string/dnkm_help"
         app:layout_constraintBottom_toBottomOf="@+id/button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/button"

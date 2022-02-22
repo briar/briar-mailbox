@@ -12,8 +12,7 @@ public class DoNotKillMeUtils {
 		new AlertDialog.Builder(ctx,
 				R.style.OnboardingDialogTheme)
 				.setMessage(text)
-				.setNeutralButton(
-						org.briarproject.android.dontkillmelib.R.string.got_it,
+				.setNeutralButton(R.string.dnkm_got_it,
 						(dialog, which) -> dialog.cancel())
 				.show();
 	}

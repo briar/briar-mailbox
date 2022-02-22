@@ -1,5 +1,12 @@
 package org.briarproject.android.dontkillmelib;
 
+import static android.content.Context.POWER_SERVICE;
+import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
+import static android.os.Build.BRAND;
+import static android.os.Build.VERSION.SDK_INT;
+import static android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
+import static java.lang.Runtime.getRuntime;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -9,18 +16,11 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.PowerManager;
 
+import androidx.annotation.Nullable;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
-
-import androidx.annotation.Nullable;
-
-import static android.content.Context.POWER_SERVICE;
-import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
-import static android.os.Build.BRAND;
-import static android.os.Build.VERSION.SDK_INT;
-import static android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
-import static java.lang.Runtime.getRuntime;
 
 public class PowerUtils {
 

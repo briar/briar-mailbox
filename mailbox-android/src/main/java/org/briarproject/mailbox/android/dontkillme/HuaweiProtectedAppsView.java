@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import org.briarproject.android.dontkillmelib.PowerUtils;
+import org.briarproject.mailbox.R;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -27,9 +28,8 @@ public class HuaweiProtectedAppsView extends PowerView {
 			@Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		setText(org.briarproject.android.dontkillmelib.R.string.setup_huawei_text);
-		setButtonText(
-				org.briarproject.android.dontkillmelib.R.string.setup_huawei_button);
+		setText(R.string.dnkm_huawei_protected_text);
+		setButtonText(R.string.dnkm_huawei_protected_button);
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class HuaweiProtectedAppsView extends PowerView {
 	@Override
 	@StringRes
 	protected int getHelpText() {
-		return org.briarproject.android.dontkillmelib.R.string.setup_huawei_help;
+		return R.string.dnkm_huawei_protected_help;
 	}
 
 	@Override

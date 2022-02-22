@@ -44,7 +44,7 @@ public abstract class AbstractDoNotKillMeFragment extends Fragment
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireActivity().setTitle(getString(R.string.setup_doze_title));
+		requireActivity().setTitle(getString(R.string.dnkm_doze_title));
 		setHasOptionsMenu(false);
 		View v = inflater.inflate(R.layout.fragment_dont_kill_me, container,
 				false);
@@ -93,8 +93,7 @@ public abstract class AbstractDoNotKillMeFragment extends Fragment
 			dozeView.setChecked(true);
 		} else if (getContext() != null) {
 			secondAttempt = true;
-			String s = getString(
-					org.briarproject.android.dontkillmelib.R.string.setup_doze_explanation);
+			String s = getString(R.string.dnkm_doze_explanation);
 			showOnboardingDialog(getContext(), s);
 		}
 	}

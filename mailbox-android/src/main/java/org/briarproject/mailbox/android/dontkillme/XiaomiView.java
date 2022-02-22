@@ -3,6 +3,8 @@ package org.briarproject.mailbox.android.dontkillme;
 import android.content.Context;
 import android.util.AttributeSet;
 
+import org.briarproject.mailbox.R;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
@@ -25,9 +27,8 @@ public class XiaomiView extends PowerView {
 	public XiaomiView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		setText(org.briarproject.android.dontkillmelib.R.string.setup_xiaomi_text);
-		setButtonText(
-				org.briarproject.android.dontkillmelib.R.string.setup_xiaomi_button);
+		setText(R.string.dnkm_xiaomi_text);
+		setButtonText(R.string.dnkm_xiaomi_button);
 	}
 
 	@Override
@@ -38,16 +39,14 @@ public class XiaomiView extends PowerView {
 	@Override
 	@StringRes
 	protected int getHelpText() {
-		return org.briarproject.android.dontkillmelib.R.string.setup_xiaomi_help;
+		return R.string.dnkm_xiaomi_help;
 	}
 
 	@Override
 	protected void onButtonClick() {
 		int bodyRes = isMiuiTenOrLater()
-				?
-				org.briarproject.android.dontkillmelib.R.string.setup_xiaomi_dialog_body_new
-				:
-				org.briarproject.android.dontkillmelib.R.string.setup_xiaomi_dialog_body_old;
+				? R.string.dnkm_xiaomi_dialog_body_new
+				: R.string.dnkm_xiaomi_dialog_body_old;
 		showOnboardingDialog(getContext(), getContext().getString(bodyRes));
 		setChecked(true);
 	}

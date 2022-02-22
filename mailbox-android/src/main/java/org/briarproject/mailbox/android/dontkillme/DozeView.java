@@ -28,10 +28,9 @@ public class DozeView extends PowerView {
 	public DozeView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		setText(org.briarproject.android.dontkillmelib.R.string.setup_doze_intro);
+		setText(R.string.dnkm_doze_intro);
 		setIcon(R.drawable.ic_battery_alert_white);
-		setButtonText(
-				org.briarproject.android.dontkillmelib.R.string.setup_doze_button);
+		setButtonText(R.string.dnkm_doze_button);
 	}
 
 	@Override
@@ -45,7 +44,7 @@ public class DozeView extends PowerView {
 
 	@Override
 	protected int getHelpText() {
-		return org.briarproject.android.dontkillmelib.R.string.setup_doze_explanation;
+		return R.string.dnkm_doze_explanation;
 	}
 
 	@Override
