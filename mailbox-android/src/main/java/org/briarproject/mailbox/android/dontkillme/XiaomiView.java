@@ -28,6 +28,7 @@ public class XiaomiView extends PowerView {
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		setText(R.string.dnkm_xiaomi_text);
+		setIcon(R.drawable.ic_lock_white);
 		setButtonText(R.string.dnkm_xiaomi_button);
 	}
 

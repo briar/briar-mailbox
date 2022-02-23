@@ -29,6 +29,7 @@ public class HuaweiProtectedAppsView extends PowerView {
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		setText(R.string.dnkm_huawei_protected_text);
+		setIcon(R.drawable.ic_security_white);
 		setButtonText(R.string.dnkm_huawei_protected_button);
 	}
 
