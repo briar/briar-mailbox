@@ -10,16 +10,26 @@
         android:id="@+id/textView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/icon"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="@string/setup_huawei_text" />
+        tools:text="@string/dnkm_huawei_protected_text" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/icon"
+        style="@style/PowerIcon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginRight="12dp"
+        android:contentDescription="@string/dnkm_help"
+        android:padding="12dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView"
+        app:layout_constraintEnd_toStartOf="@+id/textView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textView"
+        app:srcCompat="@drawable/ic_help_outline_white" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/checkImage"
@@ -28,22 +38,22 @@
         android:layout_margin="8dp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/button"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/button"
         app:layout_constraintTop_toTopOf="@+id/button"
         app:srcCompat="@drawable/ic_check_white"
         app:tint="?attr/colorControlNormal"
         tools:ignore="ContentDescription" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/button"
-        style="@style/DoNotKillMeButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_marginHorizontal="4dp"
+        android:layout_marginVertical="12dp"
         app:layout_constraintEnd_toStartOf="@+id/helpButton"
-        app:layout_constraintStart_toEndOf="@+id/checkImage"
+        app:layout_constraintStart_toEndOf="@+id/icon"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        tools:text="@string/setup_huawei_button" />
+        tools:text="@string/dnkm_huawei_protected_button" />
 
     <ImageButton
         android:id="@+id/helpButton"
@@ -51,10 +61,19 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/help"
+        android:contentDescription="@string/dnkm_help"
         app:layout_constraintBottom_toBottomOf="@+id/button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/button"
         app:srcCompat="@drawable/ic_help_outline_white" />
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button" />
 
 </merge>

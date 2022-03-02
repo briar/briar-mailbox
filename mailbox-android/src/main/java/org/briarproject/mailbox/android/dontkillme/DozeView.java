@@ -1,7 +1,9 @@
-package org.briarproject.android.dontkillmelib;
+package org.briarproject.mailbox.android.dontkillme;
 
 import android.content.Context;
 import android.util.AttributeSet;
+
+import org.briarproject.mailbox.R;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -10,7 +12,7 @@ import androidx.annotation.UiThread;
 import static org.briarproject.android.dontkillmelib.PowerUtils.needsDozeWhitelisting;
 
 @UiThread
-class DozeView extends PowerView {
+public class DozeView extends PowerView {
 
 	@Nullable
 	private Runnable onButtonClickListener;
@@ -26,8 +28,9 @@ class DozeView extends PowerView {
 	public DozeView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		setText(R.string.setup_doze_intro);
-		setButtonText(R.string.setup_doze_button);
+		setText(R.string.dnkm_doze_intro);
+		setIcon(R.drawable.ic_battery_alert_white);
+		setButtonText(R.string.dnkm_doze_button);
 	}
 
 	@Override
@@ -41,7 +44,7 @@ class DozeView extends PowerView {
 
 	@Override
 	protected int getHelpText() {
-		return R.string.setup_doze_explanation;
+		return R.string.dnkm_doze_explanation;
 	}
 
 	@Override

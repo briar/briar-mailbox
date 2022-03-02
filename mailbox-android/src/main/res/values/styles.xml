@@ -5,4 +5,14 @@
         <item name="android:textColor">?attr/colorSecondary</item>
     </style>
 
+    <style name="PowerIcon">
+        <item name="android:background">@drawable/ic_circle</item>
+        <!-- Figma had #222E3C as backgroundTint, but the style guide's closest is this -->
+        <item name="backgroundTint">@color/briar_night_800</item>
+    </style>
+
+    <style name="HelpButton" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:tint">#418cd8</item>
+    </style>
+
 </resources>

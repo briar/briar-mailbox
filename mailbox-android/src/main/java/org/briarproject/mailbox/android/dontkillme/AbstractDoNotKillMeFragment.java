@@ -1,4 +1,4 @@
-package org.briarproject.android.dontkillmelib;
+package org.briarproject.mailbox.android.dontkillme;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -9,7 +9,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import org.briarproject.android.dontkillmelib.PowerView.OnCheckedChangedListener;
+import org.briarproject.mailbox.R;
+import org.briarproject.mailbox.android.dontkillme.PowerView.OnCheckedChangedListener;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -22,7 +23,7 @@ import androidx.fragment.app.Fragment;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.android.dontkillmelib.PowerUtils.getDozeWhitelistingIntent;
-import static org.briarproject.android.dontkillmelib.PowerUtils.showOnboardingDialog;
+import static org.briarproject.mailbox.android.dontkillme.DoNotKillMeUtils.showOnboardingDialog;
 
 public abstract class AbstractDoNotKillMeFragment extends Fragment
 		implements OnCheckedChangedListener,
@@ -43,7 +44,7 @@ public abstract class AbstractDoNotKillMeFragment extends Fragment
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireActivity().setTitle(getString(R.string.setup_doze_title));
+		requireActivity().setTitle(getString(R.string.dnkm_doze_title));
 		setHasOptionsMenu(false);
 		View v = inflater.inflate(R.layout.fragment_dont_kill_me, container,
 				false);
@@ -92,7 +93,7 @@ public abstract class AbstractDoNotKillMeFragment extends Fragment
 			dozeView.setChecked(true);
 		} else if (getContext() != null) {
 			secondAttempt = true;
-			String s = getString(R.string.setup_doze_explanation);
+			String s = getString(R.string.dnkm_doze_explanation);
 			showOnboardingDialog(getContext(), s);
 		}
 	}

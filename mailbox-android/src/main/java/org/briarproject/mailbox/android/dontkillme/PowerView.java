@@ -1,4 +1,4 @@
-package org.briarproject.android.dontkillmelib;
+package org.briarproject.mailbox.android.dontkillme;
 
 import android.content.Context;
 import android.os.Parcel;
@@ -11,19 +11,24 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.briarproject.mailbox.R;
+
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-import static org.briarproject.android.dontkillmelib.PowerUtils.showOnboardingDialog;
+import static org.briarproject.mailbox.android.dontkillme.DoNotKillMeUtils.showOnboardingDialog;
 
 @UiThread
 abstract class PowerView extends ConstraintLayout {
 
 	private final TextView textView;
+	private final ImageView icon;
 	private final ImageView checkImage;
 	private final Button button;
 
@@ -49,6 +54,7 @@ abstract class PowerView extends ConstraintLayout {
 		View v = inflater.inflate(R.layout.power_view, this, true);
 
 		textView = v.findViewById(R.id.textView);
+		icon = v.findViewById(R.id.icon);
 		checkImage = v.findViewById(R.id.checkImage);
 		button = v.findViewById(R.id.button);
 		button.setOnClickListener(view -> onButtonClick());
@@ -112,6 +118,11 @@ abstract class PowerView extends ConstraintLayout {
 		textView.setText(res);
 	}
 
+	protected void setIcon(@DrawableRes int drawable) {
+		icon.setImageDrawable(
+				ContextCompat.getDrawable(getContext(), drawable));
+	}
+
 	protected void setButtonText(@StringRes int res) {
 		button.setText(res);
 	}
@@ -141,8 +152,8 @@ abstract class PowerView extends ConstraintLayout {
 			out.writeBooleanArray(value);
 		}
 
-		static final Parcelable.Creator<SavedState> CREATOR
-				= new Parcelable.Creator<SavedState>() {
+		static final Creator<SavedState> CREATOR
+				= new Creator<SavedState>() {
 			@Override
 			public SavedState createFromParcel(Parcel in) {
 				return new SavedState(in);
@@ -155,7 +166,7 @@ abstract class PowerView extends ConstraintLayout {
 		};
 	}
 
-	interface OnCheckedChangedListener {
+	public interface OnCheckedChangedListener {
 		void onCheckedChanged();
 	}
 
