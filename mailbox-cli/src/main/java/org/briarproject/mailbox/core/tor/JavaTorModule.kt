@@ -24,6 +24,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.briarproject.mailbox.core.event.EventBus
+import org.briarproject.mailbox.core.files.FileProvider
 import org.briarproject.mailbox.core.lifecycle.IoExecutor
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.settings.SettingsManager
@@ -66,10 +67,9 @@ internal class JavaTorModule {
         backoff: Backoff,
         lifecycleManager: LifecycleManager,
         eventBus: EventBus,
+        fileProvider: FileProvider,
     ): TorPlugin {
-        val configDir = File(System.getProperty("user.home") + File.separator + ".config")
-        val mailboxDir = File(configDir, ".briar-mailbox")
-        val torDir = File(mailboxDir, "tor")
+        val torDir = File(fileProvider.root, "tor")
         return JavaTorPlugin(
             ioExecutor,
             settingsManager,
