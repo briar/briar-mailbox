@@ -150,7 +150,7 @@ class Main : CliktCommand(
             runBlocking {
                 // wait until Tor becomes active and published the onion service
                 torPlugin.state.takeWhile { state ->
-                    state != TorPlugin.State.ACTIVE
+                    state != TorPlugin.State.PUBLISHED
                 }
             }
             qrCodeEncoder.getQrCodeBitMatrix()?.let {
