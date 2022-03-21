@@ -23,20 +23,33 @@ import io.ktor.application.ApplicationCall
 import io.ktor.auth.principal
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import org.briarproject.mailbox.core.db.DbException
 import org.briarproject.mailbox.core.db.Transaction
 import org.briarproject.mailbox.core.files.FileManager
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.RUNNING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.OpenDatabaseHook
 import org.briarproject.mailbox.core.server.AuthException
 import org.briarproject.mailbox.core.server.AuthManager
 import org.briarproject.mailbox.core.settings.Settings
 import org.briarproject.mailbox.core.settings.SettingsManager
+import org.briarproject.mailbox.core.setup.SetupComplete.FALSE
+import org.briarproject.mailbox.core.setup.SetupComplete.TRUE
+import org.briarproject.mailbox.core.setup.SetupComplete.UNKNOWN
 import org.briarproject.mailbox.core.system.RandomIdManager
 import javax.inject.Inject
 
 private const val SETTINGS_NAMESPACE_OWNER = "owner"
 private const val SETTINGS_SETUP_TOKEN = "setupToken"
 private const val SETTINGS_OWNER_TOKEN = "ownerToken"
+
+enum class SetupComplete {
+    UNKNOWN,
+    FALSE,
+    TRUE,
+}
 
 interface SetupManager : OpenDatabaseHook {
     /**
@@ -46,6 +59,12 @@ interface SetupManager : OpenDatabaseHook {
      * This is false after wiping.
      */
     val hasDb: Boolean
+
+    /**
+     * This is UNKNOWN initially and will be set to TRUE or FALSE while the database is opened.
+     * It is safe to assume a value != [UNKNOWN] when the [LifecycleState] is [RUNNING].
+     */
+    val setupComplete: StateFlow<SetupComplete>
 
     @Throws(DbException::class)
     fun setToken(setupToken: String?, ownerToken: String?)
@@ -65,6 +84,9 @@ class SetupManagerImpl @Inject constructor(
 
     override val hasDb: Boolean get() = fileManager.hasDbFile()
 
+    private val _setupComplete = MutableStateFlow(UNKNOWN)
+    override val setupComplete: StateFlow<SetupComplete> = _setupComplete
+
     @Throws(DbException::class)
     override fun onDatabaseOpened(txn: Transaction) {
         val settings = settingsManager.getSettings(txn, SETTINGS_NAMESPACE_OWNER)
@@ -74,6 +96,9 @@ class SetupManagerImpl @Inject constructor(
         if (setupToken == null && ownerToken == null) {
             settings[SETTINGS_SETUP_TOKEN] = randomIdManager.getNewRandomId()
             settingsManager.mergeSettings(txn, settings, SETTINGS_NAMESPACE_OWNER)
+            _setupComplete.value = FALSE
+        } else {
+            _setupComplete.value = if (ownerToken != null) TRUE else FALSE
         }
     }
 
@@ -90,6 +115,7 @@ class SetupManagerImpl @Inject constructor(
         if (ownerToken != null) randomIdManager.assertIsRandomId(ownerToken)
         settings[SETTINGS_OWNER_TOKEN] = ownerToken
         settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE_OWNER)
+        _setupComplete.value = TRUE
     }
 
     @Throws(DbException::class)

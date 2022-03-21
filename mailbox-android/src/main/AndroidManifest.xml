@@ -25,7 +25,7 @@
         <service android:name=".android.MailboxService" />
 
         <activity
-            android:name=".android.MainActivity"
+            android:name=".android.ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

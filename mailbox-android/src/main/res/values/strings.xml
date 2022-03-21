@@ -24,4 +24,8 @@
     <string name="warning_dozed">Briar Mailbox was unable to run in the background</string>
     <string name="fix">Fix</string>
     <string name="cancel">Cancel</string>
+
+    <string name="link_title">Link via QR code</string>
+    <string name="link_description">Scan this QR code with Briar</string>
+    <string name="link_cancel">Cancel Setup</string>
 </resources>

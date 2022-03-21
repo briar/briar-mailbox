@@ -16,19 +16,24 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+package org.briarproject.mailbox.android
 
-package org.briarproject.mailbox.android.dontkillme
+import com.google.zxing.common.BitMatrix
+import android.graphics.Bitmap
+import android.graphics.Color
 
-import androidx.fragment.app.activityViewModels
-import dagger.hilt.android.AndroidEntryPoint
-import org.briarproject.mailbox.android.ui.MailboxViewModel
-
-@AndroidEntryPoint
-class DoNotKillMeFragment : AbstractDoNotKillMeFragment() {
-
-    private val viewModel: MailboxViewModel by activityViewModels()
-
-    override fun onButtonClicked() {
-        viewModel.onDoNotKillComplete()
+object QrCodeUtils {
+    fun renderQrCode(matrix: BitMatrix): Bitmap {
+        val width = matrix.width
+        val height = matrix.height
+        val pixels = IntArray(width * height)
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                pixels[y * width + x] = if (matrix[x, y]) Color.BLACK else Color.WHITE
+            }
+        }
+        val qr = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        qr.setPixels(pixels, 0, width, 0, 0, width, height)
+        return qr
     }
 }

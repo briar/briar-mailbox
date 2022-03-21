@@ -17,88 +17,73 @@
  *
  */
 
-package org.briarproject.mailbox.android
+package org.briarproject.mailbox.android.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.TextView
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.android.ui.MailboxViewModel.MailboxStartupProgress
+import org.briarproject.mailbox.android.ui.MailboxViewModel.StartedSettingUp
+import org.briarproject.mailbox.android.ui.MailboxViewModel.StartedSetupComplete
+import org.briarproject.mailbox.android.ui.QrCodeFragmentDirections.actionQrCodeFragmentToSetupCompleteFragment
 
 @AndroidEntryPoint
-class MainFragment : Fragment() {
+class QrCodeFragment : Fragment() {
 
     private val viewModel: MailboxViewModel by activityViewModels()
-    private lateinit var statusTextView: TextView
-    private lateinit var startStopButton: Button
-    private lateinit var wipeButton: Button
+    private lateinit var qrCodeView: ImageView
+    private lateinit var buttonCancel: Button
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        return inflater.inflate(R.layout.fragment_main, container, false)
+        return inflater.inflate(R.layout.fragment_qr, container, false)
     }
 
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
-        val textView = v.findViewById<TextView>(R.id.text)
-        val button = v.findViewById<Button>(R.id.button)
-        statusTextView = v.findViewById(R.id.statusTextView)
-        startStopButton = v.findViewById(R.id.startStopButton)
-        wipeButton = v.findViewById(R.id.wipeButton)
+        qrCodeView = v.findViewById(R.id.qrcode)
+        buttonCancel = v.findViewById(R.id.buttonCancel)
 
-        button.setOnClickListener {
-            viewModel.updateText("Tested")
+        buttonCancel.setOnClickListener {
+            viewModel.stopLifecycle()
+            requireActivity().finishAffinity()
         }
 
         // Start a coroutine in the lifecycle scope
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             // repeatOnLifecycle launches the block in a new coroutine every time the
             // lifecycle is in the STARTED state (or above) and cancels it when it's STOPPED.
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Trigger the flow and start listening for values.
                 // Note that this happens when lifecycle is STARTED and stops
                 // collecting when the lifecycle is STOPPED
-                viewModel.lifecycleState.collect { onLifecycleStateChanged(it) }
+                viewModel.setupState.collect { onSetupStateChanged(it) }
             }
         }
-
-        viewModel.text.observe(viewLifecycleOwner, { text ->
-            textView.text = text
-        })
     }
 
-    private fun onLifecycleStateChanged(state: LifecycleManager.LifecycleState) = when (state) {
-        LifecycleManager.LifecycleState.NOT_STARTED -> {
-            statusTextView.text = state.name
-            startStopButton.setText(R.string.start)
-            startStopButton.setOnClickListener { viewModel.startLifecycle() }
-            startStopButton.isEnabled = true
-        }
-        LifecycleManager.LifecycleState.RUNNING -> {
-            statusTextView.text = state.name
-            startStopButton.setText(R.string.stop)
-            startStopButton.setOnClickListener { viewModel.stopLifecycle() }
-            wipeButton.setOnClickListener { viewModel.wipe() }
-            startStopButton.isEnabled = true
-            wipeButton.isEnabled = true
-        }
-        else -> {
-            statusTextView.text = state.name
-            startStopButton.isEnabled = false
-            wipeButton.isEnabled = false
+    private fun onSetupStateChanged(setupComplete: MailboxStartupProgress) {
+        when (setupComplete) {
+            is StartedSettingUp -> qrCodeView.setImageBitmap(setupComplete.qrCode)
+            is StartedSetupComplete -> findNavController().navigate(
+                actionQrCodeFragmentToSetupCompleteFragment()
+            )
+            else -> error("Unexpected setup state: $setupComplete")
         }
     }
 

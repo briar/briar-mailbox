@@ -2,18 +2,70 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_onboarding"
-    app:startDestination="@id/mainFragment">
+    app:startDestination="@id/initFragment">
 
     <fragment
-        android:id="@+id/mainFragment"
-        android:name="org.briarproject.mailbox.android.MainFragment"
-        android:label="MainFragment">
+        android:id="@+id/initFragment"
+        android:name="org.briarproject.mailbox.android.ui.InitFragment"
+        android:label="InitFragment">
         <action
-            android:id="@+id/action_mainFragment_to_doNotKillMeFragment"
-            app:destination="@id/doNotKillMeFragment" />
+            android:id="@+id/action_initFragment_to_doNotKillMeFragment"
+            app:destination="@id/doNotKillMeFragment"
+            app:popUpTo="@id/initFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_initFragment_to_startupFragment"
+            app:destination="@id/startupFragment"
+            app:popUpTo="@id/initFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/doNotKillMeFragment"
         android:name="org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragment"
-        android:label="DoNotKillMeFragment" />
+        android:label="DoNotKillMeFragment">
+        <action
+            android:id="@+id/action_doNotKillMeFragment_to_startupFragment"
+            app:destination="@id/startupFragment"
+            app:popUpTo="@id/doNotKillMeFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/startupFragment"
+        android:name="org.briarproject.mailbox.android.ui.StartupFragment"
+        android:label="StartupFragment">
+        <action
+            android:id="@+id/action_startupFragment_to_qrCodeFragment"
+            app:destination="@id/qrCodeFragment"
+            app:popUpTo="@id/startupFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_startupFragment_to_statusFragment"
+            app:destination="@id/statusFragment"
+            app:popUpTo="@id/startupFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/qrCodeFragment"
+        android:name="org.briarproject.mailbox.android.ui.QrCodeFragment"
+        android:label="QrCodeFragment">
+        <action
+            android:id="@+id/action_qrCodeFragment_to_setupCompleteFragment"
+            app:destination="@id/setupCompleteFragment"
+            app:popUpTo="@id/qrCodeFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/setupCompleteFragment"
+        android:name="org.briarproject.mailbox.android.ui.SetupCompleteFragment"
+        android:label="SetupCompleteFragment">
+        <action
+            android:id="@+id/action_setupCompleteFragment_to_statusFragment"
+            app:destination="@id/statusFragment"
+            app:popUpTo="@id/setupCompleteFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/statusFragment"
+        android:name="org.briarproject.mailbox.android.ui.StatusFragment"
+        android:label="StatusFragment" />
 </navigation>
