@@ -51,9 +51,9 @@ class WipeTest2 : IntegrationTest() {
         assertEquals(1, succeeded)
         assertEquals(1, failed)
 
-        // reset flag for exceptions thrown on background threads as this can indeed happen here
+        // reset field for exceptions thrown on background threads as this can indeed happen here
         // and is OK
-        exceptionInBackgroundThread = false
+        exceptionInBackgroundThread = null
     }
 
     @AfterEach

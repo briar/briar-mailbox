@@ -20,9 +20,9 @@ class WipeTest1 : IntegrationTest() {
         t1.join()
         t2.join()
 
-        // reset flag for exceptions thrown on background threads as this can indeed happen here
+        // reset field for exceptions thrown on background threads as this can indeed happen here
         // and is OK
-        exceptionInBackgroundThread = false
+        exceptionInBackgroundThread = null
     }
 
     @AfterEach

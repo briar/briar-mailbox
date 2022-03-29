@@ -63,13 +63,13 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
     protected val contact2 = getNewRandomContact()
 
     @Volatile
-    protected var exceptionInBackgroundThread = false
+    protected var exceptionInBackgroundThread: Throwable? = null
 
     init {
         // Ensure exceptions thrown on worker threads cause tests to fail
         val fail = Thread.UncaughtExceptionHandler { _: Thread?, throwable: Throwable ->
             LOG.warn("Caught unhandled exception", throwable)
-            exceptionInBackgroundThread = true
+            exceptionInBackgroundThread = throwable
         }
         Thread.setDefaultUncaughtExceptionHandler(fail)
     }
@@ -91,7 +91,7 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
 
     @BeforeEach
     open fun beforeEach() {
-        exceptionInBackgroundThread = false
+        exceptionInBackgroundThread = null
         // need to reopen database here because we're closing it after each test
         db.open(null)
         db.read { txn ->
@@ -112,8 +112,9 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
             assertFalse(setupManager.hasDb)
         }
 
-        if (exceptionInBackgroundThread) {
-            fail("background thread has thrown an exception unexpectedly")
+        if (exceptionInBackgroundThread != null) {
+            fail("background thread has thrown an exception unexpectedly",
+                exceptionInBackgroundThread)
         }
     }
 
