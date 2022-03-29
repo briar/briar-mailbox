@@ -23,8 +23,8 @@ class FileManagerIntegrationTest : IntegrationTest() {
     private val bytes = Random.nextBytes(2048)
 
     @BeforeEach
-    override fun initDb() {
-        super.initDb()
+    override fun beforeEach() {
+        super.beforeEach()
         addOwnerToken()
         addContact(contact1)
         addContact(contact2)

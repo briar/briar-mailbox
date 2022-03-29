@@ -19,8 +19,8 @@ import kotlin.test.assertEquals
 class ContactsManagerMalformedInputIntegrationTest : IntegrationTest(false) {
 
     @BeforeEach
-    override fun initDb() {
-        super.initDb()
+    override fun beforeEach() {
+        super.beforeEach()
         addOwnerToken()
     }
 
