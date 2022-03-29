@@ -113,8 +113,10 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
         }
 
         if (exceptionInBackgroundThread != null) {
-            fail("background thread has thrown an exception unexpectedly",
-                exceptionInBackgroundThread)
+            fail(
+                "background thread has thrown an exception unexpectedly",
+                exceptionInBackgroundThread
+            )
         }
     }
 
