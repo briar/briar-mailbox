@@ -32,4 +32,7 @@
     <string name="startup_starting_services">Starting services</string>
     <string name="startup_starting_tor">Starting Tor</string>
     <string name="startup_publishing_onion_service">Publishing onion service</string>
+
+    <string name="setup_complete_title">Connected</string>
+    <string name="setup_complete_description">Your Mailbox has been successfully linked with Briar.\n\nKeep your Mailbox connected to power and Wi-Fi so it\'s always online.</string>
 </resources>
