@@ -28,4 +28,8 @@
     <string name="link_title">Link via QR code</string>
     <string name="link_description">Scan this QR code with Briar</string>
     <string name="link_cancel">Cancel Setup</string>
+
+    <string name="startup_starting_services">Starting services</string>
+    <string name="startup_starting_tor">Starting Tor</string>
+    <string name="startup_publishing_onion_service">Publishing onion service</string>
 </resources>
