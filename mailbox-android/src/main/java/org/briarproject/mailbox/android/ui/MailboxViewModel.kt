@@ -75,6 +75,7 @@ class MailboxViewModel @Inject constructor(
     class Starting(val status: String) : MailboxStartupProgress
     class StartedSettingUp(val qrCode: Bitmap) : MailboxStartupProgress
     object StartedSetupComplete : MailboxStartupProgress
+    object ErrorNoNetwork : MailboxStartupProgress
 
     val setupState = combine(
         lifecycleState, torPluginState, setupManager.setupComplete
@@ -87,6 +88,7 @@ class MailboxViewModel @Inject constructor(
             ts != TorPlugin.State.PUBLISHED -> when {
                 ts < TorPlugin.State.ACTIVE ->
                     Starting(resources.getString(R.string.startup_starting_tor))
+                ts == TorPlugin.State.INACTIVE -> ErrorNoNetwork
                 else -> Starting(resources.getString(R.string.startup_publishing_onion_service))
             }
             sc == SetupComplete.FALSE -> {

@@ -23,7 +23,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -32,49 +31,30 @@ import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.ui.MailboxViewModel.ErrorNoNetwork
 import org.briarproject.mailbox.android.ui.MailboxViewModel.MailboxStartupProgress
-import org.briarproject.mailbox.android.ui.MailboxViewModel.StartedSettingUp
-import org.briarproject.mailbox.android.ui.MailboxViewModel.StartedSetupComplete
-import org.briarproject.mailbox.android.ui.MailboxViewModel.Starting
-import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToNoNetworkFragment
-import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToQrCodeFragment
-import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToStatusFragment
+import org.briarproject.mailbox.android.ui.NoNetworkFragmentDirections.actionNoNetworkFragmentToStartupFragment
 
 @AndroidEntryPoint
-class StartupFragment : Fragment() {
+class NoNetworkFragment : Fragment() {
 
     private val viewModel: MailboxViewModel by activityViewModels()
-    private lateinit var statusTextView: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        return inflater.inflate(R.layout.fragment_startup, container, false)
+        return inflater.inflate(R.layout.fragment_no_network, container, false)
     }
 
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
-        statusTextView = v.findViewById(R.id.statusTextView)
-
         launchAndRepeatWhileStarted {
             viewModel.setupState.collect { onSetupStateChanged(it) }
         }
-
-        viewModel.startLifecycle()
     }
 
     private fun onSetupStateChanged(state: MailboxStartupProgress) {
-        when (state) {
-            is Starting -> statusTextView.text = state.status
-            is StartedSettingUp -> findNavController().navigate(
-                actionStartupFragmentToQrCodeFragment()
-            )
-            is StartedSetupComplete -> findNavController().navigate(
-                actionStartupFragmentToStatusFragment()
-            )
-            is ErrorNoNetwork -> findNavController().navigate(
-                actionStartupFragmentToNoNetworkFragment()
-            )
+        if (state != ErrorNoNetwork) {
+            findNavController().navigate(actionNoNetworkFragmentToStartupFragment())
         }
     }
 

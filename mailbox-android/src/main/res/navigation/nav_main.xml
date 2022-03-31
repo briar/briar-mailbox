@@ -43,6 +43,11 @@
             app:destination="@id/statusFragment"
             app:popUpTo="@id/startupFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_startupFragment_to_noNetworkFragment"
+            app:destination="@id/noNetworkFragment"
+            app:popUpTo="@id/startupFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/qrCodeFragment"
@@ -68,4 +73,12 @@
         android:id="@+id/statusFragment"
         android:name="org.briarproject.mailbox.android.ui.StatusFragment"
         android:label="StatusFragment" />
+    <fragment
+        android:id="@+id/noNetworkFragment"
+        android:name="org.briarproject.mailbox.android.ui.NoNetworkFragment"
+        android:label="NoNetworkFragment" >
+        <action
+            android:id="@+id/action_noNetworkFragment_to_startupFragment"
+            app:destination="@id/startupFragment" />
+    </fragment>
 </navigation>

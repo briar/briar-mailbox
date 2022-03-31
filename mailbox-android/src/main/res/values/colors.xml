@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="briar_green">#74B816</color>
-    <color name="briar_night">#435B77</color>
-    <color name="briar_night_800">#212d3b</color>
-    <color name="briar_blue">#1F78D1</color>
-    <color name="briar_blue_dark">#1A222D</color>
+    <color name="briar_green">#FF74B816</color>
+    <color name="briar_night">#FF435B77</color>
+    <color name="briar_night_800">#FF212d3b</color>
+    <color name="briar_blue">#FF1F78D1</color>
+    <color name="briar_blue_dark">#FF1A222D</color>
 
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="red">#FFCF0101</color>
 </resources>

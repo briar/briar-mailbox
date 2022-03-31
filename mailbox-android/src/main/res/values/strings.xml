@@ -33,6 +33,10 @@
     <string name="startup_starting_tor">Starting Tor</string>
     <string name="startup_publishing_onion_service">Publishing onion service</string>
 
+    <string name="no_network_title">Device offline?</string>
+    <string name="no_network_description">Please ensure this device is online and connected to the Internet. Once you\'re online, setup should pick up automatically here.</string>
+    <string name="no_network_try_again">Try again</string>
+
     <string name="setup_complete_title">Connected</string>
     <string name="setup_complete_description">Your Mailbox has been successfully linked with Briar.\n\nKeep your Mailbox connected to power and Wi-Fi so it\'s always online.</string>
 </resources>
