@@ -97,6 +97,13 @@ public abstract class TorPlugin
 	private static final String OWNER = "__OwningControllerProcess";
 	private static final int COOKIE_TIMEOUT_MS = 3000;
 	private static final int COOKIE_POLLING_INTERVAL_MS = 200;
+	/**
+	 * The number of uploads of our onion service descriptor we wait for
+	 * before we consider our onion service to be published.
+	 * In reality, the actual reachability is more complicated,
+	 * but this might be a reasonable heuristic.
+	 */
+	private static final int HS_DESC_UPLOADS = 3;
 
 	private final Executor ioExecutor;
 	private final Executor connectionStatusExecutor;
@@ -654,7 +661,8 @@ public abstract class TorPlugin
 			if (!networkInitialised) return ENABLING;
 			if (!networkEnabled) return INACTIVE;
 			if (bootstrapped && circuitBuilt) {
-				return (numServiceUploads >= 3) ? PUBLISHED : ACTIVE;
+				return (numServiceUploads >= HS_DESC_UPLOADS) ?
+						PUBLISHED : ACTIVE;
 			} else return ENABLING;
 		}
 
