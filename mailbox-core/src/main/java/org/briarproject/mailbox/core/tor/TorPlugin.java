@@ -76,6 +76,7 @@ import static org.briarproject.mailbox.core.tor.TorConstants.SETTINGS_NAMESPACE;
 import static org.briarproject.mailbox.core.tor.TorPlugin.State.ACTIVE;
 import static org.briarproject.mailbox.core.tor.TorPlugin.State.ENABLING;
 import static org.briarproject.mailbox.core.tor.TorPlugin.State.INACTIVE;
+import static org.briarproject.mailbox.core.tor.TorPlugin.State.PUBLISHED;
 import static org.briarproject.mailbox.core.tor.TorPlugin.State.STARTING_STOPPING;
 import static org.briarproject.mailbox.core.util.IoUtils.copyAndClose;
 import static org.briarproject.mailbox.core.util.IoUtils.tryToClose;
@@ -96,6 +97,13 @@ public abstract class TorPlugin
 	private static final String OWNER = "__OwningControllerProcess";
 	private static final int COOKIE_TIMEOUT_MS = 3000;
 	private static final int COOKIE_POLLING_INTERVAL_MS = 200;
+	/**
+	 * The number of uploads of our onion service descriptor we wait for
+	 * before we consider our onion service to be published.
+	 * In reality, the actual reachability is more complicated,
+	 * but this might be a reasonable heuristic.
+	 */
+	private static final int HS_DESC_UPLOADS = 3;
 
 	private final Executor ioExecutor;
 	private final Executor connectionStatusExecutor;
@@ -367,11 +375,11 @@ public abstract class TorPlugin
 			s = new Settings();
 		}
 		String privateKey3 = s.get(HS_PRIVATE_KEY_V3);
-		publishV3HiddenService(port, privateKey3);
+		createV3HiddenService(port, privateKey3);
 	}
 
 	@IoExecutor
-	private void publishV3HiddenService(String port, @Nullable String privKey) {
+	private void createV3HiddenService(String port, @Nullable String privKey) {
 		LOG.info("Creating v3 hidden service");
 		Map<Integer, String> portLines = singletonMap(80, "127.0.0.1:" + port);
 		Map<String, String> response;
@@ -400,9 +408,6 @@ public abstract class TorPlugin
 		s.put(HS_ADDRESS_V3, onion3);
 		info(LOG, () -> "V3 hidden service " + scrubOnion(onion3));
 
-		// TODO remove before release
-		LOG.warn("V3 hidden service: http://" + onion3 + ".onion");
-
 		if (privKey == null) {
 			s.put(HS_PRIVATE_KEY_V3, response.get(HS_PRIVKEY));
 			try {
@@ -411,7 +416,6 @@ public abstract class TorPlugin
 				logException(LOG, e, "Error while merging settings");
 			}
 		}
-		state.setServicePublished();
 	}
 
 	@Nullable
@@ -505,6 +509,7 @@ public abstract class TorPlugin
 	public void unrecognized(String type, String msg) {
 		if (type.equals("HS_DESC") && msg.startsWith("UPLOADED")) {
 			LOG.info("V3 descriptor uploaded");
+			state.onServiceDescriptorUploaded();
 		}
 	}
 
@@ -599,8 +604,9 @@ public abstract class TorPlugin
 				networkInitialised = false,
 				networkEnabled = false,
 				bootstrapped = false,
-				circuitBuilt = false,
-				servicePublished = false;
+				circuitBuilt = false;
+		@GuardedBy("this")
+		private int numServiceUploads = 0;
 
 		@GuardedBy("this")
 		@Nullable
@@ -636,8 +642,8 @@ public abstract class TorPlugin
 			return firstCircuit;
 		}
 
-		synchronized void setServicePublished() {
-			servicePublished = true;
+		synchronized void onServiceDescriptorUploaded() {
+			numServiceUploads++;
 			state.setValue(getCurrentState());
 		}
 
@@ -654,8 +660,10 @@ public abstract class TorPlugin
 			}
 			if (!networkInitialised) return ENABLING;
 			if (!networkEnabled) return INACTIVE;
-			return bootstrapped && circuitBuilt && servicePublished ?
-					ACTIVE : ENABLING;
+			if (bootstrapped && circuitBuilt) {
+				return (numServiceUploads >= HS_DESC_UPLOADS) ?
+						PUBLISHED : ACTIVE;
+			} else return ENABLING;
 		}
 
 	}
@@ -676,6 +684,11 @@ public abstract class TorPlugin
 		 * The plugin is enabled and can make or receive connections.
 		 */
 		ACTIVE,
+
+		/**
+		 * The plugin has published the onion service.
+		 */
+		PUBLISHED,
 
 		/**
 		 * The plugin is enabled but can't make or receive connections

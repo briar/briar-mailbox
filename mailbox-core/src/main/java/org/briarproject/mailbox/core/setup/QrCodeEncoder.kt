@@ -73,7 +73,6 @@ class QrCodeEncoder @Inject constructor(
             LOG.error("Hidden service address not yet available")
             return null
         }
-        LOG.error(addressString)
         val addressBytes = Base32.decode(addressString.uppercase())
         check(addressBytes.size == 35) { "$addressString not 35 bytes long" }
         return addressBytes.copyOfRange(0, 32)

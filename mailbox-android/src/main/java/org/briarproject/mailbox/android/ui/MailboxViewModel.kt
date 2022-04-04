@@ -80,9 +80,7 @@ class MailboxViewModel @Inject constructor(
     ) { ls, ts, sc ->
         when {
             ls != LifecycleState.RUNNING -> Starting(ls.name)
-            // TODO waiting for ACTIVE is better than not doing it but to fix #90 we need to listen for
-            //  upload events to the hsdirs
-            ts != TorPlugin.State.ACTIVE -> Starting(ts.name + " TOR")
+            ts != TorPlugin.State.PUBLISHED -> Starting(ts.name + " TOR")
             sc == SetupComplete.FALSE -> {
                 val dm = Resources.getSystem().displayMetrics
                 val size = min(dm.widthPixels, dm.heightPixels)
