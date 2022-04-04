@@ -37,10 +37,6 @@ import org.briarproject.mailbox.core.setup.WipeManager
 import org.briarproject.mailbox.core.system.InvalidIdException
 import org.briarproject.mailbox.core.tor.TorPlugin
 import org.slf4j.LoggerFactory.getLogger
-import java.util.logging.Level.ALL
-import java.util.logging.Level.INFO
-import java.util.logging.Level.WARNING
-import java.util.logging.LogManager
 import javax.inject.Inject
 import kotlin.system.exitProcess
 
@@ -93,13 +89,7 @@ class Main : CliktCommand(
             1 -> Level.INFO
             else -> Level.DEBUG
         }
-        val level = if (debug) ALL else when (verbosity) {
-            0 -> WARNING
-            1 -> INFO
-            else -> ALL
-        }
         (getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = levelSlf4j
-        LogManager.getLogManager().getLogger("").level = level
 
         getLogger(this.javaClass).debug("Hello Mailbox")
         println("Hello Mailbox")

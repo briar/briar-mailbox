@@ -26,18 +26,18 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import org.briarproject.mailbox.core.system.LocationUtils;
+import org.slf4j.Logger;
 
 import java.util.Locale;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import static android.content.Context.TELEPHONY_SERVICE;
+import static org.slf4j.LoggerFactory.getLogger;
 
 class AndroidLocationUtils implements LocationUtils {
 
-	private static final Logger LOG =
-			Logger.getLogger(AndroidLocationUtils.class.getName());
+	private static final Logger LOG = getLogger(AndroidLocationUtils.class);
 
 	private final Context appContext;
 

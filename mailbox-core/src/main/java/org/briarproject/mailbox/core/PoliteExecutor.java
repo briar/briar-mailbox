@@ -19,15 +19,16 @@
 
 package org.briarproject.mailbox.core;
 
+import org.slf4j.Logger;
+
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Executor;
-import java.util.logging.Logger;
 
 import javax.annotation.concurrent.GuardedBy;
 
-import static java.util.logging.Level.FINE;
 import static org.briarproject.mailbox.core.util.LogUtils.now;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * An {@link Executor} that delegates its tasks to another {@link Executor}
@@ -41,7 +42,7 @@ public class PoliteExecutor implements Executor {
 	private final Queue<Runnable> queue = new LinkedList<>();
 	private final Executor delegate;
 	private final int maxConcurrentTasks;
-	private final Logger log;
+	private final Logger LOG;
 
 	@GuardedBy("lock")
 	private int concurrentTasks = 0;
@@ -58,16 +59,16 @@ public class PoliteExecutor implements Executor {
 			int maxConcurrentTasks) {
 		this.delegate = delegate;
 		this.maxConcurrentTasks = maxConcurrentTasks;
-		log = Logger.getLogger(tag);
+		LOG = getLogger(tag);
 	}
 
 	@Override
 	public void execute(Runnable r) {
 		long submitted = now();
 		Runnable wrapped = () -> {
-			if (log.isLoggable(FINE)) {
+			if (LOG.isDebugEnabled()) {
 				long queued = now() - submitted;
-				log.fine("Queue time " + queued + " ms");
+				LOG.debug("Queue time " + queued + " ms");
 			}
 			try {
 				r.run();
