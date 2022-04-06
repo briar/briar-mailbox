@@ -35,6 +35,7 @@ import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragmentDirections.actionDoNotKillMeFragmentToStartupFragment
 import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToDoNotKillMeFragment
 import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToStartupFragment
+import org.briarproject.mailbox.android.ui.StatusFragmentDirections.actionStatusFragmentToWipeCompleteFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult> {
@@ -54,6 +55,10 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
 
         viewModel.doNotKillComplete.observe(this) { complete ->
             if (complete) nav.navigate(actionDoNotKillMeFragmentToStartupFragment())
+        }
+
+        viewModel.wipeComplete.observe(this) { complete ->
+            if (complete) nav.navigate(actionStatusFragmentToWipeCompleteFragment())
         }
 
         if (savedInstanceState == null) {

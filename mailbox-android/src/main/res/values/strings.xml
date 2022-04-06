@@ -14,7 +14,7 @@
     <string name="onboarding_0_title">Stay Reachable</string>
     <string name="onboarding_0_description">The Mailbox helps you to stay in touch with your contacts and synchronizes your messages to Briar.</string>
     <string name="onboarding_1_title">Use a spare device</string>
-    <string name="onboarding_1_description">Install the mailbox app on a spare phone or tablet and leave it connected to power and WiFi. </string>
+    <string name="onboarding_1_description">Install the Mailbox app on a spare phone or tablet and leave it connected to power and WiFi.</string>
     <string name="onboarding_2_title">Message delivery</string>
     <string name="onboarding_2_description">When your Mailbox is online, your contacts can leave messages for you even if your Briar is offline. The Mailbox will receive the messages, and forward them to Briar when you come online.</string>
     <string name="onboarding_3_title">Encrypted</string>
@@ -24,6 +24,7 @@
           so translation memory can auto-translate most of them. -->
     <string name="warning_dozed">Briar Mailbox was unable to run in the background</string>
     <string name="fix">Fix</string>
+    <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
 
     <string name="link_title">Link via QR code</string>
@@ -39,7 +40,19 @@
     <string name="no_network_title">Device offline?</string>
     <string name="no_network_description">Please ensure this device is online and connected to the Internet. Once you\'re online, setup should pick up automatically here.</string>
 
+    <string name="status_running">Mailbox is running</string>
+    <string name="last_connection">Last connection: %s</string>
+    <string name="now">now</string>
+    <string name="never">never</string>
+    <string name="stop">Stop</string>
+    <string name="unlink">Unlink</string>
+    <string name="unlink_title">Unlink mailbox?</string>
+    <string name="unlink_description">If you unlink your Mailbox, you won\'t be able to receive messages while Briar is offline.\n\nAre you sure you want to unlink your Mailbox?</string>
+
     <string name="setup_complete_title">Connected</string>
     <string name="setup_complete_description">Your Mailbox has been successfully linked with Briar.\n\nKeep your Mailbox connected to power and Wi-Fi so it\'s always online.</string>
     <string name="setup_complete_finish">Finish</string>
+
+    <string name="wipe_complete_title">Wiping complete</string>
+    <string name="wipe_complete_description">Next time you have access to your Briar device, please open the Mailbox settings screen in the Briar app, then tap the \"Unlink\" button to complete the process.</string>
 </resources>

@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.concurrent.thread
-import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 class MailboxService : Service() {
@@ -162,7 +161,5 @@ class MailboxService : Service() {
         // Or maybe we want to do precisely that to make sure exiting really happens and the app
         // doesn't get suspended before it gets a chance to exit?
         lifecycleWakeLock.release()
-        LOG.info("Exiting")
-        exitProcess(0)
     }
 }

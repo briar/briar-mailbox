@@ -24,16 +24,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.UiUtils.formatDate
 
 @AndroidEntryPoint
 class StatusFragment : Fragment() {
 
     private val viewModel: MailboxViewModel by activityViewModels()
     private lateinit var buttonStop: Button
+    private lateinit var buttonUnlink: Button
+    private lateinit var textViewDescription: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,8 +50,27 @@ class StatusFragment : Fragment() {
 
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
         buttonStop = v.findViewById(R.id.buttonStop)
+        buttonUnlink = v.findViewById(R.id.buttonUnlink)
+        textViewDescription = v.findViewById(R.id.description)
+
         buttonStop.setOnClickListener {
             viewModel.stopLifecycle()
+            requireActivity().finishAffinity()
+        }
+        buttonUnlink.setOnClickListener {
+            MaterialAlertDialogBuilder(
+                requireContext(), R.style.Theme_BriarMailbox_Dialog_Destructive
+            ).setTitle(
+                R.string.unlink_title
+            ).setMessage(R.string.unlink_description)
+                .setPositiveButton(R.string.unlink) { _, _ -> viewModel.wipe() }
+                .setNegativeButton(R.string.cancel, null)
+                .create().show()
+        }
+
+        viewModel.lastAccess.observe(viewLifecycleOwner) { lastAccess ->
+            textViewDescription.text =
+                getString(R.string.last_connection, formatDate(requireContext(), lastAccess))
         }
     }
 
