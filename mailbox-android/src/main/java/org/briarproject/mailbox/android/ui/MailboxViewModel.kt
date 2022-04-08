@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import org.briarproject.android.dontkillmelib.DozeHelper
+import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.MailboxService
 import org.briarproject.mailbox.android.QrCodeUtils
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
@@ -78,9 +79,16 @@ class MailboxViewModel @Inject constructor(
     val setupState = combine(
         lifecycleState, torPluginState, setupManager.setupComplete
     ) { ls, ts, sc ->
+        val resources = getApplication<Application>().resources
         when {
-            ls != LifecycleState.RUNNING -> Starting(ls.name)
-            ts != TorPlugin.State.PUBLISHED -> Starting(ts.name + " TOR")
+            ls != LifecycleState.RUNNING -> Starting(
+                resources.getString(R.string.startup_starting_services)
+            )
+            ts != TorPlugin.State.PUBLISHED -> when {
+                ts < TorPlugin.State.ACTIVE ->
+                    Starting(resources.getString(R.string.startup_starting_tor))
+                else -> Starting(resources.getString(R.string.startup_publishing_onion_service))
+            }
             sc == SetupComplete.FALSE -> {
                 val dm = Resources.getSystem().displayMetrics
                 val size = min(dm.widthPixels, dm.heightPixels)
