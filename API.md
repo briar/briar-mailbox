@@ -24,12 +24,17 @@ The request contains no other data.
 PUT /setup
 ```
 
-If the token hasn't been used then the call returns the long-term owner auth token for subsequent calls along with a HTTP status code `201 Created`.
-Response example:
+If the token has not been used, the call returns a HTTP status code `201 Created`. The
+JSON response body will contain the long-term owner auth token for subsequent calls, and
+a list of API versions that the Mailbox supports. Response example:
 
 ```json
 {
-  "token": "2b063589ac6203feffa40c120716b79a472d607c089c42203819f363dee3266c"
+  "token": "2b063589ac6203feffa40c120716b79a472d607c089c42203819f363dee3266c",
+  "serverSupports": [
+    { "major": 1, "minor": 0 },
+    { "major": 1, "minor": 1 }
+  ]
 }
 ```
 
@@ -38,6 +43,25 @@ If the token has already been used then the call returns `401 Unauthorized` and 
 After a successful response, Briar performs the requests it does on each new connection to the mailbox, e.g. syncing contacts.
 If Briar crashes after the mailbox processes the pairing call, but before Briar receives the reply, then after restarting Briar the user should be led through the steps to wipe the mailbox and start again, whenever the user visits the mailbox status screen.
 If we lose the connection, but Briar doesn't crash after the mailbox processes the pairing call, but before Briar receives the reply, then the Briar UI leads the user through the steps to reset/wipe the mailbox and start again as well.
+
+### Get list of supported API versions (owner only)
+
+Retrieves the list of API versions that the Mailbox supports.
+
+```http
+GET /versions
+```
+
+Returns `200 OK` with a list of supported versions. Response example:
+
+```json
+{
+  "serverSupports": [
+    { "major": 1, "minor": 0 },
+    { "major": 1, "minor": 1 }
+  ]
+}
+```
 
 ### Remote wipe (owner only)
 
@@ -143,7 +167,7 @@ Used by owner and contacts to list their files to retrieve.
 GET /files/$folderId
 ```
 
-The mialbox checks if provided auth token is allowed to download from $folderId
+The mailbox checks if provided auth token is allowed to download from $folderId
 which is either an `inboxId` or an `outboxId` of a contact.
 
 Returns `200 OK` with the list of files in JSON (example):
