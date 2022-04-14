@@ -152,3 +152,4 @@ tasks.withType(MergeResources) {
 }
 
 apply from: "${rootProject.rootDir}/gradle/ktlint.gradle"
+apply from: "${rootProject.rootDir}/gradle/checkstyle.gradle"
