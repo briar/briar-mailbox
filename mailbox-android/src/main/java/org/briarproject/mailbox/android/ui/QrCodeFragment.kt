@@ -27,13 +27,9 @@ import android.widget.Button
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.ui.MailboxViewModel.MailboxStartupProgress
 import org.briarproject.mailbox.android.ui.MailboxViewModel.StartedSettingUp
@@ -64,16 +60,8 @@ class QrCodeFragment : Fragment() {
             requireActivity().finishAffinity()
         }
 
-        // Start a coroutine in the lifecycle scope
-        viewLifecycleOwner.lifecycleScope.launch {
-            // repeatOnLifecycle launches the block in a new coroutine every time the
-            // lifecycle is in the STARTED state (or above) and cancels it when it's STOPPED.
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Trigger the flow and start listening for values.
-                // Note that this happens when lifecycle is STARTED and stops
-                // collecting when the lifecycle is STOPPED
-                viewModel.setupState.collect { onSetupStateChanged(it) }
-            }
+        launchAndRepeatWhileStarted {
+            viewModel.setupState.collect { onSetupStateChanged(it) }
         }
     }
 
