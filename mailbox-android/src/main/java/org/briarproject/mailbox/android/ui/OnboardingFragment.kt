@@ -35,7 +35,7 @@ import org.briarproject.mailbox.databinding.FragmentOnboardingBinding
 
 class Onboarding0Fragment : OnboardingFragment(
     number = 0,
-    icon = R.mipmap.ic_launcher_round,
+    icon = R.drawable.ic_illustration_1,
     title = R.string.onboarding_0_title,
     description = R.string.onboarding_0_description,
     bottomButtonText = R.string.button_skip_intro,
@@ -49,21 +49,21 @@ class Onboarding0Fragment : OnboardingFragment(
 
 class Onboarding1Fragment : OnboardingFragment(
     number = 1,
-    icon = R.mipmap.ic_launcher_round,
+    icon = R.drawable.ic_illustration_2,
     title = R.string.onboarding_1_title,
     description = R.string.onboarding_1_description,
 )
 
 class Onboarding2Fragment : OnboardingFragment(
     number = 2,
-    icon = R.mipmap.ic_launcher_round,
+    icon = R.drawable.ic_illustration_3,
     title = R.string.onboarding_2_title,
     description = R.string.onboarding_2_description,
 )
 
 class Onboarding3Fragment : OnboardingFragment(
     number = 3,
-    icon = R.mipmap.ic_launcher_round,
+    icon = R.drawable.ic_illustration_4,
     title = R.string.onboarding_3_title,
     description = R.string.onboarding_3_description,
 )
