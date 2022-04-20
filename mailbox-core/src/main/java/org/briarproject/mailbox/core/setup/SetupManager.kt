@@ -33,6 +33,8 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.R
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.OpenDatabaseHook
 import org.briarproject.mailbox.core.server.AuthException
 import org.briarproject.mailbox.core.server.AuthManager
+import org.briarproject.mailbox.core.settings.MailboxVersion
+import org.briarproject.mailbox.core.settings.MetadataManager.Companion.SUPPORTED_VERSIONS
 import org.briarproject.mailbox.core.settings.Settings
 import org.briarproject.mailbox.core.settings.SettingsManager
 import org.briarproject.mailbox.core.setup.SetupComplete.FALSE
@@ -149,10 +151,11 @@ class SetupRouteManager @Inject constructor(
         // set new owner token and clear single-use setup token
         val ownerToken = randomIdManager.getNewRandomId()
         setupManager.setToken(null, ownerToken)
-        val response = SetupResponse(ownerToken)
+        val response = SetupResponse(ownerToken, SUPPORTED_VERSIONS)
 
         call.respond(HttpStatusCode.Created, response)
     }
+
 }
 
-internal data class SetupResponse(val token: String)
+internal data class SetupResponse(val token: String, val serverSupports: List<MailboxVersion>)
