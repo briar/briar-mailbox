@@ -27,11 +27,21 @@ import android.content.IntentFilter
 import android.os.IBinder
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import org.briarproject.mailbox.android.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
+import org.briarproject.mailbox.core.setup.SetupComplete
+import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.AndroidWakeLock
 import org.briarproject.mailbox.core.system.AndroidWakeLockManager
+import org.briarproject.mailbox.core.tor.TorPlugin
+import org.briarproject.mailbox.core.tor.TorState
 import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -70,7 +80,21 @@ class MailboxService : Service() {
     @Inject
     internal lateinit var notificationManager: MailboxNotificationManager
 
+    @Inject
+    internal lateinit var torPlugin: TorPlugin
+
+    @Inject
+    internal lateinit var setupManager: SetupManager
+
     private lateinit var lifecycleWakeLock: AndroidWakeLock
+
+    /**
+     * Possible values for `setupState` combined state.
+     */
+    sealed interface MailboxStartupProgress
+    object Starting : MailboxStartupProgress
+    object StartedSettingUp : MailboxStartupProgress
+    object StartedSetupComplete : MailboxStartupProgress
 
     override fun onCreate() {
         super.onCreate()
@@ -84,7 +108,26 @@ class MailboxService : Service() {
             return
         }
 
-        startForeground(NOTIFICATION_MAIN_ID, notificationManager.serviceNotification)
+        startForeground(NOTIFICATION_MAIN_ID, notificationManager.getServiceNotification(Starting))
+
+        val setupState = combine(
+            lifecycleManager.lifecycleStateFlow, torPlugin.state, setupManager.setupComplete
+        ) { ls, ts, sc ->
+            when {
+                ls != LifecycleState.RUNNING -> Starting
+                ts != TorState.Published -> Starting
+                sc == SetupComplete.FALSE -> StartedSettingUp
+                sc == SetupComplete.TRUE -> StartedSetupComplete
+                // else means sc == SetupComplete.UNKNOWN
+                else -> error("Expected setup completion to be known at this point")
+            }
+        }
+
+        GlobalScope.launch(Dispatchers.IO) {
+            setupState.collect {
+                notificationManager.updateNotification(it)
+            }
+        }
 
         // We hold a wake lock during the whole lifecycle. We have a one-to-one relationship
         // between MailboxService and the LifecycleManager. As we do not support lifecycle restarts

@@ -1,11 +1,12 @@
 <resources>
     <string name="app_name">Briar Mailbox</string>
     <string name="notification_channel_name">Briar Mailbox Channel</string>
-    <string name="notification_mailbox_title">Briar Mailbox running</string>
-    <string name="notification_mailbox_content">Waiting for messages…</string>
-    <string name="start">Start mailbox</string>
-    <string name="stop">Stop mailbox</string>
-    <string name="wipe">Wipe mailbox</string>
+    <string name="notification_mailbox_title_starting">Briar Mailbox starting</string>
+    <string name="notification_mailbox_content_starting">Starting mailbox…</string>
+    <string name="notification_mailbox_title_setup">Briar Mailbox setting up</string>
+    <string name="notification_mailbox_content_setup">Waiting to complete pairing with Briar Messenger…</string>
+    <string name="notification_mailbox_title_running">Briar Mailbox running</string>
+    <string name="notification_mailbox_content_running">Waiting for messages…</string>
     <string name="button_continue">Continue</string>
     <string name="button_skip_intro">Skip Intro</string>
     <string name="button_back">Back</string>

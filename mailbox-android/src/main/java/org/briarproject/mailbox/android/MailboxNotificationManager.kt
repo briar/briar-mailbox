@@ -34,6 +34,9 @@ import androidx.core.app.NotificationCompat.PRIORITY_MIN
 import androidx.core.content.ContextCompat.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.MailboxService.MailboxStartupProgress
+import org.briarproject.mailbox.android.MailboxService.StartedSetupComplete
+import org.briarproject.mailbox.android.MailboxService.Starting
 import org.briarproject.mailbox.android.ui.MainActivity
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -67,20 +70,36 @@ class MailboxNotificationManager @Inject constructor(
         nm.createNotificationChannels(channels)
     }
 
-    val serviceNotification: Notification
-        get() {
-            val notificationIntent = Intent(ctx, MainActivity::class.java)
-            val flags = if (SDK_INT >= 23) FLAG_IMMUTABLE else 0
-            val pendingIntent = PendingIntent.getActivity(
-                ctx, 0, notificationIntent, flags
-            )
-            return NotificationCompat.Builder(ctx, CHANNEL_ID)
-                .setContentTitle(ctx.getString(R.string.notification_mailbox_title))
-                .setContentText(ctx.getString(R.string.notification_mailbox_content))
-                .setSmallIcon(R.drawable.ic_notification_foreground)
-                .setContentIntent(pendingIntent)
-                .setPriority(PRIORITY_MIN)
-                .build()
-        }
+    fun updateNotification(status: MailboxStartupProgress) {
+        val notification = getServiceNotification(status)
+        nm.notify(NOTIFICATION_MAIN_ID, notification)
+    }
+
+    fun getServiceNotification(status: MailboxStartupProgress): Notification {
+        val notificationIntent = Intent(ctx, MainActivity::class.java)
+        val flags = if (SDK_INT >= 23) FLAG_IMMUTABLE else 0
+        val pendingIntent = PendingIntent.getActivity(
+            ctx, 0, notificationIntent, flags
+        )
+        return NotificationCompat.Builder(ctx, CHANNEL_ID).apply {
+            when (status) {
+                Starting -> {
+                    setContentTitle(ctx.getString(R.string.notification_mailbox_title_starting))
+                    setContentText(ctx.getString(R.string.notification_mailbox_content_starting))
+                }
+                MailboxService.StartedSettingUp -> {
+                    setContentTitle(ctx.getString(R.string.notification_mailbox_title_setup))
+                    setContentText(ctx.getString(R.string.notification_mailbox_content_setup))
+                }
+                StartedSetupComplete -> {
+                    setContentTitle(ctx.getString(R.string.notification_mailbox_title_running))
+                    setContentText(ctx.getString(R.string.notification_mailbox_content_running))
+                }
+            }
+        }.setSmallIcon(R.drawable.ic_notification_foreground)
+            .setContentIntent(pendingIntent)
+            .setPriority(PRIORITY_MIN)
+            .build()
+    }
 
 }
