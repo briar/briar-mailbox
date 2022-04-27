@@ -18,17 +18,46 @@ class Base32Test {
         assertEquals("", encode(ByteArray(0)))
         assertEquals("MY", encode(byteArrayOf('f'.code.toByte())))
         assertEquals("MZXQ", encode(byteArrayOf('f'.code.toByte(), 'o'.code.toByte())))
-        assertEquals("MZXW6",
-            encode(byteArrayOf('f'.code.toByte(), 'o'.code.toByte(), 'o'.code.toByte())))
-        assertEquals("MZXW6YQ",
-            encode(byteArrayOf('f'.code.toByte(), 'o'.code.toByte(), 'o'.code.toByte(),
-                'b'.code.toByte())))
-        assertEquals("MZXW6YTB",
-            encode(byteArrayOf('f'.code.toByte(), 'o'.code.toByte(), 'o'.code.toByte(),
-                'b'.code.toByte(), 'a'.code.toByte())))
-        assertEquals("MZXW6YTBOI",
-            encode(byteArrayOf('f'.code.toByte(), 'o'.code.toByte(), 'o'.code.toByte(),
-                'b'.code.toByte(), 'a'.code.toByte(), 'r'.code.toByte())))
+        assertEquals(
+            "MZXW6",
+            encode(byteArrayOf('f'.code.toByte(), 'o'.code.toByte(), 'o'.code.toByte()))
+        )
+        assertEquals(
+            "MZXW6YQ",
+            encode(
+                byteArrayOf(
+                    'f'.code.toByte(),
+                    'o'.code.toByte(),
+                    'o'.code.toByte(),
+                    'b'.code.toByte()
+                )
+            )
+        )
+        assertEquals(
+            "MZXW6YTB",
+            encode(
+                byteArrayOf(
+                    'f'.code.toByte(),
+                    'o'.code.toByte(),
+                    'o'.code.toByte(),
+                    'b'.code.toByte(),
+                    'a'.code.toByte()
+                )
+            )
+        )
+        assertEquals(
+            "MZXW6YTBOI",
+            encode(
+                byteArrayOf(
+                    'f'.code.toByte(),
+                    'o'.code.toByte(),
+                    'o'.code.toByte(),
+                    'b'.code.toByte(),
+                    'a'.code.toByte(),
+                    'r'.code.toByte()
+                )
+            )
+        )
     }
 
     @Test
@@ -44,19 +73,39 @@ class Base32Test {
     private fun testDecoding(strict: Boolean) {
         assertArrayEquals(ByteArray(0), decode("", strict))
         assertArrayEquals(byteArrayOf('f'.code.toByte()), decode("MY", strict))
-        assertArrayEquals(byteArrayOf('f'.code.toByte(), 'o'.code.toByte()),
-            decode("MZXQ", strict))
-        assertArrayEquals(byteArrayOf('f'.code.toByte(), 'o'.code.toByte(), 'o'.code.toByte()),
-            decode("MZXW6", strict))
-        assertArrayEquals(byteArrayOf('f'.code.toByte(), 'o'.code.toByte(),
-            'o'.code.toByte(), 'b'.code.toByte()),
-            decode("MZXW6YQ", strict))
-        assertArrayEquals(byteArrayOf('f'.code.toByte(), 'o'.code.toByte(),
-            'o'.code.toByte(), 'b'.code.toByte(), 'a'.code.toByte()),
-            decode("MZXW6YTB", strict))
-        assertArrayEquals(byteArrayOf('f'.code.toByte(), 'o'.code.toByte(),
-            'o'.code.toByte(), 'b'.code.toByte(), 'a'.code.toByte(), 'r'.code.toByte()),
-            decode("MZXW6YTBOI", strict))
+        assertArrayEquals(
+            byteArrayOf('f'.code.toByte(), 'o'.code.toByte()),
+            decode("MZXQ", strict)
+        )
+        assertArrayEquals(
+            byteArrayOf('f'.code.toByte(), 'o'.code.toByte(), 'o'.code.toByte()),
+            decode("MZXW6", strict)
+        )
+        assertArrayEquals(
+            byteArrayOf('f'.code.toByte(), 'o'.code.toByte(), 'o'.code.toByte(), 'b'.code.toByte()),
+            decode("MZXW6YQ", strict)
+        )
+        assertArrayEquals(
+            byteArrayOf(
+                'f'.code.toByte(),
+                'o'.code.toByte(),
+                'o'.code.toByte(),
+                'b'.code.toByte(),
+                'a'.code.toByte()
+            ),
+            decode("MZXW6YTB", strict)
+        )
+        assertArrayEquals(
+            byteArrayOf(
+                'f'.code.toByte(),
+                'o'.code.toByte(),
+                'o'.code.toByte(),
+                'b'.code.toByte(),
+                'a'.code.toByte(),
+                'r'.code.toByte()
+            ),
+            decode("MZXW6YTBOI", strict)
+        )
     }
 
     @Test
