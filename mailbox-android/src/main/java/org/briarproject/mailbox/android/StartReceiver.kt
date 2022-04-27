@@ -43,12 +43,17 @@ class StartReceiver : BroadcastReceiver() {
     @Inject
     internal lateinit var setupManager: SetupManager
 
+    @Inject
+    internal lateinit var mailboxPreferences: MailboxPreferences
+
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
         if (action != ACTION_BOOT_COMPLETED && action != ACTION_MY_PACKAGE_REPLACED) return
 
         // don't start, if we don't even have a database
         if (!setupManager.hasDb) return
+        // don't start, if the user has previously stopped the app manually
+        if (!mailboxPreferences.isAutoStartEnabled()) return
 
         val lifecycleState = lifecycleManager.lifecycleStateFlow.value
         LOG.debug { "Received $action in state ${lifecycleState.name}" }

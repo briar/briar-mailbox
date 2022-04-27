@@ -29,6 +29,7 @@ import androidx.lifecycle.liveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.briarproject.android.dontkillmelib.DozeHelper
+import org.briarproject.mailbox.android.MailboxPreferences
 import org.briarproject.mailbox.android.MailboxService
 import org.briarproject.mailbox.android.StatusManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
@@ -47,6 +48,7 @@ class MailboxViewModel @Inject constructor(
     private val setupManager: SetupManager,
     statusManager: StatusManager,
     private val metadataManager: MetadataManager,
+    private val mailboxPreferences: MailboxPreferences,
 ) : AndroidViewModel(app) {
 
     val needToShowDoNotKillMeFragment get() = dozeHelper.needToShowDoNotKillMeFragment(app)
@@ -68,11 +70,21 @@ class MailboxViewModel @Inject constructor(
         _doNotKillComplete.value = true
     }
 
+    /**
+     * Starts the mailbox lifecycle and sets an internal flag in order to autostart the mailbox on
+     * subsequent boots of the device.
+     */
     fun startLifecycle() {
+        setAutoStartEnabled(true)
         MailboxService.startService(getApplication())
     }
 
+    /**
+     * Stops the mailbox lifecycle and unsets an internal flag in order to not autostart the mailbox
+     * on subsequent boots of the device.
+     */
     fun stopLifecycle() {
+        setAutoStartEnabled(false)
         MailboxService.stopService(getApplication())
     }
 
@@ -87,5 +99,9 @@ class MailboxViewModel @Inject constructor(
     }
 
     fun getAndResetDozeFlag() = dozeWatchdog.andResetDozeFlag
+
+    private fun setAutoStartEnabled(enabled: Boolean) {
+        mailboxPreferences.setAutoStartEnabled(enabled)
+    }
 
 }
