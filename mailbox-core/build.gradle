@@ -30,8 +30,6 @@ dependencies {
 
     implementation 'com.h2database:h2:1.4.200'
 
-    // Base 32
-    implementation 'dev.keiji.rfc4648:rfc4648:1.0.0'
     // QrCode
     implementation 'com.google.zxing:core:3.4.1'
 
