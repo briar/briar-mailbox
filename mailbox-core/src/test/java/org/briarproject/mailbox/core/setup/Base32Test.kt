@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import java.nio.charset.Charset
 import java.util.Random
 
 class Base32Test {
@@ -16,48 +17,12 @@ class Base32Test {
     @Test
     fun testEncoding() {
         assertEquals("", encode(ByteArray(0)))
-        assertEquals("MY", encode(byteArrayOf('f'.code.toByte())))
-        assertEquals("MZXQ", encode(byteArrayOf('f'.code.toByte(), 'o'.code.toByte())))
-        assertEquals(
-            "MZXW6",
-            encode(byteArrayOf('f'.code.toByte(), 'o'.code.toByte(), 'o'.code.toByte()))
-        )
-        assertEquals(
-            "MZXW6YQ",
-            encode(
-                byteArrayOf(
-                    'f'.code.toByte(),
-                    'o'.code.toByte(),
-                    'o'.code.toByte(),
-                    'b'.code.toByte()
-                )
-            )
-        )
-        assertEquals(
-            "MZXW6YTB",
-            encode(
-                byteArrayOf(
-                    'f'.code.toByte(),
-                    'o'.code.toByte(),
-                    'o'.code.toByte(),
-                    'b'.code.toByte(),
-                    'a'.code.toByte()
-                )
-            )
-        )
-        assertEquals(
-            "MZXW6YTBOI",
-            encode(
-                byteArrayOf(
-                    'f'.code.toByte(),
-                    'o'.code.toByte(),
-                    'o'.code.toByte(),
-                    'b'.code.toByte(),
-                    'a'.code.toByte(),
-                    'r'.code.toByte()
-                )
-            )
-        )
+        assertEquals("MY", encode("f".toUtf8Bytes()))
+        assertEquals("MZXQ", encode("fo".toUtf8Bytes()))
+        assertEquals("MZXW6", encode("foo".toUtf8Bytes()))
+        assertEquals("MZXW6YQ", encode("foob".toUtf8Bytes()))
+        assertEquals("MZXW6YTB", encode("fooba".toUtf8Bytes()))
+        assertEquals("MZXW6YTBOI", encode("foobar".toUtf8Bytes()))
     }
 
     @Test
@@ -72,40 +37,12 @@ class Base32Test {
 
     private fun testDecoding(strict: Boolean) {
         assertArrayEquals(ByteArray(0), decode("", strict))
-        assertArrayEquals(byteArrayOf('f'.code.toByte()), decode("MY", strict))
-        assertArrayEquals(
-            byteArrayOf('f'.code.toByte(), 'o'.code.toByte()),
-            decode("MZXQ", strict)
-        )
-        assertArrayEquals(
-            byteArrayOf('f'.code.toByte(), 'o'.code.toByte(), 'o'.code.toByte()),
-            decode("MZXW6", strict)
-        )
-        assertArrayEquals(
-            byteArrayOf('f'.code.toByte(), 'o'.code.toByte(), 'o'.code.toByte(), 'b'.code.toByte()),
-            decode("MZXW6YQ", strict)
-        )
-        assertArrayEquals(
-            byteArrayOf(
-                'f'.code.toByte(),
-                'o'.code.toByte(),
-                'o'.code.toByte(),
-                'b'.code.toByte(),
-                'a'.code.toByte()
-            ),
-            decode("MZXW6YTB", strict)
-        )
-        assertArrayEquals(
-            byteArrayOf(
-                'f'.code.toByte(),
-                'o'.code.toByte(),
-                'o'.code.toByte(),
-                'b'.code.toByte(),
-                'a'.code.toByte(),
-                'r'.code.toByte()
-            ),
-            decode("MZXW6YTBOI", strict)
-        )
+        assertArrayEquals("f".toUtf8Bytes(), decode("MY", strict))
+        assertArrayEquals("fo".toUtf8Bytes(), decode("MZXQ", strict))
+        assertArrayEquals("foo".toUtf8Bytes(), decode("MZXW6", strict))
+        assertArrayEquals("foob".toUtf8Bytes(), decode("MZXW6YQ", strict))
+        assertArrayEquals("fooba".toUtf8Bytes(), decode("MZXW6YTB", strict))
+        assertArrayEquals("foobar".toUtf8Bytes(), decode("MZXW6YTBOI", strict))
     }
 
     @Test
@@ -126,4 +63,6 @@ class Base32Test {
         assertArrayEquals(data, decode(encode(data), true))
         assertArrayEquals(data, decode(encode(data), false))
     }
+
+    private fun String.toUtf8Bytes() = toByteArray(Charset.forName("UTF-8"))
 }
