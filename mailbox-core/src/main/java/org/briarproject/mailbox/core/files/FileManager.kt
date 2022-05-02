@@ -21,6 +21,7 @@ package org.briarproject.mailbox.core.files
 
 import io.ktor.application.ApplicationCall
 import io.ktor.auth.principal
+import io.ktor.features.BadRequestException
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveStream
 import io.ktor.response.respond
@@ -40,6 +41,7 @@ import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
 
 private val LOG = getLogger(FileManager::class.java)
+internal const val MAX_FILE_SIZE = 1024 * 1024
 
 class FileManager @Inject constructor(
     private val fileProvider: FileProvider,
@@ -86,7 +88,7 @@ class FileRouteManager @Inject constructor(
      * (no 201 as the uploader doesn't need to know the $fileId)
      * The mailbox chooses a random ID string for the file ID.
      */
-    @Throws(AuthException::class, InvalidIdException::class)
+    @Throws(AuthException::class, InvalidIdException::class, BadRequestException::class)
     suspend fun postFile(call: ApplicationCall, folderId: String) {
         val principal: MailboxPrincipal? = call.principal()
         randomIdManager.assertIsRandomId(folderId)
@@ -96,8 +98,20 @@ class FileRouteManager @Inject constructor(
         withContext(Dispatchers.IO) {
             val tmpFile = fileProvider.getTemporaryFile(fileId)
             tmpFile.outputStream().use { outputStream ->
+                @Suppress("BlockingMethodInNonBlockingContext")
                 call.receiveStream().use { inputStream ->
-                    inputStream.copyTo(outputStream)
+                    var bytesCopied: Long = 0
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    var bytes = inputStream.read(buffer)
+                    while (bytes >= 0) {
+                        outputStream.write(buffer, 0, bytes)
+                        bytesCopied += bytes
+                        if (bytesCopied > MAX_FILE_SIZE) {
+                            tmpFile.delete()
+                            throw BadRequestException("File larger than allowed.")
+                        }
+                        bytes = inputStream.read(buffer)
+                    }
                 }
             }
             val file = fileProvider.getFile(folderId, fileId)

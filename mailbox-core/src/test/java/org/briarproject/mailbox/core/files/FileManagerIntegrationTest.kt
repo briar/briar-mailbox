@@ -59,6 +59,18 @@ class FileManagerIntegrationTest : IntegrationTest() {
     }
 
     @Test
+    fun `post new file rejects large file`(): Unit = runBlocking {
+        val maxBytes = Random.nextBytes(MAX_FILE_SIZE + 1)
+        // owner uploads a file above limit
+        val response: HttpResponse = httpClient.post("$baseUrl/files/${contact1.inboxId}") {
+            authenticateWithToken(ownerToken)
+            body = maxBytes
+        }
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+        assertEquals("Bad request: File larger than allowed.", response.readText())
+    }
+
+    @Test
     fun `post new file, list, download and delete it`(): Unit = runBlocking {
         assertEquals(0L, metadataManager.ownerConnectionTime.value)
         // owner uploads the file
