@@ -36,6 +36,7 @@ import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.setup.WipeManager
 import org.briarproject.mailbox.core.system.InvalidIdException
 import org.briarproject.mailbox.core.tor.TorPlugin
+import org.briarproject.mailbox.core.tor.TorState
 import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
 import kotlin.system.exitProcess
@@ -152,7 +153,7 @@ class Main : CliktCommand(
             runBlocking {
                 // wait until Tor becomes active and published the onion service
                 torPlugin.state.takeWhile { state ->
-                    state != TorPlugin.State.PUBLISHED
+                    state != TorState.Published
                 }
             }
             qrCodeEncoder.getQrCodeBitMatrix()?.let {

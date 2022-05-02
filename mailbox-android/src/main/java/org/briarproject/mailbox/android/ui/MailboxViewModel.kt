@@ -43,6 +43,7 @@ import org.briarproject.mailbox.core.setup.SetupComplete
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.DozeWatchdog
 import org.briarproject.mailbox.core.tor.TorPlugin
+import org.briarproject.mailbox.core.tor.TorState
 import javax.inject.Inject
 import kotlin.concurrent.thread
 import kotlin.math.min
@@ -64,7 +65,7 @@ class MailboxViewModel @Inject constructor(
     val doNotKillComplete: LiveData<Boolean> = _doNotKillComplete
 
     private val lifecycleState: StateFlow<LifecycleState> = lifecycleManager.lifecycleStateFlow
-    private val torPluginState: StateFlow<TorPlugin.State> = torPlugin.state
+    private val torPluginState: StateFlow<TorState> = torPlugin.state
 
     val hasDb: LiveData<Boolean> = liveData(Dispatchers.IO) { emit(setupManager.hasDb) }
 
@@ -85,10 +86,10 @@ class MailboxViewModel @Inject constructor(
             ls != LifecycleState.RUNNING -> Starting(
                 resources.getString(R.string.startup_starting_services)
             )
-            ts != TorPlugin.State.PUBLISHED -> when {
-                ts < TorPlugin.State.ACTIVE ->
+            ts != TorState.Published -> when {
+                ts < TorState.Active ->
                     Starting(resources.getString(R.string.startup_starting_tor))
-                ts == TorPlugin.State.INACTIVE -> ErrorNoNetwork
+                ts == TorState.Inactive -> ErrorNoNetwork
                 else -> Starting(resources.getString(R.string.startup_publishing_onion_service))
             }
             sc == SetupComplete.FALSE -> {

@@ -73,11 +73,6 @@ import static org.briarproject.mailbox.core.tor.TorConstants.CONTROL_PORT;
 import static org.briarproject.mailbox.core.tor.TorConstants.HS_ADDRESS_V3;
 import static org.briarproject.mailbox.core.tor.TorConstants.HS_PRIVATE_KEY_V3;
 import static org.briarproject.mailbox.core.tor.TorConstants.SETTINGS_NAMESPACE;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.ACTIVE;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.ENABLING;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.INACTIVE;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.PUBLISHED;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.STARTING_STOPPING;
 import static org.briarproject.mailbox.core.util.IoUtils.copyAndClose;
 import static org.briarproject.mailbox.core.util.IoUtils.tryToClose;
 import static org.briarproject.mailbox.core.util.LogUtils.info;
@@ -166,7 +161,7 @@ public abstract class TorPlugin
 		return new File(torDirectory, "obfs4proxy");
 	}
 
-	public StateFlow<State> getState() {
+	public StateFlow<TorState> getState() {
 		return state.state;
 	}
 
@@ -595,8 +590,8 @@ public abstract class TorPlugin
 	@ThreadSafe
 	protected static class PluginState {
 
-		private final MutableStateFlow<State> state =
-				MutableStateFlow(STARTING_STOPPING);
+		private final MutableStateFlow<TorState> state =
+				MutableStateFlow(TorState.StartingStopping.INSTANCE);
 
 		@GuardedBy("this")
 		private boolean started = false,
@@ -654,45 +649,17 @@ public abstract class TorPlugin
 			state.setValue(getCurrentState());
 		}
 
-		private synchronized State getCurrentState() {
+		private synchronized TorState getCurrentState() {
 			if (!started || stopped) {
-				return STARTING_STOPPING;
+				return TorState.StartingStopping.INSTANCE;
 			}
-			if (!networkInitialised) return ENABLING;
-			if (!networkEnabled) return INACTIVE;
+			if (!networkInitialised) return TorState.Enabling.INSTANCE;
+			if (!networkEnabled) return TorState.Inactive.INSTANCE;
 			if (bootstrapped && circuitBuilt) {
 				return (numServiceUploads >= HS_DESC_UPLOADS) ?
-						PUBLISHED : ACTIVE;
-			} else return ENABLING;
+						TorState.Published.INSTANCE : TorState.Active.INSTANCE;
+			} else return TorState.Enabling.INSTANCE;
 		}
 
-	}
-
-	public enum State {
-		/**
-		 * The plugin has not finished starting or has been stopped.
-		 */
-		STARTING_STOPPING,
-
-		/**
-		 * The plugin is being enabled and can't yet make or receive
-		 * connections.
-		 */
-		ENABLING,
-
-		/**
-		 * The plugin is enabled and can make or receive connections.
-		 */
-		ACTIVE,
-
-		/**
-		 * The plugin has published the onion service.
-		 */
-		PUBLISHED,
-
-		/**
-		 * The plugin is enabled but can't make or receive connections
-		 */
-		INACTIVE
 	}
 }
