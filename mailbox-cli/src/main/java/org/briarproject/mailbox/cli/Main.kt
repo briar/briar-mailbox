@@ -45,16 +45,19 @@ class Main : CliktCommand(
     help = "Command line interface for the Briar Mailbox"
 ) {
     private val wipe by option(
-        "--wipe",
-        help = "Deletes entire mailbox, will require new setup",
+        "--wipe", help = "Deletes entire mailbox, will require new setup",
     ).flag(default = false)
-    private val debug by option("--debug", "-d", help = "Enable printing of debug messages").flag(
-        default = false
-    )
+    private val info by option(
+        "--info", "-i", help = "Enable printing of info messages (alias for -v)"
+    ).flag(default = false)
+    private val debug by option(
+        "--debug", "-d", help = "Enable printing of debug messages (alias for -vv)"
+    ).flag(default = false)
+    private val trace by option(
+        "--trace", "-t", help = "Enable printing of trace messages (alias for -vvv)"
+    ).flag(default = false)
     private val verbosity by option(
-        "--verbose",
-        "-v",
-        help = "Print verbose log messages"
+        "--verbose", "-v", help = "Print verbose log messages"
     ).counted()
     private val setupToken: String? by option("--setup-token", hidden = true)
 
@@ -84,12 +87,21 @@ class Main : CliktCommand(
 
     override fun run() {
         // logging
-        val levelSlf4j = if (debug) Level.DEBUG else when (verbosity) {
+        val levelNamed = when {
+            trace -> Level.TRACE
+            debug -> Level.DEBUG
+            info -> Level.INFO
+            else -> Level.WARN
+        }
+        val levelVerbose = when (verbosity) {
             0 -> Level.WARN
             1 -> Level.INFO
-            else -> Level.DEBUG
+            2 -> Level.DEBUG
+            else -> Level.TRACE
         }
-        (getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = levelSlf4j
+        // Logback level ordering: TRACE < DEBUG < INFO < WARN
+        val level = if (levelNamed.isGreaterOrEqual(levelVerbose)) levelVerbose else levelNamed
+        (getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = level
 
         getLogger(this.javaClass).debug("Hello Mailbox")
         println("Hello Mailbox")
