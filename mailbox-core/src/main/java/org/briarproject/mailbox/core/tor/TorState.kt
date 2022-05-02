@@ -19,34 +19,30 @@
 
 package org.briarproject.mailbox.core.tor
 
-sealed class TorState(private val id: Int) {
-    operator fun compareTo(other: TorState): Int {
-        return id.compareTo(other.id)
-    }
-
+sealed class TorState {
     /**
      * The plugin has not finished starting or has been stopped.
      */
-    object StartingStopping : TorState(0)
+    object StartingStopping : TorState()
 
     /**
      * The plugin is being enabled and can't yet make or receive
      * connections.
      */
-    object Enabling : TorState(1)
+    class Enabling(val percent: Int) : TorState()
 
     /**
      * The plugin is enabled and can make or receive connections.
      */
-    object Active : TorState(2)
+    object Active : TorState()
 
     /**
      * The plugin has published the onion service.
      */
-    object Published : TorState(3)
+    object Published : TorState()
 
     /**
      * The plugin is enabled but can't make or receive connections
      */
-    object Inactive : TorState(4)
+    object Inactive : TorState()
 }

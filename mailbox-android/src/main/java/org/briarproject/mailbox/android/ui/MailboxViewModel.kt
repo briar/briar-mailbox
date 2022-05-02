@@ -22,6 +22,7 @@ package org.briarproject.mailbox.android.ui
 import android.app.Application
 import android.content.res.Resources
 import android.graphics.Bitmap
+import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -81,16 +82,15 @@ class MailboxViewModel @Inject constructor(
     val setupState = combine(
         lifecycleState, torPluginState, setupManager.setupComplete
     ) { ls, ts, sc ->
-        val resources = getApplication<Application>().resources
         when {
-            ls != LifecycleState.RUNNING -> Starting(
-                resources.getString(R.string.startup_starting_services)
-            )
-            ts != TorState.Published -> when {
-                ts < TorState.Active ->
-                    Starting(resources.getString(R.string.startup_starting_tor))
-                ts == TorState.Inactive -> ErrorNoNetwork
-                else -> Starting(resources.getString(R.string.startup_publishing_onion_service))
+            ls != LifecycleState.RUNNING -> Starting(getString(R.string.startup_starting_services))
+            ts != TorState.Published -> when (ts) {
+                TorState.StartingStopping ->
+                    Starting(getString(R.string.startup_starting_tor))
+                is TorState.Enabling ->
+                    Starting(getString(R.string.startup_bootstrapping_tor, ts.percent))
+                TorState.Inactive -> ErrorNoNetwork
+                else -> Starting(getString(R.string.startup_publishing_onion_service))
             }
             sc == SetupComplete.FALSE -> {
                 val dm = Resources.getSystem().displayMetrics
@@ -129,5 +129,9 @@ class MailboxViewModel @Inject constructor(
     }
 
     fun getAndResetDozeFlag() = dozeWatchdog.andResetDozeFlag
+
+    private fun getString(@StringRes resId: Int, vararg formatArgs: Any?): String {
+        return getApplication<Application>().getString(resId, *formatArgs)
+    }
 
 }
