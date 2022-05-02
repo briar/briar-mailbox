@@ -22,7 +22,6 @@ package org.briarproject.mailbox.core.setup
 import com.google.zxing.BarcodeFormat.QR_CODE
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.QRCodeWriter
-import dev.keiji.util.Base32
 import org.briarproject.mailbox.core.db.DbException
 import org.briarproject.mailbox.core.db.TransactionManager
 import org.briarproject.mailbox.core.tor.TorPlugin
@@ -73,7 +72,7 @@ class QrCodeEncoder @Inject constructor(
             LOG.error("Hidden service address not yet available")
             return null
         }
-        val addressBytes = Base32.decode(addressString.uppercase())
+        val addressBytes = Base32.decode(addressString.uppercase(), true)
         check(addressBytes.size == 35) { "$addressString not 35 bytes long" }
         return addressBytes.copyOfRange(0, 32)
     }

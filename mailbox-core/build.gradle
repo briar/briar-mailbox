@@ -31,8 +31,6 @@ dependencies {
     //noinspection GradleDependency
     implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
 
-    // Base 32
-    implementation 'dev.keiji.rfc4648:rfc4648:1.0.0'
     // QrCode
     implementation 'com.google.zxing:core:3.4.1'
 
