@@ -52,6 +52,14 @@
             </intent-filter>
         </receiver>
 
+        <activity
+            android:name=".android.ui.StartupFailureActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:finishOnTaskLaunch="true"
+            android:label="@string/startup_failed_activity_title"
+            android:launchMode="singleInstance"
+            android:process=":briar_mailbox_startup_failure" />
     </application>
 
 </manifest>

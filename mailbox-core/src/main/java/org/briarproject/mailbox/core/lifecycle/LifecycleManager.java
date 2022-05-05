@@ -39,6 +39,7 @@ public interface LifecycleManager {
 	 */
 	enum StartResult {
 		SERVICE_ERROR,
+		LIFECYCLE_REUSE,
 		SUCCESS
 	}
 

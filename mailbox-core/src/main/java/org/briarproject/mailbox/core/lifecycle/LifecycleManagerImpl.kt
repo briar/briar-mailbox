@@ -35,6 +35,7 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.S
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.WIPING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.OpenDatabaseHook
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.LIFECYCLE_REUSE
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
 import org.briarproject.mailbox.core.setup.WipeManager
@@ -114,8 +115,8 @@ internal class LifecycleManagerImpl @Inject constructor(
         }
         LOG.info("checking state: ${state.value}")
         if (!state.compareAndSet(NOT_STARTED, STARTING)) {
-            LOG.info("not in NOT_STARTED state")
-            return SERVICE_ERROR
+            LOG.warn("Invalid state: ${state.value}")
+            return LIFECYCLE_REUSE
         }
         return try {
             LOG.info("Opening database")
