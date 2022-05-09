@@ -87,6 +87,8 @@ public abstract class TorPlugin
 		implements Service, EventHandler, EventListener {
 
 	private static final Logger LOG = getLogger(TorPlugin.class);
+	private static final Logger LOG_TOR_STDOUT = getLogger("tor.stdout");
+	private static final Logger LOG_TOR_STDERR = getLogger("tor.stderr");
 
 	private static final String[] EVENTS = {
 			"CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
@@ -100,7 +102,7 @@ public abstract class TorPlugin
 	 * In reality, the actual reachability is more complicated,
 	 * but this might be a reasonable heuristic.
 	 */
-	private static final int HS_DESC_UPLOADS = 3;
+	private static final int HS_DESC_UPLOADS = 1;
 	private final Pattern bootstrapPattern =
 			Pattern.compile("^Bootstrapped ([0-9]{1,3})%.*$");
 
@@ -205,10 +207,10 @@ public abstract class TorPlugin
 			Scanner stderr = new Scanner(torProcess.getErrorStream());
 			while (stdout.hasNextLine() || stderr.hasNextLine()) {
 				if (stdout.hasNextLine()) {
-					LOG.info(stdout.nextLine());
+					LOG_TOR_STDOUT.info(stdout.nextLine());
 				}
 				if (stderr.hasNextLine()) {
-					LOG.info(stderr.nextLine());
+					LOG_TOR_STDERR.info(stderr.nextLine());
 				}
 			}
 			stdout.close();
