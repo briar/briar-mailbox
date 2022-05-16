@@ -29,8 +29,8 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.ui.MailboxViewModel.ErrorNoNetwork
-import org.briarproject.mailbox.android.ui.MailboxViewModel.MailboxStartupProgress
+import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
+import org.briarproject.mailbox.android.StatusManager.MailboxStartupProgress
 import org.briarproject.mailbox.android.ui.NoNetworkFragmentDirections.actionNoNetworkFragmentToStartupFragment
 
 @AndroidEntryPoint

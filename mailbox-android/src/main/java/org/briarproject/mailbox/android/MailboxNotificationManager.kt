@@ -33,10 +33,16 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_MIN
 import androidx.core.content.ContextCompat.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.MailboxService.MailboxStartupProgress
-import org.briarproject.mailbox.android.MailboxService.StartedSetupComplete
-import org.briarproject.mailbox.android.MailboxService.Starting
+import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
+import org.briarproject.mailbox.android.StatusManager.MailboxStartupProgress
+import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
+import org.briarproject.mailbox.android.StatusManager.StartedSetupComplete
+import org.briarproject.mailbox.android.StatusManager.Starting
 import org.briarproject.mailbox.android.ui.MainActivity
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -44,6 +50,7 @@ import javax.inject.Singleton
 @Singleton
 class MailboxNotificationManager @Inject constructor(
     @ApplicationContext private val ctx: Context,
+    statusManager: StatusManager,
 ) {
 
     companion object {
@@ -56,6 +63,14 @@ class MailboxNotificationManager @Inject constructor(
 
     init {
         if (SDK_INT >= 26) createNotificationChannels()
+
+        val setupState = statusManager.setupState
+
+        GlobalScope.launch(Dispatchers.IO) {
+            setupState.collect {
+                updateNotification(it)
+            }
+        }
     }
 
     @RequiresApi(26)
@@ -65,12 +80,14 @@ class MailboxNotificationManager @Inject constructor(
                 CHANNEL_ID,
                 ctx.getString(R.string.notification_channel_name),
                 IMPORTANCE_LOW,
-            )
+            ).apply {
+                setShowBadge(false)
+            }
         )
         nm.createNotificationChannels(channels)
     }
 
-    fun updateNotification(status: MailboxStartupProgress) {
+    private fun updateNotification(status: MailboxStartupProgress) {
         val notification = getServiceNotification(status)
         nm.notify(NOTIFICATION_MAIN_ID, notification)
     }
@@ -83,15 +100,20 @@ class MailboxNotificationManager @Inject constructor(
         )
         return NotificationCompat.Builder(ctx, CHANNEL_ID).apply {
             when (status) {
-                Starting -> {
+                is Starting -> {
                     setContentTitle(ctx.getString(R.string.notification_mailbox_title_starting))
                     setContentText(ctx.getString(R.string.notification_mailbox_content_starting))
                 }
-                MailboxService.StartedSettingUp -> {
+                is StartedSettingUp -> {
                     setContentTitle(ctx.getString(R.string.notification_mailbox_title_setup))
                     setContentText(ctx.getString(R.string.notification_mailbox_content_setup))
                 }
                 StartedSetupComplete -> {
+                    setContentTitle(ctx.getString(R.string.notification_mailbox_title_running))
+                    setContentText(ctx.getString(R.string.notification_mailbox_content_running))
+                }
+                // TODO: set different message here?!
+                ErrorNoNetwork -> {
                     setContentTitle(ctx.getString(R.string.notification_mailbox_title_running))
                     setContentText(ctx.getString(R.string.notification_mailbox_content_running))
                 }

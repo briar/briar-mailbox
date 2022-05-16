@@ -20,9 +20,6 @@
 package org.briarproject.mailbox.android.ui
 
 import android.app.Application
-import android.content.res.Resources
-import android.graphics.Bitmap
-import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -30,24 +27,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOn
 import org.briarproject.android.dontkillmelib.DozeHelper
-import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.MailboxService
-import org.briarproject.mailbox.android.QrCodeUtils
+import org.briarproject.mailbox.android.StatusManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
-import org.briarproject.mailbox.core.setup.QrCodeEncoder
-import org.briarproject.mailbox.core.setup.SetupComplete
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.DozeWatchdog
-import org.briarproject.mailbox.core.tor.TorPlugin
-import org.briarproject.mailbox.core.tor.TorState
 import javax.inject.Inject
 import kotlin.concurrent.thread
-import kotlin.math.min
 
 @HiltViewModel
 class MailboxViewModel @Inject constructor(
@@ -56,8 +43,7 @@ class MailboxViewModel @Inject constructor(
     private val dozeWatchdog: DozeWatchdog,
     private val lifecycleManager: LifecycleManager,
     private val setupManager: SetupManager,
-    private val qrCodeEncoder: QrCodeEncoder,
-    torPlugin: TorPlugin,
+    statusManager: StatusManager,
 ) : AndroidViewModel(app) {
 
     val needToShowDoNotKillMeFragment get() = dozeHelper.needToShowDoNotKillMeFragment(app)
@@ -65,47 +51,9 @@ class MailboxViewModel @Inject constructor(
     private val _doNotKillComplete = MutableLiveData<Boolean>()
     val doNotKillComplete: LiveData<Boolean> = _doNotKillComplete
 
-    private val lifecycleState: StateFlow<LifecycleState> = lifecycleManager.lifecycleStateFlow
-    private val torPluginState: StateFlow<TorState> = torPlugin.state
-
     val hasDb: LiveData<Boolean> = liveData(Dispatchers.IO) { emit(setupManager.hasDb) }
 
-    /**
-     * Possible values for [setupState]
-     */
-    sealed interface MailboxStartupProgress
-    class Starting(val status: String) : MailboxStartupProgress
-    class StartedSettingUp(val qrCode: Bitmap) : MailboxStartupProgress
-    object StartedSetupComplete : MailboxStartupProgress
-    object ErrorNoNetwork : MailboxStartupProgress
-
-    val setupState = combine(
-        lifecycleState, torPluginState, setupManager.setupComplete
-    ) { ls, ts, sc ->
-        when {
-            ls != LifecycleState.RUNNING -> Starting(getString(R.string.startup_starting_services))
-            ts != TorState.Published -> when (ts) {
-                TorState.StartingStopping ->
-                    Starting(getString(R.string.startup_starting_tor))
-                is TorState.Enabling ->
-                    Starting(getString(R.string.startup_bootstrapping_tor, ts.percent))
-                TorState.Inactive -> ErrorNoNetwork
-                else -> Starting(getString(R.string.startup_publishing_onion_service))
-            }
-            sc == SetupComplete.FALSE -> {
-                val dm = Resources.getSystem().displayMetrics
-                val size = min(dm.widthPixels, dm.heightPixels)
-                val bitMatrix = qrCodeEncoder.getQrCodeBitMatrix(size)
-                StartedSettingUp(
-                    bitMatrix?.let { it -> QrCodeUtils.renderQrCode(it) }
-                        ?: error("The QR code bit matrix is expected to be non-null here")
-                )
-            }
-            sc == SetupComplete.TRUE -> StartedSetupComplete
-            // else means sc == SetupComplete.UNKNOWN
-            else -> error("Expected setup completion to be known at this point")
-        }
-    }.flowOn(Dispatchers.IO)
+    val setupState = statusManager.setupState
 
     @UiThread
     fun onDoNotKillComplete() {
@@ -129,9 +77,5 @@ class MailboxViewModel @Inject constructor(
     }
 
     fun getAndResetDozeFlag() = dozeWatchdog.andResetDozeFlag
-
-    private fun getString(@StringRes resId: Int, vararg formatArgs: Any?): String {
-        return getApplication<Application>().getString(resId, *formatArgs)
-    }
 
 }

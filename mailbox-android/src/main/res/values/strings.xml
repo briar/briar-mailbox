@@ -33,7 +33,7 @@
     <string name="startup_starting_services">Starting services</string>
     <string name="startup_starting_tor">Starting Tor</string>
     <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
-    <string name="startup_bootstrapping_tor">Bootstrapping Tor (%d\%%)</string>
+    <string name="startup_bootstrapping_tor">Bootstrapping Tor (%d%%)</string>
     <string name="startup_publishing_onion_service">Publishing onion service</string>
 
     <string name="no_network_title">Device offline?</string>
