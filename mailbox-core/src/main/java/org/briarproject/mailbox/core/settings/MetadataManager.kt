@@ -31,9 +31,14 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.OpenDatabaseHook
 import org.briarproject.mailbox.core.server.AuthException
 import org.briarproject.mailbox.core.server.AuthManager
+import org.briarproject.mailbox.core.settings.MetadataManager.Companion.SUPPORTED_VERSIONS
 import javax.inject.Inject
 
 interface MetadataManager : OpenDatabaseHook {
+
+    companion object {
+        internal val SUPPORTED_VERSIONS = listOf(MailboxVersion(1, 0))
+    }
 
     /**
      * Call this after the owner authenticated.
@@ -89,4 +94,21 @@ class MetadataRouteManager @Inject constructor(
         authManager.assertIsOwner(call.principal())
         call.respond(HttpStatusCode.OK)
     }
+
+    /**
+     * Handler for `GET /versions` API endpoint.
+     *
+     * Returns supported versions and a 200 status code.
+     */
+    suspend fun onVersionsRequest(call: ApplicationCall) {
+        authManager.assertIsOwner(call.principal())
+
+        val response = VersionsResponse(SUPPORTED_VERSIONS)
+
+        call.respond(HttpStatusCode.OK, response)
+    }
 }
+
+internal data class MailboxVersion(val major: Int, val minor: Int)
+
+internal data class VersionsResponse(val serverSupports: List<MailboxVersion>)

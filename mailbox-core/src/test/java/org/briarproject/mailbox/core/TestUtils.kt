@@ -67,12 +67,25 @@ object TestUtils {
     }
 
     /**
-     * Asserts that response is OK and contains the expected JSON. The expected JSON can be
-     * specified in arbitrary formatting as it will be prettified before comparing it to the
-     * response, which will be prettified, too.
+     * Asserts that response is OK and contains the expected JSON.
+     * The expected JSON can be specified in arbitrary formatting as it will be prettified before
+     * comparing it to the response, which will be prettified, too.
      */
     suspend fun assertJson(expectedJson: String, response: HttpResponse) {
-        assertEquals(HttpStatusCode.OK, response.status)
+        assertJson(HttpStatusCode.OK, expectedJson, response)
+    }
+
+    /**
+     * Asserts that response code is the expected one and contains the expected JSON.
+     * The expected JSON can be specified in arbitrary formatting as it will be prettified before
+     * comparing it to the response, which will be prettified, too.
+     */
+    suspend fun assertJson(
+        expectedCode: HttpStatusCode,
+        expectedJson: String,
+        response: HttpResponse,
+    ) {
+        assertEquals(expectedCode, response.status)
         val mapper = ObjectMapper()
         val expectedValue: Any = mapper.readValue(expectedJson, Any::class.java)
         val expected = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(expectedValue)

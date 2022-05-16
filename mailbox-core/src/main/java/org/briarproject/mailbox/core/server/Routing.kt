@@ -52,6 +52,13 @@ internal fun Application.configureBasicApi(
     setupRouteManager: SetupRouteManager,
     wipeRouteManager: WipeRouteManager,
 ) = routing {
+    authenticate {
+        get("/versions") {
+            call.handle {
+                metadataRouteManager.onVersionsRequest(call)
+            }
+        }
+    }
     route(V) {
         get {
             call.respondText(
