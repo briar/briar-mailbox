@@ -53,6 +53,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
 import javax.annotation.Nullable;
@@ -73,11 +75,6 @@ import static org.briarproject.mailbox.core.tor.TorConstants.CONTROL_PORT;
 import static org.briarproject.mailbox.core.tor.TorConstants.HS_ADDRESS_V3;
 import static org.briarproject.mailbox.core.tor.TorConstants.HS_PRIVATE_KEY_V3;
 import static org.briarproject.mailbox.core.tor.TorConstants.SETTINGS_NAMESPACE;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.ACTIVE;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.ENABLING;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.INACTIVE;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.PUBLISHED;
-import static org.briarproject.mailbox.core.tor.TorPlugin.State.STARTING_STOPPING;
 import static org.briarproject.mailbox.core.util.IoUtils.copyAndClose;
 import static org.briarproject.mailbox.core.util.IoUtils.tryToClose;
 import static org.briarproject.mailbox.core.util.LogUtils.info;
@@ -104,6 +101,8 @@ public abstract class TorPlugin
 	 * but this might be a reasonable heuristic.
 	 */
 	private static final int HS_DESC_UPLOADS = 3;
+	private final Pattern bootstrapPattern =
+			Pattern.compile("^Bootstrapped ([0-9]{1,3})%.*$");
 
 	private final Executor ioExecutor;
 	private final Executor connectionStatusExecutor;
@@ -166,7 +165,7 @@ public abstract class TorPlugin
 		return new File(torDirectory, "obfs4proxy");
 	}
 
-	public StateFlow<State> getState() {
+	public StateFlow<TorState> getState() {
 		return state.state;
 	}
 
@@ -254,7 +253,7 @@ public abstract class TorPlugin
 			String phase = controlConnection.getInfo("status/bootstrap-phase");
 			if (phase != null && phase.contains("PROGRESS=100")) {
 				LOG.info("Tor has already bootstrapped");
-				state.setBootstrapped();
+				state.setBootstrapPercent(100);
 			}
 		} catch (IOException e) {
 			throw new ServiceException(e);
@@ -500,8 +499,15 @@ public abstract class TorPlugin
 	public void message(String severity, String msg) {
 		info(LOG, () -> severity + " " + msg);
 		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
-			state.setBootstrapped();
+			state.setBootstrapPercent(100);
 			backoff.reset();
+		} else if (severity.equals("NOTICE")) {
+			Matcher matcher = bootstrapPattern.matcher(msg);
+			if (matcher.matches()) {
+				String percentStr = matcher.group(1);
+				int percent = Integer.parseInt(percentStr);
+				state.setBootstrapPercent(percent);
+			}
 		}
 	}
 
@@ -595,18 +601,17 @@ public abstract class TorPlugin
 	@ThreadSafe
 	protected static class PluginState {
 
-		private final MutableStateFlow<State> state =
-				MutableStateFlow(STARTING_STOPPING);
+		private final MutableStateFlow<TorState> state =
+				MutableStateFlow(TorState.StartingStopping.INSTANCE);
 
 		@GuardedBy("this")
 		private boolean started = false,
 				stopped = false,
 				networkInitialised = false,
 				networkEnabled = false,
-				bootstrapped = false,
 				circuitBuilt = false;
 		@GuardedBy("this")
-		private int numServiceUploads = 0;
+		private int bootstrapPercent = 0, numServiceUploads = 0;
 
 		@GuardedBy("this")
 		@Nullable
@@ -630,8 +635,11 @@ public abstract class TorPlugin
 			return ss;
 		}
 
-		synchronized void setBootstrapped() {
-			bootstrapped = true;
+		synchronized void setBootstrapPercent(int percent) {
+			if (percent < 0 || percent > 100) {
+				throw new IllegalArgumentException("percent: " + percent);
+			}
+			bootstrapPercent = percent;
 			state.setValue(getCurrentState());
 		}
 
@@ -654,45 +662,19 @@ public abstract class TorPlugin
 			state.setValue(getCurrentState());
 		}
 
-		private synchronized State getCurrentState() {
+		private synchronized TorState getCurrentState() {
 			if (!started || stopped) {
-				return STARTING_STOPPING;
+				return TorState.StartingStopping.INSTANCE;
 			}
-			if (!networkInitialised) return ENABLING;
-			if (!networkEnabled) return INACTIVE;
-			if (bootstrapped && circuitBuilt) {
+			if (!networkInitialised) {
+				return new TorState.Enabling(bootstrapPercent);
+			}
+			if (!networkEnabled) return TorState.Inactive.INSTANCE;
+			if (bootstrapPercent == 100 && circuitBuilt) {
 				return (numServiceUploads >= HS_DESC_UPLOADS) ?
-						PUBLISHED : ACTIVE;
-			} else return ENABLING;
+						TorState.Published.INSTANCE : TorState.Active.INSTANCE;
+			} else return new TorState.Enabling(bootstrapPercent);
 		}
 
-	}
-
-	public enum State {
-		/**
-		 * The plugin has not finished starting or has been stopped.
-		 */
-		STARTING_STOPPING,
-
-		/**
-		 * The plugin is being enabled and can't yet make or receive
-		 * connections.
-		 */
-		ENABLING,
-
-		/**
-		 * The plugin is enabled and can make or receive connections.
-		 */
-		ACTIVE,
-
-		/**
-		 * The plugin has published the onion service.
-		 */
-		PUBLISHED,
-
-		/**
-		 * The plugin is enabled but can't make or receive connections
-		 */
-		INACTIVE
 	}
 }
