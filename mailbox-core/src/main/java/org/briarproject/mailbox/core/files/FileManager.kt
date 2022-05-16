@@ -38,6 +38,8 @@ import org.briarproject.mailbox.core.setup.WipeManager
 import org.briarproject.mailbox.core.system.InvalidIdException
 import org.briarproject.mailbox.core.system.RandomIdManager
 import org.slf4j.LoggerFactory.getLogger
+import java.io.InputStream
+import java.io.OutputStream
 import javax.inject.Inject
 
 private val LOG = getLogger(FileManager::class.java)
@@ -98,19 +100,12 @@ class FileRouteManager @Inject constructor(
         withContext(Dispatchers.IO) {
             val tmpFile = fileProvider.getTemporaryFile(fileId)
             tmpFile.outputStream().use { outputStream ->
-                @Suppress("BlockingMethodInNonBlockingContext")
                 call.receiveStream().use { inputStream ->
-                    var bytesCopied: Long = 0
-                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                    var bytes = inputStream.read(buffer)
-                    while (bytes >= 0) {
-                        outputStream.write(buffer, 0, bytes)
-                        bytesCopied += bytes
-                        if (bytesCopied > MAX_FILE_SIZE) {
-                            tmpFile.delete()
-                            throw BadRequestException("File larger than allowed.")
-                        }
-                        bytes = inputStream.read(buffer)
+                    try {
+                        copyFile(inputStream, outputStream)
+                    } catch (e: Exception) {
+                        tmpFile.delete()
+                        throw e
                     }
                 }
             }
@@ -119,6 +114,20 @@ class FileRouteManager @Inject constructor(
         }
 
         call.respond(HttpStatusCode.OK)
+    }
+
+    private fun copyFile(inputStream: InputStream, outputStream: OutputStream) {
+        var bytesCopied: Long = 0
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        var bytes = inputStream.read(buffer)
+        while (bytes >= 0) {
+            outputStream.write(buffer, 0, bytes)
+            bytesCopied += bytes
+            if (bytesCopied > MAX_FILE_SIZE) {
+                throw BadRequestException("File larger than allowed.")
+            }
+            bytes = inputStream.read(buffer)
+        }
     }
 
     /**
