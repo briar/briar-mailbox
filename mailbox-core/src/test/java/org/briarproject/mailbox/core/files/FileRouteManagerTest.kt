@@ -2,6 +2,7 @@ package org.briarproject.mailbox.core.files
 
 import io.ktor.application.ApplicationCall
 import io.ktor.auth.principal
+import io.ktor.features.BadRequestException
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveStream
 import io.ktor.response.respond
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayInputStream
 import java.io.File
 import kotlin.random.Random
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -48,6 +50,25 @@ class FileRouteManagerTest {
 
     @Test
     fun `post new file stores file correctly`(@TempDir tempDir: File) = runBlocking {
+        postFile(tempDir, bytes)
+    }
+
+    @Test
+    fun `post a new file with max size gets accepted`(@TempDir tempDir: File) = runBlocking {
+        val maxBytes = Random.nextBytes(MAX_FILE_SIZE)
+        postFile(tempDir, maxBytes)
+    }
+
+    @Test
+    fun `post file above max size gets rejected`(@TempDir tempDir: File) = runBlocking {
+        val maxBytes = Random.nextBytes(MAX_FILE_SIZE + 1)
+        assertFailsWith<BadRequestException> {
+            postFile(tempDir, maxBytes)
+        }
+        Unit
+    }
+
+    private suspend fun postFile(tempDir: File, bytes: ByteArray) {
         val tmpFile = File(tempDir, "tmp")
         val finalFile = File(tempDir, "final")
 

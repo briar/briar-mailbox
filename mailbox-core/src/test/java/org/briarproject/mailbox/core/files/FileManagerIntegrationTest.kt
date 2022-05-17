@@ -15,8 +15,10 @@ import org.briarproject.mailbox.core.server.IntegrationTest
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.io.File
 import kotlin.random.Random
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class FileManagerIntegrationTest : IntegrationTest() {
 
@@ -59,6 +61,19 @@ class FileManagerIntegrationTest : IntegrationTest() {
     }
 
     @Test
+    fun `post new file rejects large file`(): Unit = runBlocking {
+        val maxBytes = Random.nextBytes(MAX_FILE_SIZE + 1)
+        // owner uploads a file above limit
+        val response: HttpResponse = httpClient.post("$baseUrl/files/${contact1.inboxId}") {
+            authenticateWithToken(ownerToken)
+            body = maxBytes
+        }
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+        assertEquals("Bad request: File larger than allowed.", response.readText())
+        assertNoTmpFiles()
+    }
+
+    @Test
     fun `post new file, list, download and delete it`(): Unit = runBlocking {
         assertEquals(0L, metadataManager.ownerConnectionTime.value)
         // owner uploads the file
@@ -67,6 +82,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             body = bytes
         }
         assertEquals(HttpStatusCode.OK, response.status)
+        assertNoTmpFiles()
         // owner connection got registered
         assertTimestampRecent(metadataManager.ownerConnectionTime.value)
 
@@ -100,6 +116,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
                 authenticateWithToken(contact1.token)
             }
         assertEquals(0, emptyFileListResponse.files.size)
+        assertNoTmpFiles()
     }
 
     @Test
@@ -322,5 +339,12 @@ class FileManagerIntegrationTest : IntegrationTest() {
         assertEquals(folderList, folderListResponse.folders.toSet())
         // owner connection got registered
         assertTimestampRecent(metadataManager.ownerConnectionTime.value)
+    }
+
+    private fun assertNoTmpFiles() {
+        val dir = requireNotNull(this.tempDir)
+        val tmp = File(dir, "tmp")
+        assertTrue(tmp.isDirectory)
+        assertEquals(0, tmp.listFiles()?.size)
     }
 }

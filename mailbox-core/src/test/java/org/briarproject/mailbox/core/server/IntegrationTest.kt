@@ -61,6 +61,7 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
     protected val id = getNewRandomId()
     protected val contact1 = getNewRandomContact()
     protected val contact2 = getNewRandomContact()
+    protected var tempDir: File? = null
 
     @Volatile
     protected var exceptionInBackgroundThread: Throwable? = null
@@ -76,6 +77,7 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
 
     @BeforeAll
     fun setUp(@TempDir tempDir: File) {
+        this.tempDir = tempDir
         testComponent = DaggerTestComponent.builder().testModule(TestModule(tempDir)).build()
         testComponent.injectCoreEagerSingletons()
         assertFalse(setupManager.hasDb)
