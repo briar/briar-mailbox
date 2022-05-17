@@ -27,11 +27,15 @@ import android.content.IntentFilter
 import android.os.IBinder
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
+import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
+import org.briarproject.mailbox.android.StatusManager.Starting
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
+import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.AndroidWakeLock
 import org.briarproject.mailbox.core.system.AndroidWakeLockManager
+import org.briarproject.mailbox.core.tor.TorPlugin
 import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -70,6 +74,12 @@ class MailboxService : Service() {
     @Inject
     internal lateinit var notificationManager: MailboxNotificationManager
 
+    @Inject
+    internal lateinit var torPlugin: TorPlugin
+
+    @Inject
+    internal lateinit var setupManager: SetupManager
+
     private lateinit var lifecycleWakeLock: AndroidWakeLock
 
     override fun onCreate() {
@@ -84,7 +94,12 @@ class MailboxService : Service() {
             return
         }
 
-        startForeground(NOTIFICATION_MAIN_ID, notificationManager.serviceNotification)
+        startForeground(
+            NOTIFICATION_MAIN_ID,
+            notificationManager.getServiceNotification(
+                Starting(getString(R.string.startup_starting_services))
+            )
+        )
 
         // We hold a wake lock during the whole lifecycle. We have a one-to-one relationship
         // between MailboxService and the LifecycleManager. As we do not support lifecycle restarts
