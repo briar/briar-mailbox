@@ -5,6 +5,10 @@
         <item name="android:textColor">?attr/colorSecondary</item>
     </style>
 
+    <style name="TextButtonDestructive" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/destructive_action</item>
+    </style>
+
     <style name="PowerIcon">
         <item name="android:background">@drawable/ic_circle</item>
         <!-- Figma had #222E3C as backgroundTint, but the style guide's closest is this -->

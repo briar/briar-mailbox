@@ -24,6 +24,7 @@ import androidx.annotation.UiThread
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +32,7 @@ import org.briarproject.android.dontkillmelib.DozeHelper
 import org.briarproject.mailbox.android.MailboxService
 import org.briarproject.mailbox.android.StatusManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.settings.MetadataManager
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.DozeWatchdog
 import javax.inject.Inject
@@ -44,6 +46,7 @@ class MailboxViewModel @Inject constructor(
     private val lifecycleManager: LifecycleManager,
     private val setupManager: SetupManager,
     statusManager: StatusManager,
+    private val metadataManager: MetadataManager,
 ) : AndroidViewModel(app) {
 
     val needToShowDoNotKillMeFragment get() = dozeHelper.needToShowDoNotKillMeFragment(app)
@@ -54,6 +57,11 @@ class MailboxViewModel @Inject constructor(
     val hasDb: LiveData<Boolean> = liveData(Dispatchers.IO) { emit(setupManager.hasDb) }
 
     val setupState = statusManager.setupState
+
+    val lastAccess: LiveData<Long> = metadataManager.ownerConnectionTime.asLiveData()
+
+    private val _wipeComplete = MutableLiveData<Boolean>()
+    val wipeComplete: LiveData<Boolean> = _wipeComplete
 
     @UiThread
     fun onDoNotKillComplete() {
@@ -72,7 +80,9 @@ class MailboxViewModel @Inject constructor(
         thread {
             // TODO: handle return value
             lifecycleManager.wipeMailbox()
+            lifecycleManager.waitForShutdown()
             MailboxService.stopService(getApplication())
+            _wipeComplete.postValue(true)
         }
     }
 
