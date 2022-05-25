@@ -40,7 +40,6 @@ public class AndroidTaskSchedulerModule {
 	@Singleton
 	AndroidTaskScheduler provideAndroidTaskScheduler(
 			LifecycleManager lifecycleManager, Application app,
-			AndroidWakeLockManager wakeLockManager,
 			ScheduledExecutorService scheduledExecutorService) {
 		AndroidTaskScheduler scheduler = new AndroidTaskScheduler(app,
 				scheduledExecutorService);

@@ -35,19 +35,27 @@ import org.briarproject.mailbox.core.server.AuthManager
 import org.briarproject.mailbox.core.server.MailboxPrincipal
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.setup.WipeManager
+import org.briarproject.mailbox.core.system.Clock
 import org.briarproject.mailbox.core.system.InvalidIdException
 import org.briarproject.mailbox.core.system.RandomIdManager
 import org.slf4j.LoggerFactory.getLogger
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.concurrent.TimeUnit.DAYS
 import javax.inject.Inject
 
 private val LOG = getLogger(FileManager::class.java)
 internal const val MAX_FILE_SIZE = 1024 * 1024
 
+/**
+ * Delete stale files older than this value in milliseconds.
+ */
+private val STALE_FILE_DELETION_AGE = DAYS.toMillis(30)
+
 class FileManager @Inject constructor(
     private val fileProvider: FileProvider,
     private val dbConfig: DatabaseConfig,
+    private val clock: Clock,
 ) {
 
     /**
@@ -73,6 +81,16 @@ class FileManager @Inject constructor(
             LOG.warn("Could not delete folders.")
         }
         return allDeleted
+    }
+
+    internal fun deleteStaleFiles(minAge: Long = STALE_FILE_DELETION_AGE) {
+        LOG.info("Deleting stale files...")
+        val now = clock.currentTimeMillis()
+        fileProvider.folderRoot.listFiles()?.forEach { folder ->
+            if (folder.isDirectory) folder.listFiles()?.forEach { file ->
+                if (now - file.lastModified() > minAge) file.delete()
+            }
+        }
     }
 }
 
