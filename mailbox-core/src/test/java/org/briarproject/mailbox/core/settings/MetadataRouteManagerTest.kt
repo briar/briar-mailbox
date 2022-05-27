@@ -32,11 +32,12 @@ class MetadataRouteManagerTest : IntegrationTest() {
     }
 
     @Test
-    fun `contact cannot access status`(): Unit = runBlocking {
+    fun `contact can access status`(): Unit = runBlocking {
         val response: HttpResponse = httpClient.get("$baseUrl/status") {
             authenticateWithToken(contact1.token)
         }
-        assertEquals(HttpStatusCode.Unauthorized, response.status)
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals("", response.readText())
     }
 
     @Test
