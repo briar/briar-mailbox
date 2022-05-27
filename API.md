@@ -74,17 +74,15 @@ DELETE /
 
 Returns an empty `204 No Content` response if successful or an error code if not.
 
-### Status request (owner only)
+### Status request (owner and contacts)
 
-Gets info about whether mailbox is running.
+Checks whether mailbox is running.
 
 ```http
 GET /status
 ```
 
 Always returns `200 OK`.
-Later we could add other info like how much data is waiting to be downloaded by contacts and the owner.
-
 
 ## Contact Management (owner only)
 

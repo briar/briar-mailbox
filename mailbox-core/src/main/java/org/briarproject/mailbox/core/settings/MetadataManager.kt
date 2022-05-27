@@ -91,7 +91,6 @@ class MetadataRouteManager @Inject constructor(
      */
     @Throws(AuthException::class)
     suspend fun onStatusRequest(call: ApplicationCall) {
-        authManager.assertIsOwner(call.principal())
         call.respond(HttpStatusCode.OK)
     }
 
