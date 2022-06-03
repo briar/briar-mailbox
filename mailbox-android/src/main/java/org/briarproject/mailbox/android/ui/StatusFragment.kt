@@ -27,6 +27,8 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
@@ -36,6 +38,12 @@ import org.briarproject.mailbox.android.UiUtils.formatDate
 class StatusFragment : Fragment() {
 
     private val viewModel: MailboxViewModel by activityViewModels()
+    private val nav: NavController by lazy {
+        val navHostFragment = requireActivity().supportFragmentManager
+            .findFragmentById(R.id.fragmentContainer) as NavHostFragment
+        navHostFragment.navController
+    }
+
     private lateinit var buttonStop: Button
     private lateinit var buttonUnlink: Button
     private lateinit var textViewDescription: TextView
@@ -55,7 +63,6 @@ class StatusFragment : Fragment() {
 
         buttonStop.setOnClickListener {
             viewModel.stopLifecycle()
-            requireActivity().finishAffinity()
         }
         buttonUnlink.setOnClickListener {
             MaterialAlertDialogBuilder(

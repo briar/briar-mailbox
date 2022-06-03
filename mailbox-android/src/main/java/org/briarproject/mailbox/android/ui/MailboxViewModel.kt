@@ -28,16 +28,19 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
 import org.briarproject.android.dontkillmelib.DozeHelper
 import org.briarproject.mailbox.android.MailboxPreferences
 import org.briarproject.mailbox.android.MailboxService
 import org.briarproject.mailbox.android.StatusManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
 import org.briarproject.mailbox.core.settings.MetadataManager
 import org.briarproject.mailbox.core.setup.SetupManager
+import org.briarproject.mailbox.core.system.AndroidExecutor
 import org.briarproject.mailbox.core.system.DozeWatchdog
+import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
-import kotlin.concurrent.thread
 
 @HiltViewModel
 class MailboxViewModel @Inject constructor(
@@ -47,14 +50,25 @@ class MailboxViewModel @Inject constructor(
     private val lifecycleManager: LifecycleManager,
     private val setupManager: SetupManager,
     statusManager: StatusManager,
-    private val metadataManager: MetadataManager,
+    metadataManager: MetadataManager,
     private val mailboxPreferences: MailboxPreferences,
+    private val androidExecutor: AndroidExecutor,
 ) : AndroidViewModel(app) {
+
+    companion object {
+        private val LOG = getLogger(MailboxViewModel::class.java)
+    }
+
+    init {
+        LOG.info("Created MailboxViewModel")
+    }
 
     val needToShowDoNotKillMeFragment get() = dozeHelper.needToShowDoNotKillMeFragment(app)
 
     private val _doNotKillComplete = MutableLiveData<Boolean>()
     val doNotKillComplete: LiveData<Boolean> = _doNotKillComplete
+
+    val lifecycleState: StateFlow<LifecycleState> = lifecycleManager.lifecycleStateFlow
 
     val hasDb: LiveData<Boolean> = liveData(Dispatchers.IO) { emit(setupManager.hasDb) }
 
@@ -89,10 +103,13 @@ class MailboxViewModel @Inject constructor(
     }
 
     fun wipe() {
-        thread {
+        androidExecutor.runOnBackgroundThread {
+            LOG.info("calling wipeMailbox()")
             // TODO: handle return value
             lifecycleManager.wipeMailbox()
+            LOG.info("calling waitForShutdown()")
             lifecycleManager.waitForShutdown()
+            LOG.info("calling stopService()")
             MailboxService.stopService(getApplication())
             _wipeComplete.postValue(true)
         }

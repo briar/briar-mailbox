@@ -35,6 +35,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".android.ui.OnboardingActivity" />
+        <activity
+            android:name=".android.ui.WipeCompleteActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:process=":briar_mailbox_wipe_complete" />
 
         <receiver android:name=".core.system.AlarmReceiver" />
 

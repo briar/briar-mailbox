@@ -62,6 +62,9 @@ internal class LifecycleManagerImpl @Inject constructor(
 
     companion object {
         private val LOG = getLogger(LifecycleManagerImpl::class.java)
+
+        private const val MIN_WIPING_TIME = 1000L
+        private const val MIN_STOPPING_TIME = 1000L
     }
 
     private val services: MutableList<Service>
@@ -100,13 +103,18 @@ internal class LifecycleManagerImpl @Inject constructor(
 
     @GuardedBy("startStopWipeSemaphore")
     override fun startServices(): StartResult {
+        LOG.info("startServices()")
         try {
+            LOG.info("acquiring start stop semaphore")
             startStopWipeSemaphore.acquire()
+            LOG.info("acquired start stop semaphore")
         } catch (e: InterruptedException) {
             LOG.warn("Interrupted while waiting to start services")
             return SERVICE_ERROR
         }
+        LOG.info("checking state: ${state.value}")
         if (!state.compareAndSet(NOT_STARTED, STARTING)) {
+            LOG.info("not in NOT_STARTED state")
             return SERVICE_ERROR
         }
         return try {
@@ -156,8 +164,11 @@ internal class LifecycleManagerImpl @Inject constructor(
 
     @GuardedBy("startStopWipeSemaphore")
     override fun stopServices() {
+        LOG.info("stopServices()")
         try {
+            LOG.info("acquiring start stop semaphore")
             startStopWipeSemaphore.acquire()
+            LOG.info("acquired start stop semaphore")
         } catch (e: InterruptedException) {
             LOG.warn("Interrupted while waiting to stop services")
             return
@@ -167,11 +178,14 @@ internal class LifecycleManagerImpl @Inject constructor(
                 return
             }
             val wiped = state.value == WIPING
-            LOG.info("Stopping services")
-            state.value = STOPPING
 
-            stopAllServices()
-            stopAllExecutors()
+            run("Stopping services and executors", MIN_STOPPING_TIME) {
+                state.value = STOPPING
+                LOG.info("Stopping services")
+                stopAllServices()
+                LOG.info("Stopping executors")
+                stopAllExecutors()
+            }
 
             if (wiped) {
                 // If we just wiped, the database has already been closed, so we should not call
@@ -226,7 +240,7 @@ internal class LifecycleManagerImpl @Inject constructor(
             return false
         }
         try {
-            run("wiping database and files") {
+            run("wiping database and files", MIN_WIPING_TIME) {
                 wipeManager.wipeDatabaseAndFiles()
             }
             // We need to move this to a thread so that the webserver call can finish when it calls
@@ -256,6 +270,10 @@ internal class LifecycleManagerImpl @Inject constructor(
 
     override fun getLifecycleStateFlow(): StateFlow<LifecycleState> = state
 
+    /**
+     * Run the task specified, logging the [name] of the task and the time measured it took to
+     * execute the task.
+     */
     private fun run(name: String, task: () -> Unit) {
         LOG.trace { name }
         val start = now()
@@ -265,6 +283,32 @@ internal class LifecycleManagerImpl @Inject constructor(
             logException(LOG, throwable) { "Error while $name" }
         }
         logDuration(LOG, start) { name }
+    }
+
+    /**
+     * Same as run above, with the difference that if executing the task took less than [minTime]
+     * milliseconds, sleep until at least [minTime] was spent while executing [run].
+     * Used to make a task that is expected to finish quickly on fast devices still perceivable
+     * by the user.
+     */
+    private fun run(name: String, minTime: Long, task: () -> Unit) {
+        LOG.trace { name }
+        val start = now()
+        try {
+            task()
+        } catch (throwable: Throwable) {
+            logException(LOG, throwable) { "Error while $name" }
+        }
+        logDuration(LOG, start) { name }
+        val duration = now() - start
+        val left = minTime - duration
+        if (left > 0) {
+            try {
+                Thread.sleep(left)
+            } catch (e: InterruptedException) {
+                // do nothing
+            }
+        }
     }
 
     private fun Any.name() = javaClass.simpleName

@@ -18,6 +18,16 @@
             app:destination="@id/startupFragment"
             app:popUpTo="@id/initFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_initFragment_to_stoppingFragment"
+            app:destination="@id/stoppingFragment"
+            app:popUpTo="@id/initFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_initFragment_to_wipingFragment"
+            app:destination="@id/wipingFragment"
+            app:popUpTo="@id/initFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/doNotKillMeFragment"
@@ -72,13 +82,7 @@
     <fragment
         android:id="@+id/statusFragment"
         android:name="org.briarproject.mailbox.android.ui.StatusFragment"
-        android:label="StatusFragment">
-        <action
-            android:id="@+id/action_statusFragment_to_wipeCompleteFragment"
-            app:destination="@id/wipeCompleteFragment"
-            app:popUpTo="@id/statusFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
+        android:label="StatusFragment" />
     <fragment
         android:id="@+id/noNetworkFragment"
         android:name="org.briarproject.mailbox.android.ui.NoNetworkFragment"
@@ -88,7 +92,21 @@
             app:destination="@id/startupFragment" />
     </fragment>
     <fragment
-        android:id="@+id/wipeCompleteFragment"
-        android:name="org.briarproject.mailbox.android.ui.WipeCompleteFragment"
-        android:label="WipeCompleteFragment" />
+        android:id="@+id/stoppingFragment"
+        android:name="org.briarproject.mailbox.android.ui.StoppingFragment"
+        android:label="StoppingFragment" />
+    <fragment
+        android:id="@+id/wipingFragment"
+        android:name="org.briarproject.mailbox.android.ui.WipingFragment"
+        android:label="WipingFragment" />
+    <action
+        android:id="@+id/action_global_wipingFragment"
+        app:destination="@id/wipingFragment"
+        app:popUpTo="@id/nav_onboarding"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_global_stoppingFragment"
+        app:destination="@id/stoppingFragment"
+        app:popUpTo="@id/nav_onboarding"
+        app:popUpToInclusive="true" />
 </navigation>

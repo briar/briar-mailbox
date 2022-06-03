@@ -30,15 +30,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import org.briarproject.android.dontkillmelib.PowerUtils.needsDozeWhitelisting
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStoppingFragment
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalWipingFragment
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragmentDirections.actionDoNotKillMeFragmentToStartupFragment
 import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToDoNotKillMeFragment
 import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToStartupFragment
-import org.briarproject.mailbox.android.ui.StatusFragmentDirections.actionStatusFragmentToWipeCompleteFragment
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STOPPING
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.WIPING
+import org.briarproject.mailbox.core.util.LogUtils.info
+import org.slf4j.LoggerFactory.getLogger
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult> {
+
+    companion object {
+        private val LOG = getLogger(MainActivity::class.java)
+    }
 
     private val viewModel: MailboxViewModel by viewModels()
     private val nav: NavController by lazy {
@@ -51,6 +61,7 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        LOG.info("onCreate()")
         setContentView(R.layout.activity_main)
 
         viewModel.doNotKillComplete.observe(this) { complete ->
@@ -58,7 +69,20 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         }
 
         viewModel.wipeComplete.observe(this) { complete ->
-            if (complete) nav.navigate(actionStatusFragmentToWipeCompleteFragment())
+            if (complete) {
+                startActivity(Intent(this, WipeCompleteActivity::class.java))
+            }
+        }
+
+        launchAndRepeatWhileStarted {
+            viewModel.lifecycleState.collect { state ->
+                LOG.info { "lifecycle state: $state" }
+                when (state) {
+                    STOPPING -> nav.navigate(actionGlobalStoppingFragment())
+                    WIPING -> nav.navigate(actionGlobalWipingFragment())
+                    else -> {}
+                }
+            }
         }
 
         if (savedInstanceState == null) {

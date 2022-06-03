@@ -33,13 +33,14 @@ import org.briarproject.mailbox.android.StatusManager.Starting
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
 import org.briarproject.mailbox.core.setup.SetupManager
+import org.briarproject.mailbox.core.system.AndroidExecutor
 import org.briarproject.mailbox.core.system.AndroidWakeLock
 import org.briarproject.mailbox.core.system.AndroidWakeLockManager
 import org.briarproject.mailbox.core.tor.TorPlugin
 import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
-import kotlin.concurrent.thread
+import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 class MailboxService : Service() {
@@ -79,6 +80,9 @@ class MailboxService : Service() {
     @Inject
     internal lateinit var setupManager: SetupManager
 
+    @Inject
+    internal lateinit var androidExecutor: AndroidExecutor
+
     private lateinit var lifecycleWakeLock: AndroidWakeLock
 
     override fun onCreate() {
@@ -113,7 +117,7 @@ class MailboxService : Service() {
         lifecycleWakeLock.acquire()
 
         // Start the services in a background thread
-        thread {
+        androidExecutor.runOnBackgroundThread {
             val result = lifecycleManager.startServices()
             when {
                 result === SUCCESS -> started = true
@@ -123,6 +127,7 @@ class MailboxService : Service() {
                     //  and start activity in new process, so we can kill this one
                     // showStartupFailure(result)
                     stopSelf()
+                    exitProcess(1)
                 }
             }
         }
@@ -150,16 +155,20 @@ class MailboxService : Service() {
         stopForeground(true)
         if (receiver != null) unregisterReceiver(receiver)
         if (started) {
-            try {
-                lifecycleManager.stopServices()
-                lifecycleManager.waitForShutdown()
-            } catch (e: InterruptedException) {
-                LOG.info("Interrupted while waiting for shutdown")
+            androidExecutor.runOnBackgroundThread {
+                try {
+                    lifecycleManager.stopServices()
+                    lifecycleManager.waitForShutdown()
+                } catch (e: InterruptedException) {
+                    LOG.info("Interrupted while waiting for shutdown")
+                } finally {
+                    // Do not exit within wakeful execution, otherwise we will never release the wake locks.
+                    // Or maybe we want to do precisely that to make sure exiting really happens and the app
+                    // doesn't get suspended before it gets a chance to exit?
+                    lifecycleWakeLock.release()
+                    exitProcess(0)
+                }
             }
         }
-        // Do not exit within wakeful execution, otherwise we will never release the wake locks.
-        // Or maybe we want to do precisely that to make sure exiting really happens and the app
-        // doesn't get suspended before it gets a chance to exit?
-        lifecycleWakeLock.release()
     }
 }
