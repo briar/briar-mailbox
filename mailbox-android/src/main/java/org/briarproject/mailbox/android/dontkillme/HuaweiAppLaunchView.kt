@@ -21,10 +21,13 @@ package org.briarproject.mailbox.android.dontkillme
 
 import android.content.Context
 import android.util.AttributeSet
+import android.widget.Toast
+import android.widget.Toast.LENGTH_LONG
 import androidx.annotation.UiThread
 import org.briarproject.android.dontkillmelib.HuaweiUtils.appLaunchNeedsToBeShown
-import org.briarproject.android.dontkillmelib.HuaweiUtils.huaweiPowerManagerIntent
+import org.briarproject.android.dontkillmelib.HuaweiUtils.huaweiAppLaunchIntents
 import org.briarproject.mailbox.R
+import org.slf4j.LoggerFactory
 
 @UiThread
 internal class HuaweiAppLaunchView @JvmOverloads constructor(
@@ -32,6 +35,8 @@ internal class HuaweiAppLaunchView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
 ) : PowerView(context, attrs, defStyleAttr) {
+
+    private val log = LoggerFactory.getLogger(HuaweiAppLaunchView::class.java)
 
     init {
         setText(R.string.dnkm_huawei_app_launch_text)
@@ -46,7 +51,17 @@ internal class HuaweiAppLaunchView @JvmOverloads constructor(
     override val helpText: Int = R.string.dnkm_huawei_app_launch_help
 
     override fun onButtonClick() {
-        context.startActivity(huaweiPowerManagerIntent)
+        for (i in huaweiAppLaunchIntents) {
+            try {
+                context.startActivity(i)
+                setChecked(true)
+                return
+            } catch (e: Exception) {
+                log.warn("Error launching intent", e)
+            }
+        }
+        Toast.makeText(context, R.string.dnkm_huawei_app_launch_error_toast, LENGTH_LONG).show()
+        // Let the user continue with setup
         setChecked(true)
     }
 }
