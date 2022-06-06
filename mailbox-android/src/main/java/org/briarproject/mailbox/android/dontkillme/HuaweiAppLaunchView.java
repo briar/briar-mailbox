@@ -9,8 +9,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 
-import static org.briarproject.android.dontkillmelib.PowerUtils.getHuaweiPowerManagerIntent;
-import static org.briarproject.android.dontkillmelib.PowerUtils.huaweiAppLaunchNeedsToBeShown;
+import static org.briarproject.android.dontkillmelib.HuaweiUtils.appLaunchNeedsToBeShown;
+import static org.briarproject.android.dontkillmelib.HuaweiUtils.getHuaweiPowerManagerIntent;
 
 @UiThread
 public class HuaweiAppLaunchView extends PowerView {
@@ -33,7 +33,7 @@ public class HuaweiAppLaunchView extends PowerView {
 
 	@Override
 	public boolean needsToBeShown() {
-		return huaweiAppLaunchNeedsToBeShown(getContext());
+		return appLaunchNeedsToBeShown(getContext());
 	}
 
 	@Override

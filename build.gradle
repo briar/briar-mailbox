@@ -1,22 +1,19 @@
 buildscript {
-    ext.kotlin_version = '1.6.10'
+    ext.kotlin_version = '1.6.21'
     ext.hilt_version = '2.40'
-    ext.nav_version = '2.4.0'
+    ext.nav_version = '2.4.2'
     ext.tor_version = '0.3.5.15'
     ext.obfs4_version = '0.0.12-dev-40245c4a'
     ext.junit_version = '5.7.2'
     ext.mockk_version = '1.10.4'
     ext.ktlint_plugin_version = '10.2.1'
 
-    ext.androidx_fragment_version = '1.4.1'
-    ext.androidx_constraintlayout_version = '2.1.3'
-    ext.google_material_version = '1.5.0'
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.android.tools.build:gradle:7.1.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
@@ -26,9 +23,9 @@ buildscript {
 allprojects {
     repositories {
         google()
+        mavenCentral()
         //noinspection JcenterRepositoryObsolete
         jcenter() // for dependencies that haven't moved, yet
-        mavenCentral()
     }
 }
 

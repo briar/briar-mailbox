@@ -31,7 +31,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
-import org.briarproject.android.dontkillmelib.PowerUtils.needsDozeWhitelisting
+import org.briarproject.android.dontkillmelib.DozeUtils.needsDozeWhitelisting
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStoppingFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalWipingFragment
 import org.briarproject.mailbox.R
@@ -96,6 +96,8 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         }
     }
 
+    // TODO why do we need this and can't just change fragments above?
+    //  we can also consider showing the DoNotKillMeFragment whenever doze wasn't disabled
     override fun onActivityResult(result: ActivityResult?) {
         if (viewModel.needToShowDoNotKillMeFragment) {
             nav.navigate(actionInitFragmentToDoNotKillMeFragment())

@@ -22,7 +22,7 @@ import androidx.fragment.app.Fragment;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static org.briarproject.android.dontkillmelib.PowerUtils.getDozeWhitelistingIntent;
+import static org.briarproject.android.dontkillmelib.DozeUtils.getDozeWhitelistingIntent;
 import static org.briarproject.mailbox.android.dontkillme.DoNotKillMeUtils.showOnboardingDialog;
 
 public abstract class AbstractDoNotKillMeFragment extends Fragment

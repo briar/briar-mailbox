@@ -3,14 +3,14 @@ package org.briarproject.mailbox.android.dontkillme;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import org.briarproject.android.dontkillmelib.PowerUtils;
 import org.briarproject.mailbox.R;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 
-import static org.briarproject.android.dontkillmelib.PowerUtils.getHuaweiProtectedAppsIntent;
+import static org.briarproject.android.dontkillmelib.HuaweiUtils.getHuaweiProtectedAppsIntent;
+import static org.briarproject.android.dontkillmelib.HuaweiUtils.protectedAppsNeedsToBeShown;
 
 @UiThread
 public class HuaweiProtectedAppsView extends PowerView {
@@ -35,7 +35,7 @@ public class HuaweiProtectedAppsView extends PowerView {
 
 	@Override
 	public boolean needsToBeShown() {
-		return PowerUtils.huaweiProtectedAppsNeedsToBeShown(getContext());
+		return protectedAppsNeedsToBeShown(getContext());
 	}
 
 	@Override

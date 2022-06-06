@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
-import static org.briarproject.android.dontkillmelib.PowerUtils.needsDozeWhitelisting;
+import static org.briarproject.android.dontkillmelib.DozeUtils.needsDozeWhitelisting;
 
 @UiThread
 public class DozeView extends PowerView {

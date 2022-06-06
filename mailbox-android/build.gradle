@@ -11,13 +11,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion "31.0.0"
+    compileSdkVersion 32
+    buildToolsVersion "32.0.0"
 
     defaultConfig {
         applicationId "org.briarproject.mailbox"
         minSdkVersion 16
-        targetSdkVersion 31
+        targetSdkVersion 32 // TODO check if ok before release
         versionCode 1
         versionName "1.0"
         multiDexEnabled true // only needed when minSdkVersion < 21
@@ -57,15 +57,15 @@ configurations {
 
 dependencies {
     implementation project(path: ':mailbox-core', configuration: 'default')
-    implementation project(path: ':dont-kill-me-lib')
+    implementation 'org.briarproject:dont-kill-me-lib:0.2.2'
 
     implementation 'com.github.tony19:logback-android:2.0.0'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation "androidx.activity:activity-ktx:1.4.0"
-    implementation "androidx.fragment:fragment-ktx:$androidx_fragment_version"
+    implementation "androidx.fragment:fragment-ktx:1.4.1"
     implementation 'androidx.preference:preference-ktx:1.2.0'
 
-    def lifecycle_version = "2.4.0"
+    def lifecycle_version = "2.4.1"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
@@ -75,8 +75,8 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
-    implementation "androidx.constraintlayout:constraintlayout:$androidx_constraintlayout_version"
-    implementation "com.google.android.material:material:$google_material_version"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+    implementation "com.google.android.material:material:1.6.1"
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
 
