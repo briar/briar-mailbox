@@ -1,173 +1,160 @@
-package org.briarproject.mailbox.android.dontkillme;
+/*
+ *     Briar Mailbox
+ *     Copyright (C) 2021-2022  The Briar Project
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
-import android.content.Context;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
+package org.briarproject.mailbox.android.dontkillme
 
-import org.briarproject.mailbox.R;
-
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.annotation.UiThread;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
-
-import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-import static org.briarproject.mailbox.android.dontkillme.DoNotKillMeUtils.showOnboardingDialog;
+import android.content.Context
+import android.os.Parcel
+import android.os.Parcelable
+import android.util.AttributeSet
+import android.view.LayoutInflater
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.annotation.UiThread
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat.getDrawable
+import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.dontkillme.DoNotKillMeUtils.showOnboardingDialog
 
 @UiThread
-abstract class PowerView extends ConstraintLayout {
+abstract class PowerView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+) : ConstraintLayout(context, attrs, defStyleAttr) {
 
-	private final TextView textView;
-	private final ImageView icon;
-	private final ImageView checkImage;
-	private final Button button;
+    interface OnCheckedChangedListener {
+        fun onCheckedChanged()
+    }
 
-	private boolean checked = false;
+    private val textView: TextView
+    private val icon: ImageView
+    private val checkImage: ImageView
+    private val button: Button
+    private var checked = false
+    private var onCheckedChangedListener: OnCheckedChangedListener? = null
 
-	@Nullable
-	private OnCheckedChangedListener onCheckedChangedListener;
+    init {
+        val inflater = context
+            .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val v = inflater.inflate(R.layout.power_view, this, true)
+        textView = v.findViewById(R.id.textView)
+        icon = v.findViewById(R.id.icon)
+        checkImage = v.findViewById(R.id.checkImage)
+        button = v.findViewById(R.id.button)
+        button.setOnClickListener { onButtonClick() }
+        val helpButton = v.findViewById<ImageButton>(R.id.helpButton)
+        helpButton.setOnClickListener { onHelpButtonClick() }
 
-	public PowerView(Context context) {
-		this(context, null);
-	}
+        // we need to manage the checkImage state ourselves, because automatic
+        // state saving is done based on the view's ID and there can be
+        // multiple ImageViews with the same ID in the view hierarchy
+        isSaveFromParentEnabled = true
+        if (!isInEditMode && !needsToBeShown()) {
+            visibility = GONE
+        }
+    }
 
-	public PowerView(Context context, @Nullable AttributeSet attrs) {
-		this(context, attrs, 0);
-	}
+    override fun onSaveInstanceState(): Parcelable? {
+        val superState = super.onSaveInstanceState()
+        return SavedState(superState)
+    }
 
-	public PowerView(Context context, @Nullable AttributeSet attrs,
-			int defStyleAttr) {
-		super(context, attrs, defStyleAttr);
+    override fun onRestoreInstanceState(state: Parcelable) {
+        val ss = state as SavedState
+        super.onRestoreInstanceState(ss.superState)
+        setChecked(ss.value[0]) // also calls listener
+    }
 
-		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(LAYOUT_INFLATER_SERVICE);
-		View v = inflater.inflate(R.layout.power_view, this, true);
+    abstract fun needsToBeShown(): Boolean
 
-		textView = v.findViewById(R.id.textView);
-		icon = v.findViewById(R.id.icon);
-		checkImage = v.findViewById(R.id.checkImage);
-		button = v.findViewById(R.id.button);
-		button.setOnClickListener(view -> onButtonClick());
-		ImageButton helpButton = v.findViewById(R.id.helpButton);
-		helpButton.setOnClickListener(view -> onHelpButtonClick());
+    fun setChecked(checked: Boolean) {
+        this.checked = checked
+        if (checked) {
+            checkImage.visibility = VISIBLE
+        } else {
+            checkImage.visibility = INVISIBLE
+        }
+        if (onCheckedChangedListener != null) {
+            onCheckedChangedListener!!.onCheckedChanged()
+        }
+    }
 
-		// we need to manage the checkImage state ourselves, because automatic
-		// state saving is done based on the view's ID and there can be
-		// multiple ImageViews with the same ID in the view hierarchy
-		setSaveFromParentEnabled(true);
+    fun isChecked(): Boolean {
+        return visibility == GONE || checked
+    }
 
-		if (!isInEditMode() && !needsToBeShown()) {
-			setVisibility(GONE);
-		}
-	}
+    fun setOnCheckedChangedListener(onCheckedChangedListener: OnCheckedChangedListener) {
+        this.onCheckedChangedListener = onCheckedChangedListener
+    }
 
-	@Nullable
-	@Override
-	protected Parcelable onSaveInstanceState() {
-		Parcelable superState = super.onSaveInstanceState();
-		SavedState ss = new SavedState(superState);
-		ss.value = new boolean[] {checked};
-		return ss;
-	}
+    @get:StringRes
+    protected abstract val helpText: Int
 
-	@Override
-	protected void onRestoreInstanceState(Parcelable state) {
-		SavedState ss = (SavedState) state;
-		super.onRestoreInstanceState(ss.getSuperState());
-		setChecked(ss.value[0]);  // also calls listener
-	}
+    protected fun setText(@StringRes res: Int) {
+        textView.setText(res)
+    }
 
-	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
-	public abstract boolean needsToBeShown();
+    protected fun setIcon(@DrawableRes drawable: Int) {
+        icon.setImageDrawable(getDrawable(context, drawable))
+    }
 
-	public void setChecked(boolean checked) {
-		this.checked = checked;
-		if (checked) {
-			checkImage.setVisibility(VISIBLE);
-		} else {
-			checkImage.setVisibility(INVISIBLE);
-		}
-		if (onCheckedChangedListener != null) {
-			onCheckedChangedListener.onCheckedChanged();
-		}
-	}
+    protected fun setButtonText(@StringRes res: Int) {
+        button.setText(res)
+    }
 
-	public boolean isChecked() {
-		return getVisibility() == GONE || checked;
-	}
+    protected abstract fun onButtonClick()
 
-	public void setOnCheckedChangedListener(@NonNull
-			OnCheckedChangedListener onCheckedChangedListener) {
-		this.onCheckedChangedListener = onCheckedChangedListener;
-	}
+    private fun onHelpButtonClick() {
+        showOnboardingDialog(context, context.getString(helpText))
+    }
 
-	@StringRes
-	protected abstract int getHelpText();
+    private class SavedState : BaseSavedState {
+        val value = booleanArrayOf(false)
 
-	protected void setText(@StringRes int res) {
-		textView.setText(res);
-	}
+        constructor(superState: Parcelable?) : super(superState)
 
-	protected void setIcon(@DrawableRes int drawable) {
-		icon.setImageDrawable(
-				ContextCompat.getDrawable(getContext(), drawable));
-	}
+        private constructor(inValue: Parcel) : super(inValue) {
+            inValue.readBooleanArray(value)
+        }
 
-	protected void setButtonText(@StringRes int res) {
-		button.setText(res);
-	}
+        override fun writeToParcel(out: Parcel, flags: Int) {
+            super.writeToParcel(out, flags)
+            out.writeBooleanArray(value)
+        }
 
-	protected abstract void onButtonClick();
+        companion object {
+            @Suppress("unused")
+            @JvmField
+            val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
+                override fun createFromParcel(`in`: Parcel): SavedState {
+                    return SavedState(`in`)
+                }
 
-	private void onHelpButtonClick() {
-		showOnboardingDialog(getContext(),
-				getContext().getString(getHelpText()));
-	}
-
-	private static class SavedState extends BaseSavedState {
-		private boolean[] value = {false};
-
-		private SavedState(@Nullable Parcelable superState) {
-			super(superState);
-		}
-
-		private SavedState(Parcel in) {
-			super(in);
-			in.readBooleanArray(value);
-		}
-
-		@Override
-		public void writeToParcel(Parcel out, int flags) {
-			super.writeToParcel(out, flags);
-			out.writeBooleanArray(value);
-		}
-
-		static final Creator<SavedState> CREATOR
-				= new Creator<SavedState>() {
-			@Override
-			public SavedState createFromParcel(Parcel in) {
-				return new SavedState(in);
-			}
-
-			@Override
-			public SavedState[] newArray(int size) {
-				return new SavedState[size];
-			}
-		};
-	}
-
-	public interface OnCheckedChangedListener {
-		void onCheckedChanged();
-	}
-
+                override fun newArray(size: Int): Array<SavedState?> {
+                    return arrayOfNulls(size)
+                }
+            }
+        }
+    }
 }

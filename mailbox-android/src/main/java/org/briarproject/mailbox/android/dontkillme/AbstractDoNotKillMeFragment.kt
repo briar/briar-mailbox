@@ -1,114 +1,120 @@
-package org.briarproject.mailbox.android.dontkillme;
+/*
+ *     Briar Mailbox
+ *     Copyright (C) 2021-2022  The Briar Project
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ProgressBar;
+package org.briarproject.mailbox.android.dontkillme
 
-import org.briarproject.mailbox.R;
-import org.briarproject.mailbox.android.dontkillme.PowerView.OnCheckedChangedListener;
+import android.annotation.SuppressLint
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ProgressBar
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.fragment.app.Fragment
+import org.briarproject.android.dontkillmelib.DozeUtils.getDozeWhitelistingIntent
+import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.dontkillme.DoNotKillMeUtils.showOnboardingDialog
+import org.briarproject.mailbox.android.dontkillme.PowerView.OnCheckedChangedListener
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+abstract class AbstractDoNotKillMeFragment :
+    Fragment(), OnCheckedChangedListener, ActivityResultCallback<ActivityResult> {
 
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
-import static org.briarproject.android.dontkillmelib.DozeUtils.getDozeWhitelistingIntent;
-import static org.briarproject.mailbox.android.dontkillme.DoNotKillMeUtils.showOnboardingDialog;
+    private lateinit var dozeView: DozeView
+    private lateinit var huaweiProtectedAppsView: HuaweiProtectedAppsView
+    private lateinit var huaweiAppLaunchView: HuaweiAppLaunchView
+    private lateinit var xiaomiView: XiaomiView
+    private lateinit var next: Button
 
-public abstract class AbstractDoNotKillMeFragment extends Fragment
-		implements OnCheckedChangedListener,
-		ActivityResultCallback<ActivityResult> {
+    private var secondAttempt = false
+    private var buttonWasClicked = false
+    private val dozeLauncher =
+        registerForActivityResult(StartActivityForResult(), this::onActivityResult)
 
-	private DozeView dozeView;
-	private HuaweiProtectedAppsView huaweiProtectedAppsView;
-	private HuaweiAppLaunchView huaweiAppLaunchView;
-	private XiaomiView xiaomiView;
-	private Button next;
-	private boolean secondAttempt = false;
-	private boolean buttonWasClicked = false;
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View? {
+        requireActivity().title = getString(R.string.dnkm_doze_title)
+        setHasOptionsMenu(false)
+        val v = inflater.inflate(R.layout.fragment_dont_kill_me, container, false)
+        dozeView = v.findViewById(R.id.dozeView)
+        dozeView.setOnCheckedChangedListener(this)
+        huaweiProtectedAppsView = v.findViewById(R.id.huaweiProtectedAppsView)
+        huaweiProtectedAppsView.setOnCheckedChangedListener(this)
+        huaweiAppLaunchView = v.findViewById(R.id.huaweiAppLaunchView)
+        huaweiAppLaunchView.setOnCheckedChangedListener(this)
+        xiaomiView = v.findViewById(R.id.xiaomiView)
+        xiaomiView.setOnCheckedChangedListener(this)
+        next = v.findViewById(R.id.next)
+        val progressBar = v.findViewById<ProgressBar>(R.id.progress)
+        dozeView.setOnButtonClickListener { askForDozeWhitelisting() }
+        next.setOnClickListener {
+            buttonWasClicked = true
+            next.visibility = INVISIBLE
+            progressBar.visibility = VISIBLE
+            onButtonClicked()
+        }
 
-	private final ActivityResultLauncher<Intent> dozeLauncher =
-			registerForActivityResult(new StartActivityForResult(), this);
+        // restore UI state if button was clicked already
+        buttonWasClicked = savedInstanceState != null &&
+            savedInstanceState.getBoolean("buttonWasClicked", false)
+        if (buttonWasClicked) {
+            next.visibility = INVISIBLE
+            progressBar.visibility = VISIBLE
+        }
+        return v
+    }
 
-	@Override
-	public View onCreateView(LayoutInflater inflater,
-			@Nullable ViewGroup container,
-			@Nullable Bundle savedInstanceState) {
-		requireActivity().setTitle(getString(R.string.dnkm_doze_title));
-		setHasOptionsMenu(false);
-		View v = inflater.inflate(R.layout.fragment_dont_kill_me, container,
-				false);
-		dozeView = v.findViewById(R.id.dozeView);
-		dozeView.setOnCheckedChangedListener(this);
-		huaweiProtectedAppsView = v.findViewById(R.id.huaweiProtectedAppsView);
-		huaweiProtectedAppsView.setOnCheckedChangedListener(this);
-		huaweiAppLaunchView = v.findViewById(R.id.huaweiAppLaunchView);
-		huaweiAppLaunchView.setOnCheckedChangedListener(this);
-		xiaomiView = v.findViewById(R.id.xiaomiView);
-		xiaomiView.setOnCheckedChangedListener(this);
-		next = v.findViewById(R.id.next);
-		ProgressBar progressBar = v.findViewById(R.id.progress);
+    protected abstract fun onButtonClicked()
 
-		dozeView.setOnButtonClickListener(this::askForDozeWhitelisting);
-		next.setOnClickListener(view -> {
-			buttonWasClicked = true;
-			next.setVisibility(INVISIBLE);
-			progressBar.setVisibility(VISIBLE);
-			onButtonClicked();
-		});
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("buttonWasClicked", buttonWasClicked)
+    }
 
-		// restore UI state if button was clicked already
-		buttonWasClicked = savedInstanceState != null &&
-				savedInstanceState.getBoolean("buttonWasClicked", false);
-		if (buttonWasClicked) {
-			next.setVisibility(INVISIBLE);
-			progressBar.setVisibility(VISIBLE);
-		}
+    override fun onActivityResult(result: ActivityResult) {
+        // we allow the user to proceed after also denying the second attempt
+        if (!dozeView.needsToBeShown() || secondAttempt) {
+            dozeView.setChecked(true)
+        } else if (context != null) {
+            secondAttempt = true
+            val s = getString(R.string.dnkm_doze_explanation)
+            showOnboardingDialog(context, s)
+        }
+    }
 
-		return v;
-	}
+    override fun onCheckedChanged() {
+        next.isEnabled = dozeView.isChecked() &&
+            huaweiProtectedAppsView.isChecked() &&
+            huaweiAppLaunchView.isChecked() &&
+            xiaomiView.isChecked()
+    }
 
-	protected abstract void onButtonClicked();
-
-	@Override
-	public void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putBoolean("buttonWasClicked", buttonWasClicked);
-	}
-
-	@Override
-	public void onActivityResult(ActivityResult result) {
-		// we allow the user to proceed after also denying the second attempt
-		if (!dozeView.needsToBeShown() || secondAttempt) {
-			dozeView.setChecked(true);
-		} else if (getContext() != null) {
-			secondAttempt = true;
-			String s = getString(R.string.dnkm_doze_explanation);
-			showOnboardingDialog(getContext(), s);
-		}
-	}
-
-	@Override
-	public void onCheckedChanged() {
-		next.setEnabled(dozeView.isChecked() &&
-				huaweiProtectedAppsView.isChecked() &&
-				huaweiAppLaunchView.isChecked() &&
-				xiaomiView.isChecked());
-	}
-
-	@SuppressLint("BatteryLife")
-	private void askForDozeWhitelisting() {
-		if (getContext() == null) return;
-		dozeLauncher.launch(getDozeWhitelistingIntent(getContext()));
-	}
+    @SuppressLint("BatteryLife")
+    private fun askForDozeWhitelisting() {
+        if (context == null) return
+        dozeLauncher.launch(getDozeWhitelistingIntent(requireContext()))
+    }
 }
