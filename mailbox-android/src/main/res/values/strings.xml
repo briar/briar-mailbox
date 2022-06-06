@@ -31,7 +31,7 @@
     <string name="link_description">Scan this QR code with Briar</string>
     <string name="link_cancel">Cancel Setup</string>
 
-    <string name="startup_starting_services">Starting services</string>
+    <string name="startup_starting_services">Starting mailbox</string>
     <string name="startup_starting_tor">Starting Tor</string>
     <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
     <string name="startup_bootstrapping_tor">Bootstrapping Tor (%d%%)</string>
@@ -41,6 +41,8 @@
     <string name="no_network_description">Please ensure this device is online and connected to the Internet. Once you\'re online, setup should pick up automatically here.</string>
 
     <string name="status_running">Mailbox is running</string>
+    <string name="status_offline">Device offline</string>
+    <string name="status_offline_description">Ensure this device is online and connected to the (uncensored) Internet.</string>
     <string name="last_connection">Last connection: %s</string>
     <string name="now">now</string>
     <string name="never">never</string>
