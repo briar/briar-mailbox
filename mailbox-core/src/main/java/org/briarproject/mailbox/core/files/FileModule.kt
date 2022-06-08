@@ -17,14 +17,23 @@
  *
  */
 
-package org.briarproject.mailbox.core
+package org.briarproject.mailbox.core.files
 
-import org.briarproject.mailbox.core.files.StaleFileDeletionScheduler
-import org.briarproject.mailbox.core.server.WebServerManager
-import javax.inject.Inject
+import dagger.Module
+import dagger.Provides
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import javax.inject.Singleton
 
-@Suppress("unused")
-class CoreEagerSingletons @Inject constructor(
-    val webServerManager: WebServerManager,
-    val staleFileDeletionScheduler: StaleFileDeletionScheduler,
-)
+@Module
+class FileModule {
+    @Provides
+    @Singleton
+    fun provideStaleFileDeletionScheduler(
+        lifecycleManager: LifecycleManager,
+        staleFileDeletionSchedulerImpl: StaleFileDeletionSchedulerImpl,
+    ): StaleFileDeletionScheduler {
+        return staleFileDeletionSchedulerImpl.also {
+            lifecycleManager.registerService(it)
+        }
+    }
+}

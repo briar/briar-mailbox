@@ -6,19 +6,25 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.briarproject.mailbox.core.db.DatabaseConfig
 import org.briarproject.mailbox.core.db.TestDatabaseModule
+import org.briarproject.mailbox.core.files.FileModule
 import org.briarproject.mailbox.core.files.FileProvider
+import org.briarproject.mailbox.core.lifecycle.IoExecutor
 import org.briarproject.mailbox.core.lifecycle.LifecycleModule
 import org.briarproject.mailbox.core.server.WebServerModule
 import org.briarproject.mailbox.core.settings.SettingsModule
 import org.briarproject.mailbox.core.setup.SetupModule
 import org.briarproject.mailbox.core.system.Clock
+import org.briarproject.mailbox.core.system.TestTaskSchedulerModule
 import java.io.File
+import java.util.concurrent.Executor
 import javax.inject.Singleton
 
 @Module(
     includes = [
         LifecycleModule::class,
         TestDatabaseModule::class,
+        TestTaskSchedulerModule::class,
+        FileModule::class,
         SetupModule::class,
         WebServerModule::class,
         SettingsModule::class,
@@ -54,4 +60,11 @@ internal class TestModule(private val tempDir: File) {
         override fun getFolder(folderId: String) = File(folderRoot, folderId).apply { mkdirs() }
         override fun getFile(folderId: String, fileId: String) = File(getFolder(folderId), fileId)
     }
+
+    /**
+     * @return an [Executor] that immediately executes tasks.
+     */
+    @IoExecutor
+    @Provides
+    fun provideIoExecutor(): Executor = Executor { r -> r.run() }
 }

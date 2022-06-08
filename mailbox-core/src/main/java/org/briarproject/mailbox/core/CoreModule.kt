@@ -25,6 +25,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.briarproject.mailbox.core.db.DatabaseModule
 import org.briarproject.mailbox.core.event.EventModule
+import org.briarproject.mailbox.core.files.FileModule
 import org.briarproject.mailbox.core.lifecycle.LifecycleModule
 import org.briarproject.mailbox.core.server.WebServerModule
 import org.briarproject.mailbox.core.settings.SettingsModule
@@ -38,6 +39,7 @@ import javax.inject.Singleton
         EventModule::class,
         LifecycleModule::class,
         DatabaseModule::class,
+        FileModule::class,
         SetupModule::class,
         WebServerModule::class,
         SettingsModule::class,

@@ -16,12 +16,14 @@ import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.File
+import java.util.concurrent.TimeUnit.DAYS
 import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class FileManagerIntegrationTest : IntegrationTest() {
 
+    private val fileProvider by lazy { testComponent.getFileProvider() }
     private val bytes = Random.nextBytes(2048)
 
     @BeforeEach
@@ -83,6 +85,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
         }
         assertEquals(HttpStatusCode.OK, response.status)
         assertNoTmpFiles()
+        assertNumFiles(1)
         // owner connection got registered
         assertTimestampRecent(metadataManager.ownerConnectionTime.value)
 
@@ -117,6 +120,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             }
         assertEquals(0, emptyFileListResponse.files.size)
         assertNoTmpFiles()
+        assertNumFiles(0)
     }
 
     @Test
@@ -341,10 +345,57 @@ class FileManagerIntegrationTest : IntegrationTest() {
         assertTimestampRecent(metadataManager.ownerConnectionTime.value)
     }
 
+    @Test
+    fun `post new file and delete it once stale`(): Unit = runBlocking {
+        // owner uploads the file
+        val response: HttpResponse = httpClient.post("$baseUrl/files/${contact1.inboxId}") {
+            authenticateWithToken(ownerToken)
+            body = bytes
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertNumFiles(1)
+
+        // contact can list the file
+        val listResponse: HttpResponse = httpClient.get("$baseUrl/files/${contact1.inboxId}") {
+            authenticateWithToken(contact1.token)
+        }
+        assertEquals(1, listResponse.receive<FileListResponse>().files.size)
+
+        // delete stale files
+        testComponent.getFileManager().deleteStaleFiles(DAYS.toMillis(1))
+
+        // contact can still list the file, because it wasn't stale
+        val listResponse2: HttpResponse = httpClient.get("$baseUrl/files/${contact1.inboxId}") {
+            authenticateWithToken(contact1.token)
+        }
+        assertEquals(1, listResponse2.receive<FileListResponse>().files.size)
+
+        // delete stale files again
+        testComponent.getFileManager().deleteStaleFiles(1)
+
+        // file was deleted, because it was stale
+        val listResponse3: HttpResponse = httpClient.get("$baseUrl/files/${contact1.inboxId}") {
+            authenticateWithToken(contact1.token)
+        }
+        assertEquals(0, listResponse3.receive<FileListResponse>().files.size)
+
+        assertNoTmpFiles()
+        assertNumFiles(0)
+    }
+
     private fun assertNoTmpFiles() {
         val dir = requireNotNull(this.tempDir)
         val tmp = File(dir, "tmp")
         assertTrue(tmp.isDirectory)
         assertEquals(0, tmp.listFiles()?.size)
+    }
+
+    private fun assertNumFiles(numFiles: Int) {
+        assertTrue(fileProvider.folderRoot.isDirectory)
+        var count = 0
+        fileProvider.folderRoot.listFiles()?.forEach { folder ->
+            count += folder.listFiles()?.size ?: 0
+        }
+        assertEquals(numFiles, count)
     }
 }
