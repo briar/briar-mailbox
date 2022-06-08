@@ -180,6 +180,8 @@ Returns `200 OK` with the list of files in JSON (example):
 }
 ```
 
+The files are listed in ascending order of timestamp.
+
 ### Download a file  (owner and contacts)
 
 Used by owner and contacts to retrieve a file.
