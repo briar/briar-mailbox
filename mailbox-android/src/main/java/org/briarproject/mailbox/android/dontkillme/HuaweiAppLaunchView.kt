@@ -27,7 +27,7 @@ import androidx.annotation.UiThread
 import org.briarproject.android.dontkillmelib.HuaweiUtils.appLaunchNeedsToBeShown
 import org.briarproject.android.dontkillmelib.HuaweiUtils.huaweiAppLaunchIntents
 import org.briarproject.mailbox.R
-import org.slf4j.LoggerFactory
+import org.slf4j.LoggerFactory.getLogger
 
 @UiThread
 internal class HuaweiAppLaunchView @JvmOverloads constructor(
@@ -36,7 +36,9 @@ internal class HuaweiAppLaunchView @JvmOverloads constructor(
     defStyleAttr: Int = 0,
 ) : PowerView(context, attrs, defStyleAttr) {
 
-    private val log = LoggerFactory.getLogger(HuaweiAppLaunchView::class.java)
+    companion object {
+        private val LOG = getLogger(HuaweiAppLaunchView::class.java)
+    }
 
     init {
         setText(R.string.dnkm_huawei_app_launch_text)
@@ -57,7 +59,7 @@ internal class HuaweiAppLaunchView @JvmOverloads constructor(
                 setChecked(true)
                 return
             } catch (e: Exception) {
-                log.warn("Error launching intent", e)
+                LOG.warn("Error launching intent", e)
             }
         }
         Toast.makeText(context, R.string.dnkm_huawei_app_launch_error_toast, LENGTH_LONG).show()

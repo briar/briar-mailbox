@@ -89,6 +89,8 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
             viewModel.hasDb.observe(this) { hasDb ->
                 if (!hasDb) {
                     startForResult.launch(Intent(this, OnboardingActivity::class.java))
+                } else if (needsDozeWhitelisting(this)) {
+                    nav.navigate(actionInitFragmentToDoNotKillMeFragment())
                 } else {
                     nav.navigate(actionInitFragmentToStartupFragment())
                 }
@@ -96,9 +98,9 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         }
     }
 
-    // TODO why do we need this and can't just change fragments above?
-    //  we can also consider showing the DoNotKillMeFragment whenever doze wasn't disabled
-    override fun onActivityResult(result: ActivityResult?) {
+    override fun onActivityResult(result: ActivityResult) {
+        // only show next fragment when user went throw onboarding
+        // result doesn't matter as we kill the app when user backs out in onboarding
         if (viewModel.needToShowDoNotKillMeFragment) {
             nav.navigate(actionInitFragmentToDoNotKillMeFragment())
         } else {

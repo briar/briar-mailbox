@@ -25,7 +25,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.briarproject.mailbox.R
 
 object DoNotKillMeUtils {
-    @JvmStatic
     fun showOnboardingDialog(ctx: Context?, text: String?) {
         MaterialAlertDialogBuilder(ctx!!)
             .setMessage(text)

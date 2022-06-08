@@ -48,8 +48,9 @@ abstract class AbstractDoNotKillMeFragment :
 
     private var secondAttempt = false
     private var buttonWasClicked = false
-    private val dozeLauncher =
-        registerForActivityResult(StartActivityForResult(), this::onActivityResult)
+    private val dozeLauncher = registerForActivityResult(StartActivityForResult()) {
+        onActivityResult(it)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

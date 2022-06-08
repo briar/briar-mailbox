@@ -21,7 +21,6 @@ package org.briarproject.mailbox.android.dontkillme
 
 import android.content.Context
 import android.util.AttributeSet
-import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import org.briarproject.android.dontkillmelib.XiaomiUtils.isMiuiTenOrLater
 import org.briarproject.android.dontkillmelib.XiaomiUtils.isXiaomiOrRedmiDevice
@@ -45,7 +44,6 @@ class XiaomiView @JvmOverloads constructor(
         return isXiaomiOrRedmiDevice
     }
 
-    @get:StringRes
     override val helpText: Int = R.string.dnkm_xiaomi_help
 
     override fun onButtonClick() {
