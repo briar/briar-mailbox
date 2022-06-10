@@ -21,7 +21,6 @@
         app:layout_constraintVertical_chainStyle="packed"
         app:layout_constraintWidth_percent="0.2"
         app:srcCompat="@drawable/ic_success"
-        app:tint="@color/briar_green"
         tools:ignore="ContentDescription" />
 
     <com.google.android.material.button.MaterialButton
