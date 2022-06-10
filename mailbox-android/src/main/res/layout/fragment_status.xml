@@ -21,7 +21,6 @@
         app:layout_constraintVertical_chainStyle="packed"
         app:layout_constraintWidth_percent="0.2"
         app:srcCompat="@drawable/ic_success"
-        app:tint="@color/briar_green"
         tools:ignore="ContentDescription" />
 
     <com.google.android.material.button.MaterialButton
@@ -51,10 +50,11 @@
 
     <TextView
         android:id="@+id/description"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="8dp"
+        android:gravity="center"
         android:text="@string/last_connection"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/buttonUnlink"

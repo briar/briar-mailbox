@@ -24,26 +24,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.StatusManager
 import org.briarproject.mailbox.android.UiUtils.formatDate
 
 @AndroidEntryPoint
 class StatusFragment : Fragment() {
 
     private val viewModel: MailboxViewModel by activityViewModels()
-    private val nav: NavController by lazy {
-        val navHostFragment = requireActivity().supportFragmentManager
-            .findFragmentById(R.id.fragmentContainer) as NavHostFragment
-        navHostFragment.navController
-    }
 
+    private lateinit var illustration: ImageView
+    private lateinit var headline: TextView
     private lateinit var buttonStop: Button
     private lateinit var buttonUnlink: Button
     private lateinit var textViewDescription: TextView
@@ -57,6 +55,8 @@ class StatusFragment : Fragment() {
     }
 
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
+        illustration = v.findViewById(R.id.illustration)
+        headline = v.findViewById(R.id.headline)
         buttonStop = v.findViewById(R.id.buttonStop)
         buttonUnlink = v.findViewById(R.id.buttonUnlink)
         textViewDescription = v.findViewById(R.id.description)
@@ -75,9 +75,26 @@ class StatusFragment : Fragment() {
                 .create().show()
         }
 
-        viewModel.lastAccess.observe(viewLifecycleOwner) { lastAccess ->
-            textViewDescription.text =
-                getString(R.string.last_connection, formatDate(requireContext(), lastAccess))
+        viewModel.lastAccess.observe(viewLifecycleOwner) { onLastAccessChanged(it) }
+        launchAndRepeatWhileStarted {
+            viewModel.setupState.collect { onSetupStateChanged(it) }
+        }
+    }
+
+    private fun onLastAccessChanged(lastAccess: Long) {
+        textViewDescription.text =
+            getString(R.string.last_connection, formatDate(requireContext(), lastAccess))
+    }
+
+    private fun onSetupStateChanged(state: StatusManager.MailboxStartupProgress) {
+        if (state is StatusManager.ErrorNoNetwork) {
+            illustration.setImageResource(R.drawable.ic_error)
+            headline.setText(R.string.status_offline)
+            textViewDescription.setText(R.string.status_offline_description)
+        } else {
+            illustration.setImageResource(R.drawable.ic_success)
+            headline.setText(R.string.status_running)
+            onLastAccessChanged(viewModel.lastAccess.value ?: 0)
         }
     }
 
