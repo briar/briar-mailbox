@@ -108,6 +108,8 @@ class AuthManager @Inject constructor(
     @Throws(AuthException::class)
     fun assertIsSetup(principal: MailboxPrincipal?) {
         if (principal !is SetupPrincipal) throw AuthException()
+        // setting up as SetupPrincipal counts as an owner connection
+        metadataManager.onOwnerConnected()
     }
 
 }

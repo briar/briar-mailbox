@@ -32,6 +32,7 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager.OpenDatabaseHook
 import org.briarproject.mailbox.core.server.AuthException
 import org.briarproject.mailbox.core.server.AuthManager
 import org.briarproject.mailbox.core.settings.MetadataManager.Companion.SUPPORTED_VERSIONS
+import org.briarproject.mailbox.core.system.Clock
 import javax.inject.Inject
 
 interface MetadataManager : OpenDatabaseHook {
@@ -61,6 +62,7 @@ private const val SETTINGS_LAST_CONNECTION_TIME = "lastConnectionTime"
 
 class MetadataManagerImpl @Inject constructor(
     private val settingsManager: SettingsManager,
+    private val clock: Clock,
 ) : MetadataManager {
 
     private val _ownerConnectionTime = MutableStateFlow(0L)
@@ -73,7 +75,7 @@ class MetadataManagerImpl @Inject constructor(
 
     @Throws(DbException::class)
     override fun onOwnerConnected() {
-        val timestamp = System.currentTimeMillis()
+        val timestamp = clock.currentTimeMillis()
         val s = Settings().apply {
             putLong(SETTINGS_LAST_CONNECTION_TIME, timestamp)
         }
