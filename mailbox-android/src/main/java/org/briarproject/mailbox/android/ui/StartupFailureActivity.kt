@@ -21,6 +21,7 @@ package org.briarproject.mailbox.android.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
@@ -46,9 +47,8 @@ class StartupFailureActivity : AppCompatActivity() {
             LIFECYCLE_REUSE -> R.string.startup_failed_lifecycle_reuse
             else -> throw IllegalArgumentException()
         }
-        val f = ErrorFragment.newInstance(getString(errorRes))
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, f, ErrorFragment::class.java.name).commit()
+        val msg: TextView = findViewById(R.id.errorMessage)
+        msg.text = getString(errorRes)
     }
 
 }
