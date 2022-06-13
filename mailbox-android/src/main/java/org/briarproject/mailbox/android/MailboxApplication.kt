@@ -21,17 +21,12 @@ package org.briarproject.mailbox.android
 
 import androidx.multidex.MultiDexApplication
 import dagger.hilt.android.HiltAndroidApp
-import org.briarproject.mailbox.android.ui.MainActivity
 import org.briarproject.mailbox.core.AndroidEagerSingletons
 import org.briarproject.mailbox.core.CoreEagerSingletons
 import javax.inject.Inject
 
 @HiltAndroidApp
 class MailboxApplication : MultiDexApplication() {
-
-    companion object {
-        val ENTRY_ACTIVITY = MainActivity::class.java
-    }
 
     @Inject
     internal lateinit var coreEagerSingletons: CoreEagerSingletons

@@ -23,16 +23,15 @@ import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.IntentFilter
 import android.os.IBinder
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.MailboxApplication.Companion.ENTRY_ACTIVITY
 import org.briarproject.mailbox.android.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
 import org.briarproject.mailbox.android.StatusManager.Starting
+import org.briarproject.mailbox.android.ui.StartupFailureActivity
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
@@ -51,7 +50,6 @@ class MailboxService : Service() {
         private val LOG = getLogger(MailboxService::class.java)
 
         var EXTRA_START_RESULT = "org.briarproject.mailbox.START_RESULT"
-        var EXTRA_STARTUP_FAILED = "org.briarproject.mailbox.STARTUP_FAILED"
 
         fun startService(context: Context) {
             val startIntent = Intent(context, MailboxService::class.java)
@@ -170,13 +168,13 @@ class MailboxService : Service() {
 
     private fun showStartupFailure(result: StartResult) {
         androidExecutor.runOnUiThread {
-            // Bring the entry activity to the front to clear the back stack
-            Intent(this, ENTRY_ACTIVITY).apply {
-                flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                putExtra(EXTRA_STARTUP_FAILED, true)
+            Intent(this, StartupFailureActivity::class.java).apply {
                 putExtra(EXTRA_START_RESULT, result)
+                flags = FLAG_ACTIVITY_NEW_TASK
                 startActivity(this)
             }
+            LOG.info("Exiting")
+            exitProcess(0)
         }
     }
 }

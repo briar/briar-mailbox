@@ -35,8 +35,6 @@ import org.briarproject.android.dontkillmelib.PowerUtils.needsDozeWhitelisting
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStoppingFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalWipingFragment
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.MailboxService.Companion.EXTRA_STARTUP_FAILED
-import org.briarproject.mailbox.android.MailboxService.Companion.EXTRA_START_RESULT
 import org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragmentDirections.actionDoNotKillMeFragmentToStartupFragment
 import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToDoNotKillMeFragment
 import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToStartupFragment
@@ -44,7 +42,6 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.S
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.WIPING
 import org.briarproject.mailbox.core.util.LogUtils.info
 import org.slf4j.LoggerFactory.getLogger
-import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult> {
@@ -122,24 +119,5 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         }
         .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
         .show()
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-
-        // will call exitProcess()
-        exitIfStartupFailed(intent)
-    }
-
-    private fun exitIfStartupFailed(intent: Intent) {
-        if (intent.getBooleanExtra(EXTRA_STARTUP_FAILED, false)) {
-            // Launch StartupFailureActivity in its own process, then exit
-            val i = Intent(this, StartupFailureActivity::class.java)
-            i.putExtra(EXTRA_START_RESULT, intent.getSerializableExtra(EXTRA_START_RESULT))
-            startActivity(i)
-            finish()
-            LOG.info("Exiting")
-            exitProcess(0)
-        }
-    }
 
 }
