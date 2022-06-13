@@ -70,6 +70,10 @@ abstract class PowerView @JvmOverloads constructor(
         // state saving is done based on the view's ID and there can be
         // multiple ImageViews with the same ID in the view hierarchy
         isSaveFromParentEnabled = true
+    }
+
+    override fun onFinishInflate() {
+        super.onFinishInflate()
         if (!isInEditMode && !needsToBeShown()) {
             visibility = GONE
         }
