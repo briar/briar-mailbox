@@ -34,8 +34,6 @@ import org.briarproject.mailbox.core.server.WebServerManager.Companion.PORT
 import org.briarproject.mailbox.core.settings.MetadataRouteManager
 import org.briarproject.mailbox.core.setup.SetupRouteManager
 import org.briarproject.mailbox.core.setup.WipeRouteManager
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -55,18 +53,12 @@ internal class WebServerManagerImpl @Inject constructor(
     private val wipeRouteManager: WipeRouteManager,
 ) : WebServerManager {
 
-    internal companion object {
-        private val LOG: Logger = getLogger(WebServerManager::class.java)
-    }
-
     private val server by lazy {
         embeddedServer(Netty, PORT, watchPaths = emptyList()) {
             install(CallLogging)
             install(Authentication) {
                 bearer {
                     authenticationFunction = { token ->
-                        // TODO: Remove logging of token before release.
-                        LOG.error("token: $token")
                         authManager.getPrincipal(token)
                     }
                 }

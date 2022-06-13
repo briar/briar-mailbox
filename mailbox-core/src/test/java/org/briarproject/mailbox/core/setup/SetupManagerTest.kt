@@ -8,6 +8,7 @@ import io.ktor.client.statement.readText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.TestUtils.assertJson
+import org.briarproject.mailbox.core.TestUtils.assertTimestampRecent
 import org.briarproject.mailbox.core.server.IntegrationTest
 import org.briarproject.mailbox.core.settings.MailboxVersion
 import org.junit.jupiter.api.Test
@@ -68,6 +69,8 @@ class SetupManagerTest : IntegrationTest() {
             assertNull(setupManager.getSetupToken(txn))
             assertEquals(setupManager.getOwnerToken(txn), response.token)
         }
+        // owner connection got registered
+        assertTimestampRecent(metadataManager.ownerConnectionTime.value)
         // setup token can no longer be used
         assertEquals(
             HttpStatusCode.Unauthorized,
