@@ -31,7 +31,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
-import org.briarproject.android.dontkillmelib.PowerUtils.needsDozeWhitelisting
+import org.briarproject.android.dontkillmelib.DozeUtils.needsDozeWhitelisting
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStoppingFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalWipingFragment
 import org.briarproject.mailbox.R
@@ -89,6 +89,8 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
             viewModel.hasDb.observe(this) { hasDb ->
                 if (!hasDb) {
                     startForResult.launch(Intent(this, OnboardingActivity::class.java))
+                } else if (needsDozeWhitelisting(this)) {
+                    nav.navigate(actionInitFragmentToDoNotKillMeFragment())
                 } else {
                     nav.navigate(actionInitFragmentToStartupFragment())
                 }
@@ -96,7 +98,9 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         }
     }
 
-    override fun onActivityResult(result: ActivityResult?) {
+    override fun onActivityResult(result: ActivityResult) {
+        // only show next fragment when user went throw onboarding
+        // result doesn't matter as we kill the app when user backs out in onboarding
         if (viewModel.needToShowDoNotKillMeFragment) {
             nav.navigate(actionInitFragmentToDoNotKillMeFragment())
         } else {
