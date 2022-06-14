@@ -87,7 +87,7 @@ dependencies {
     implementation "androidx.multidex:multidex:$multidex_version"
 
     tor "org.briarproject:tor-android:$tor_version"
-    tor "org.briarproject:obfs4proxy-android:$obfs4_version@zip"
+    tor "org.briarproject:obfs4proxy-android:$obfs4_version"
 
     testImplementation 'junit:junit:4.13.2'
 
