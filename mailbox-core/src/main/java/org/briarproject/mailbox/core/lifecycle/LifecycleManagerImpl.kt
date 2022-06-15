@@ -54,6 +54,7 @@ import javax.annotation.concurrent.GuardedBy
 import javax.annotation.concurrent.ThreadSafe
 import javax.inject.Inject
 import kotlin.concurrent.thread
+import kotlin.system.exitProcess
 
 @ThreadSafe
 internal class LifecycleManagerImpl @Inject constructor(
@@ -82,6 +83,8 @@ internal class LifecycleManagerImpl @Inject constructor(
     private val shutdownLatch = CountDownLatch(1)
     private val state = MutableStateFlow(NOT_STARTED)
 
+    private var wipeHook: WipeHook? = null
+
     init {
         services = CopyOnWriteArrayList()
         openDatabaseHooks = CopyOnWriteArrayList()
@@ -104,7 +107,7 @@ internal class LifecycleManagerImpl @Inject constructor(
     }
 
     @GuardedBy("startStopWipeSemaphore")
-    override fun startServices(): StartResult {
+    override fun startServices(wipeHook: WipeHook): StartResult {
         LOG.info("startServices()")
         try {
             LOG.info("acquiring start stop semaphore")
@@ -119,6 +122,7 @@ internal class LifecycleManagerImpl @Inject constructor(
             LOG.warn { "Invalid state: ${state.value}" }
             return LIFECYCLE_REUSE
         }
+        this.wipeHook = wipeHook
         return try {
             LOG.info("Opening database")
             var start = now()
@@ -198,6 +202,7 @@ internal class LifecycleManagerImpl @Inject constructor(
                 // stopped.
                 run("wiping files again") {
                     wipeManager.wipeFilesOnly()
+                    wipeHook?.onWiped()
                 }
             } else {
                 run("closing database") {
@@ -207,8 +212,12 @@ internal class LifecycleManagerImpl @Inject constructor(
 
             shutdownLatch.countDown()
         } finally {
-            state.compareAndSet(STOPPING, STOPPED)
+            val stopped = state.compareAndSet(STOPPING, STOPPED)
             startStopWipeSemaphore.release()
+            if (stopped) {
+                LOG.info("Exiting")
+                exitProcess(0)
+            }
         }
     }
 

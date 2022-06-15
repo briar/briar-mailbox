@@ -68,19 +68,19 @@ public interface LifecycleManager {
 	/**
 	 * Registers a hook to be called after the database is opened and before
 	 * {@link Service services} are started. This method should be called
-	 * before {@link #startServices()}.
+	 * before {@link #startServices(WipeHook)}.
 	 */
 	void registerOpenDatabaseHook(OpenDatabaseHook hook);
 
 	/**
 	 * Registers a {@link Service} to be started and stopped. This method
-	 * should be called before {@link #startServices()}.
+	 * should be called before {@link #startServices(WipeHook)}.
 	 */
 	void registerService(Service s);
 
 	/**
 	 * Registers an {@link ExecutorService} to be shut down. This method
-	 * should be called before {@link #startServices()}.
+	 * should be called before {@link #startServices(WipeHook)}.
 	 */
 	void registerForShutdown(ExecutorService e);
 
@@ -90,7 +90,7 @@ public interface LifecycleManager {
 	 */
 	@Wakeful
 	@NotNull
-	StartResult startServices();
+	StartResult startServices(WipeHook wipeHook);
 
 	/**
 	 * Stops any registered {@link Service Services}, shuts down any

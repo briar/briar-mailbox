@@ -81,7 +81,9 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
         testComponent = DaggerTestComponent.builder().testModule(TestModule(tempDir)).build()
         testComponent.injectCoreEagerSingletons()
         assertFalse(setupManager.hasDb)
-        lifecycleManager.startServices()
+        lifecycleManager.startServices {
+            // do nothing
+        }
         lifecycleManager.waitForStartup()
     }
 

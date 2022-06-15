@@ -19,28 +19,32 @@
 
 package org.briarproject.mailbox.android
 
-import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.IntentFilter
-import android.os.IBinder
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleService
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
 import org.briarproject.mailbox.android.StatusManager.Starting
 import org.briarproject.mailbox.android.ui.StartupFailureActivity
 import org.briarproject.mailbox.android.ui.StartupFailureActivity.Companion.EXTRA_START_RESULT
 import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure
+import org.briarproject.mailbox.android.ui.WipeCompleteActivity
+import org.briarproject.mailbox.android.ui.launchAndRepeatWhileStarted
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.WIPING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.LIFECYCLE_REUSE
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
 import org.briarproject.mailbox.core.system.AndroidExecutor
 import org.briarproject.mailbox.core.system.AndroidWakeLock
 import org.briarproject.mailbox.core.system.AndroidWakeLockManager
+import org.briarproject.mailbox.core.util.LogUtils.info
 import org.briarproject.mailbox.core.util.LogUtils.warn
 import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.atomic.AtomicBoolean
@@ -48,7 +52,7 @@ import javax.inject.Inject
 import kotlin.system.exitProcess
 
 @AndroidEntryPoint
-class MailboxService : Service() {
+class MailboxService : LifecycleService() {
 
     companion object {
         private val LOG = getLogger(MailboxService::class.java)
@@ -117,7 +121,14 @@ class MailboxService : Service() {
 
         // Start the services in a background thread
         androidExecutor.runOnBackgroundThread {
-            when (lifecycleManager.startServices()) {
+            val result = lifecycleManager.startServices {
+                startActivity(
+                    Intent(this, WipeCompleteActivity::class.java).apply {
+                        flags = FLAG_ACTIVITY_NEW_TASK
+                    }
+                )
+            }
+            when (result) {
                 SUCCESS -> started = true
                 SERVICE_ERROR -> showStartupFailure(StartupFailure.SERVICE_ERROR)
                 LIFECYCLE_REUSE -> showStartupFailure(StartupFailure.LIFECYCLE_REUSE)
@@ -135,10 +146,20 @@ class MailboxService : Service() {
         filter.addAction("android.intent.action.QUICKBOOT_POWEROFF")
         filter.addAction("com.htc.intent.action.QUICKBOOT_POWEROFF")
         registerReceiver(receiver, filter)
-    }
 
-    override fun onBind(intent: Intent): IBinder? {
-        return null
+        launchAndRepeatWhileStarted {
+            lifecycleManager.lifecycleStateFlow.collect { state ->
+                LOG.info { "lifecycle state: $state" }
+                if (state == WIPING) {
+                    androidExecutor.runOnBackgroundThread {
+                        LOG.info("calling waitForShutdown()")
+                        lifecycleManager.waitForShutdown()
+                        LOG.info("calling stopService()")
+                        stopSelf()
+                    }
+                }
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -158,7 +179,6 @@ class MailboxService : Service() {
                     // Or maybe we want to do precisely that to make sure exiting really happens and the app
                     // doesn't get suspended before it gets a chance to exit?
                     lifecycleWakeLock.release()
-                    exitProcess(0)
                 }
             }
         }
