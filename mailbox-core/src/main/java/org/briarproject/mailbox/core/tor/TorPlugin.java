@@ -282,7 +282,6 @@ public abstract class TorPlugin
 			doneFile.delete();
 			installTorExecutable();
 			installObfs4Executable();
-			extract(getGeoIpInputStream(), geoIpFile);
 			extract(getConfigInputStream(), configFile);
 			if (!doneFile.createNewFile())
 				LOG.warn("Failed to create done file");
@@ -313,14 +312,6 @@ public abstract class TorPlugin
 	private InputStream getTorInputStream() throws IOException {
 		InputStream in = resourceProvider
 				.getResourceInputStream("tor_" + architecture, ".zip");
-		ZipInputStream zin = new ZipInputStream(in);
-		if (zin.getNextEntry() == null) throw new IOException();
-		return zin;
-	}
-
-	private InputStream getGeoIpInputStream() throws IOException {
-		InputStream in = resourceProvider.getResourceInputStream("geoip",
-				".zip");
 		ZipInputStream zin = new ZipInputStream(in);
 		if (zin.getNextEntry() == null) throw new IOException();
 		return zin;
