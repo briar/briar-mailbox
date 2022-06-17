@@ -113,7 +113,7 @@ class MailboxNotificationManager @Inject constructor(
                     setContentTitle(ctx.getString(R.string.notification_mailbox_title_running))
                     setContentText(ctx.getString(R.string.notification_mailbox_content_running))
                 }
-                // TODO: set different message here?!
+                // TODO: set different message here?! also for ErrorClockSkew
                 ErrorNoNetwork -> {
                     setContentTitle(ctx.getString(R.string.notification_mailbox_title_running))
                     setContentText(ctx.getString(R.string.notification_mailbox_content_running))

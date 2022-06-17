@@ -30,11 +30,13 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.StatusManager.ErrorClockSkew
 import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
 import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
 import org.briarproject.mailbox.android.StatusManager.StartedSetupComplete
 import org.briarproject.mailbox.android.StatusManager.Starting
+import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToClockSkewFragment
 import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToNoNetworkFragment
 import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToQrCodeFragment
 import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToStatusFragment
@@ -74,6 +76,9 @@ class StartupFragment : Fragment() {
             )
             is ErrorNoNetwork -> findNavController().navigate(
                 actionStartupFragmentToNoNetworkFragment()
+            )
+            is ErrorClockSkew -> findNavController().navigate(
+                actionStartupFragmentToClockSkewFragment()
             )
         }
     }

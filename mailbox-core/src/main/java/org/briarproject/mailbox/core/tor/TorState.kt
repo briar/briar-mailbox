@@ -32,6 +32,12 @@ sealed class TorState {
     class Enabling(val percent: Int) : TorState()
 
     /**
+     * Tor has detected a wrong system clock. The user should be advised to check their clock
+     * and timezone settings.
+     */
+    object ClockSkewed : TorState()
+
+    /**
      * The plugin is enabled and can make or receive connections.
      */
     object Active : TorState()

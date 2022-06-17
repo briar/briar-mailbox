@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_onboarding"
     app:startDestination="@id/initFragment">
 
@@ -42,7 +43,8 @@
     <fragment
         android:id="@+id/startupFragment"
         android:name="org.briarproject.mailbox.android.ui.StartupFragment"
-        android:label="StartupFragment">
+        android:label="StartupFragment"
+        tools:layout="@layout/fragment_startup">
         <action
             android:id="@+id/action_startupFragment_to_qrCodeFragment"
             app:destination="@id/qrCodeFragment"
@@ -58,6 +60,9 @@
             app:destination="@id/noNetworkFragment"
             app:popUpTo="@id/startupFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_startupFragment_to_clockSkewFragment"
+            app:destination="@id/clockSkewFragment" />
     </fragment>
     <fragment
         android:id="@+id/qrCodeFragment"
@@ -86,9 +91,19 @@
     <fragment
         android:id="@+id/noNetworkFragment"
         android:name="org.briarproject.mailbox.android.ui.NoNetworkFragment"
-        android:label="NoNetworkFragment">
+        android:label="NoNetworkFragment"
+        tools:layout="@layout/fragment_no_network">
         <action
             android:id="@+id/action_noNetworkFragment_to_startupFragment"
+            app:destination="@id/startupFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/clockSkewFragment"
+        android:name="org.briarproject.mailbox.android.ui.ClockSkewFragment"
+        android:label="ClockSkewFragment"
+        tools:layout="@layout/fragment_clock_skew">
+        <action
+            android:id="@+id/action_clockSkewFragment_to_startupFragment"
             app:destination="@id/startupFragment" />
     </fragment>
     <fragment

@@ -61,6 +61,7 @@ class StatusManager @Inject constructor(
     class StartedSettingUp(val qrCode: Bitmap) : MailboxAppState()
     object StartedSetupComplete : MailboxAppState()
     object AfterRunning : MailboxAppState()
+    object ErrorClockSkew : MailboxAppState()
     object ErrorNoNetwork : MailboxAppState()
 
     val appState: Flow<MailboxAppState> = combine(
@@ -75,6 +76,7 @@ class StatusManager @Inject constructor(
                 is TorState.Enabling -> Starting(
                     getString(R.string.startup_bootstrapping_tor, ts.percent)
                 )
+                TorState.ClockSkewed -> ErrorClockSkew
                 TorState.Inactive -> ErrorNoNetwork
                 else -> Starting(getString(R.string.startup_publishing_onion_service))
             }
