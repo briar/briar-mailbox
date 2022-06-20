@@ -31,7 +31,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
-import org.briarproject.mailbox.android.StatusManager.MailboxStartupProgress
+import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
 import org.briarproject.mailbox.android.StatusManager.StartedSetupComplete
 import org.briarproject.mailbox.android.StatusManager.Starting
@@ -57,13 +57,13 @@ class StartupFragment : Fragment() {
         statusTextView = v.findViewById(R.id.statusTextView)
 
         launchAndRepeatWhileStarted {
-            viewModel.setupState.collect { onSetupStateChanged(it) }
+            viewModel.appState.collect { onAppStateChanged(it) }
         }
 
         viewModel.startLifecycle()
     }
 
-    private fun onSetupStateChanged(state: MailboxStartupProgress) {
+    private fun onAppStateChanged(state: MailboxAppState) {
         when (state) {
             is Starting -> statusTextView.text = state.status
             is StartedSettingUp -> findNavController().navigate(

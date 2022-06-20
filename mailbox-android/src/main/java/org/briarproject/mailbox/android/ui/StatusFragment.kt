@@ -77,7 +77,7 @@ class StatusFragment : Fragment() {
 
         viewModel.lastAccess.observe(viewLifecycleOwner) { onLastAccessChanged(it) }
         launchAndRepeatWhileStarted {
-            viewModel.setupState.collect { onSetupStateChanged(it) }
+            viewModel.appState.collect { onAppStateChanged(it) }
         }
     }
 
@@ -86,7 +86,7 @@ class StatusFragment : Fragment() {
             getString(R.string.last_connection, formatDate(requireContext(), lastAccess))
     }
 
-    private fun onSetupStateChanged(state: StatusManager.MailboxStartupProgress) {
+    private fun onAppStateChanged(state: StatusManager.MailboxAppState) {
         if (state is StatusManager.ErrorNoNetwork) {
             illustration.setImageResource(R.drawable.ic_error)
             headline.setText(R.string.status_offline)

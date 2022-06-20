@@ -31,7 +31,7 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.StatusManager.MailboxStartupProgress
+import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
 import org.briarproject.mailbox.android.StatusManager.StartedSetupComplete
 import org.briarproject.mailbox.android.ui.QrCodeFragmentDirections.actionQrCodeFragmentToSetupCompleteFragment
@@ -61,17 +61,17 @@ class QrCodeFragment : Fragment() {
         }
 
         launchAndRepeatWhileStarted {
-            viewModel.setupState.collect { onSetupStateChanged(it) }
+            viewModel.appState.collect { onAppStateChanged(it) }
         }
     }
 
-    private fun onSetupStateChanged(setupComplete: MailboxStartupProgress) {
-        when (setupComplete) {
-            is StartedSettingUp -> qrCodeView.setImageBitmap(setupComplete.qrCode)
+    private fun onAppStateChanged(state: MailboxAppState) {
+        when (state) {
+            is StartedSettingUp -> qrCodeView.setImageBitmap(state.qrCode)
             is StartedSetupComplete -> findNavController().navigate(
                 actionQrCodeFragmentToSetupCompleteFragment()
             )
-            else -> error("Unexpected setup state: $setupComplete")
+            else -> error("Unexpected app state: $state")
         }
     }
 
