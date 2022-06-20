@@ -174,7 +174,7 @@ class MailboxService : Service() {
                 startActivity(this)
             }
             LOG.info("Exiting")
-            exitProcess(0)
+            exitProcess(1)
         }
     }
 }

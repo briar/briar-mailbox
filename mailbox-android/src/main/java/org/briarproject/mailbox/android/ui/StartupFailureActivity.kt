@@ -29,6 +29,7 @@ import org.briarproject.mailbox.android.MailboxService.Companion.EXTRA_START_RES
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.LIFECYCLE_REUSE
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
 
 @AndroidEntryPoint
 class StartupFailureActivity : AppCompatActivity() {
@@ -45,7 +46,8 @@ class StartupFailureActivity : AppCompatActivity() {
         val errorRes = when (i.getSerializableExtra(EXTRA_START_RESULT) as StartResult) {
             SERVICE_ERROR -> R.string.startup_failed_service_error
             LIFECYCLE_REUSE -> R.string.startup_failed_lifecycle_reuse
-            else -> throw IllegalArgumentException()
+            // It is an error if SUCCESS gets passed as an extra from MailboxService
+            SUCCESS -> throw IllegalArgumentException()
         }
         val msg: TextView = findViewById(R.id.errorMessage)
         msg.text = getString(errorRes)
