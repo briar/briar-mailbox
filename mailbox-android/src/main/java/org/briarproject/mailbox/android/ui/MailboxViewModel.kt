@@ -72,7 +72,7 @@ class MailboxViewModel @Inject constructor(
 
     val hasDb: LiveData<Boolean> = liveData(Dispatchers.IO) { emit(setupManager.hasDb) }
 
-    val setupState = statusManager.setupState
+    val appState = statusManager.appState
 
     val lastAccess: LiveData<Long> = metadataManager.ownerConnectionTime.asLiveData()
 

@@ -54,19 +54,22 @@ class StatusManager @Inject constructor(
     private val setupComplete: StateFlow<SetupComplete> = setupManager.setupComplete
 
     /**
-     * Possible values for [setupState]
+     * Possible values for [appState]
      */
-    sealed class MailboxStartupProgress
-    class Starting(val status: String) : MailboxStartupProgress()
-    class StartedSettingUp(val qrCode: Bitmap) : MailboxStartupProgress()
-    object StartedSetupComplete : MailboxStartupProgress()
-    object ErrorNoNetwork : MailboxStartupProgress()
+    sealed class MailboxAppState
+    class Starting(val status: String) : MailboxAppState()
+    class StartedSettingUp(val qrCode: Bitmap) : MailboxAppState()
+    object StartedSetupComplete : MailboxAppState()
+    object AfterRunning : MailboxAppState()
+    object ErrorNoNetwork : MailboxAppState()
 
-    val setupState: Flow<MailboxStartupProgress> = combine(
+    val appState: Flow<MailboxAppState> = combine(
         lifecycleState, torPluginState, setupComplete
     ) { ls, ts, sc ->
         when {
+            ls.isAfter(LifecycleState.RUNNING) -> AfterRunning
             ls != LifecycleState.RUNNING -> Starting(getString(R.string.startup_starting_services))
+            // RUNNING
             ts != TorState.Published -> when (ts) {
                 TorState.StartingStopping -> Starting(getString(R.string.startup_starting_tor))
                 is TorState.Enabling -> Starting(

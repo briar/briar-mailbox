@@ -30,7 +30,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
-import org.briarproject.mailbox.android.StatusManager.MailboxStartupProgress
+import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.ui.NoNetworkFragmentDirections.actionNoNetworkFragmentToStartupFragment
 
 @AndroidEntryPoint
@@ -48,11 +48,11 @@ class NoNetworkFragment : Fragment() {
 
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
         launchAndRepeatWhileStarted {
-            viewModel.setupState.collect { onSetupStateChanged(it) }
+            viewModel.appState.collect { onAppStateChanged(it) }
         }
     }
 
-    private fun onSetupStateChanged(state: MailboxStartupProgress) {
+    private fun onAppStateChanged(state: MailboxAppState) {
         if (state != ErrorNoNetwork) {
             findNavController().navigate(actionNoNetworkFragmentToStartupFragment())
         }

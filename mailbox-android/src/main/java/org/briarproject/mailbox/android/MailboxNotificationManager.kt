@@ -38,8 +38,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.StatusManager.AfterRunning
 import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
-import org.briarproject.mailbox.android.StatusManager.MailboxStartupProgress
+import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
 import org.briarproject.mailbox.android.StatusManager.StartedSetupComplete
 import org.briarproject.mailbox.android.StatusManager.Starting
@@ -64,11 +65,11 @@ class MailboxNotificationManager @Inject constructor(
     init {
         if (SDK_INT >= 26) createNotificationChannels()
 
-        val setupState = statusManager.setupState
+        val appState = statusManager.appState
 
         GlobalScope.launch(Dispatchers.IO) {
-            setupState.collect {
-                updateNotification(it)
+            appState.collect { state ->
+                if (state != AfterRunning) updateNotification(state)
             }
         }
     }
@@ -87,19 +88,19 @@ class MailboxNotificationManager @Inject constructor(
         nm.createNotificationChannels(channels)
     }
 
-    private fun updateNotification(status: MailboxStartupProgress) {
-        val notification = getServiceNotification(status)
+    private fun updateNotification(state: MailboxAppState) {
+        val notification = getServiceNotification(state)
         nm.notify(NOTIFICATION_MAIN_ID, notification)
     }
 
-    fun getServiceNotification(status: MailboxStartupProgress): Notification {
+    fun getServiceNotification(state: MailboxAppState): Notification {
         val notificationIntent = Intent(ctx, MainActivity::class.java)
         val flags = if (SDK_INT >= 23) FLAG_IMMUTABLE else 0
         val pendingIntent = PendingIntent.getActivity(
             ctx, 0, notificationIntent, flags
         )
         return NotificationCompat.Builder(ctx, CHANNEL_ID).apply {
-            when (status) {
+            when (state) {
                 is Starting -> {
                     setContentTitle(ctx.getString(R.string.notification_mailbox_title_starting))
                     setContentText(ctx.getString(R.string.notification_mailbox_content_starting))
@@ -117,6 +118,7 @@ class MailboxNotificationManager @Inject constructor(
                     setContentTitle(ctx.getString(R.string.notification_mailbox_title_running))
                     setContentText(ctx.getString(R.string.notification_mailbox_content_running))
                 }
+                AfterRunning -> throw IllegalStateException()
             }
         }.setSmallIcon(R.drawable.ic_notification_foreground)
             .setContentIntent(pendingIntent)
