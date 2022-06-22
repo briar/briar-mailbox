@@ -43,7 +43,8 @@ abstract class AbstractDoNotKillMeFragment :
     private lateinit var dozeView: DozeView
     private lateinit var huaweiProtectedAppsView: HuaweiProtectedAppsView
     private lateinit var huaweiAppLaunchView: HuaweiAppLaunchView
-    private lateinit var xiaomiView: XiaomiView
+    private lateinit var xiaomiRecentAppsView: XiaomiRecentAppsView
+    private lateinit var xiaomiLockAppsView: XiaomiLockAppsView
     private lateinit var next: Button
 
     private var secondAttempt = false
@@ -66,8 +67,10 @@ abstract class AbstractDoNotKillMeFragment :
         huaweiProtectedAppsView.setOnCheckedChangedListener(this)
         huaweiAppLaunchView = v.findViewById(R.id.huaweiAppLaunchView)
         huaweiAppLaunchView.setOnCheckedChangedListener(this)
-        xiaomiView = v.findViewById(R.id.xiaomiView)
-        xiaomiView.setOnCheckedChangedListener(this)
+        xiaomiRecentAppsView = v.findViewById(R.id.xiaomiRecentAppsView)
+        xiaomiRecentAppsView.setOnCheckedChangedListener(this)
+        xiaomiLockAppsView = v.findViewById(R.id.xiaomiLockAppsView)
+        xiaomiLockAppsView.setOnCheckedChangedListener(this)
         next = v.findViewById(R.id.next)
         val progressBar = v.findViewById<ProgressBar>(R.id.progress)
         dozeView.setOnButtonClickListener { askForDozeWhitelisting() }
@@ -110,7 +113,8 @@ abstract class AbstractDoNotKillMeFragment :
         next.isEnabled = dozeView.isChecked() &&
             huaweiProtectedAppsView.isChecked() &&
             huaweiAppLaunchView.isChecked() &&
-            xiaomiView.isChecked()
+            xiaomiRecentAppsView.isChecked() &&
+            xiaomiLockAppsView.isChecked()
     }
 
     @SuppressLint("BatteryLife")

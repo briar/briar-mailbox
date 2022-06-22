@@ -22,13 +22,13 @@ package org.briarproject.mailbox.android.dontkillme
 import android.content.Context
 import android.util.AttributeSet
 import androidx.annotation.UiThread
-import org.briarproject.android.dontkillmelib.XiaomiUtils.isMiuiTenOrLater
-import org.briarproject.android.dontkillmelib.XiaomiUtils.isXiaomiOrRedmiDevice
+import org.briarproject.android.dontkillmelib.XiaomiUtils.isMiuiVersionAtLeast
+import org.briarproject.android.dontkillmelib.XiaomiUtils.xiaomiRecentAppsNeedsToBeShown
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.dontkillme.DoNotKillMeUtils.showOnboardingDialog
 
 @UiThread
-class XiaomiView @JvmOverloads constructor(
+class XiaomiRecentAppsView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
@@ -41,13 +41,13 @@ class XiaomiView @JvmOverloads constructor(
     }
 
     override fun needsToBeShown(): Boolean {
-        return isXiaomiOrRedmiDevice
+        return xiaomiRecentAppsNeedsToBeShown()
     }
 
     override val helpText: Int = R.string.dnkm_xiaomi_help
 
     override fun onButtonClick() {
-        val bodyRes = if (isMiuiTenOrLater) {
+        val bodyRes = if (isMiuiVersionAtLeast(10, 0)) {
             R.string.dnkm_xiaomi_dialog_body_new
         } else {
             R.string.dnkm_xiaomi_dialog_body_old
