@@ -32,8 +32,10 @@ import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
 import org.briarproject.mailbox.android.StatusManager.Starting
 import org.briarproject.mailbox.android.ui.StartupFailureActivity
+import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.LIFECYCLE_REUSE
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
 import org.briarproject.mailbox.core.system.AndroidExecutor
 import org.briarproject.mailbox.core.system.AndroidWakeLock
@@ -115,14 +117,11 @@ class MailboxService : Service() {
 
         // Start the services in a background thread
         androidExecutor.runOnBackgroundThread {
-            val result = lifecycleManager.startServices()
-            when {
-                result === SUCCESS -> started = true
-                else -> {
-                    if (LOG.isWarnEnabled) LOG.warn("Startup failed: $result")
-                    showStartupFailure(result)
-                    stopSelf()
-                }
+            when (lifecycleManager.startServices()) {
+                SUCCESS -> started = true
+                SERVICE_ERROR -> showStartupFailure(StartupFailure.SERVICE_ERROR)
+                LIFECYCLE_REUSE -> showStartupFailure(StartupFailure.LIFECYCLE_REUSE)
+                null -> {}
             }
         }
         // Register for device shutdown broadcasts
@@ -166,7 +165,8 @@ class MailboxService : Service() {
         }
     }
 
-    private fun showStartupFailure(result: StartResult) {
+    private fun showStartupFailure(result: StartupFailure) {
+        if (LOG.isWarnEnabled) LOG.warn("Startup failed: $result")
         androidExecutor.runOnUiThread {
             Intent(this, StartupFailureActivity::class.java).apply {
                 putExtra(EXTRA_START_RESULT, result)
@@ -176,5 +176,6 @@ class MailboxService : Service() {
             LOG.info("Exiting")
             exitProcess(1)
         }
+        stopSelf()
     }
 }
