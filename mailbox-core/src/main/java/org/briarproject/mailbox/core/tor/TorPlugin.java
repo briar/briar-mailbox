@@ -105,6 +105,7 @@ public abstract class TorPlugin
 	private static final int HS_DESC_UPLOADS = 1;
 	private final Pattern bootstrapPattern =
 			Pattern.compile("^Bootstrapped ([0-9]{1,3})%.*$");
+	private final Pattern clockSkewPattern = Pattern.compile("CLOCK_SKEW");
 
 	private final Executor ioExecutor;
 	private final Executor connectionStatusExecutor;
@@ -117,7 +118,7 @@ public abstract class TorPlugin
 	private final String architecture;
 	private final CircumventionProvider circumventionProvider;
 	private final ResourceProvider resourceProvider;
-	private final File torDirectory, geoIpFile, configFile;
+	private final File torDirectory, configFile;
 	private final File doneFile, cookieFile;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
@@ -150,7 +151,6 @@ public abstract class TorPlugin
 		this.backoff = backoff;
 		this.architecture = architecture;
 		this.torDirectory = torDirectory;
-		geoIpFile = new File(torDirectory, "geoip");
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
@@ -501,6 +501,9 @@ public abstract class TorPlugin
 				int percent = Integer.parseInt(percentStr);
 				state.setBootstrapPercent(percent);
 			}
+		} else if (severity.equals("WARN")) {
+			Matcher matcher = clockSkewPattern.matcher(msg);
+			if (matcher.find()) state.setClockSkewed();
 		}
 	}
 
@@ -602,7 +605,8 @@ public abstract class TorPlugin
 				stopped = false,
 				networkInitialised = false,
 				networkEnabled = false,
-				circuitBuilt = false;
+				circuitBuilt = false,
+				clockSkewed = false;
 		@GuardedBy("this")
 		private int bootstrapPercent = 0, numServiceUploads = 0;
 
@@ -633,12 +637,19 @@ public abstract class TorPlugin
 				throw new IllegalArgumentException("percent: " + percent);
 			}
 			bootstrapPercent = percent;
+			if (percent == 100) clockSkewed = false;
+			state.setValue(getCurrentState());
+		}
+
+		synchronized void setClockSkewed() {
+			clockSkewed = true;
 			state.setValue(getCurrentState());
 		}
 
 		synchronized boolean getAndSetCircuitBuilt() {
 			boolean firstCircuit = !circuitBuilt;
 			circuitBuilt = true;
+			if (bootstrapPercent == 100) clockSkewed = false;
 			state.setValue(getCurrentState());
 			return firstCircuit;
 		}
@@ -663,6 +674,7 @@ public abstract class TorPlugin
 				return new TorState.Enabling(bootstrapPercent);
 			}
 			if (!networkEnabled) return TorState.Inactive.INSTANCE;
+			if (clockSkewed) return TorState.ClockSkewed.INSTANCE;
 			if (bootstrapPercent == 100 && circuitBuilt) {
 				return (numServiceUploads >= HS_DESC_UPLOADS) ?
 						TorState.Published.INSTANCE : TorState.Active.INSTANCE;

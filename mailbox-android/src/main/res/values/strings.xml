@@ -37,6 +37,9 @@
     <string name="startup_bootstrapping_tor">Bootstrapping Tor (%d%%)</string>
     <string name="startup_publishing_onion_service">Publishing onion service</string>
 
+    <string name="clock_skew_title">Wrong system clock</string>
+    <string name="clock_skew_description">Check your time, timezone, and date in system settings. After fixing, wait some time for Tor to recover.</string>
+
     <string name="no_network_title">Device offline?</string>
     <string name="no_network_description">Please ensure this device is online and connected to the Internet. Once you\'re online, setup should pick up automatically here.</string>
 
