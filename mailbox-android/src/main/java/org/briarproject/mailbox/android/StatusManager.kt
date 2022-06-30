@@ -28,7 +28,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onEach
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
@@ -43,6 +45,7 @@ import kotlin.math.min
 class StatusManager @Inject constructor(
     @ApplicationContext private val context: Context,
     lifecycleManager: LifecycleManager,
+    notificationManager: MailboxNotificationManager,
     setupManager: SetupManager,
     private val qrCodeEncoder: QrCodeEncoder,
     torPlugin: TorPlugin,
@@ -57,8 +60,8 @@ class StatusManager @Inject constructor(
      * Possible values for [appState]
      */
     sealed class MailboxAppState
-    class Starting(val status: String) : MailboxAppState()
-    class StartedSettingUp(val qrCode: Bitmap) : MailboxAppState()
+    data class Starting(val status: String) : MailboxAppState()
+    data class StartedSettingUp(val qrCode: Bitmap) : MailboxAppState()
     object StartedSetupComplete : MailboxAppState()
     object AfterRunning : MailboxAppState()
     object ErrorClockSkew : MailboxAppState()
@@ -93,7 +96,9 @@ class StatusManager @Inject constructor(
             // else means sc == SetupComplete.UNKNOWN
             else -> error("Expected setup completion to be known at this point")
         }
-    }.flowOn(Dispatchers.IO)
+    }.flowOn(Dispatchers.IO).distinctUntilChanged().onEach { state ->
+        if (state != AfterRunning) notificationManager.onMailboxAppStateChanged(state)
+    }
 
     private fun getString(@StringRes resId: Int, vararg formatArgs: Any?): String {
         return context.getString(resId, *formatArgs)

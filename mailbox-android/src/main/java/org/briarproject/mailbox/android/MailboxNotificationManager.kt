@@ -34,9 +34,7 @@ import androidx.core.app.NotificationCompat.PRIORITY_MIN
 import androidx.core.content.ContextCompat.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.StatusManager.AfterRunning
 import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
@@ -51,7 +49,6 @@ import javax.inject.Singleton
 @Singleton
 class MailboxNotificationManager @Inject constructor(
     @ApplicationContext private val ctx: Context,
-    statusManager: StatusManager,
 ) {
 
     companion object {
@@ -60,18 +57,11 @@ class MailboxNotificationManager @Inject constructor(
         const val NOTIFICATION_MAIN_ID = 1
     }
 
-    private val nm = getSystemService(ctx, NotificationManager::class.java)!!
+    private val nm = getSystemService(ctx, NotificationManager::class.java)
+        ?: error("No NotificationManager")
 
     init {
         if (SDK_INT >= 26) createNotificationChannels()
-
-        val appState = statusManager.appState
-
-        GlobalScope.launch(Dispatchers.IO) {
-            appState.collect { state ->
-                if (state != AfterRunning) updateNotification(state)
-            }
-        }
     }
 
     @RequiresApi(26)
@@ -88,7 +78,7 @@ class MailboxNotificationManager @Inject constructor(
         nm.createNotificationChannels(channels)
     }
 
-    private fun updateNotification(state: MailboxAppState) {
+    suspend fun onMailboxAppStateChanged(state: MailboxAppState) = withContext(Dispatchers.Main) {
         val notification = getServiceNotification(state)
         nm.notify(NOTIFICATION_MAIN_ID, notification)
     }
@@ -96,9 +86,7 @@ class MailboxNotificationManager @Inject constructor(
     fun getServiceNotification(state: MailboxAppState): Notification {
         val notificationIntent = Intent(ctx, MainActivity::class.java)
         val flags = if (SDK_INT >= 23) FLAG_IMMUTABLE else 0
-        val pendingIntent = PendingIntent.getActivity(
-            ctx, 0, notificationIntent, flags
-        )
+        val pendingIntent = PendingIntent.getActivity(ctx, 0, notificationIntent, flags)
         return NotificationCompat.Builder(ctx, CHANNEL_ID).apply {
             when (state) {
                 is Starting -> {
@@ -113,17 +101,20 @@ class MailboxNotificationManager @Inject constructor(
                     setContentTitle(ctx.getString(R.string.notification_mailbox_title_running))
                     setContentText(ctx.getString(R.string.notification_mailbox_content_running))
                 }
-                // TODO: set different message here?! also for ErrorClockSkew
                 ErrorNoNetwork -> {
-                    setContentTitle(ctx.getString(R.string.notification_mailbox_title_running))
-                    setContentText(ctx.getString(R.string.notification_mailbox_content_running))
+                    setContentTitle(ctx.getString(R.string.notification_mailbox_title_offline))
+                    setContentText(ctx.getString(R.string.notification_mailbox_content_offline))
                 }
-                AfterRunning -> throw IllegalStateException()
+                StatusManager.ErrorClockSkew -> {
+                    setContentTitle(ctx.getString(R.string.notification_mailbox_title_offline))
+                    setContentText(ctx.getString(R.string.notification_mailbox_content_clock_skew))
+                }
+                AfterRunning -> error("No notifications when lifecycle not running")
             }
-        }.setSmallIcon(R.drawable.ic_notification_foreground)
-            .setContentIntent(pendingIntent)
-            .setPriority(PRIORITY_MIN)
-            .build()
+            setSmallIcon(R.drawable.ic_notification_foreground)
+            setContentIntent(pendingIntent)
+            priority = PRIORITY_MIN
+        }.build()
     }
 
 }
