@@ -74,11 +74,10 @@ public class AndroidTorPlugin extends TorPlugin {
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			AndroidWakeLockManager wakeLockManager,
-			Backoff backoff,
 			@Nullable String architecture,
 			File torDirectory) {
 		super(ioExecutor, settingsManager, networkManager, locationUtils, clock,
-				resourceProvider, circumventionProvider, backoff, architecture,
+				resourceProvider, circumventionProvider, architecture,
 				torDirectory);
 		this.ctx = ctx;
 		wakeLock = wakeLockManager.createWakeLock("TorPlugin");

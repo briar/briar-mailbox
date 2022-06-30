@@ -44,12 +44,11 @@ public class JavaTorPlugin extends TorPlugin {
 			Clock clock,
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
-			Backoff backoff,
 			@Nullable String architecture,
 			File torDirectory) {
 		super(ioExecutor, settingsManager, networkManager, locationUtils, clock,
-				resourceProvider,
-				circumventionProvider, backoff, architecture, torDirectory);
+				resourceProvider, circumventionProvider, architecture,
+				torDirectory);
 	}
 
 	@Override

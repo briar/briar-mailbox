@@ -35,25 +35,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 internal class TorModule {
 
-    companion object {
-        private const val MIN_POLLING_INTERVAL = 60 * 1000 // 1 minute
-        private const val MAX_POLLING_INTERVAL = 10 * 60 * 1000 // 10 mins
-        private const val BACKOFF_BASE = 1.2
-    }
-
     @Provides
     @Singleton
-    fun provideCircumventionProvider(): CircumventionProvider = object : CircumventionProvider {
-        override fun isTorProbablyBlocked(countryCode: String?) = false
-        override fun doBridgesWork(countryCode: String?) = true
-        override fun needsMeek(countryCode: String?) = false
-        override fun getBridges(meek: Boolean): List<String> = emptyList()
-    }
-
-    @Provides
-    @Singleton
-    fun provideBackoff(): Backoff {
-        return BackoffImpl(MIN_POLLING_INTERVAL, MAX_POLLING_INTERVAL, BACKOFF_BASE)
+    fun provideCircumventionProvider(provider: CircumventionProviderImpl): CircumventionProvider {
+        return provider
     }
 
     @Provides
