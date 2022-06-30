@@ -25,12 +25,15 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.MailboxService.Companion.EXTRA_START_RESULT
 import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure.LIFECYCLE_REUSE
 import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure.SERVICE_ERROR
 
 @AndroidEntryPoint
 class StartupFailureActivity : AppCompatActivity() {
+
+    companion object {
+        var EXTRA_START_RESULT = "org.briarproject.mailbox.START_RESULT"
+    }
 
     enum class StartupFailure {
         SERVICE_ERROR, LIFECYCLE_REUSE

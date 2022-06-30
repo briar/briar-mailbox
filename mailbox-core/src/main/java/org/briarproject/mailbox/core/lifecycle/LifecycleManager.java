@@ -22,6 +22,7 @@ package org.briarproject.mailbox.core.lifecycle;
 import org.briarproject.mailbox.core.db.Database;
 import org.briarproject.mailbox.core.db.Transaction;
 import org.briarproject.mailbox.core.system.Wakeful;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ExecutorService;
 
@@ -88,6 +89,7 @@ public interface LifecycleManager {
 	 * registered {@link Service Services}.
 	 */
 	@Wakeful
+	@NotNull
 	StartResult startServices();
 
 	/**
