@@ -35,6 +35,7 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.S
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.WIPING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.OpenDatabaseHook
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.LIFECYCLE_REUSE
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
 import org.briarproject.mailbox.core.setup.WipeManager
@@ -43,6 +44,7 @@ import org.briarproject.mailbox.core.util.LogUtils.logDuration
 import org.briarproject.mailbox.core.util.LogUtils.logException
 import org.briarproject.mailbox.core.util.LogUtils.now
 import org.briarproject.mailbox.core.util.LogUtils.trace
+import org.briarproject.mailbox.core.util.LogUtils.warn
 import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
@@ -112,10 +114,10 @@ internal class LifecycleManagerImpl @Inject constructor(
             LOG.warn("Interrupted while waiting to start services")
             return SERVICE_ERROR
         }
-        LOG.info("checking state: ${state.value}")
+        LOG.info { "checking state: ${state.value}" }
         if (!state.compareAndSet(NOT_STARTED, STARTING)) {
-            LOG.info("not in NOT_STARTED state")
-            return SERVICE_ERROR
+            LOG.warn { "Invalid state: ${state.value}" }
+            return LIFECYCLE_REUSE
         }
         return try {
             LOG.info("Opening database")

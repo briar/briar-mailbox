@@ -23,6 +23,7 @@ import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.IntentFilter
 import android.os.IBinder
 import androidx.core.content.ContextCompat
@@ -30,13 +31,17 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
 import org.briarproject.mailbox.android.StatusManager.Starting
+import org.briarproject.mailbox.android.ui.StartupFailureActivity
+import org.briarproject.mailbox.android.ui.StartupFailureActivity.Companion.EXTRA_START_RESULT
+import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.LIFECYCLE_REUSE
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
-import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.AndroidExecutor
 import org.briarproject.mailbox.core.system.AndroidWakeLock
 import org.briarproject.mailbox.core.system.AndroidWakeLockManager
-import org.briarproject.mailbox.core.tor.TorPlugin
+import org.briarproject.mailbox.core.util.LogUtils.warn
 import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -73,12 +78,6 @@ class MailboxService : Service() {
 
     @Inject
     internal lateinit var notificationManager: MailboxNotificationManager
-
-    @Inject
-    internal lateinit var torPlugin: TorPlugin
-
-    @Inject
-    internal lateinit var setupManager: SetupManager
 
     @Inject
     internal lateinit var androidExecutor: AndroidExecutor
@@ -118,17 +117,10 @@ class MailboxService : Service() {
 
         // Start the services in a background thread
         androidExecutor.runOnBackgroundThread {
-            val result = lifecycleManager.startServices()
-            when {
-                result === SUCCESS -> started = true
-                else -> {
-                    if (LOG.isWarnEnabled) LOG.warn("Startup failed: $result")
-                    // TODO: implement this
-                    //  and start activity in new process, so we can kill this one
-                    // showStartupFailure(result)
-                    stopSelf()
-                    exitProcess(1)
-                }
+            when (lifecycleManager.startServices()) {
+                SUCCESS -> started = true
+                SERVICE_ERROR -> showStartupFailure(StartupFailure.SERVICE_ERROR)
+                LIFECYCLE_REUSE -> showStartupFailure(StartupFailure.LIFECYCLE_REUSE)
             }
         }
         // Register for device shutdown broadcasts
@@ -169,6 +161,20 @@ class MailboxService : Service() {
                     exitProcess(0)
                 }
             }
+        }
+    }
+
+    private fun showStartupFailure(result: StartupFailure) {
+        LOG.warn { "Startup failed: $result" }
+        androidExecutor.runOnUiThread {
+            Intent(this, StartupFailureActivity::class.java).apply {
+                putExtra(EXTRA_START_RESULT, result)
+                flags = FLAG_ACTIVITY_NEW_TASK
+                startActivity(this)
+            }
+            stopSelf()
+            LOG.info("Exiting")
+            exitProcess(1)
         }
     }
 }
