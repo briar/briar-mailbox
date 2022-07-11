@@ -3,8 +3,9 @@ package org.briarproject.mailbox.core.contacts
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.readText
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Conflict
@@ -113,7 +114,7 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
         val response1: HttpResponse = httpClient.post("$baseUrl/contacts") {
             authenticateWithToken(ownerToken)
             contentType(ContentType.Application.Json)
-            body = c3
+            setBody(c3)
         }
         assertEquals(Created, response1.status)
 
@@ -139,7 +140,7 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
         val response1: HttpResponse = httpClient.post("$baseUrl/contacts") {
             authenticateWithToken(contact1.token)
             contentType(ContentType.Application.Json)
-            body = getNewRandomContact(3)
+            setBody(getNewRandomContact(3))
         }
         assertEquals(Unauthorized, response1.status)
 
@@ -200,7 +201,7 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
         val response1: HttpResponse = httpClient.post("$baseUrl/contacts") {
             authenticateWithToken(ownerToken)
             contentType(ContentType.Application.Json)
-            body = getNewRandomContact(2)
+            setBody(getNewRandomContact(2))
         }
         assertEquals(Conflict, response1.status)
 
@@ -254,7 +255,10 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(BadRequest, response.status)
-        assertEquals("Bad request: Invalid value for parameter contactId", response.readText())
+        assertEquals(
+            "\"Bad request: Invalid value for parameter contactId\"",
+            response.bodyAsText(),
+        )
     }
 
     /**

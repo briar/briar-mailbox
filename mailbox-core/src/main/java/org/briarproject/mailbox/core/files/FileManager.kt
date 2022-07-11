@@ -19,13 +19,13 @@
 
 package org.briarproject.mailbox.core.files
 
-import io.ktor.application.ApplicationCall
-import io.ktor.auth.principal
-import io.ktor.features.BadRequestException
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.receiveStream
-import io.ktor.response.respond
-import io.ktor.response.respondFile
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.auth.principal
+import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.request.receiveStream
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.briarproject.mailbox.core.db.Database

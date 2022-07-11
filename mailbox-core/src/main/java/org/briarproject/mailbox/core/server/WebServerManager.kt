@@ -20,13 +20,13 @@
 package org.briarproject.mailbox.core.server
 
 import com.fasterxml.jackson.databind.MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES
-import io.ktor.application.install
-import io.ktor.auth.Authentication
-import io.ktor.features.CallLogging
-import io.ktor.features.ContentNegotiation
-import io.ktor.jackson.jackson
+import io.ktor.serialization.jackson.jackson
+import io.ktor.server.application.install
+import io.ktor.server.auth.Authentication
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.server.plugins.callloging.CallLogging
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import org.briarproject.mailbox.core.contacts.ContactsManager
 import org.briarproject.mailbox.core.files.FileRouteManager
 import org.briarproject.mailbox.core.lifecycle.Service

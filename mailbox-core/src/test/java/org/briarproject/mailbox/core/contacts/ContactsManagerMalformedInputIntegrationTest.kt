@@ -2,10 +2,12 @@ package org.briarproject.mailbox.core.contacts
 
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Created
+import io.ktor.http.HttpStatusCode.Companion.UnsupportedMediaType
 import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.TestUtils
@@ -39,12 +41,14 @@ class ContactsManagerMalformedInputIntegrationTest : IntegrationTest(false) {
         val response1: HttpResponse = httpClient.post("$baseUrl/contacts") {
             authenticateWithToken(ownerToken)
             contentType(ContentType.Application.Json)
-            body = """{
+            setBody(
+                """{
                 "contactId": ${c3.contactId},
                 "token": "${c3.token}",
                 "inboxId": "${c3.inboxId}",
                 "outboxId": "${c3.outboxId}"
-            }""".trimMargin()
+                }""".trimMargin()
+            )
         }
         assertEquals(Created, response1.status)
 
@@ -135,7 +139,7 @@ class ContactsManagerMalformedInputIntegrationTest : IntegrationTest(false) {
         val response1: HttpResponse = httpClient.post("$baseUrl/contacts") {
             authenticateWithToken(ownerToken)
             contentType(ContentType.Application.Json)
-            body = json
+            setBody(json)
         }
         assertEquals(BadRequest, response1.status)
 
@@ -157,7 +161,7 @@ class ContactsManagerMalformedInputIntegrationTest : IntegrationTest(false) {
             // set the content type explicitly, and actually, if we do, we get an exception when
             // not passing a body along with the request here
         }
-        assertEquals(BadRequest, response1.status)
+        assertEquals(UnsupportedMediaType, response1.status)
 
         assertContacts(c1, c2)
     }
@@ -179,9 +183,9 @@ class ContactsManagerMalformedInputIntegrationTest : IntegrationTest(false) {
             //
             // but the content type will automatically be set to "text/plain; charset=UTF-8"
             // in this case
-            body = "foo"
+            setBody("foo")
         }
-        assertEquals(BadRequest, response1.status)
+        assertEquals(UnsupportedMediaType, response1.status)
 
         assertContacts(c1, c2)
     }
@@ -194,9 +198,9 @@ class ContactsManagerMalformedInputIntegrationTest : IntegrationTest(false) {
         val response1: HttpResponse = httpClient.post("$baseUrl/contacts") {
             authenticateWithToken(ownerToken)
             contentType(ContentType.Application.Pdf)
-            body = Random.nextBytes(100)
+            setBody(Random.nextBytes(100))
         }
-        assertEquals(BadRequest, response1.status)
+        assertEquals(UnsupportedMediaType, response1.status)
 
         assertContacts(c1, c2)
     }

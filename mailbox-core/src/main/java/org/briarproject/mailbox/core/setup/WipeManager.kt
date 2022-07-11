@@ -19,10 +19,10 @@
 
 package org.briarproject.mailbox.core.setup
 
-import io.ktor.application.ApplicationCall
-import io.ktor.auth.principal
 import io.ktor.http.HttpStatusCode
-import io.ktor.response.respond
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.auth.principal
+import io.ktor.server.response.respond
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.files.FileManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager

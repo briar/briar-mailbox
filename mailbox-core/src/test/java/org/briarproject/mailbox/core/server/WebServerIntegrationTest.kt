@@ -2,24 +2,25 @@ package org.briarproject.mailbox.core.server
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES
-import io.ktor.application.call
-import io.ktor.application.install
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.readText
-import io.ktor.features.CallLogging
-import io.ktor.features.ContentNegotiation
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.jackson.jackson
-import io.ktor.request.receive
-import io.ktor.response.respond
-import io.ktor.routing.post
-import io.ktor.routing.routing
+import io.ktor.serialization.jackson.jackson
+import io.ktor.server.application.call
+import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.server.plugins.callloging.CallLogging
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.post
+import io.ktor.server.routing.routing
 import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.server.WebServerManager.Companion.PORT
 import org.junit.jupiter.api.Test
@@ -31,7 +32,7 @@ class WebServerIntegrationTest : IntegrationTest() {
     fun routeRespondsWithTeapot(): Unit = runBlocking {
         val response: HttpResponse = httpClient.get("$baseUrl/")
         assertEquals(418, response.status.value)
-        assertEquals("Hello, I'm a Briar teapot", response.readText())
+        assertEquals("Hello, I'm a Briar teapot", response.bodyAsText())
     }
 
     @Test
@@ -59,11 +60,11 @@ class WebServerIntegrationTest : IntegrationTest() {
         }
         try {
             server.start()
-            val response = httpClient.post<HttpResponse>("http://127.0.0.1:$port/") {
+            val response: HttpResponse = httpClient.post("http://127.0.0.1:$port/") {
                 contentType(ContentType.Application.Json)
-                body = Wrapper().apply { value = "foo" }
+                setBody(Wrapper().apply { value = "foo" })
             }
-            assertEquals(500, response.status.value)
+            assertEquals(400, response.status.value)
         } finally {
             server.stop(0, 0)
         }

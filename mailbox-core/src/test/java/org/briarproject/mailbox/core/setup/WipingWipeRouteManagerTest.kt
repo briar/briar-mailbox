@@ -2,6 +2,7 @@ package org.briarproject.mailbox.core.setup
 
 import io.ktor.client.request.delete
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
@@ -26,12 +27,12 @@ class WipingWipeRouteManagerTest : IntegrationTest() {
         // owner uploads a file
         val uploadResponse: HttpResponse = httpClient.post("$baseUrl/files/${contact1.inboxId}") {
             authenticateWithToken(ownerToken)
-            body = Random.nextBytes(42)
+            setBody(Random.nextBytes(42))
         }
         assertEquals(HttpStatusCode.OK, uploadResponse.status)
 
         // owner wipes mailbox
-        val response = httpClient.delete<HttpResponse>("$baseUrl/") {
+        val response = httpClient.delete("$baseUrl/") {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.NoContent, response.status)

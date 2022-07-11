@@ -20,16 +20,16 @@
 package org.briarproject.mailbox.core.contacts
 
 import com.fasterxml.jackson.core.JacksonException
-import io.ktor.application.ApplicationCall
-import io.ktor.auth.principal
-import io.ktor.features.BadRequestException
-import io.ktor.features.UnsupportedMediaTypeException
 import io.ktor.http.HttpStatusCode.Companion.Conflict
 import io.ktor.http.HttpStatusCode.Companion.Created
 import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.http.HttpStatusCode.Companion.OK
-import io.ktor.request.receive
-import io.ktor.response.respond
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.auth.principal
+import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.UnsupportedMediaTypeException
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.AuthManager
 import org.briarproject.mailbox.core.system.RandomIdManager
