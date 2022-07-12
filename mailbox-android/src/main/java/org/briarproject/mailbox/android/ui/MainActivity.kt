@@ -65,7 +65,9 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         setContentView(R.layout.activity_main)
 
         viewModel.doNotKillComplete.observe(this) { complete ->
-            if (complete) nav.navigate(actionDoNotKillMeFragmentToStartupFragment())
+            if (complete && nav.currentDestination?.id == R.id.doNotKillMeFragment) nav.navigate(
+                actionDoNotKillMeFragmentToStartupFragment()
+            )
         }
 
         viewModel.wipeComplete.observe(this) { complete ->
