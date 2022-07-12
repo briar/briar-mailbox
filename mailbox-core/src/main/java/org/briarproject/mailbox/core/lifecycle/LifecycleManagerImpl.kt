@@ -20,10 +20,8 @@
 package org.briarproject.mailbox.core.lifecycle
 
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.db.MigrationListener
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.COMPACTING_DATABASE
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.MIGRATING_DATABASE
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.NOT_STARTED
@@ -277,9 +275,9 @@ internal class LifecycleManagerImpl @Inject constructor(
     @Throws(InterruptedException::class)
     override fun waitForShutdown() = shutdownLatch.await()
 
-    override fun getLifecycleState() = state.value
+    override val lifecycleState = state.value
 
-    override fun getLifecycleStateFlow(): StateFlow<LifecycleState> = state
+    override val lifecycleStateFlow = state
 
     /**
      * Run the task specified, logging the [name] of the task and the time measured it took to
