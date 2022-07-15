@@ -25,12 +25,15 @@ import android.graphics.Bitmap
 import androidx.annotation.StringRes
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted.Companion.Lazily
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
@@ -67,6 +70,7 @@ class StatusManager @Inject constructor(
     object ErrorClockSkew : MailboxAppState()
     object ErrorNoNetwork : MailboxAppState()
 
+    @Suppress("OPT_IN_USAGE")
     val appState: Flow<MailboxAppState> = combine(
         lifecycleState, torPluginState, setupComplete
     ) { ls, ts, sc ->
@@ -96,9 +100,12 @@ class StatusManager @Inject constructor(
             // else means sc == SetupComplete.UNKNOWN
             else -> error("Expected setup completion to be known at this point")
         }
-    }.flowOn(Dispatchers.IO).distinctUntilChanged().onEach { state ->
-        if (state != AfterRunning) notificationManager.onMailboxAppStateChanged(state)
-    }
+    }.flowOn(Dispatchers.IO)
+        .distinctUntilChanged()
+        .onEach { state ->
+            if (state != AfterRunning) notificationManager.onMailboxAppStateChanged(state)
+        }
+        .stateIn(GlobalScope, Lazily, Starting(getString(R.string.startup_starting_services)))
 
     private fun getString(@StringRes resId: Int, vararg formatArgs: Any?): String {
         return context.getString(resId, *formatArgs)
