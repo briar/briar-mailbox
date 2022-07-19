@@ -212,6 +212,9 @@ internal class LifecycleManagerImpl @Inject constructor(
         } finally {
             val stopped = state.compareAndSet(STOPPING, STOPPED)
             startStopWipeSemaphore.release()
+            // This is for the CLI where we might call stopServices() twice due to the shutdown
+            // hook. In order to avoid a deadlock with calling exitProcess() from two threads, make
+            // sure here that it gets called only once.
             if (stopped) {
                 LOG.info("Exiting")
                 exitProcess(0)

@@ -127,7 +127,7 @@ class Main : CliktCommand(
             }
         )
 
-        lifecycleManager.startServices {}
+        lifecycleManager.startServices()
         lifecycleManager.waitForStartup()
 
         if (setupToken != null) {

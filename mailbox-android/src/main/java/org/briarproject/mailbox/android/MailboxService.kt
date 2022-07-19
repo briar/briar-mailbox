@@ -19,15 +19,15 @@
 
 package org.briarproject.mailbox.android
 
+import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.IntentFilter
+import android.os.IBinder
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleService
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
 import org.briarproject.mailbox.android.StatusManager.Starting
@@ -35,16 +35,13 @@ import org.briarproject.mailbox.android.ui.StartupFailureActivity
 import org.briarproject.mailbox.android.ui.StartupFailureActivity.Companion.EXTRA_START_RESULT
 import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure
 import org.briarproject.mailbox.android.ui.WipeCompleteActivity
-import org.briarproject.mailbox.android.ui.launchAndRepeatWhileStarted
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.WIPING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.LIFECYCLE_REUSE
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
 import org.briarproject.mailbox.core.system.AndroidExecutor
 import org.briarproject.mailbox.core.system.AndroidWakeLock
 import org.briarproject.mailbox.core.system.AndroidWakeLockManager
-import org.briarproject.mailbox.core.util.LogUtils.info
 import org.briarproject.mailbox.core.util.LogUtils.warn
 import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.atomic.AtomicBoolean
@@ -52,7 +49,7 @@ import javax.inject.Inject
 import kotlin.system.exitProcess
 
 @AndroidEntryPoint
-class MailboxService : LifecycleService() {
+class MailboxService : Service() {
 
     companion object {
         private val LOG = getLogger(MailboxService::class.java)
@@ -114,14 +111,15 @@ class MailboxService : LifecycleService() {
         // have been destroyed and there is no way to recover except via a restart of the app.
         // So should a second MailboxService be started anytime, this is a unrecoverable situation
         // and we stop the app.
-        // Acquiring the wakelock here and releasing it as the last thing before exitProcess()
-        // during onDestroy() makes sure it is being held during the whole lifecycle.
+        // Acquiring the wakelock here and releasing it as the last thing during onDestroy()
+        // makes sure it is being held during the whole lifecycle.
         lifecycleWakeLock = wakeLockManager.createWakeLock("Lifecycle")
         lifecycleWakeLock.acquire()
 
         // Start the services in a background thread
         androidExecutor.runOnBackgroundThread {
             val result = lifecycleManager.startServices {
+                stopSelf()
                 startActivity(
                     Intent(this, WipeCompleteActivity::class.java).apply {
                         flags = FLAG_ACTIVITY_NEW_TASK
@@ -146,20 +144,10 @@ class MailboxService : LifecycleService() {
         filter.addAction("android.intent.action.QUICKBOOT_POWEROFF")
         filter.addAction("com.htc.intent.action.QUICKBOOT_POWEROFF")
         registerReceiver(receiver, filter)
+    }
 
-        launchAndRepeatWhileStarted {
-            lifecycleManager.lifecycleStateFlow.collect { state ->
-                LOG.info { "lifecycle state: $state" }
-                if (state == WIPING) {
-                    androidExecutor.runOnBackgroundThread {
-                        LOG.info("calling waitForShutdown()")
-                        lifecycleManager.waitForShutdown()
-                        LOG.info("calling stopService()")
-                        stopSelf()
-                    }
-                }
-            }
-        }
+    override fun onBind(intent: Intent): IBinder? {
+        return null
     }
 
     override fun onDestroy() {
@@ -175,9 +163,6 @@ class MailboxService : LifecycleService() {
                 } catch (e: InterruptedException) {
                     LOG.info("Interrupted while waiting for shutdown")
                 } finally {
-                    // Do not exit within wakeful execution, otherwise we will never release the wake locks.
-                    // Or maybe we want to do precisely that to make sure exiting really happens and the app
-                    // doesn't get suspended before it gets a chance to exit?
                     lifecycleWakeLock.release()
                 }
             }
