@@ -10,7 +10,7 @@
         android:id="@+id/headline"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
+        android:layout_margin="16dp"
         android:gravity="center_horizontal"
         android:text="@string/link_title"
         android:textAlignment="center"
@@ -18,21 +18,30 @@
         app:layout_constraintBottom_toTopOf="@id/description"
         app:layout_constraintEnd_toStartOf="@id/card"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
         android:id="@+id/description"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
+        android:layout_marginHorizontal="16dp"
         android:gravity="center_horizontal"
         android:text="@string/link_description"
         android:textAlignment="center"
-        android:textSize="24sp"
+        android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@id/buttonCancel"
         app:layout_constraintEnd_toStartOf="@id/card"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headline" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="end"
+        app:constraint_referenced_ids="headline,description" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonCancel"
@@ -53,7 +62,7 @@
         app:cardCornerRadius="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/headline"
+        app:layout_constraintStart_toEndOf="@id/barrier"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_square">
 
