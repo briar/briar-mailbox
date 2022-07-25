@@ -25,6 +25,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.counted
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.CoreEagerSingletons
@@ -154,7 +155,7 @@ class Main : CliktCommand(
                 // wait until Tor becomes active and published the onion service
                 torPlugin.state.takeWhile { state ->
                     state != TorState.Published
-                }
+                }.collect { }
             }
             qrCodeEncoder.getQrCodeBitMatrix()?.let {
                 println(QrCodeRenderer.getQrString(it))

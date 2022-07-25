@@ -20,10 +20,8 @@
 package org.briarproject.mailbox.core.lifecycle
 
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.db.MigrationListener
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.COMPACTING_DATABASE
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.MIGRATING_DATABASE
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.NOT_STARTED
@@ -54,6 +52,7 @@ import javax.annotation.concurrent.GuardedBy
 import javax.annotation.concurrent.ThreadSafe
 import javax.inject.Inject
 import kotlin.concurrent.thread
+import kotlin.system.exitProcess
 
 @ThreadSafe
 internal class LifecycleManagerImpl @Inject constructor(
@@ -82,6 +81,8 @@ internal class LifecycleManagerImpl @Inject constructor(
     private val shutdownLatch = CountDownLatch(1)
     private val state = MutableStateFlow(NOT_STARTED)
 
+    private var wipeHook: WipeHook? = null
+
     init {
         services = CopyOnWriteArrayList()
         openDatabaseHooks = CopyOnWriteArrayList()
@@ -104,7 +105,7 @@ internal class LifecycleManagerImpl @Inject constructor(
     }
 
     @GuardedBy("startStopWipeSemaphore")
-    override fun startServices(): StartResult {
+    override fun startServices(wipeHook: WipeHook): StartResult {
         LOG.info("startServices()")
         try {
             LOG.info("acquiring start stop semaphore")
@@ -119,6 +120,7 @@ internal class LifecycleManagerImpl @Inject constructor(
             LOG.warn { "Invalid state: ${state.value}" }
             return LIFECYCLE_REUSE
         }
+        this.wipeHook = wipeHook
         return try {
             LOG.info("Opening database")
             var start = now()
@@ -198,6 +200,7 @@ internal class LifecycleManagerImpl @Inject constructor(
                 // stopped.
                 run("wiping files again") {
                     wipeManager.wipeFilesOnly()
+                    wipeHook?.onWiped()
                 }
             } else {
                 run("closing database") {
@@ -207,8 +210,15 @@ internal class LifecycleManagerImpl @Inject constructor(
 
             shutdownLatch.countDown()
         } finally {
-            state.compareAndSet(STOPPING, STOPPED)
+            val stopped = state.compareAndSet(STOPPING, STOPPED)
             startStopWipeSemaphore.release()
+            // This is for the CLI where we might call stopServices() twice due to the shutdown
+            // hook. In order to avoid a deadlock with calling exitProcess() from two threads, make
+            // sure here that it gets called only once.
+            if (stopped) {
+                LOG.info("Exiting")
+                exitProcess(0)
+            }
         }
     }
 
@@ -268,9 +278,9 @@ internal class LifecycleManagerImpl @Inject constructor(
     @Throws(InterruptedException::class)
     override fun waitForShutdown() = shutdownLatch.await()
 
-    override fun getLifecycleState() = state.value
+    override val lifecycleState = state.value
 
-    override fun getLifecycleStateFlow(): StateFlow<LifecycleState> = state
+    override val lifecycleStateFlow = state
 
     /**
      * Run the task specified, logging the [name] of the task and the time measured it took to

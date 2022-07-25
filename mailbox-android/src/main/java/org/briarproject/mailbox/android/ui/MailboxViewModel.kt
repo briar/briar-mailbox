@@ -25,10 +25,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.liveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
 import org.briarproject.android.dontkillmelib.DozeHelper
 import org.briarproject.mailbox.android.MailboxPreferences
 import org.briarproject.mailbox.android.MailboxService
@@ -39,6 +39,7 @@ import org.briarproject.mailbox.core.settings.MetadataManager
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.AndroidExecutor
 import org.briarproject.mailbox.core.system.DozeWatchdog
+import org.briarproject.mailbox.core.util.LogUtils.info
 import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
 
@@ -70,18 +71,21 @@ class MailboxViewModel @Inject constructor(
 
     val lifecycleState: StateFlow<LifecycleState> = lifecycleManager.lifecycleStateFlow
 
-    val hasDb: LiveData<Boolean> = liveData(Dispatchers.IO) { emit(setupManager.hasDb) }
+    suspend fun hasDb(): Boolean = withContext(Dispatchers.IO) {
+        setupManager.hasDb
+    }
 
     val appState = statusManager.appState
 
     val lastAccess: LiveData<Long> = metadataManager.ownerConnectionTime.asLiveData()
 
-    private val _wipeComplete = MutableLiveData<Boolean>()
-    val wipeComplete: LiveData<Boolean> = _wipeComplete
-
     @UiThread
     fun onDoNotKillComplete() {
         _doNotKillComplete.value = true
+    }
+
+    override fun onCleared() {
+        LOG.info { "cleared" }
     }
 
     /**
@@ -107,11 +111,6 @@ class MailboxViewModel @Inject constructor(
             LOG.info("calling wipeMailbox()")
             // TODO: handle return value
             lifecycleManager.wipeMailbox()
-            LOG.info("calling waitForShutdown()")
-            lifecycleManager.waitForShutdown()
-            LOG.info("calling stopService()")
-            MailboxService.stopService(getApplication())
-            _wipeComplete.postValue(true)
         }
     }
 

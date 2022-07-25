@@ -27,10 +27,13 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle.State.DESTROYED
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.briarproject.android.dontkillmelib.DozeUtils.needsDozeWhitelisting
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStoppingFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalWipingFragment
@@ -70,12 +73,6 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
             )
         }
 
-        viewModel.wipeComplete.observe(this) { complete ->
-            if (complete) {
-                startActivity(Intent(this, WipeCompleteActivity::class.java))
-            }
-        }
-
         launchAndRepeatWhileStarted {
             viewModel.lifecycleState.collect { state ->
                 LOG.info { "lifecycle state: $state" }
@@ -87,15 +84,34 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
             }
         }
 
+        LOG.info { "do we have a saved instance state? " + (savedInstanceState != null) }
+
+        lifecycleScope.launch {
+            val hasDb = viewModel.hasDb()
+            LOG.info { "do we have a db? $hasDb" }
+            onDbChecked(hasDb, savedInstanceState)
+        }
+    }
+
+    private fun onDbChecked(hasDb: Boolean, savedInstanceState: Bundle?) {
+        if (lifecycle.currentState == DESTROYED) {
+            return
+        }
         if (savedInstanceState == null) {
-            viewModel.hasDb.observe(this) { hasDb ->
-                if (!hasDb) {
-                    startForResult.launch(Intent(this, OnboardingActivity::class.java))
-                } else if (needsDozeWhitelisting(this)) {
-                    nav.navigate(actionInitFragmentToDoNotKillMeFragment())
-                } else {
-                    nav.navigate(actionInitFragmentToStartupFragment())
-                }
+            if (!hasDb) {
+                startForResult.launch(Intent(this, OnboardingActivity::class.java))
+            } else if (needsDozeWhitelisting(this)) {
+                nav.navigate(actionInitFragmentToDoNotKillMeFragment())
+            } else {
+                nav.navigate(actionInitFragmentToStartupFragment())
+            }
+        } else {
+            if (!hasDb) {
+                // This happens when wiping remotely while the app is in the background and gets
+                // restored from the recent app list after wiping and stopping has already
+                // completed.
+                finish()
+                startActivity(Intent(this, WipeCompleteActivity::class.java))
             }
         }
     }

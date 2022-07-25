@@ -34,6 +34,7 @@ import org.briarproject.mailbox.android.StatusManager.Starting
 import org.briarproject.mailbox.android.ui.StartupFailureActivity
 import org.briarproject.mailbox.android.ui.StartupFailureActivity.Companion.EXTRA_START_RESULT
 import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure
+import org.briarproject.mailbox.android.ui.WipeCompleteActivity
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.LIFECYCLE_REUSE
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR
@@ -110,14 +111,22 @@ class MailboxService : Service() {
         // have been destroyed and there is no way to recover except via a restart of the app.
         // So should a second MailboxService be started anytime, this is a unrecoverable situation
         // and we stop the app.
-        // Acquiring the wakelock here and releasing it as the last thing before exitProcess()
-        // during onDestroy() makes sure it is being held during the whole lifecycle.
+        // Acquiring the wakelock here and releasing it as the last thing during onDestroy()
+        // makes sure it is being held during the whole lifecycle.
         lifecycleWakeLock = wakeLockManager.createWakeLock("Lifecycle")
         lifecycleWakeLock.acquire()
 
         // Start the services in a background thread
         androidExecutor.runOnBackgroundThread {
-            when (lifecycleManager.startServices()) {
+            val result = lifecycleManager.startServices {
+                stopSelf()
+                startActivity(
+                    Intent(this, WipeCompleteActivity::class.java).apply {
+                        flags = FLAG_ACTIVITY_NEW_TASK
+                    }
+                )
+            }
+            when (result) {
                 SUCCESS -> started = true
                 SERVICE_ERROR -> showStartupFailure(StartupFailure.SERVICE_ERROR)
                 LIFECYCLE_REUSE -> showStartupFailure(StartupFailure.LIFECYCLE_REUSE)
@@ -154,11 +163,7 @@ class MailboxService : Service() {
                 } catch (e: InterruptedException) {
                     LOG.info("Interrupted while waiting for shutdown")
                 } finally {
-                    // Do not exit within wakeful execution, otherwise we will never release the wake locks.
-                    // Or maybe we want to do precisely that to make sure exiting really happens and the app
-                    // doesn't get suspended before it gets a chance to exit?
                     lifecycleWakeLock.release()
-                    exitProcess(0)
                 }
             }
         }
