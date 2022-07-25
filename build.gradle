@@ -24,8 +24,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        //noinspection JcenterRepositoryObsolete
-        jcenter() // for dependencies that haven't moved, yet
     }
 }
 
