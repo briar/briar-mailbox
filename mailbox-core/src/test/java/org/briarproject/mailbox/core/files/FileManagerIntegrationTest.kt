@@ -1,12 +1,13 @@
 package org.briarproject.mailbox.core.files
 
-import io.ktor.client.call.receive
+import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.readBytes
-import io.ktor.client.statement.readText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.TestUtils.assertTimestampRecent
@@ -38,7 +39,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
     fun `post new file rejects wrong token`(): Unit = runBlocking {
         val response: HttpResponse = httpClient.post("$baseUrl/files/${getNewRandomId()}") {
             authenticateWithToken(token)
-            body = bytes
+            setBody(bytes)
         }
         assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
@@ -47,7 +48,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
     fun `post new file rejects unauthorized folder ID`(): Unit = runBlocking {
         val response: HttpResponse = httpClient.post("$baseUrl/files/${contact1.outboxId}") {
             authenticateWithToken(ownerToken)
-            body = bytes
+            setBody(bytes)
         }
         assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
@@ -56,10 +57,10 @@ class FileManagerIntegrationTest : IntegrationTest() {
     fun `post new file rejects invalid folder ID`(): Unit = runBlocking {
         val response: HttpResponse = httpClient.post("$baseUrl/files/foo") {
             authenticateWithToken(ownerToken)
-            body = bytes
+            setBody(bytes)
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
-        assertEquals("Malformed ID: foo", response.readText())
+        assertEquals("\"Malformed ID: foo\"", response.bodyAsText())
     }
 
     @Test
@@ -68,11 +69,24 @@ class FileManagerIntegrationTest : IntegrationTest() {
         // owner uploads a file above limit
         val response: HttpResponse = httpClient.post("$baseUrl/files/${contact1.inboxId}") {
             authenticateWithToken(ownerToken)
-            body = maxBytes
+            setBody(maxBytes)
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
-        assertEquals("Bad request: File larger than allowed.", response.readText())
+        assertEquals("\"Bad request: File larger than allowed.\"", response.bodyAsText())
         assertNoTmpFiles()
+    }
+
+    @Test
+    fun `post new file with max size gets accepted`(): Unit = runBlocking {
+        val maxBytes = Random.nextBytes(MAX_FILE_SIZE)
+        // owner uploads the file
+        val response: HttpResponse = httpClient.post("$baseUrl/files/${contact1.inboxId}") {
+            authenticateWithToken(ownerToken)
+            setBody(maxBytes)
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertNoTmpFiles()
+        assertNumFiles(1)
     }
 
     @Test
@@ -81,7 +95,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
         // owner uploads the file
         val response: HttpResponse = httpClient.post("$baseUrl/files/${contact1.inboxId}") {
             authenticateWithToken(ownerToken)
-            body = bytes
+            setBody(bytes)
         }
         assertEquals(HttpStatusCode.OK, response.status)
         assertNoTmpFiles()
@@ -94,7 +108,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(contact1.token)
         }
         assertEquals(HttpStatusCode.OK, listResponse.status)
-        val fileList: FileListResponse = listResponse.receive()
+        val fileList: FileListResponse = listResponse.body()
         assertEquals(1, fileList.files.size)
 
         // contact can download the file
@@ -117,7 +131,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
         val emptyFileListResponse: FileListResponse =
             httpClient.get("$baseUrl/files/${contact1.inboxId}") {
                 authenticateWithToken(contact1.token)
-            }
+            }.body()
         assertEquals(0, emptyFileListResponse.files.size)
         assertNoTmpFiles()
         assertNumFiles(0)
@@ -135,7 +149,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
         // upload a real file
         val postResponse: HttpResponse = httpClient.post("$baseUrl/files/${contact1.inboxId}") {
             authenticateWithToken(ownerToken)
-            body = bytes
+            setBody(bytes)
         }
         assertEquals(HttpStatusCode.OK, postResponse.status)
 
@@ -165,7 +179,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
-        assertEquals("Malformed ID: foo", response.readText())
+        assertEquals("\"Malformed ID: foo\"", response.bodyAsText())
     }
 
     @Test
@@ -175,7 +189,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals("""{"files":[]}""", response.readText())
+        assertEquals("""{"files":[]}""", response.bodyAsText())
         // owner connection got registered
         assertTimestampRecent(metadataManager.ownerConnectionTime.value)
     }
@@ -204,7 +218,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
-        assertEquals("Malformed ID: foo", response.readText())
+        assertEquals("\"Malformed ID: foo\"", response.bodyAsText())
     }
 
     @Test
@@ -213,7 +227,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
-        assertEquals("Malformed ID: bar", response.readText())
+        assertEquals("\"Malformed ID: bar\"", response.bodyAsText())
     }
 
     @Test
@@ -260,7 +274,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
-        assertEquals("Malformed ID: foo", response.readText())
+        assertEquals("\"Malformed ID: foo\"", response.bodyAsText())
     }
 
     @Test
@@ -269,7 +283,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
-        assertEquals("Malformed ID: bar", response.readText())
+        assertEquals("\"Malformed ID: bar\"", response.bodyAsText())
     }
 
     @Test
@@ -312,7 +326,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals("""{"folders":[]}""", response.readText())
+        assertEquals("""{"folders":[]}""", response.bodyAsText())
         // owner connection got registered
         assertTimestampRecent(metadataManager.ownerConnectionTime.value)
     }
@@ -323,14 +337,14 @@ class FileManagerIntegrationTest : IntegrationTest() {
         // contact1 uploads a file
         val response1: HttpResponse = httpClient.post("$baseUrl/files/${contact1.outboxId}") {
             authenticateWithToken(contact1.token)
-            body = bytes
+            setBody(bytes)
         }
         assertEquals(HttpStatusCode.OK, response1.status)
 
         // contact2 uploads a file
         val response2: HttpResponse = httpClient.post("$baseUrl/files/${contact2.outboxId}") {
             authenticateWithToken(contact2.token)
-            body = bytes
+            setBody(bytes)
         }
         assertEquals(HttpStatusCode.OK, response2.status)
         assertEquals(0L, metadataManager.ownerConnectionTime.value)
@@ -338,7 +352,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
         // owner now sees both contacts' outboxes in folders list
         val folderListResponse: FolderListResponse = httpClient.get("$baseUrl/folders") {
             authenticateWithToken(ownerToken)
-        }
+        }.body()
         val folderList = setOf(FolderResponse(contact1.outboxId), FolderResponse(contact2.outboxId))
         assertEquals(folderList, folderListResponse.folders.toSet())
         // owner connection got registered
@@ -350,7 +364,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
         // owner uploads the file
         val response: HttpResponse = httpClient.post("$baseUrl/files/${contact1.inboxId}") {
             authenticateWithToken(ownerToken)
-            body = bytes
+            setBody(bytes)
         }
         assertEquals(HttpStatusCode.OK, response.status)
         assertNumFiles(1)
@@ -359,7 +373,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
         val listResponse: HttpResponse = httpClient.get("$baseUrl/files/${contact1.inboxId}") {
             authenticateWithToken(contact1.token)
         }
-        assertEquals(1, listResponse.receive<FileListResponse>().files.size)
+        assertEquals(1, listResponse.body<FileListResponse>().files.size)
 
         // delete stale files
         testComponent.getFileManager().deleteStaleFiles(DAYS.toMillis(1))
@@ -368,7 +382,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
         val listResponse2: HttpResponse = httpClient.get("$baseUrl/files/${contact1.inboxId}") {
             authenticateWithToken(contact1.token)
         }
-        assertEquals(1, listResponse2.receive<FileListResponse>().files.size)
+        assertEquals(1, listResponse2.body<FileListResponse>().files.size)
 
         // delete stale files again
         testComponent.getFileManager().deleteStaleFiles(1)
@@ -377,7 +391,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
         val listResponse3: HttpResponse = httpClient.get("$baseUrl/files/${contact1.inboxId}") {
             authenticateWithToken(contact1.token)
         }
-        assertEquals(0, listResponse3.receive<FileListResponse>().files.size)
+        assertEquals(0, listResponse3.body<FileListResponse>().files.size)
 
         assertNoTmpFiles()
         assertNumFiles(0)

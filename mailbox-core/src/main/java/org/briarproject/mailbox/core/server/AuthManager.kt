@@ -19,7 +19,7 @@
 
 package org.briarproject.mailbox.core.server
 
-import io.ktor.auth.Principal
+import io.ktor.server.auth.Principal
 import org.briarproject.mailbox.core.contacts.Contact
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.MailboxPrincipal.ContactPrincipal

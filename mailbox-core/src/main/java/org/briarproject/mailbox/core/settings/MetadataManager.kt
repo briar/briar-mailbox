@@ -19,10 +19,10 @@
 
 package org.briarproject.mailbox.core.settings
 
-import io.ktor.application.ApplicationCall
-import io.ktor.auth.principal
 import io.ktor.http.HttpStatusCode
-import io.ktor.response.respond
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.auth.principal
+import io.ktor.server.response.respond
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.briarproject.mailbox.core.db.DbException

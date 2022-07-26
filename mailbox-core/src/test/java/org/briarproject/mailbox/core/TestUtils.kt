@@ -2,7 +2,7 @@ package org.briarproject.mailbox.core
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.readText
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.mockk.every
 import io.mockk.mockk
@@ -89,7 +89,7 @@ object TestUtils {
         val mapper = ObjectMapper()
         val expectedValue: Any = mapper.readValue(expectedJson, Any::class.java)
         val expected = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(expectedValue)
-        val actualValue: Any = mapper.readValue(response.readText(), Any::class.java)
+        val actualValue: Any = mapper.readValue(response.bodyAsText(), Any::class.java)
         val actual = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(actualValue)
         assertEquals(expected, actual)
     }

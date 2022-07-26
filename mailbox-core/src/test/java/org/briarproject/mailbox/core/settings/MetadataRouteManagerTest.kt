@@ -1,8 +1,9 @@
 package org.briarproject.mailbox.core.settings
 
+import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.readText
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.TestUtils.assertJson
@@ -28,7 +29,7 @@ class MetadataRouteManagerTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals("", response.readText())
+        assertEquals("", response.bodyAsText())
     }
 
     @Test
@@ -37,7 +38,7 @@ class MetadataRouteManagerTest : IntegrationTest() {
             authenticateWithToken(contact1.token)
         }
         assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals("", response.readText())
+        assertEquals("", response.bodyAsText())
     }
 
     @Test
@@ -62,7 +63,7 @@ class MetadataRouteManagerTest : IntegrationTest() {
 
         val response: VersionsResponse = httpClient.get("$baseUrl/versions") {
             authenticateWithToken(ownerToken)
-        }
+        }.body()
 
         assertTrue(response.serverSupports.contains(MailboxVersion(1, 0)))
     }

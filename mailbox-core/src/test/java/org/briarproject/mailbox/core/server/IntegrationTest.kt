@@ -2,13 +2,13 @@ package org.briarproject.mailbox.core.server
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.features.json.JacksonSerializer
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.logging.LogLevel
-import io.ktor.client.features.logging.Logging
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.headers
 import io.ktor.http.HttpHeaders
+import io.ktor.serialization.jackson.jackson
 import org.briarproject.mailbox.core.DaggerTestComponent
 import org.briarproject.mailbox.core.TestComponent
 import org.briarproject.mailbox.core.TestModule
@@ -46,8 +46,8 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
     protected val httpClient = HttpClient(CIO) {
         expectSuccess = false // prevents exceptions on non-success responses
         if (installJsonFeature) {
-            install(JsonFeature) {
-                serializer = JacksonSerializer()
+            install(ContentNegotiation) {
+                jackson()
             }
         }
         install(Logging) {
