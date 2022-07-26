@@ -37,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.StatusManager.AfterRunning
+import org.briarproject.mailbox.android.StatusManager.ErrorClockSkew
 import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
 import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
@@ -105,7 +106,7 @@ class MailboxNotificationManager @Inject constructor(
                     setContentTitle(ctx.getString(R.string.notification_mailbox_title_offline))
                     setContentText(ctx.getString(R.string.notification_mailbox_content_offline))
                 }
-                StatusManager.ErrorClockSkew -> {
+                ErrorClockSkew -> {
                     setContentTitle(ctx.getString(R.string.notification_mailbox_title_offline))
                     setContentText(ctx.getString(R.string.notification_mailbox_content_clock_skew))
                 }
