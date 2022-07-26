@@ -122,6 +122,7 @@ public abstract class TorPlugin
 	private final NetworkManager networkManager;
 	private final LocationUtils locationUtils;
 	private final Clock clock;
+	@Nullable
 	private final String architecture;
 	private final CircumventionProvider circumventionProvider;
 	private final ResourceProvider resourceProvider;
@@ -598,6 +599,13 @@ public abstract class TorPlugin
 		}
 		warn(LOG, () -> "Failed to parse " + argName + " from '" + msg + "'");
 		return null;
+	}
+
+	@Override
+	public void controlConnectionClosed() {
+		if (state.isTorRunning()) {
+			throw new RuntimeException("Control connection closed");
+		}
 	}
 
 	@Override
