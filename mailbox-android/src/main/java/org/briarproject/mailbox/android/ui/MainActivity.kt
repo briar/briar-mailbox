@@ -41,6 +41,7 @@ import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragmentDirections.actionDoNotKillMeFragmentToStartupFragment
 import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToDoNotKillMeFragment
 import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToStartupFragment
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.NOT_STARTED
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STOPPING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.WIPING
 import org.briarproject.mailbox.core.util.LogUtils.info
@@ -51,6 +52,8 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
 
     companion object {
         private val LOG = getLogger(MainActivity::class.java)
+
+        const val BUNDLE_LIFECYCLE_BEYOND_NOT_STARTED = "LIFECYCLE_BEYOND_NOT_STARTED"
     }
 
     private val viewModel: MailboxViewModel by viewModels()
@@ -106,14 +109,29 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
                 nav.navigate(actionInitFragmentToStartupFragment())
             }
         } else {
-            if (!hasDb) {
-                // This happens when wiping remotely while the app is in the background and gets
-                // restored from the recent app list after wiping and stopping has already
-                // completed.
+            // At this point, when we do not have a db, this can be either of two situations:
+            // 1. We just came back from the onboarding activity and our MainActivity has been
+            // destroyed in the meantime (can be forced using the do-not-keep-activities developer
+            // option). In this case onSaveInstanceState() has written false to the bundle.
+            // 2. We come back to the activity after a remote wipe has happened while the app was
+            // in the background and gets restored from the recent app list after wiping and
+            // stopping has already completed. In this case onSaveInstanceState() has written
+            // true to the bundle.
+            val savedBeyondNotStarted =
+                savedInstanceState.getBoolean(BUNDLE_LIFECYCLE_BEYOND_NOT_STARTED)
+            if (!hasDb && savedBeyondNotStarted) {
                 finish()
                 startActivity(Intent(this, WipeCompleteActivity::class.java))
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(
+            BUNDLE_LIFECYCLE_BEYOND_NOT_STARTED,
+            viewModel.lifecycleState.value != NOT_STARTED
+        )
     }
 
     override fun onActivityResult(result: ActivityResult) {
