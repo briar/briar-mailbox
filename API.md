@@ -153,6 +153,9 @@ POST /files/$folderId
 The mailbox checks if the provided auth token is allowed to upload to $folderId
 which is either an `inboxId` or an `outboxId` of a contact.
 
+If the folder does not exist or the auth token is not allowed to upload to it, `404 Not Found`
+is returned.
+
 The file content is a raw byte stream in the request body.
 The mailbox chooses a random string for the file ID (32 hex encoded bytes).
 Returns `200 OK` if upload was successful (no `201` as the uploader does not need to know the `$fileName`).
@@ -167,6 +170,9 @@ GET /files/$folderId
 
 The mailbox checks if provided auth token is allowed to download from $folderId
 which is either an `inboxId` or an `outboxId` of a contact.
+
+If the folder does not exist or the auth token is not allowed to download from it, `404 Not Found`
+is returned.
 
 Returns `200 OK` with the list of files in JSON (example):
 
@@ -193,6 +199,9 @@ GET /files/$folderId/$fileName
 Checks if the provided auth token is allowed to download from `$folderId`
 which is either an `inboxId` or an `outboxId` of a contact.
 
+If the folder does not exist or the auth token is not allowed to download from it, `404 Not Found`
+is returned.
+
 Returns `200 OK` if successful with the files' raw bytes in the response body.
 
 ### Delete a file (owner and contacts)
@@ -206,6 +215,9 @@ DELETE /files/$folderId/$fileName
 Checks if provided auth token is allowed to download from $folderId
 which is either an `inboxId` or an `outboxId` of a contact.
 
+If the folder does not exist or the auth token is not allowed to download from it, `404 Not Found`
+is returned.
+
 Returns `200 OK`  if deletion was successful.
 
 ### List folders with files available for download (owner only)
@@ -218,7 +230,7 @@ GET /folders
 
 Checks if provided auth token is belonging to the owner.
 
-Returns `200 OK`  with the list of folders with files in JSON (example):
+Returns `200 OK` with the list of folders that have files available to download, in JSON (example):
 
 ```json
 {

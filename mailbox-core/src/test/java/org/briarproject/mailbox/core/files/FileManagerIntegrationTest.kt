@@ -50,7 +50,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
             setBody(bytes)
         }
-        assertEquals(HttpStatusCode.Unauthorized, response.status)
+        assertEquals(HttpStatusCode.NotFound, response.status)
     }
 
     @Test
@@ -165,12 +165,12 @@ class FileManagerIntegrationTest : IntegrationTest() {
         val response1: HttpResponse = httpClient.get("$baseUrl/files/${contact1.inboxId}") {
             authenticateWithToken(ownerToken)
         }
-        assertEquals(HttpStatusCode.Unauthorized, response1.status)
+        assertEquals(HttpStatusCode.NotFound, response1.status)
 
         val response2: HttpResponse = httpClient.get("$baseUrl/files/${contact1.inboxId}") {
             authenticateWithToken(contact2.token)
         }
-        assertEquals(HttpStatusCode.Unauthorized, response2.status)
+        assertEquals(HttpStatusCode.NotFound, response2.status)
     }
 
     @Test
@@ -209,7 +209,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             httpClient.get("$baseUrl/files/${contact1.inboxId}/${getNewRandomId()}") {
                 authenticateWithToken(ownerToken)
             }
-        assertEquals(HttpStatusCode.Unauthorized, response.status)
+        assertEquals(HttpStatusCode.NotFound, response.status)
     }
 
     @Test
@@ -265,7 +265,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             httpClient.delete("$baseUrl/files/${contact1.inboxId}/${getNewRandomId()}") {
                 authenticateWithToken(ownerToken)
             }
-        assertEquals(HttpStatusCode.Unauthorized, response.status)
+        assertEquals(HttpStatusCode.NotFound, response.status)
     }
 
     @Test

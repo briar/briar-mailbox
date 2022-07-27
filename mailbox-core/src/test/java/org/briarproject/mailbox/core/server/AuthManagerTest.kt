@@ -1,5 +1,6 @@
 package org.briarproject.mailbox.core.server
 
+import io.ktor.server.plugins.NotFoundException
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -97,17 +98,17 @@ class AuthManagerTest {
             every { db.getContacts(txn) } returns emptyList()
         }
 
-        assertThrows<AuthException> {
+        assertThrows<NotFoundException> {
             authManager.assertCanDownloadFromFolder(OwnerPrincipal, id)
         }
     }
 
     @Test
     fun `throws if contact wants to download from folder that is not their inbox`() {
-        assertThrows<AuthException> {
+        assertThrows<NotFoundException> {
             authManager.assertCanDownloadFromFolder(contactPrincipal, id)
         }
-        assertThrows<AuthException> {
+        assertThrows<NotFoundException> {
             authManager.assertCanDownloadFromFolder(contactPrincipal, contact.outboxId)
         }
     }
@@ -139,17 +140,17 @@ class AuthManagerTest {
             every { db.getContacts(txn) } returns emptyList()
         }
 
-        assertThrows<AuthException> {
+        assertThrows<NotFoundException> {
             authManager.assertCanPostToFolder(OwnerPrincipal, id)
         }
     }
 
     @Test
     fun `throws if contact wants to post to folder that is not their outbox`() {
-        assertThrows<AuthException> {
+        assertThrows<NotFoundException> {
             authManager.assertCanPostToFolder(contactPrincipal, id)
         }
-        assertThrows<AuthException> {
+        assertThrows<NotFoundException> {
             authManager.assertCanPostToFolder(contactPrincipal, contact.inboxId)
         }
     }
