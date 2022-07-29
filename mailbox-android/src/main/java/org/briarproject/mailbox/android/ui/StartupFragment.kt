@@ -26,20 +26,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.StatusManager.ErrorClockSkew
-import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
 import org.briarproject.mailbox.android.StatusManager.MailboxAppState
-import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
-import org.briarproject.mailbox.android.StatusManager.StartedSetupComplete
 import org.briarproject.mailbox.android.StatusManager.Starting
-import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToClockSkewFragment
-import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToNoNetworkFragment
-import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToQrCodeFragment
-import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToStatusFragment
 
 @AndroidEntryPoint
 class StartupFragment : Fragment() {
@@ -66,20 +57,8 @@ class StartupFragment : Fragment() {
     }
 
     private fun onAppStateChanged(state: MailboxAppState) {
-        when (state) {
-            is Starting -> statusTextView.text = state.status
-            is StartedSettingUp -> findNavController().navigate(
-                actionStartupFragmentToQrCodeFragment()
-            )
-            is StartedSetupComplete -> findNavController().navigate(
-                actionStartupFragmentToStatusFragment()
-            )
-            is ErrorNoNetwork -> findNavController().navigate(
-                actionStartupFragmentToNoNetworkFragment()
-            )
-            is ErrorClockSkew -> findNavController().navigate(
-                actionStartupFragmentToClockSkewFragment()
-            )
+        if (state is Starting) {
+            statusTextView.text = state.status
         }
     }
 

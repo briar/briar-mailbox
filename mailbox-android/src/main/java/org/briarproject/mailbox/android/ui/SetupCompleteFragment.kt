@@ -25,7 +25,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
@@ -34,7 +33,6 @@ import org.briarproject.mailbox.android.ui.SetupCompleteFragmentDirections.actio
 @AndroidEntryPoint
 class SetupCompleteFragment : Fragment() {
 
-    private val viewModel: MailboxViewModel by activityViewModels()
     private lateinit var button: Button
 
     override fun onCreateView(

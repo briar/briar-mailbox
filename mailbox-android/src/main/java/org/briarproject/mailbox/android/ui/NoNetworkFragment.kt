@@ -24,19 +24,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
-import org.briarproject.mailbox.android.StatusManager.MailboxAppState
-import org.briarproject.mailbox.android.ui.NoNetworkFragmentDirections.actionNoNetworkFragmentToStartupFragment
 
 @AndroidEntryPoint
 class NoNetworkFragment : Fragment() {
-
-    private val viewModel: MailboxViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,17 +37,4 @@ class NoNetworkFragment : Fragment() {
     ): View? {
         return inflater.inflate(R.layout.fragment_no_network, container, false)
     }
-
-    override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
-        launchAndRepeatWhileStarted {
-            viewModel.appState.collect { onAppStateChanged(it) }
-        }
-    }
-
-    private fun onAppStateChanged(state: MailboxAppState) {
-        if (state != ErrorNoNetwork) {
-            findNavController().navigate(actionNoNetworkFragmentToStartupFragment())
-        }
-    }
-
 }

@@ -38,10 +38,23 @@ import org.briarproject.android.dontkillmelib.DozeUtils.needsDozeWhitelisting
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStoppingFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalWipingFragment
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.StatusManager.ErrorClockSkew
+import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
+import org.briarproject.mailbox.android.StatusManager.MailboxAppState
+import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
+import org.briarproject.mailbox.android.StatusManager.StartedSetupComplete
 import org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragmentDirections.actionDoNotKillMeFragmentToStartupFragment
 import org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragmentDirections.actionGlobalDoNotKillMeFragment
+import org.briarproject.mailbox.android.ui.ClockSkewFragmentDirections.actionClockSkewFragmentToStartupFragment
 import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToDoNotKillMeFragment
 import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToStartupFragment
+import org.briarproject.mailbox.android.ui.NoNetworkFragmentDirections.actionNoNetworkFragmentToStartupFragment
+import org.briarproject.mailbox.android.ui.QrCodeFragmentDirections.actionQrCodeFragmentToSetupCompleteFragment
+import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToClockSkewFragment
+import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToNoNetworkFragment
+import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToQrCodeFragment
+import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToStatusFragment
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.NOT_STARTED
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STOPPING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.WIPING
@@ -78,14 +91,8 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         }
 
         launchAndRepeatWhileStarted {
-            viewModel.lifecycleState.collect { state ->
-                LOG.info { "lifecycle state: $state" }
-                when (state) {
-                    STOPPING -> nav.navigate(actionGlobalStoppingFragment())
-                    WIPING -> nav.navigate(actionGlobalWipingFragment())
-                    else -> {}
-                }
-            }
+            viewModel.lifecycleState.collect { onLifecycleStateChanged(it) }
+            viewModel.appState.collect { onAppStateChanged(it) }
         }
 
         LOG.info { "do we have a saved instance state? " + (savedInstanceState != null) }
@@ -94,6 +101,44 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
             val hasDb = viewModel.hasDb()
             LOG.info { "do we have a db? $hasDb" }
             onDbChecked(hasDb, savedInstanceState)
+        }
+    }
+
+    private fun onLifecycleStateChanged(state: LifecycleState) {
+        LOG.info { "lifecycle state: $state" }
+        when (state) {
+            STOPPING -> nav.navigate(actionGlobalStoppingFragment())
+            WIPING -> nav.navigate(actionGlobalWipingFragment())
+            else -> {}
+        }
+    }
+
+    private fun onAppStateChanged(state: MailboxAppState) {
+        when (nav.currentDestination?.id) {
+            R.id.startupFragment -> when (state) {
+                is StartedSettingUp -> nav.navigate(
+                    actionStartupFragmentToQrCodeFragment()
+                )
+                is StartedSetupComplete -> nav.navigate(
+                    actionStartupFragmentToStatusFragment()
+                )
+                is ErrorNoNetwork -> nav.navigate(
+                    actionStartupFragmentToNoNetworkFragment()
+                )
+                is ErrorClockSkew -> nav.navigate(
+                    actionStartupFragmentToClockSkewFragment()
+                )
+                else -> {} // nothing to do but need to make when exhaustive for Kotlin 1.7
+            }
+            R.id.clockSkewFragment -> if (state != ErrorClockSkew) nav.navigate(
+                actionClockSkewFragmentToStartupFragment()
+            )
+            R.id.noNetworkFragment -> if (state != ErrorNoNetwork) nav.navigate(
+                actionNoNetworkFragmentToStartupFragment()
+            )
+            R.id.qrCodeFragment -> if (state == StartedSetupComplete) nav.navigate(
+                actionQrCodeFragmentToSetupCompleteFragment()
+            )
         }
     }
 
