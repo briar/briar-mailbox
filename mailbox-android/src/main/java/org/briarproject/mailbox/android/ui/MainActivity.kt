@@ -35,25 +35,23 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.briarproject.android.dontkillmelib.DozeUtils.needsDozeWhitelisting
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalClockSkewFragment
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalDoNotKillMeFragment
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalNoNetworkFragment
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalQrCodeFragment
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStartupFragment
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStatusFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStoppingFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalWipingFragment
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.StatusManager
+import org.briarproject.mailbox.android.StatusManager.AfterRunning
 import org.briarproject.mailbox.android.StatusManager.ErrorClockSkew
 import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
 import org.briarproject.mailbox.android.StatusManager.MailboxAppState
+import org.briarproject.mailbox.android.StatusManager.NotStarted
 import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
 import org.briarproject.mailbox.android.StatusManager.StartedSetupComplete
-import org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragmentDirections.actionDoNotKillMeFragmentToStartupFragment
-import org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragmentDirections.actionGlobalDoNotKillMeFragment
-import org.briarproject.mailbox.android.ui.ClockSkewFragmentDirections.actionClockSkewFragmentToStartupFragment
-import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToDoNotKillMeFragment
-import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToStartupFragment
-import org.briarproject.mailbox.android.ui.NoNetworkFragmentDirections.actionNoNetworkFragmentToStartupFragment
-import org.briarproject.mailbox.android.ui.QrCodeFragmentDirections.actionQrCodeFragmentToSetupCompleteFragment
-import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToClockSkewFragment
-import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToNoNetworkFragment
-import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToQrCodeFragment
-import org.briarproject.mailbox.android.ui.StartupFragmentDirections.actionStartupFragmentToStatusFragment
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.NOT_STARTED
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STOPPING
@@ -86,12 +84,15 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
 
         viewModel.doNotKillComplete.observe(this) { complete ->
             if (complete && nav.currentDestination?.id == R.id.doNotKillMeFragment) nav.navigate(
-                actionDoNotKillMeFragmentToStartupFragment()
+                actionGlobalStartupFragment()
             )
         }
 
         launchAndRepeatWhileStarted {
             viewModel.lifecycleState.collect { onLifecycleStateChanged(it) }
+        }
+
+        launchAndRepeatWhileStarted {
             viewModel.appState.collect { onAppStateChanged(it) }
         }
 
@@ -114,31 +115,19 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
     }
 
     private fun onAppStateChanged(state: MailboxAppState) {
-        when (nav.currentDestination?.id) {
-            R.id.startupFragment -> when (state) {
-                is StartedSettingUp -> nav.navigate(
-                    actionStartupFragmentToQrCodeFragment()
-                )
-                is StartedSetupComplete -> nav.navigate(
-                    actionStartupFragmentToStatusFragment()
-                )
-                is ErrorNoNetwork -> nav.navigate(
-                    actionStartupFragmentToNoNetworkFragment()
-                )
-                is ErrorClockSkew -> nav.navigate(
-                    actionStartupFragmentToClockSkewFragment()
-                )
-                else -> {} // nothing to do but need to make when exhaustive for Kotlin 1.7
-            }
-            R.id.clockSkewFragment -> if (state != ErrorClockSkew) nav.navigate(
-                actionClockSkewFragmentToStartupFragment()
-            )
-            R.id.noNetworkFragment -> if (state != ErrorNoNetwork) nav.navigate(
-                actionNoNetworkFragmentToStartupFragment()
-            )
-            R.id.qrCodeFragment -> if (state == StartedSetupComplete) nav.navigate(
-                actionQrCodeFragmentToSetupCompleteFragment()
-            )
+        when (state) {
+            NotStarted -> {} // do not navigate anywhere yet
+            is StatusManager.Starting -> if (nav.currentDestination?.id != R.id.startupFragment)
+                nav.navigate(actionGlobalStartupFragment())
+            is StartedSettingUp -> if (nav.currentDestination?.id != R.id.qrCodeFragment)
+                nav.navigate(actionGlobalQrCodeFragment())
+            StartedSetupComplete -> if (nav.currentDestination?.id != R.id.statusFragment)
+                nav.navigate(actionGlobalStatusFragment())
+            ErrorNoNetwork -> if (nav.currentDestination?.id != R.id.noNetworkFragment)
+                nav.navigate(actionGlobalNoNetworkFragment())
+            ErrorClockSkew -> if (nav.currentDestination?.id != R.id.clockSkewFragment)
+                nav.navigate(actionGlobalClockSkewFragment())
+            AfterRunning -> {} // nothing to do but needs to be exhaustive for Kotlin 1.7
         }
     }
 
@@ -150,9 +139,9 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
             if (!hasDb) {
                 startForResult.launch(Intent(this, OnboardingActivity::class.java))
             } else if (needsDozeWhitelisting(this)) {
-                nav.navigate(actionInitFragmentToDoNotKillMeFragment())
+                nav.navigate(actionGlobalDoNotKillMeFragment())
             } else {
-                nav.navigate(actionInitFragmentToStartupFragment())
+                nav.navigate(actionGlobalStartupFragment())
             }
         } else {
             // At this point, when we do not have a db, this can be either of two situations:
@@ -184,9 +173,9 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         // only show next fragment when user went throw onboarding
         // result doesn't matter as we kill the app when user backs out in onboarding
         if (viewModel.needToShowDoNotKillMeFragment) {
-            nav.navigate(actionInitFragmentToDoNotKillMeFragment())
+            nav.navigate(actionGlobalDoNotKillMeFragment())
         } else {
-            nav.navigate(actionInitFragmentToStartupFragment())
+            nav.navigate(actionGlobalStartupFragment())
         }
     }
 

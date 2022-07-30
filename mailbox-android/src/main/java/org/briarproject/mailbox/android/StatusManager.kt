@@ -63,6 +63,7 @@ class StatusManager @Inject constructor(
      * Possible values for [appState]
      */
     sealed class MailboxAppState
+    object NotStarted : MailboxAppState()
     data class Starting(val status: String) : MailboxAppState()
     data class StartedSettingUp(val qrCode: Bitmap) : MailboxAppState()
     object StartedSetupComplete : MailboxAppState()
@@ -75,6 +76,7 @@ class StatusManager @Inject constructor(
         lifecycleState, torPluginState, setupComplete
     ) { ls, ts, sc ->
         when {
+            ls == LifecycleState.NOT_STARTED -> NotStarted
             ls.isAfter(LifecycleState.RUNNING) -> AfterRunning
             ls != LifecycleState.RUNNING -> Starting(getString(R.string.startup_starting_services))
             // RUNNING
