@@ -66,7 +66,7 @@ class AuthManager @Inject constructor(
      * @throws [NotFoundException] when the given [principal] is NOT allowed
      * to download or delete from the given [folderId] which is assumed to be validated already.
      */
-    @Throws(NotFoundException::class)
+    @Throws(AuthException::class, NotFoundException::class)
     fun assertCanDownloadFromFolder(principal: MailboxPrincipal?, folderId: String) {
         if (principal == null) throw AuthException()
 
@@ -84,7 +84,7 @@ class AuthManager @Inject constructor(
      * @throws [NotFoundException] when the given [principal] is NOT allowed
      * to post to the given [folderId] which is assumed to be validated already.
      */
-    @Throws(AuthException::class)
+    @Throws(AuthException::class, NotFoundException::class)
     fun assertCanPostToFolder(principal: MailboxPrincipal?, folderId: String) {
         if (principal == null) throw AuthException()
 
