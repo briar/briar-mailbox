@@ -20,6 +20,7 @@
 package org.briarproject.mailbox.core.server
 
 import io.ktor.server.auth.Principal
+import io.ktor.server.plugins.NotFoundException
 import org.briarproject.mailbox.core.contacts.Contact
 import org.briarproject.mailbox.core.db.Database
 import org.briarproject.mailbox.core.server.MailboxPrincipal.ContactPrincipal
@@ -61,36 +62,38 @@ class AuthManager @Inject constructor(
     }
 
     /**
-     * @throws [AuthException] when given [principal] is NOT allowed
+     * @throws [AuthException] when the given principal is null
+     * @throws [NotFoundException] when the given [principal] is NOT allowed
      * to download or delete from the given [folderId] which is assumed to be validated already.
      */
-    @Throws(AuthException::class)
+    @Throws(AuthException::class, NotFoundException::class)
     fun assertCanDownloadFromFolder(principal: MailboxPrincipal?, folderId: String) {
         if (principal == null) throw AuthException()
 
         if (principal is OwnerPrincipal) {
             val contacts = db.read { txn -> db.getContacts(txn) }
             val noOutboxFound = contacts.none { c -> folderId == c.outboxId }
-            if (noOutboxFound) throw AuthException()
+            if (noOutboxFound) throw NotFoundException()
         } else if (principal is ContactPrincipal) {
-            if (folderId != principal.contact.inboxId) throw AuthException()
+            if (folderId != principal.contact.inboxId) throw NotFoundException()
         }
     }
 
     /**
-     * @throws [AuthException] when given [principal] is NOT allowed
+     * @throws [AuthException] when the given principal is null
+     * @throws [NotFoundException] when the given [principal] is NOT allowed
      * to post to the given [folderId] which is assumed to be validated already.
      */
-    @Throws(AuthException::class)
+    @Throws(AuthException::class, NotFoundException::class)
     fun assertCanPostToFolder(principal: MailboxPrincipal?, folderId: String) {
         if (principal == null) throw AuthException()
 
         if (principal is OwnerPrincipal) {
             val contacts = db.read { txn -> db.getContacts(txn) }
             val noInboxFound = contacts.none { c -> folderId == c.inboxId }
-            if (noInboxFound) throw AuthException()
+            if (noInboxFound) throw NotFoundException()
         } else if (principal is ContactPrincipal) {
-            if (folderId != principal.contact.outboxId) throw AuthException()
+            if (folderId != principal.contact.outboxId) throw NotFoundException()
         }
     }
 
