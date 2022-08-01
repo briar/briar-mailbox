@@ -39,6 +39,7 @@ import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStoppingFrag
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalWipingFragment
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragmentDirections.actionDoNotKillMeFragmentToStartupFragment
+import org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragmentDirections.actionGlobalDoNotKillMeFragment
 import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToDoNotKillMeFragment
 import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToStartupFragment
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STOPPING
@@ -136,7 +137,7 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
     private fun showDozeDialog() = AlertDialog.Builder(this)
         .setMessage(R.string.warning_dozed)
         .setPositiveButton(R.string.fix) { dialog, _ ->
-            nav.navigate(actionInitFragmentToDoNotKillMeFragment())
+            nav.navigate(actionGlobalDoNotKillMeFragment())
             dialog.dismiss()
         }
         .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }

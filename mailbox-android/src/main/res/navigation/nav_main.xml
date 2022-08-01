@@ -42,6 +42,11 @@
             app:popUpTo="@id/doNotKillMeFragment"
             app:popUpToInclusive="true" />
     </fragment>
+    <action
+        android:id="@+id/action_global_doNotKillMeFragment"
+        app:destination="@id/doNotKillMeFragment"
+        app:popUpTo="@id/nav_onboarding"
+        app:popUpToInclusive="true" />
     <fragment
         android:id="@+id/startupFragment"
         android:name="org.briarproject.mailbox.android.ui.StartupFragment"
