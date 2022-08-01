@@ -70,7 +70,6 @@ internal class AndroidTorModule {
         resourceProvider: ResourceProvider,
         circumventionProvider: CircumventionProvider,
         androidWakeLockManager: AndroidWakeLockManager,
-        backoff: Backoff,
         lifecycleManager: LifecycleManager,
         eventBus: EventBus,
     ): TorPlugin = AndroidTorPlugin(
@@ -83,7 +82,6 @@ internal class AndroidTorModule {
         resourceProvider,
         circumventionProvider,
         androidWakeLockManager,
-        backoff,
         architecture,
         app.getDir("tor", Context.MODE_PRIVATE),
     ).also {

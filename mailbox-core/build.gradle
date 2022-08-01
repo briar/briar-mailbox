@@ -19,7 +19,7 @@ dependencies {
     implementation "com.google.dagger:hilt-core:$hilt_version"
     kapt "com.google.dagger:dagger-compiler:$hilt_version"
 
-    implementation 'org.briarproject:jtorctl:0.3'
+    implementation 'org.briarproject:jtorctl:0.5'
 
     def ktor_version = '2.0.3'
     implementation "io.ktor:ktor-server-core:$ktor_version"

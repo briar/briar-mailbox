@@ -64,7 +64,6 @@ internal class JavaTorModule {
         clock: Clock,
         resourceProvider: ResourceProvider,
         circumventionProvider: CircumventionProvider,
-        backoff: Backoff,
         lifecycleManager: LifecycleManager,
         eventBus: EventBus,
         fileProvider: FileProvider,
@@ -78,7 +77,6 @@ internal class JavaTorModule {
             clock,
             resourceProvider,
             circumventionProvider,
-            backoff,
             architecture,
             torDir,
         ).also {

@@ -21,6 +21,7 @@ package org.briarproject.mailbox.core.tor;
 
 import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
+import net.freehaven.tor.control.TorNotRunningException;
 
 import org.briarproject.mailbox.core.PoliteExecutor;
 import org.briarproject.mailbox.core.db.DbException;
@@ -35,8 +36,10 @@ import org.briarproject.mailbox.core.settings.SettingsManager;
 import org.briarproject.mailbox.core.system.Clock;
 import org.briarproject.mailbox.core.system.LocationUtils;
 import org.briarproject.mailbox.core.system.ResourceProvider;
+import org.briarproject.mailbox.core.tor.CircumventionProvider.BridgeType;
 import org.slf4j.Logger;
 
+import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,8 +47,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -65,12 +68,13 @@ import kotlinx.coroutines.flow.MutableStateFlow;
 import kotlinx.coroutines.flow.StateFlow;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
-import static java.util.Objects.requireNonNull;
 import static kotlinx.coroutines.flow.StateFlowKt.MutableStateFlow;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
+import static org.briarproject.mailbox.core.tor.CircumventionProvider.BridgeType.MEEK;
 import static org.briarproject.mailbox.core.tor.TorConstants.CONTROL_PORT;
 import static org.briarproject.mailbox.core.tor.TorConstants.HS_ADDRESS_V3;
 import static org.briarproject.mailbox.core.tor.TorConstants.HS_PRIVATE_KEY_V3;
@@ -87,11 +91,16 @@ public abstract class TorPlugin
 		implements Service, EventHandler, EventListener {
 
 	private static final Logger LOG = getLogger(TorPlugin.class);
-	private static final Logger LOG_TOR_STDOUT = getLogger("tor.stdout");
-	private static final Logger LOG_TOR_STDERR = getLogger("tor.stderr");
 
 	private static final String[] EVENTS = {
-			"CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
+			"CIRC",
+			"ORCONN",
+			"STATUS_GENERAL",
+			"STATUS_CLIENT",
+			"HS_DESC",
+			"NOTICE",
+			"WARN",
+			"ERR"
 	};
 	private static final String OWNER = "__OwningControllerProcess";
 	private static final int COOKIE_TIMEOUT_MS = 3000;
@@ -113,7 +122,6 @@ public abstract class TorPlugin
 	private final NetworkManager networkManager;
 	private final LocationUtils locationUtils;
 	private final Clock clock;
-	private final Backoff backoff;
 	@Nullable
 	private final String architecture;
 	private final CircumventionProvider circumventionProvider;
@@ -138,7 +146,6 @@ public abstract class TorPlugin
 			Clock clock,
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
-			Backoff backoff,
 			@Nullable String architecture,
 			File torDirectory) {
 		this.ioExecutor = ioExecutor;
@@ -148,7 +155,6 @@ public abstract class TorPlugin
 		this.clock = clock;
 		this.resourceProvider = resourceProvider;
 		this.circumventionProvider = circumventionProvider;
-		this.backoff = backoff;
 		this.architecture = architecture;
 		this.torDirectory = torDirectory;
 		configFile = new File(torDirectory, "torrc");
@@ -180,8 +186,14 @@ public abstract class TorPlugin
 				throw new ServiceException();
 			}
 		}
-		// Install or update the assets if necessary
-		if (!assetsAreUpToDate()) installAssets();
+		try {
+			// Install or update the assets if necessary
+			if (!assetsAreUpToDate()) installAssets();
+			// Start from the default config every time
+			extract(getConfigInputStream(), configFile);
+		} catch (IOException e) {
+			throw new ServiceException(e);
+		}
 		if (cookieFile.exists() && !cookieFile.delete())
 			LOG.warn("Old auth cookie not deleted");
 		// Start a new Tor process
@@ -196,33 +208,15 @@ public abstract class TorPlugin
 		Map<String, String> env = pb.environment();
 		env.put("HOME", torDirectory.getAbsolutePath());
 		pb.directory(torDirectory);
+		pb.redirectErrorStream(true);
 		try {
 			torProcess = pb.start();
 		} catch (SecurityException | IOException e) {
 			throw new ServiceException(e);
 		}
-		// Log the process's standard output until it detaches
-		if (LOG.isInfoEnabled()) {
-			Scanner stdout = new Scanner(torProcess.getInputStream());
-			Scanner stderr = new Scanner(torProcess.getErrorStream());
-			while (stdout.hasNextLine() || stderr.hasNextLine()) {
-				if (stdout.hasNextLine()) {
-					LOG_TOR_STDOUT.info(stdout.nextLine());
-				}
-				if (stderr.hasNextLine()) {
-					LOG_TOR_STDERR.info(stderr.nextLine());
-				}
-			}
-			stdout.close();
-			stderr.close();
-		}
 		try {
-			// Wait for the process to detach or exit
-			int exit = torProcess.waitFor();
-			if (exit != 0) {
-				warn(LOG, () -> "Tor exited with value " + exit);
-				throw new ServiceException();
-			}
+			// Wait for the Tor process to start
+			waitForTorToStart(torProcess);
 			// Wait for the auth cookie file to be created/updated
 			long start = clock.currentTimeMillis();
 			while (cookieFile.length() < 32) {
@@ -252,10 +246,16 @@ public abstract class TorPlugin
 			controlConnection.setEventHandler(this);
 			controlConnection.setEvents(asList(EVENTS));
 			// Check whether Tor has already bootstrapped
-			String phase = controlConnection.getInfo("status/bootstrap-phase");
-			if (phase != null && phase.contains("PROGRESS=100")) {
+			String info = controlConnection.getInfo("status/bootstrap-phase");
+			if (info != null && info.contains("PROGRESS=100")) {
 				LOG.info("Tor has already bootstrapped");
 				state.setBootstrapPercent(100);
+			}
+			// Check whether Tor has already built a circuit
+			info = controlConnection.getInfo("status/circuit-established");
+			if ("1".equals(info)) {
+				LOG.info("Tor has already built a circuit");
+				state.setCircuitBuilt(true);
 			}
 		} catch (IOException e) {
 			throw new ServiceException(e);
@@ -282,7 +282,6 @@ public abstract class TorPlugin
 			doneFile.delete();
 			installTorExecutable();
 			installObfs4Executable();
-			extract(getConfigInputStream(), configFile);
 			if (!doneFile.createNewFile())
 				LOG.warn("Failed to create done file");
 		} catch (IOException e) {
@@ -325,9 +324,32 @@ public abstract class TorPlugin
 		return zin;
 	}
 
+	private static void append(StringBuilder strb, String name, Object value) {
+		strb.append(name);
+		strb.append(" ");
+		strb.append(value);
+		strb.append("\n");
+	}
+
 	private InputStream getConfigInputStream() {
-		ClassLoader cl = getClass().getClassLoader();
-		return requireNonNull(cl.getResourceAsStream("torrc"));
+		File dataDirectory = new File(torDirectory, ".tor");
+		StringBuilder strb = new StringBuilder();
+		append(strb, "ControlPort", 59055);
+		append(strb, "CookieAuthentication", 1);
+		append(strb, "DataDirectory", dataDirectory.getAbsolutePath());
+		append(strb, "DisableNetwork", 1);
+		append(strb, "RunAsDaemon", 1);
+		append(strb, "SafeSocks", 1);
+		append(strb, "SocksPort", 59054);
+		strb.append("GeoIPFile\n");
+		strb.append("GeoIPv6File\n");
+		append(strb, "ConnectionPadding", 0);
+		String obfs4Path = getObfs4ExecutableFile().getAbsolutePath();
+		append(strb, "ClientTransportPlugin obfs4 exec", obfs4Path);
+		append(strb, "ClientTransportPlugin meek_lite exec", obfs4Path);
+		//noinspection CharsetObjectCanBeUsed
+		return new ByteArrayInputStream(
+				strb.toString().getBytes(Charset.forName("UTF-8")));
 	}
 
 	private void listFiles(File f) {
@@ -352,6 +374,22 @@ public abstract class TorPlugin
 			return b;
 		} finally {
 			tryToClose(in, LOG);
+		}
+	}
+
+	protected void waitForTorToStart(Process torProcess)
+			throws InterruptedException, ServiceException {
+		Scanner stdout = new Scanner(torProcess.getInputStream());
+		// Log the first line of stdout (contains Tor and library versions)
+		if (stdout.hasNextLine()) LOG.info(stdout.nextLine());
+		// Read the process's stdout (and redirected stderr) until it detaches
+		while (stdout.hasNextLine()) stdout.nextLine();
+		stdout.close();
+		// Wait for the process to detach or exit
+		int exit = torProcess.waitFor();
+		if (exit != 0) {
+			warn(LOG, () -> "Tor exited with value " + exit);
+			throw new ServiceException();
 		}
 	}
 
@@ -383,6 +421,8 @@ public abstract class TorPlugin
 			} else {
 				response = controlConnection.addOnion(privKey, portLines);
 			}
+		} catch (TorNotRunningException e) {
+			throw new RuntimeException(e);
 		} catch (IOException e) {
 			logException(LOG, e, "Error while add onion service");
 			return;
@@ -417,38 +457,32 @@ public abstract class TorPlugin
 	}
 
 	protected void enableNetwork(boolean enable) throws IOException {
-		state.enableNetwork(enable);
+		if (!state.enableNetwork(enable)) return; // Unchanged
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
 	}
 
-	private void enableBridges(boolean enable, boolean needsMeek)
+	private void enableBridges(List<BridgeType> bridgeTypes)
 			throws IOException {
-		if (enable) {
+		if (!state.setBridgeTypes(bridgeTypes)) return; // Unchanged
+		if (bridgeTypes.isEmpty()) {
+			controlConnection.setConf("UseBridges", "0");
+			controlConnection.resetConf(singletonList("Bridge"));
+		} else {
 			Collection<String> conf = new ArrayList<>();
 			conf.add("UseBridges 1");
-			File obfs4File = getObfs4ExecutableFile();
-			if (needsMeek) {
-				conf.add("ClientTransportPlugin meek_lite exec " +
-						obfs4File.getAbsolutePath());
-			} else {
-				conf.add("ClientTransportPlugin obfs4 exec " +
-						obfs4File.getAbsolutePath());
+			for (BridgeType bridgeType : bridgeTypes) {
+				conf.addAll(circumventionProvider.getBridges(bridgeType));
 			}
-			conf.addAll(circumventionProvider.getBridges(needsMeek));
 			controlConnection.setConf(conf);
-		} else {
-			controlConnection.setConf("UseBridges", "0");
 		}
 	}
 
 	@Override
 	public void stopService() {
-		ServerSocket ss = state.setStopped();
-		tryToClose(ss, LOG);
+		state.setStopped();
 		if (controlSocket != null && controlConnection != null) {
 			try {
 				LOG.info("Stopping Tor");
-				controlConnection.setConf("DisableNetwork", "1");
 				controlConnection.shutdownTor("TERM");
 				controlSocket.close();
 			} catch (IOException e) {
@@ -460,10 +494,10 @@ public abstract class TorPlugin
 
 	@Override
 	public void circuitStatus(String status, String id, String path) {
-		if (status.equals("BUILT") &&
-				state.getAndSetCircuitBuilt()) {
-			LOG.info("First circuit built");
-			backoff.reset();
+		// In case of races between receiving CIRCUIT_ESTABLISHED and setting
+		// DisableNetwork, set our circuitBuilt flag if not already set
+		if (status.equals("BUILT") && state.setCircuitBuilt(true)) {
+			LOG.info("Circuit built");
 		}
 	}
 
@@ -473,11 +507,10 @@ public abstract class TorPlugin
 
 	@Override
 	public void orConnStatus(String status, String orName) {
-		info(LOG, () -> "OR connection " + status + " " + orName);
-		if (status.equals("CLOSED") || status.equals("FAILED")) {
-			// Check whether we've lost connectivity
-			updateConnectionStatus(networkManager.getNetworkStatus());
-		}
+		info(LOG, () -> "OR connection " + status);
+
+		if (status.equals("CONNECTED")) state.onOrConnectionConnected();
+		else if (status.equals("CLOSED")) state.onOrConnectionClosed();
 	}
 
 	@Override
@@ -491,10 +524,7 @@ public abstract class TorPlugin
 	@Override
 	public void message(String severity, String msg) {
 		info(LOG, () -> severity + " " + msg);
-		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
-			state.setBootstrapPercent(100);
-			backoff.reset();
-		} else if (severity.equals("NOTICE")) {
+		if (severity.equals("NOTICE")) {
 			Matcher matcher = bootstrapPattern.matcher(msg);
 			if (matcher.matches()) {
 				String percentStr = matcher.group(1);
@@ -509,9 +539,72 @@ public abstract class TorPlugin
 
 	@Override
 	public void unrecognized(String type, String msg) {
-		if (type.equals("HS_DESC") && msg.startsWith("UPLOADED")) {
+		if (type.equals("STATUS_CLIENT")) {
+			handleClientStatus(removeSeverity(msg));
+		} else if (type.equals("STATUS_GENERAL")) {
+			handleGeneralStatus(removeSeverity(msg));
+		} else if (type.equals("HS_DESC") && msg.startsWith("UPLOADED")) {
 			LOG.info("V3 descriptor uploaded");
 			state.onServiceDescriptorUploaded();
+		}
+	}
+
+	private String removeSeverity(String msg) {
+		return msg.replaceFirst("[^ ]+ ", "");
+	}
+
+	private void handleClientStatus(String msg) {
+		if (msg.startsWith("BOOTSTRAP PROGRESS=100")) {
+			LOG.info("Bootstrapped");
+			state.setBootstrapPercent(100);
+		} else if (msg.startsWith("CIRCUIT_ESTABLISHED")) {
+			if (state.setCircuitBuilt(true)) {
+				LOG.info("Circuit built");
+			}
+		} else if (msg.startsWith("CIRCUIT_NOT_ESTABLISHED")) {
+			if (state.setCircuitBuilt(false)) {
+				LOG.info("Circuit not built");
+				// TODO: Disable and re-enable network to prompt Tor to rebuild
+				//  its guard/bridge connections? This will also close any
+				//  established circuits, which might still be functioning
+			}
+		}
+	}
+
+	private void handleGeneralStatus(String msg) {
+		if (msg.startsWith("CLOCK_JUMPED")) {
+			Long time = parseLongArgument(msg, "TIME");
+			if (time != null) {
+				warn(LOG, () -> "Clock jumped " + time + " seconds");
+			}
+		} else if (msg.startsWith("CLOCK_SKEW")) {
+			Long skew = parseLongArgument(msg, "SKEW");
+			if (skew != null) {
+				warn(LOG, () -> "Clock is skewed by " + skew + " seconds");
+			}
+		}
+	}
+
+	@Nullable
+	private Long parseLongArgument(String msg, String argName) {
+		String[] args = msg.split(" ");
+		for (String arg : args) {
+			if (arg.startsWith(argName + "=")) {
+				try {
+					return Long.parseLong(arg.substring(argName.length() + 1));
+				} catch (NumberFormatException e) {
+					break;
+				}
+			}
+		}
+		warn(LOG, () -> "Failed to parse " + argName + " from '" + msg + "'");
+		return null;
+	}
+
+	@Override
+	public void controlConnectionClosed() {
+		if (state.isTorRunning()) {
+			throw new RuntimeException("Control connection closed");
 		}
 	}
 
@@ -522,16 +615,6 @@ public abstract class TorPlugin
 		}
 	}
 
-	private void disableNetwork() {
-		connectionStatusExecutor.execute(() -> {
-			try {
-				if (state.isTorRunning()) enableNetwork(false);
-			} catch (IOException ex) {
-				logException(LOG, ex, "Error while disabling network");
-			}
-		});
-	}
-
 	private void updateConnectionStatus(NetworkStatus status) {
 		connectionStatusExecutor.execute(() -> {
 			if (!state.isTorRunning()) return;
@@ -539,8 +622,6 @@ public abstract class TorPlugin
 			boolean wifi = status.isWifi();
 			boolean ipv6Only = status.isIpv6Only();
 			String country = locationUtils.getCurrentCountry();
-			boolean blocked =
-					circumventionProvider.isTorProbablyBlocked(country);
 			boolean bridgesWork = circumventionProvider.doBridgesWork(country);
 
 			if (LOG.isInfoEnabled()) {
@@ -550,48 +631,65 @@ public abstract class TorPlugin
 				else LOG.info("Country code: " + country);
 			}
 
-			boolean enableNetwork = false;
-			boolean enableBridges = false;
-			boolean useMeek = false;
+			boolean enableNetwork = false, enableConnectionPadding = false;
+			List<BridgeType> bridgeTypes = emptyList();
 
 			if (!online) {
 				LOG.info("Disabling network, device is offline");
 			} else {
 				LOG.info("Enabling network");
 				enableNetwork = true;
-				if (blocked && bridgesWork) {
-					if (ipv6Only || circumventionProvider.needsMeek(country)) {
-						LOG.info("Using meek bridges");
-						enableBridges = true;
-						useMeek = true;
+				if (bridgesWork) {
+					if (ipv6Only) {
+						bridgeTypes = singletonList(MEEK);
 					} else {
-						LOG.info("Using obfs4 bridges");
-						enableBridges = true;
+						bridgeTypes = circumventionProvider
+								.getSuitableBridgeTypes(country);
+					}
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Using bridge types " + bridgeTypes);
 					}
 				} else {
 					LOG.info("Not using bridges");
 				}
+				if (wifi) {
+					LOG.info("Enabling connection padding");
+					enableConnectionPadding = true;
+				} else {
+					LOG.info("Disabling connection padding");
+				}
 			}
+
 			try {
 				if (enableNetwork) {
-					enableBridges(enableBridges, useMeek);
-					enableConnectionPadding(true);
-					useIpv6(ipv6Only);
+					enableBridges(bridgeTypes);
+					enableConnectionPadding(enableConnectionPadding);
+					enableIpv6(ipv6Only);
 				}
 				enableNetwork(enableNetwork);
 			} catch (IOException e) {
-				logException(LOG, e, "Error while updating connetion status");
+				logException(LOG, e, "Error enabling network");
 			}
 		});
 	}
 
 	private void enableConnectionPadding(boolean enable) throws IOException {
-		controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
+		if (!state.enableConnectionPadding(enable)) return; // Unchanged
+		try {
+			controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
+		} catch (TorNotRunningException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
-	private void useIpv6(boolean ipv6Only) throws IOException {
-		controlConnection.setConf("ClientUseIPv4", ipv6Only ? "0" : "1");
-		controlConnection.setConf("ClientUseIPv6", ipv6Only ? "1" : "0");
+	private void enableIpv6(boolean enable) throws IOException {
+		if (!state.enableIpv6(enable)) return; // Unchanged
+		try {
+			controlConnection.setConf("ClientUseIPv4", enable ? "0" : "1");
+			controlConnection.setConf("ClientUseIPv6", enable ? "1" : "0");
+		} catch (TorNotRunningException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@ThreadSafe
@@ -605,31 +703,32 @@ public abstract class TorPlugin
 				stopped = false,
 				networkInitialised = false,
 				networkEnabled = false,
+				paddingEnabled = false,
+				ipv6Enabled = false,
 				circuitBuilt = false,
 				clockSkewed = false;
 		@GuardedBy("this")
 		private int bootstrapPercent = 0, numServiceUploads = 0;
 
 		@GuardedBy("this")
-		@Nullable
-		private ServerSocket serverSocket = null;
+		private int orConnectionsConnected = 0;
+
+		@GuardedBy("this")
+		private List<BridgeType> bridgeTypes = emptyList();
 
 		synchronized void setStarted() {
 			started = true;
 			state.setValue(getCurrentState());
 		}
 
+		@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 		synchronized boolean isTorRunning() {
 			return started && !stopped;
 		}
 
-		@Nullable
-		synchronized ServerSocket setStopped() {
+		synchronized void setStopped() {
 			stopped = true;
-			ServerSocket ss = serverSocket;
-			serverSocket = null;
 			state.setValue(getCurrentState());
-			return ss;
 		}
 
 		synchronized void setBootstrapPercent(int percent) {
@@ -646,12 +745,16 @@ public abstract class TorPlugin
 			state.setValue(getCurrentState());
 		}
 
-		synchronized boolean getAndSetCircuitBuilt() {
-			boolean firstCircuit = !circuitBuilt;
-			circuitBuilt = true;
+		/**
+		 * Sets the `circuitBuilt` flag and returns true if the flag has
+		 * changed.
+		 */
+		private synchronized boolean setCircuitBuilt(boolean built) {
+			if (built == circuitBuilt) return false; // Unchanged
+			circuitBuilt = built;
 			if (bootstrapPercent == 100) clockSkewed = false;
 			state.setValue(getCurrentState());
-			return firstCircuit;
+			return true; // Changed
 		}
 
 		synchronized void onServiceDescriptorUploaded() {
@@ -659,11 +762,51 @@ public abstract class TorPlugin
 			state.setValue(getCurrentState());
 		}
 
-		synchronized void enableNetwork(boolean enable) {
+		/**
+		 * Sets the `networkEnabled` flag and returns true if the flag has
+		 * changed.
+		 */
+		synchronized boolean enableNetwork(boolean enable) {
+			boolean wasInitialised = networkInitialised;
+			boolean wasEnabled = networkEnabled;
 			networkInitialised = true;
 			networkEnabled = enable;
 			if (!enable) circuitBuilt = false;
-			state.setValue(getCurrentState());
+			if (!wasInitialised || enable != wasEnabled) {
+				state.setValue(getCurrentState());
+			}
+			return enable != wasEnabled;
+		}
+
+		/**
+		 * Sets the `paddingEnabled` flag and returns true if the flag has
+		 * changed. Doesn't affect getState().
+		 */
+		private synchronized boolean enableConnectionPadding(boolean enable) {
+			if (enable == paddingEnabled) return false; // Unchanged
+			paddingEnabled = enable;
+			return true; // Changed
+		}
+
+		/**
+		 * Sets the `ipv6Enabled` flag and returns true if the flag has
+		 * changed. Doesn't affect getState().
+		 */
+		private synchronized boolean enableIpv6(boolean enable) {
+			if (enable == ipv6Enabled) return false; // Unchanged
+			ipv6Enabled = enable;
+			return true; // Changed
+		}
+
+		/**
+		 * Sets the list of bridge types being used and returns true if the
+		 * list has changed. The list is empty if bridges are disabled.
+		 * Doesn't affect getState().
+		 */
+		private synchronized boolean setBridgeTypes(List<BridgeType> types) {
+			if (types.equals(bridgeTypes)) return false; // Unchanged
+			bridgeTypes = types;
+			return true; // Changed
 		}
 
 		private synchronized TorState getCurrentState() {
@@ -675,10 +818,37 @@ public abstract class TorPlugin
 			}
 			if (!networkEnabled) return TorState.Inactive.INSTANCE;
 			if (clockSkewed) return TorState.ClockSkewed.INSTANCE;
-			if (bootstrapPercent == 100 && circuitBuilt) {
+			if (bootstrapPercent == 100 && circuitBuilt &&
+					orConnectionsConnected > 0) {
 				return (numServiceUploads >= HS_DESC_UPLOADS) ?
 						TorState.Published.INSTANCE : TorState.Active.INSTANCE;
 			} else return new TorState.Enabling(bootstrapPercent);
+		}
+
+		private synchronized void onOrConnectionConnected() {
+			int oldConnected = orConnectionsConnected;
+			orConnectionsConnected++;
+			logOrConnections();
+			if (oldConnected == 0) state.setValue(getCurrentState());
+		}
+
+		private synchronized void onOrConnectionClosed() {
+			int oldConnected = orConnectionsConnected;
+			orConnectionsConnected--;
+			if (orConnectionsConnected < 0) {
+				LOG.warn("Count was zero before connection closed");
+				orConnectionsConnected = 0;
+			}
+			logOrConnections();
+			if (orConnectionsConnected == 0 && oldConnected != 0) {
+				state.setValue(getCurrentState());
+			}
+		}
+
+		@GuardedBy("this")
+		private void logOrConnections() {
+			info(LOG, () ->
+					orConnectionsConnected + " OR connections connected");
 		}
 
 	}
