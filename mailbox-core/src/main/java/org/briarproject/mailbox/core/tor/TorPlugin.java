@@ -388,7 +388,7 @@ public abstract class TorPlugin
 		// Wait for the process to detach or exit
 		int exit = torProcess.waitFor();
 		if (exit != 0) {
-			if (LOG.isWarnEnabled()) LOG.warn("Tor exited with value " + exit);
+			warn(LOG, () -> "Tor exited with value " + exit);
 			throw new ServiceException();
 		}
 	}
