@@ -32,7 +32,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.briarproject.android.dontkillmelib.DozeUtils.needsDozeWhitelisting
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalClockSkewFragment
@@ -44,18 +43,17 @@ import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStatusFragme
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStoppingFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalWipingFragment
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.StatusManager
-import org.briarproject.mailbox.android.StatusManager.AfterRunning
 import org.briarproject.mailbox.android.StatusManager.ErrorClockSkew
 import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
 import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.StatusManager.NotStarted
 import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
 import org.briarproject.mailbox.android.StatusManager.StartedSetupComplete
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
+import org.briarproject.mailbox.android.StatusManager.Starting
+import org.briarproject.mailbox.android.StatusManager.Stopped
+import org.briarproject.mailbox.android.StatusManager.Stopping
+import org.briarproject.mailbox.android.StatusManager.Wiping
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.NOT_STARTED
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STOPPING
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.WIPING
 import org.briarproject.mailbox.core.util.LogUtils.info
 import org.slf4j.LoggerFactory.getLogger
 
@@ -89,10 +87,6 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         }
 
         launchAndRepeatWhileStarted {
-            viewModel.lifecycleState.collect { onLifecycleStateChanged(it) }
-        }
-
-        launchAndRepeatWhileStarted {
             viewModel.appState.collect { onAppStateChanged(it) }
         }
 
@@ -105,19 +99,10 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         }
     }
 
-    private fun onLifecycleStateChanged(state: LifecycleState) {
-        LOG.info { "lifecycle state: $state" }
-        when (state) {
-            STOPPING -> nav.navigate(actionGlobalStoppingFragment())
-            WIPING -> nav.navigate(actionGlobalWipingFragment())
-            else -> {}
-        }
-    }
-
     private fun onAppStateChanged(state: MailboxAppState) {
         when (state) {
             NotStarted -> {} // do not navigate anywhere yet
-            is StatusManager.Starting -> if (nav.currentDestination?.id != R.id.startupFragment)
+            is Starting -> if (nav.currentDestination?.id != R.id.startupFragment)
                 nav.navigate(actionGlobalStartupFragment())
             is StartedSettingUp -> if (nav.currentDestination?.id != R.id.qrCodeFragment)
                 nav.navigate(actionGlobalQrCodeFragment())
@@ -127,7 +112,11 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
                 nav.navigate(actionGlobalNoNetworkFragment())
             ErrorClockSkew -> if (nav.currentDestination?.id != R.id.clockSkewFragment)
                 nav.navigate(actionGlobalClockSkewFragment())
-            AfterRunning -> {} // nothing to do but needs to be exhaustive for Kotlin 1.7
+            Stopping -> if (nav.currentDestination?.id != R.id.stoppingFragment)
+                nav.navigate(actionGlobalStoppingFragment())
+            Wiping -> if (nav.currentDestination?.id != R.id.wipingFragment)
+                nav.navigate(actionGlobalWipingFragment())
+            Stopped -> {} // nothing to do but needs to be exhaustive for Kotlin 1.7
         }
     }
 

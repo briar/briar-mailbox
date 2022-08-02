@@ -36,13 +36,16 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.StatusManager.AfterRunning
 import org.briarproject.mailbox.android.StatusManager.ErrorClockSkew
 import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
 import org.briarproject.mailbox.android.StatusManager.MailboxAppState
+import org.briarproject.mailbox.android.StatusManager.NotStarted
 import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
 import org.briarproject.mailbox.android.StatusManager.StartedSetupComplete
 import org.briarproject.mailbox.android.StatusManager.Starting
+import org.briarproject.mailbox.android.StatusManager.Stopped
+import org.briarproject.mailbox.android.StatusManager.Stopping
+import org.briarproject.mailbox.android.StatusManager.Wiping
 import org.briarproject.mailbox.android.ui.MainActivity
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -110,7 +113,8 @@ class MailboxNotificationManager @Inject constructor(
                     setContentTitle(ctx.getString(R.string.notification_mailbox_title_offline))
                     setContentText(ctx.getString(R.string.notification_mailbox_content_clock_skew))
                 }
-                AfterRunning -> error("No notifications when lifecycle not running")
+                NotStarted, Stopping, Stopped, Wiping ->
+                    error("No notifications when lifecycle not running")
             }
             setSmallIcon(R.drawable.ic_notification_foreground)
             setContentIntent(pendingIntent)
