@@ -32,19 +32,28 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.briarproject.android.dontkillmelib.DozeUtils.needsDozeWhitelisting
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalClockSkewFragment
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalDoNotKillMeFragment
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalNoNetworkFragment
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalQrCodeFragment
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStartupFragment
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStatusFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStoppingFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalWipingFragment
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragmentDirections.actionDoNotKillMeFragmentToStartupFragment
-import org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragmentDirections.actionGlobalDoNotKillMeFragment
-import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToDoNotKillMeFragment
-import org.briarproject.mailbox.android.ui.InitFragmentDirections.actionInitFragmentToStartupFragment
+import org.briarproject.mailbox.android.StatusManager.ErrorClockSkew
+import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
+import org.briarproject.mailbox.android.StatusManager.MailboxAppState
+import org.briarproject.mailbox.android.StatusManager.NotStarted
+import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
+import org.briarproject.mailbox.android.StatusManager.StartedSetupComplete
+import org.briarproject.mailbox.android.StatusManager.Starting
+import org.briarproject.mailbox.android.StatusManager.Stopped
+import org.briarproject.mailbox.android.StatusManager.Stopping
+import org.briarproject.mailbox.android.StatusManager.Wiping
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.NOT_STARTED
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STOPPING
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.WIPING
 import org.briarproject.mailbox.core.util.LogUtils.info
 import org.slf4j.LoggerFactory.getLogger
 
@@ -73,19 +82,12 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
 
         viewModel.doNotKillComplete.observe(this) { complete ->
             if (complete && nav.currentDestination?.id == R.id.doNotKillMeFragment) nav.navigate(
-                actionDoNotKillMeFragmentToStartupFragment()
+                actionGlobalStartupFragment()
             )
         }
 
         launchAndRepeatWhileStarted {
-            viewModel.lifecycleState.collect { state ->
-                LOG.info { "lifecycle state: $state" }
-                when (state) {
-                    STOPPING -> nav.navigate(actionGlobalStoppingFragment())
-                    WIPING -> nav.navigate(actionGlobalWipingFragment())
-                    else -> {}
-                }
-            }
+            viewModel.appState.collect { onAppStateChanged(it) }
         }
 
         LOG.info { "do we have a saved instance state? " + (savedInstanceState != null) }
@@ -97,6 +99,27 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         }
     }
 
+    private fun onAppStateChanged(state: MailboxAppState) {
+        when (state) {
+            NotStarted -> {} // do not navigate anywhere yet
+            is Starting -> if (nav.currentDestination?.id != R.id.startupFragment)
+                nav.navigate(actionGlobalStartupFragment())
+            is StartedSettingUp -> if (nav.currentDestination?.id != R.id.qrCodeFragment)
+                nav.navigate(actionGlobalQrCodeFragment())
+            StartedSetupComplete -> if (nav.currentDestination?.id != R.id.statusFragment)
+                nav.navigate(actionGlobalStatusFragment())
+            ErrorNoNetwork -> if (nav.currentDestination?.id != R.id.noNetworkFragment)
+                nav.navigate(actionGlobalNoNetworkFragment())
+            ErrorClockSkew -> if (nav.currentDestination?.id != R.id.clockSkewFragment)
+                nav.navigate(actionGlobalClockSkewFragment())
+            Stopping -> if (nav.currentDestination?.id != R.id.stoppingFragment)
+                nav.navigate(actionGlobalStoppingFragment())
+            Wiping -> if (nav.currentDestination?.id != R.id.wipingFragment)
+                nav.navigate(actionGlobalWipingFragment())
+            Stopped -> {} // nothing to do but needs to be exhaustive for Kotlin 1.7
+        }
+    }
+
     private fun onDbChecked(hasDb: Boolean, savedInstanceState: Bundle?) {
         if (lifecycle.currentState == DESTROYED) {
             return
@@ -105,9 +128,9 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
             if (!hasDb) {
                 startForResult.launch(Intent(this, OnboardingActivity::class.java))
             } else if (needsDozeWhitelisting(this)) {
-                nav.navigate(actionInitFragmentToDoNotKillMeFragment())
+                nav.navigate(actionGlobalDoNotKillMeFragment())
             } else {
-                nav.navigate(actionInitFragmentToStartupFragment())
+                nav.navigate(actionGlobalStartupFragment())
             }
         } else {
             // At this point, when we do not have a db, this can be either of two situations:
@@ -139,9 +162,9 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         // only show next fragment when user went throw onboarding
         // result doesn't matter as we kill the app when user backs out in onboarding
         if (viewModel.needToShowDoNotKillMeFragment) {
-            nav.navigate(actionInitFragmentToDoNotKillMeFragment())
+            nav.navigate(actionGlobalDoNotKillMeFragment())
         } else {
-            nav.navigate(actionInitFragmentToStartupFragment())
+            nav.navigate(actionGlobalStartupFragment())
         }
     }
 

@@ -9,90 +9,27 @@
         android:id="@+id/initFragment"
         android:name="org.briarproject.mailbox.android.ui.InitFragment"
         android:label="InitFragment"
-        tools:layout="@layout/fragment_init">
-        <action
-            android:id="@+id/action_initFragment_to_doNotKillMeFragment"
-            app:destination="@id/doNotKillMeFragment"
-            app:popUpTo="@id/initFragment"
-            app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_initFragment_to_startupFragment"
-            app:destination="@id/startupFragment"
-            app:popUpTo="@id/initFragment"
-            app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_initFragment_to_stoppingFragment"
-            app:destination="@id/stoppingFragment"
-            app:popUpTo="@id/initFragment"
-            app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_initFragment_to_wipingFragment"
-            app:destination="@id/wipingFragment"
-            app:popUpTo="@id/initFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
+        tools:layout="@layout/fragment_init" />
     <fragment
         android:id="@+id/doNotKillMeFragment"
         android:name="org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragment"
         android:label="DoNotKillMeFragment"
-        tools:layout="@layout/fragment_dont_kill_me">
-        <action
-            android:id="@+id/action_doNotKillMeFragment_to_startupFragment"
-            app:destination="@id/startupFragment"
-            app:popUpTo="@id/doNotKillMeFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
-    <action
-        android:id="@+id/action_global_doNotKillMeFragment"
-        app:destination="@id/doNotKillMeFragment"
-        app:popUpTo="@id/nav_onboarding"
-        app:popUpToInclusive="true" />
+        tools:layout="@layout/fragment_dont_kill_me" />
     <fragment
         android:id="@+id/startupFragment"
         android:name="org.briarproject.mailbox.android.ui.StartupFragment"
         android:label="StartupFragment"
-        tools:layout="@layout/fragment_startup">
-        <action
-            android:id="@+id/action_startupFragment_to_qrCodeFragment"
-            app:destination="@id/qrCodeFragment"
-            app:popUpTo="@id/startupFragment"
-            app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_startupFragment_to_statusFragment"
-            app:destination="@id/statusFragment"
-            app:popUpTo="@id/startupFragment"
-            app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_startupFragment_to_noNetworkFragment"
-            app:destination="@id/noNetworkFragment"
-            app:popUpTo="@id/startupFragment"
-            app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_startupFragment_to_clockSkewFragment"
-            app:destination="@id/clockSkewFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_startup" />
     <fragment
         android:id="@+id/qrCodeFragment"
         android:name="org.briarproject.mailbox.android.ui.QrCodeFragment"
         android:label="QrCodeFragment"
-        tools:layout="@layout/fragment_qr">
-        <action
-            android:id="@+id/action_qrCodeFragment_to_setupCompleteFragment"
-            app:destination="@id/setupCompleteFragment"
-            app:popUpTo="@id/qrCodeFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
+        tools:layout="@layout/fragment_qr" />
     <fragment
         android:id="@+id/setupCompleteFragment"
         android:name="org.briarproject.mailbox.android.ui.SetupCompleteFragment"
         android:label="SetupCompleteFragment"
-        tools:layout="@layout/fragment_setup_complete">
-        <action
-            android:id="@+id/action_setupCompleteFragment_to_statusFragment"
-            app:destination="@id/statusFragment"
-            app:popUpTo="@id/setupCompleteFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
+        tools:layout="@layout/fragment_setup_complete" />
     <fragment
         android:id="@+id/statusFragment"
         android:name="org.briarproject.mailbox.android.ui.StatusFragment"
@@ -102,20 +39,12 @@
         android:id="@+id/noNetworkFragment"
         android:name="org.briarproject.mailbox.android.ui.NoNetworkFragment"
         android:label="NoNetworkFragment"
-        tools:layout="@layout/fragment_no_network">
-        <action
-            android:id="@+id/action_noNetworkFragment_to_startupFragment"
-            app:destination="@id/startupFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_no_network" />
     <fragment
         android:id="@+id/clockSkewFragment"
         android:name="org.briarproject.mailbox.android.ui.ClockSkewFragment"
         android:label="ClockSkewFragment"
-        tools:layout="@layout/fragment_clock_skew">
-        <action
-            android:id="@+id/action_clockSkewFragment_to_startupFragment"
-            app:destination="@id/startupFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_clock_skew" />
     <fragment
         android:id="@+id/stoppingFragment"
         android:name="org.briarproject.mailbox.android.ui.StoppingFragment"
@@ -126,6 +55,36 @@
         android:name="org.briarproject.mailbox.android.ui.WipingFragment"
         android:label="WipingFragment"
         tools:layout="@layout/fragment_wiping" />
+    <action
+        android:id="@+id/action_global_doNotKillMeFragment"
+        app:destination="@id/doNotKillMeFragment"
+        app:popUpTo="@id/nav_onboarding"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_global_startupFragment"
+        app:destination="@id/startupFragment"
+        app:popUpTo="@id/nav_onboarding"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_global_qrCodeFragment"
+        app:destination="@id/qrCodeFragment"
+        app:popUpTo="@id/nav_onboarding"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_global_statusFragment"
+        app:destination="@id/statusFragment"
+        app:popUpTo="@id/nav_onboarding"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_global_noNetworkFragment"
+        app:destination="@id/noNetworkFragment"
+        app:popUpTo="@id/nav_onboarding"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_global_clockSkewFragment"
+        app:destination="@id/clockSkewFragment"
+        app:popUpTo="@id/nav_onboarding"
+        app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_global_wipingFragment"
         app:destination="@id/wipingFragment"

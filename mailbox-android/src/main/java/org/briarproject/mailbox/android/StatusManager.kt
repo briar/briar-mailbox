@@ -63,19 +63,25 @@ class StatusManager @Inject constructor(
      * Possible values for [appState]
      */
     sealed class MailboxAppState
+    object NotStarted : MailboxAppState()
     data class Starting(val status: String) : MailboxAppState()
     data class StartedSettingUp(val qrCode: Bitmap) : MailboxAppState()
     object StartedSetupComplete : MailboxAppState()
-    object AfterRunning : MailboxAppState()
     object ErrorClockSkew : MailboxAppState()
     object ErrorNoNetwork : MailboxAppState()
+    object Wiping : MailboxAppState()
+    object Stopping : MailboxAppState()
+    object Stopped : MailboxAppState()
 
     @Suppress("OPT_IN_USAGE")
     val appState: Flow<MailboxAppState> = combine(
         lifecycleState, torPluginState, setupComplete
     ) { ls, ts, sc ->
         when {
-            ls.isAfter(LifecycleState.RUNNING) -> AfterRunning
+            ls == LifecycleState.NOT_STARTED -> NotStarted
+            ls == LifecycleState.WIPING -> Wiping
+            ls == LifecycleState.STOPPING -> Stopping
+            ls == LifecycleState.STOPPED -> Stopped
             ls != LifecycleState.RUNNING -> Starting(getString(R.string.startup_starting_services))
             // RUNNING
             ts != TorState.Published -> when (ts) {
@@ -103,9 +109,10 @@ class StatusManager @Inject constructor(
     }.flowOn(Dispatchers.IO)
         .distinctUntilChanged()
         .onEach { state ->
-            if (state != AfterRunning) notificationManager.onMailboxAppStateChanged(state)
+            if (state != NotStarted && state != Wiping && state != Stopping && state != Stopped)
+                notificationManager.onMailboxAppStateChanged(state)
         }
-        .stateIn(GlobalScope, Lazily, Starting(getString(R.string.startup_starting_services)))
+        .stateIn(GlobalScope, Lazily, NotStarted)
 
     private fun getString(@StringRes resId: Int, vararg formatArgs: Any?): String {
         return context.getString(resId, *formatArgs)

@@ -27,14 +27,11 @@ import android.widget.Button
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
-import org.briarproject.mailbox.android.StatusManager.StartedSetupComplete
-import org.briarproject.mailbox.android.ui.QrCodeFragmentDirections.actionQrCodeFragmentToSetupCompleteFragment
 
 @AndroidEntryPoint
 class QrCodeFragment : Fragment() {
@@ -66,12 +63,8 @@ class QrCodeFragment : Fragment() {
     }
 
     private fun onAppStateChanged(state: MailboxAppState) {
-        when (state) {
-            is StartedSettingUp -> qrCodeView.setImageBitmap(state.qrCode)
-            is StartedSetupComplete -> findNavController().navigate(
-                actionQrCodeFragmentToSetupCompleteFragment()
-            )
-            else -> error("Unexpected app state: $state")
+        if (state is StartedSettingUp) {
+            qrCodeView.setImageBitmap(state.qrCode)
         }
     }
 

@@ -25,16 +25,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStatusFragment
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.ui.SetupCompleteFragmentDirections.actionSetupCompleteFragmentToStatusFragment
 
 @AndroidEntryPoint
 class SetupCompleteFragment : Fragment() {
 
-    private val viewModel: MailboxViewModel by activityViewModels()
     private lateinit var button: Button
 
     override fun onCreateView(
@@ -48,7 +46,7 @@ class SetupCompleteFragment : Fragment() {
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
         button = v.findViewById(R.id.button)
         button.setOnClickListener {
-            findNavController().navigate(actionSetupCompleteFragmentToStatusFragment())
+            findNavController().navigate(actionGlobalStatusFragment())
         }
     }
 
