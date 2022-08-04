@@ -38,6 +38,7 @@ import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalClockSkewFra
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalDoNotKillMeFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalNoNetworkFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalQrCodeFragment
+import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalSetupCompleteFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStartupFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStatusFragment
 import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStoppingFragment
@@ -106,7 +107,11 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
                 nav.navigate(actionGlobalStartupFragment())
             is StartedSettingUp -> if (nav.currentDestination?.id != R.id.qrCodeFragment)
                 nav.navigate(actionGlobalQrCodeFragment())
-            StartedSetupComplete -> if (nav.currentDestination?.id != R.id.statusFragment)
+            StartedSetupComplete -> if (nav.currentDestination?.id == R.id.qrCodeFragment)
+                nav.navigate(actionGlobalSetupCompleteFragment())
+            else if (nav.currentDestination?.id != R.id.statusFragment &&
+                nav.currentDestination?.id != R.id.setupCompleteFragment
+            )
                 nav.navigate(actionGlobalStatusFragment())
             ErrorNoNetwork -> if (nav.currentDestination?.id != R.id.noNetworkFragment)
                 nav.navigate(actionGlobalNoNetworkFragment())
