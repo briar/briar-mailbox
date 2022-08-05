@@ -41,7 +41,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-internal class JavaTorModule {
+class JavaTorModule {
 
     companion object {
         private val LOG: Logger = getLogger(JavaTorModule::class.java)
@@ -109,7 +109,7 @@ internal class JavaTorModule {
 
     @Provides
     @Singleton
-    fun provideNetworkManager(networkManager: JavaCliNetworkManager): NetworkManager {
+    fun provideNetworkManager(networkManager: JavaLibNetworkManager): NetworkManager {
         return networkManager
     }
 

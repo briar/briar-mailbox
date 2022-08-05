@@ -17,23 +17,14 @@
  *
  */
 
-package org.briarproject.mailbox.cli
+package org.briarproject.mailbox.core
 
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import org.briarproject.mailbox.core.system.System
-import org.briarproject.mailbox.lib.JavaLibModule
-import javax.inject.Singleton
-import kotlin.system.exitProcess
+import org.briarproject.mailbox.core.system.TaskScheduler
+import org.briarproject.mailbox.core.tor.TorPlugin
+import javax.inject.Inject
 
-@Module
-@InstallIn(SingletonComponent::class)
-internal class JavaCliModule : JavaLibModule() {
-
-    @Singleton
-    @Provides
-    fun provideSystem() = System { code -> exitProcess(code) }
-
-}
+@Suppress("unused")
+internal class JavaLibEagerSingletons @Inject constructor(
+    val taskScheduler: TaskScheduler,
+    val javaTorPlugin: TorPlugin,
+)

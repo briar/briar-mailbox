@@ -35,11 +35,11 @@ import org.briarproject.mailbox.core.setup.QrCodeEncoder
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.setup.WipeManager
 import org.briarproject.mailbox.core.system.InvalidIdException
+import org.briarproject.mailbox.core.system.System
 import org.briarproject.mailbox.core.tor.TorPlugin
 import org.briarproject.mailbox.core.tor.TorState
 import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
-import kotlin.system.exitProcess
 
 class Main : CliktCommand(
     name = "briar-mailbox",
@@ -86,6 +86,9 @@ class Main : CliktCommand(
     @Inject
     internal lateinit var qrCodeEncoder: QrCodeEncoder
 
+    @Inject
+    internal lateinit var system: System
+
     override fun run() {
         // logging
         val levelNamed = when {
@@ -113,7 +116,7 @@ class Main : CliktCommand(
         if (wipe) {
             wipeManager.wipeFilesOnly()
             println("Mailbox wiped successfully \\o/")
-            exitProcess(0)
+            system.exit(0)
         }
         startLifecycle()
     }
@@ -133,8 +136,8 @@ class Main : CliktCommand(
             try {
                 setupManager.setToken(setupToken, null)
             } catch (e: InvalidIdException) {
-                System.err.println("Invalid setup token")
-                exitProcess(1)
+                java.lang.System.err.println("Invalid setup token")
+                system.exit(1)
             }
         }
 

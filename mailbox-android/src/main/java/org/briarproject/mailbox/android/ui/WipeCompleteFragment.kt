@@ -27,8 +27,9 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.core.system.System
 import org.slf4j.LoggerFactory.getLogger
-import kotlin.system.exitProcess
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class WipeCompleteFragment : Fragment() {
@@ -36,6 +37,9 @@ class WipeCompleteFragment : Fragment() {
     companion object {
         private val LOG = getLogger(WipeCompleteFragment::class.java)
     }
+
+    @Inject
+    internal lateinit var system: System
 
     private lateinit var button: Button
 
@@ -52,7 +56,7 @@ class WipeCompleteFragment : Fragment() {
 
         button.setOnClickListener {
             LOG.info("Exiting")
-            exitProcess(0)
+            system.exit(0)
         }
     }
 

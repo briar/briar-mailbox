@@ -10,29 +10,18 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
     id 'org.jetbrains.kotlin.kapt'
     id "org.jlleitschuh.gradle.ktlint" version "$ktlint_plugin_version"
-    id 'checkstyle'
 }
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-configurations {
-    tor
-}
-
 dependencies {
     implementation project(path: ':mailbox-core', configuration: 'default')
+    implementation project(path: ':mailbox-lib', configuration: 'default')
 
     implementation "ch.qos.logback:logback-classic:1.2.10"
     implementation 'com.github.ajalt:clikt:2.2.0'
 
-    def jna_version = '5.8.0'
-    implementation "net.java.dev.jna:jna:$jna_version"
-    implementation "net.java.dev.jna:jna-platform:$jna_version"
-    tor "org.briarproject:tor-linux:$tor_version"
-    tor "org.briarproject:obfs4proxy-linux:$obfs4_version"
-
-    implementation "com.google.dagger:hilt-core:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
@@ -62,31 +51,6 @@ idea {
         testSourceDirs += file('build/generated/source/kapt/test')
         generatedSourceDirs += file('build/generated/source/kapt/main')
     }
-}
-
-def torBinariesDir = 'src/main/resources'
-
-task cleanTorBinaries {
-    doLast {
-        delete fileTree(torBinariesDir) { include '*.zip' }
-    }
-}
-
-clean.dependsOn cleanTorBinaries
-
-task unpackTorBinaries {
-    doLast {
-        copy {
-            from configurations.tor.collect { zipTree(it) }
-            into torBinariesDir
-        }
-    }
-    dependsOn cleanTorBinaries
-}
-
-processResources {
-    inputs.dir torBinariesDir
-    dependsOn unpackTorBinaries
 }
 
 void jarFactory(Jar jarTask, jarArchitecture) {

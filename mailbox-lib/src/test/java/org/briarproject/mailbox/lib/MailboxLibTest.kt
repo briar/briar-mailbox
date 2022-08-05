@@ -17,23 +17,27 @@
  *
  */
 
-package org.briarproject.mailbox.cli
+package org.briarproject.mailbox.lib
 
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import org.briarproject.mailbox.core.system.System
-import org.briarproject.mailbox.lib.JavaLibModule
-import javax.inject.Singleton
-import kotlin.system.exitProcess
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
 
-@Module
-@InstallIn(SingletonComponent::class)
-internal class JavaCliModule : JavaLibModule() {
+class MailboxLibTest {
 
-    @Singleton
-    @Provides
-    fun provideSystem() = System { code -> exitProcess(code) }
+    @TempDir
+    lateinit var mailboxDataDirectory: File
 
+    @Test
+    fun testStartStopMailbox() {
+        val mailbox = Mailbox(mailboxDataDirectory)
+        mailbox.init()
+        mailbox.startLifecycle()
+        mailbox.waitForTorPublished()
+        mailbox.stopLifecycle()
+        assertTrue(mailbox.hasExited())
+        assertEquals(0, mailbox.getExitCode())
+    }
 }

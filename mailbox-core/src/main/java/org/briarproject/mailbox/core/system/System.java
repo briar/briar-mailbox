@@ -17,23 +17,8 @@
  *
  */
 
-package org.briarproject.mailbox.cli
+package org.briarproject.mailbox.core.system;
 
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import org.briarproject.mailbox.core.system.System
-import org.briarproject.mailbox.lib.JavaLibModule
-import javax.inject.Singleton
-import kotlin.system.exitProcess
-
-@Module
-@InstallIn(SingletonComponent::class)
-internal class JavaCliModule : JavaLibModule() {
-
-    @Singleton
-    @Provides
-    fun provideSystem() = System { code -> exitProcess(code) }
-
+public interface System {
+	void exit(int code);
 }

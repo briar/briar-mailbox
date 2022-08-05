@@ -33,12 +33,12 @@ import static org.briarproject.mailbox.core.util.LogUtils.logException;
 import static org.briarproject.mailbox.core.util.NetworkUtils.getNetworkInterfaces;
 import static org.slf4j.LoggerFactory.getLogger;
 
-class JavaCliNetworkManager implements NetworkManager {
+public class JavaLibNetworkManager implements NetworkManager {
 
-	private static final Logger LOG = getLogger(JavaCliNetworkManager.class);
+	private static final Logger LOG = getLogger(JavaLibNetworkManager.class);
 
 	@Inject
-	JavaCliNetworkManager() {
+	JavaLibNetworkManager() {
 	}
 
 	@Override

@@ -1,0 +1,10 @@
+ext {
+    kotlin_version = '1.7.10'
+    hilt_version = '2.43.2'
+    nav_version = '2.4.2'
+    tor_version = '0.4.5.12-2'
+    obfs4_version = '0.0.12'
+    junit_version = '5.7.2'
+    mockk_version = '1.10.4'
+    ktlint_plugin_version = '10.2.1'
+}
