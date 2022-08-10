@@ -74,7 +74,10 @@ interface LifecycleManager {
      * registered [Services][Service].
      */
     @Wakeful
-    fun startServices(wipeHook: WipeHook = WipeHook { }): StartResult
+    fun startServices(
+        exitAfterStopping: Boolean = true,
+        wipeHook: WipeHook = WipeHook { },
+    ): StartResult
 
     /**
      * Stops any registered [Services][Service], shuts down any

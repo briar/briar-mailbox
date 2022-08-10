@@ -82,6 +82,7 @@ internal class LifecycleManagerImpl @Inject constructor(
     private val state = MutableStateFlow(NOT_STARTED)
 
     private var wipeHook: WipeHook? = null
+    private var exitAfterStopping: Boolean = true
 
     init {
         services = CopyOnWriteArrayList()
@@ -105,7 +106,7 @@ internal class LifecycleManagerImpl @Inject constructor(
     }
 
     @GuardedBy("startStopWipeSemaphore")
-    override fun startServices(wipeHook: WipeHook): StartResult {
+    override fun startServices(exitAfterStopping: Boolean, wipeHook: WipeHook): StartResult {
         LOG.info("startServices()")
         try {
             LOG.info("acquiring start stop semaphore")
@@ -121,6 +122,7 @@ internal class LifecycleManagerImpl @Inject constructor(
             return LIFECYCLE_REUSE
         }
         this.wipeHook = wipeHook
+        this.exitAfterStopping = exitAfterStopping
         return try {
             LOG.info("Opening database")
             var start = now()
@@ -214,8 +216,10 @@ internal class LifecycleManagerImpl @Inject constructor(
             startStopWipeSemaphore.release()
             // This is for the CLI where we might call stopServices() twice due to the shutdown
             // hook. In order to avoid a deadlock with calling exitProcess() from two threads, make
-            // sure here that it gets called only once.
-            if (stopped) {
+            // sure here that it gets called only once. Also, only exit if exitAfterStopping is true
+            // because we need to avoid calling exitProcess() on a shutdown hook, which causes a
+            // deadlock by itself.
+            if (stopped && exitAfterStopping) {
                 LOG.info("Exiting")
                 exitProcess(0)
             }
