@@ -71,6 +71,11 @@
         app:popUpTo="@id/nav_onboarding"
         app:popUpToInclusive="true" />
     <action
+        android:id="@+id/action_global_setupCompleteFragment"
+        app:destination="@id/setupCompleteFragment"
+        app:popUpTo="@id/nav_onboarding"
+        app:popUpToInclusive="true" />
+    <action
         android:id="@+id/action_global_statusFragment"
         app:destination="@id/statusFragment"
         app:popUpTo="@id/nav_onboarding"
