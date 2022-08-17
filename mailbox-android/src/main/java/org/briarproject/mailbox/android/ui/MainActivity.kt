@@ -21,9 +21,6 @@ package org.briarproject.mailbox.android.ui
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -34,15 +31,16 @@ import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.briarproject.android.dontkillmelib.DozeUtils.needsDozeWhitelisting
-import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalClockSkewFragment
-import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalDoNotKillMeFragment
-import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalNoNetworkFragment
-import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalQrCodeFragment
-import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalSetupCompleteFragment
-import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStartupFragment
-import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStatusFragment
-import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStoppingFragment
-import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalWipingFragment
+import org.briarproject.mailbox.NavMainDirections.actionGlobalClockSkewFragment
+import org.briarproject.mailbox.NavMainDirections.actionGlobalDoNotKillMeFragment
+import org.briarproject.mailbox.NavMainDirections.actionGlobalNoNetworkFragment
+import org.briarproject.mailbox.NavMainDirections.actionGlobalOnboardingContainer
+import org.briarproject.mailbox.NavMainDirections.actionGlobalQrCodeFragment
+import org.briarproject.mailbox.NavMainDirections.actionGlobalSetupCompleteFragment
+import org.briarproject.mailbox.NavMainDirections.actionGlobalStartupFragment
+import org.briarproject.mailbox.NavMainDirections.actionGlobalStatusFragment
+import org.briarproject.mailbox.NavMainDirections.actionGlobalStoppingFragment
+import org.briarproject.mailbox.NavMainDirections.actionGlobalWipingFragment
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.StatusManager.ErrorClockSkew
 import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
@@ -59,7 +57,7 @@ import org.briarproject.mailbox.core.util.LogUtils.info
 import org.slf4j.LoggerFactory.getLogger
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult> {
+class MainActivity : AppCompatActivity() {
 
     companion object {
         private val LOG = getLogger(MainActivity::class.java)
@@ -74,12 +72,20 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         navHostFragment.navController
     }
 
-    private val startForResult = registerForActivityResult(StartActivityForResult(), this)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         LOG.info("onCreate()")
         setContentView(R.layout.activity_main)
+
+        viewModel.onboardingComplete.observe(this) { complete ->
+            if (complete && nav.currentDestination?.id == R.id.onboardingFragment) {
+                if (viewModel.needToShowDoNotKillMeFragment) {
+                    nav.navigate(actionGlobalDoNotKillMeFragment())
+                } else {
+                    nav.navigate(actionGlobalStartupFragment())
+                }
+            }
+        }
 
         viewModel.doNotKillComplete.observe(this) { complete ->
             if (complete && nav.currentDestination?.id == R.id.doNotKillMeFragment) nav.navigate(
@@ -131,7 +137,7 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
         }
         if (savedInstanceState == null) {
             if (!hasDb) {
-                startForResult.launch(Intent(this, OnboardingActivity::class.java))
+                nav.navigate(actionGlobalOnboardingContainer())
             } else if (needsDozeWhitelisting(this)) {
                 nav.navigate(actionGlobalDoNotKillMeFragment())
             } else {
@@ -161,16 +167,6 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
             BUNDLE_LIFECYCLE_BEYOND_NOT_STARTED,
             viewModel.lifecycleState.value != NOT_STARTED
         )
-    }
-
-    override fun onActivityResult(result: ActivityResult) {
-        // only show next fragment when user went throw onboarding
-        // result doesn't matter as we kill the app when user backs out in onboarding
-        if (viewModel.needToShowDoNotKillMeFragment) {
-            nav.navigate(actionGlobalDoNotKillMeFragment())
-        } else {
-            nav.navigate(actionGlobalStartupFragment())
-        }
     }
 
     override fun onResume() {

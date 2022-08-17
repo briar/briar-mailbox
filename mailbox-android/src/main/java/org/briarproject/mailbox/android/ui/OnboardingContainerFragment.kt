@@ -20,35 +20,48 @@
 package org.briarproject.mailbox.android.ui
 
 import android.os.Bundle
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import org.briarproject.mailbox.databinding.ActivityOnboardingBinding
+import org.briarproject.mailbox.databinding.FragmentOnboardingContainerBinding
 
-class OnboardingActivity : AppCompatActivity() {
+class OnboardingContainerFragment : Fragment() {
 
-    private val viewModel: OnboardingViewModel by viewModels()
+    private val viewModel: MailboxViewModel by activityViewModels()
+    private var _ui: FragmentOnboardingContainerBinding? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val ui = ActivityOnboardingBinding.inflate(layoutInflater)
-        setContentView(ui.root)
+    /**
+     * This property is only valid between [onCreateView] and [onDestroyView].
+     */
+    private val ui get() = _ui!!
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        _ui = FragmentOnboardingContainerBinding.inflate(inflater, container, false)
+        return ui.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.pager.adapter = OnboardingAdapter(this)
         ui.pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                viewModel.selectPage(position)
+                viewModel.selectOnboardingPage(position)
             }
         })
-        viewModel.currentPage.observe(this) { position ->
+        viewModel.currentOnboardingPage.observe(viewLifecycleOwner) { position ->
             ui.pager.setCurrentItem(position, true)
         }
     }
 
-    class OnboardingAdapter(activity: AppCompatActivity) : FragmentStateAdapter(activity) {
+    class OnboardingAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
         override fun getItemCount(): Int = 5
         override fun createFragment(position: Int): Fragment = when (position) {
             0 -> Onboarding0Fragment()
@@ -60,4 +73,8 @@ class OnboardingActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _ui = null
+    }
 }
