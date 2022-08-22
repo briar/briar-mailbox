@@ -93,10 +93,6 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-        launchAndRepeatWhileStarted {
-            viewModel.appState.collect { onAppStateChanged(it) }
-        }
-
         LOG.info { "do we have a saved instance state? " + (savedInstanceState != null) }
 
         lifecycleScope.launch {
@@ -105,6 +101,10 @@ class MainActivity : AppCompatActivity() {
                 savedInstanceState?.getBoolean(BUNDLE_LIFECYCLE_HAS_STARTED) ?: false
             LOG.info { "do we have a db? $hasDb, had been started on save: $hadBeenStartedOnSave" }
             onDbChecked(hasDb, hadBeenStartedOnSave)
+
+            launchAndRepeatWhileStarted {
+                viewModel.appState.collect { onAppStateChanged(it) }
+            }
         }
     }
 
