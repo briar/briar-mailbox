@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private val LOG = getLogger(MainActivity::class.java)
 
-        const val BUNDLE_LIFECYCLE_BEYOND_NOT_STARTED = "LIFECYCLE_BEYOND_NOT_STARTED"
+        const val BUNDLE_LIFECYCLE_HAS_STARTED = "LIFECYCLE_HAS_STARTED"
     }
 
     private val viewModel: MailboxViewModel by viewModels()
@@ -101,8 +101,10 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val hasDb = viewModel.hasDb()
-            LOG.info { "do we have a db? $hasDb" }
-            onDbChecked(hasDb, savedInstanceState)
+            val hadBeenStartedOnSave =
+                savedInstanceState?.getBoolean(BUNDLE_LIFECYCLE_HAS_STARTED) ?: false
+            LOG.info { "do we have a db? $hasDb, had been started on save: $hadBeenStartedOnSave" }
+            onDbChecked(hasDb, hadBeenStartedOnSave)
         }
     }
 
@@ -113,12 +115,12 @@ class MainActivity : AppCompatActivity() {
                 nav.navigate(actionGlobalStartupFragment())
             is StartedSettingUp -> if (nav.currentDestination?.id != R.id.qrCodeFragment)
                 nav.navigate(actionGlobalQrCodeFragment())
-            StartedSetupComplete -> if (nav.currentDestination?.id == R.id.qrCodeFragment)
-                nav.navigate(actionGlobalSetupCompleteFragment())
-            else if (nav.currentDestination?.id != R.id.statusFragment &&
-                nav.currentDestination?.id != R.id.setupCompleteFragment
-            )
-                nav.navigate(actionGlobalStatusFragment())
+            StartedSetupComplete ->
+                if (nav.currentDestination?.id == R.id.qrCodeFragment)
+                    nav.navigate(actionGlobalSetupCompleteFragment())
+                else if (nav.currentDestination?.id != R.id.statusFragment &&
+                    nav.currentDestination?.id != R.id.setupCompleteFragment
+                ) nav.navigate(actionGlobalStatusFragment())
             ErrorNoNetwork -> if (nav.currentDestination?.id != R.id.noNetworkFragment)
                 nav.navigate(actionGlobalNoNetworkFragment())
             ErrorClockSkew -> if (nav.currentDestination?.id != R.id.clockSkewFragment)
@@ -131,32 +133,43 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun onDbChecked(hasDb: Boolean, savedInstanceState: Bundle?) {
+    private fun onDbChecked(hasDb: Boolean, hadBeenStartedOnSave: Boolean) {
         if (lifecycle.currentState == DESTROYED) {
             return
         }
-        if (savedInstanceState == null) {
-            if (!hasDb) {
+        // Catch the situation where we come back to the activity after a remote wipe has happened
+        // while the app was in the background and gets restored from the recent app list after
+        // wiping and stopping has already completed.
+        // In this case onSaveInstanceState() has written true to the bundle but there's no db
+        // any longer.
+        if (!hasDb && hadBeenStartedOnSave) {
+            finish()
+            startActivity(Intent(this, WipeCompleteActivity::class.java))
+            return
+        }
+
+        // It is important to navigate here with and without a saved instance state. The normal
+        // case is that we do not have a saved instance state (when the app has just been started).
+        // However, when the service got killed and the app has been restored with a different UI
+        // state such as the qr code screen or the status screen, then we want to check the
+        // situation and navigate accordingly. Another corner case is when the device gets rotated
+        // very quickly during startup, where we end up here with a saved instance state but no
+        // db yet.
+        if (!hasDb) {
+            // Otherwise, if we don't have a db yet, we need to move from the init fragment to
+            // onboarding.
+            if (nav.currentDestination?.id == R.id.initFragment)
                 nav.navigate(actionGlobalOnboardingContainer())
-            } else if (needsDozeWhitelisting(this)) {
+        } else {
+            // We do have a db already
+            if (viewModel.needToShowDoNotKillMeFragment) {
+                // Consult whether any condition changed that requires us to show the do-not-kill
+                // fragment (again).
                 nav.navigate(actionGlobalDoNotKillMeFragment())
             } else {
+                // We have a db and don't need to show the do-not-kill fragment, let's start
+                // the lifecycle.
                 nav.navigate(actionGlobalStartupFragment())
-            }
-        } else {
-            // At this point, when we do not have a db, this can be either of two situations:
-            // 1. We just came back from the onboarding activity and our MainActivity has been
-            // destroyed in the meantime (can be forced using the do-not-keep-activities developer
-            // option). In this case onSaveInstanceState() has written false to the bundle.
-            // 2. We come back to the activity after a remote wipe has happened while the app was
-            // in the background and gets restored from the recent app list after wiping and
-            // stopping has already completed. In this case onSaveInstanceState() has written
-            // true to the bundle.
-            val savedBeyondNotStarted =
-                savedInstanceState.getBoolean(BUNDLE_LIFECYCLE_BEYOND_NOT_STARTED)
-            if (!hasDb && savedBeyondNotStarted) {
-                finish()
-                startActivity(Intent(this, WipeCompleteActivity::class.java))
             }
         }
     }
@@ -164,7 +177,7 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(
-            BUNDLE_LIFECYCLE_BEYOND_NOT_STARTED,
+            BUNDLE_LIFECYCLE_HAS_STARTED,
             viewModel.lifecycleState.value != NOT_STARTED
         )
     }
