@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_onboarding"
+    android:id="@+id/nav_main"
     app:startDestination="@id/initFragment">
 
     <fragment
@@ -10,6 +10,11 @@
         android:name="org.briarproject.mailbox.android.ui.InitFragment"
         android:label="InitFragment"
         tools:layout="@layout/fragment_init" />
+    <fragment
+        android:id="@+id/onboardingFragment"
+        android:name="org.briarproject.mailbox.android.ui.OnboardingContainerFragment"
+        android:label="OnboardingContainerFragment"
+        tools:layout="@layout/fragment_onboarding" />
     <fragment
         android:id="@+id/doNotKillMeFragment"
         android:name="org.briarproject.mailbox.android.dontkillme.DoNotKillMeFragment"
@@ -56,48 +61,53 @@
         android:label="WipingFragment"
         tools:layout="@layout/fragment_wiping" />
     <action
+        android:id="@+id/action_global_onboardingContainer"
+        app:destination="@id/onboardingFragment"
+        app:popUpTo="@id/nav_main"
+        app:popUpToInclusive="true" />
+    <action
         android:id="@+id/action_global_doNotKillMeFragment"
         app:destination="@id/doNotKillMeFragment"
-        app:popUpTo="@id/nav_onboarding"
+        app:popUpTo="@id/nav_main"
         app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_global_startupFragment"
         app:destination="@id/startupFragment"
-        app:popUpTo="@id/nav_onboarding"
+        app:popUpTo="@id/nav_main"
         app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_global_qrCodeFragment"
         app:destination="@id/qrCodeFragment"
-        app:popUpTo="@id/nav_onboarding"
+        app:popUpTo="@id/nav_main"
         app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_global_setupCompleteFragment"
         app:destination="@id/setupCompleteFragment"
-        app:popUpTo="@id/nav_onboarding"
+        app:popUpTo="@id/nav_main"
         app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_global_statusFragment"
         app:destination="@id/statusFragment"
-        app:popUpTo="@id/nav_onboarding"
+        app:popUpTo="@id/nav_main"
         app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_global_noNetworkFragment"
         app:destination="@id/noNetworkFragment"
-        app:popUpTo="@id/nav_onboarding"
+        app:popUpTo="@id/nav_main"
         app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_global_clockSkewFragment"
         app:destination="@id/clockSkewFragment"
-        app:popUpTo="@id/nav_onboarding"
+        app:popUpTo="@id/nav_main"
         app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_global_wipingFragment"
         app:destination="@id/wipingFragment"
-        app:popUpTo="@id/nav_onboarding"
+        app:popUpTo="@id/nav_main"
         app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_global_stoppingFragment"
         app:destination="@id/stoppingFragment"
-        app:popUpTo="@id/nav_onboarding"
+        app:popUpTo="@id/nav_main"
         app:popUpToInclusive="true" />
 </navigation>

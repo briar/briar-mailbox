@@ -27,7 +27,7 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
-import org.briarproject.mailbox.NavOnboardingDirections.actionGlobalStatusFragment
+import org.briarproject.mailbox.NavMainDirections.actionGlobalStatusFragment
 import org.briarproject.mailbox.R
 
 @AndroidEntryPoint

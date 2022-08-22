@@ -39,8 +39,8 @@ class Onboarding0Fragment : OnboardingFragment(
     title = R.string.onboarding_0_title,
     description = R.string.onboarding_0_description,
     bottomButtonText = R.string.button_skip_intro,
-    bottomButtonAction = {
-        requireActivity().supportFinishAfterTransition()
+    bottomButtonAction = { viewModel ->
+        viewModel.onOnboardingComplete()
     },
     backButtonAction = {
         requireActivity().finishAffinity()
@@ -78,17 +78,18 @@ abstract class OnboardingFragment(
     private val description: Int,
     @StringRes
     private val bottomButtonText: Int = R.string.button_back,
-    private val topButtonAction: OnboardingFragment.(OnboardingViewModel) -> Unit = { viewModel ->
-        viewModel.selectPage(number + 1)
+    private val topButtonAction: OnboardingFragment.(MailboxViewModel) -> Unit = { viewModel ->
+        viewModel.selectOnboardingPage(number + 1)
     },
-    private val bottomButtonAction: OnboardingFragment.(OnboardingViewModel) -> Unit = { model ->
-        model.selectPage(number - 1)
-    },
-    private val backButtonAction: OnboardingFragment.(OnboardingViewModel) -> Unit =
+    private val bottomButtonAction: OnboardingFragment.(MailboxViewModel) -> Unit =
+        { viewModel ->
+            viewModel.selectOnboardingPage(number - 1)
+        },
+    private val backButtonAction: OnboardingFragment.(MailboxViewModel) -> Unit =
         bottomButtonAction,
 ) : Fragment() {
 
-    private val viewModel: OnboardingViewModel by activityViewModels()
+    private val viewModel: MailboxViewModel by activityViewModels()
     private var _ui: FragmentOnboardingBinding? = null
 
     /**
@@ -107,7 +108,7 @@ abstract class OnboardingFragment(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
         _ui = FragmentOnboardingBinding.inflate(inflater, container, false)
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
         return ui.root
@@ -145,12 +146,14 @@ abstract class OnboardingFragment(
         super.onDestroyView()
         _ui = null
     }
-
 }
 
 class FinishFragment : Fragment() {
+
+    private val viewModel: MailboxViewModel by activityViewModels()
+
     override fun onResume() {
         super.onResume()
-        requireActivity().supportFinishAfterTransition()
+        viewModel.onOnboardingComplete()
     }
 }

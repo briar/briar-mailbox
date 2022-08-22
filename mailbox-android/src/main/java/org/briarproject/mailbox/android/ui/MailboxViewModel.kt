@@ -24,7 +24,9 @@ import androidx.annotation.UiThread
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.distinctUntilChanged
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
@@ -54,6 +56,7 @@ class MailboxViewModel @Inject constructor(
     metadataManager: MetadataManager,
     private val mailboxPreferences: MailboxPreferences,
     private val androidExecutor: AndroidExecutor,
+    handle: SavedStateHandle,
 ) : AndroidViewModel(app) {
 
     companion object {
@@ -63,6 +66,17 @@ class MailboxViewModel @Inject constructor(
     init {
         LOG.info("Created MailboxViewModel")
     }
+
+    private val _currentOnboardingPage = handle.getLiveData("currentOnboardingPage", 0)
+    val currentOnboardingPage: LiveData<Int> =
+        _currentOnboardingPage.distinctUntilChanged() // prevent infinite loop
+
+    fun selectOnboardingPage(position: Int) {
+        _currentOnboardingPage.value = position
+    }
+
+    private val _onboardingComplete = MutableLiveData<Boolean>()
+    val onboardingComplete: LiveData<Boolean> = _onboardingComplete
 
     val needToShowDoNotKillMeFragment get() = dozeHelper.needToShowDoNotKillMeFragment(app)
 
@@ -78,6 +92,11 @@ class MailboxViewModel @Inject constructor(
     val appState = statusManager.appState
 
     val lastAccess: LiveData<Long> = metadataManager.ownerConnectionTime.asLiveData()
+
+    @UiThread
+    fun onOnboardingComplete() {
+        _onboardingComplete.value = true
+    }
 
     @UiThread
     fun onDoNotKillComplete() {

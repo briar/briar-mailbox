@@ -34,7 +34,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".android.ui.OnboardingActivity" />
         <activity
             android:name=".android.ui.WipeCompleteActivity"
             android:excludeFromRecents="true"
