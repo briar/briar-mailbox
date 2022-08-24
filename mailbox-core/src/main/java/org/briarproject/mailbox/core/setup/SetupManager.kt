@@ -63,8 +63,8 @@ interface SetupManager : OpenDatabaseHook {
     val hasDb: Boolean
 
     /**
-     * This is UNKNOWN initially and will be set to TRUE or FALSE while the database is opened.
-     * It is safe to assume a value != [UNKNOWN] when the [LifecycleState] is [RUNNING].
+     * This is [UNKNOWN] initially and will be set to [TRUE] or [FALSE] while the database is
+     * opened. It is safe to assume a value != [UNKNOWN] when the [LifecycleState] is [RUNNING].
      */
     val setupComplete: StateFlow<SetupComplete>
 

@@ -30,9 +30,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.StatusManager
+import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.UiUtils.formatDate
 
 @AndroidEntryPoint
@@ -86,7 +86,7 @@ class StatusFragment : Fragment() {
             getString(R.string.last_connection, formatDate(requireContext(), lastAccess))
     }
 
-    private fun onAppStateChanged(state: StatusManager.MailboxAppState) {
+    private fun onAppStateChanged(state: MailboxAppState) {
         if (state is StatusManager.ErrorNoNetwork) {
             illustration.setImageResource(R.drawable.ic_error)
             headline.setText(R.string.status_offline)
