@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@mipmap/ic_launcher"
+        app:srcCompat="@drawable/ic_illustration_3"
         tools:ignore="ContentDescription" />
 
     <androidx.constraintlayout.widget.Guideline
@@ -25,31 +25,44 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5" />
 
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:gravity="center"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
-        app:layout_constraintBottom_toTopOf="@+id/description"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
-        tools:text="@string/onboarding_0_title" />
-
-    <TextView
-        android:id="@+id/description"
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="16dp"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
         app:layout_constraintBottom_toTopOf="@+id/bullet1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/title"
-        tools:text="@string/onboarding_0_description" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:gravity="center"
+                android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+                tools:text="@string/onboarding_1_title" />
+
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                tools:text="@string/onboarding_3_description" />
+
+        </LinearLayout>
+
+    </ScrollView>
 
     <ImageView
         android:id="@+id/bullet1"
@@ -63,7 +76,7 @@
         app:layout_constraintEnd_toStartOf="@id/bullet2"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/description"
+        app:layout_constraintTop_toBottomOf="@+id/scrollView"
         app:layout_constraintVertical_bias="1.0"
         app:layout_constraintVertical_chainStyle="packed"
         app:srcCompat="@drawable/ic_circle"
@@ -82,7 +95,7 @@
         app:layout_constraintBottom_toTopOf="@+id/topButton"
         app:layout_constraintEnd_toStartOf="@id/bullet3"
         app:layout_constraintStart_toEndOf="@+id/bullet1"
-        app:layout_constraintTop_toBottomOf="@+id/description"
+        app:layout_constraintTop_toBottomOf="@+id/scrollView"
         app:layout_constraintVertical_bias="1.0"
         app:layout_constraintVertical_chainStyle="packed"
         app:srcCompat="@drawable/ic_circle"
@@ -101,7 +114,7 @@
         app:layout_constraintBottom_toTopOf="@+id/topButton"
         app:layout_constraintEnd_toStartOf="@id/bullet4"
         app:layout_constraintStart_toEndOf="@+id/bullet2"
-        app:layout_constraintTop_toBottomOf="@+id/description"
+        app:layout_constraintTop_toBottomOf="@+id/scrollView"
         app:layout_constraintVertical_bias="1.0"
         app:layout_constraintVertical_chainStyle="packed"
         app:srcCompat="@drawable/ic_circle"
@@ -120,7 +133,7 @@
         app:layout_constraintBottom_toTopOf="@+id/topButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/bullet3"
-        app:layout_constraintTop_toBottomOf="@+id/description"
+        app:layout_constraintTop_toBottomOf="@+id/scrollView"
         app:layout_constraintVertical_bias="1.0"
         app:layout_constraintVertical_chainStyle="packed"
         app:srcCompat="@drawable/ic_circle"
