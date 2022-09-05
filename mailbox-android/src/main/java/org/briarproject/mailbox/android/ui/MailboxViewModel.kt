@@ -23,14 +23,11 @@ import android.app.Application
 import androidx.annotation.UiThread
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.distinctUntilChanged
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.withContext
 import org.briarproject.android.dontkillmelib.DozeHelper
 import org.briarproject.mailbox.android.MailboxPreferences
 import org.briarproject.mailbox.android.MailboxService
@@ -38,7 +35,6 @@ import org.briarproject.mailbox.android.StatusManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
 import org.briarproject.mailbox.core.settings.MetadataManager
-import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.AndroidExecutor
 import org.briarproject.mailbox.core.system.DozeWatchdog
 import org.briarproject.mailbox.core.util.LogUtils.info
@@ -51,8 +47,7 @@ class MailboxViewModel @Inject constructor(
     private val dozeHelper: DozeHelper,
     private val dozeWatchdog: DozeWatchdog,
     private val lifecycleManager: LifecycleManager,
-    private val setupManager: SetupManager,
-    statusManager: StatusManager,
+    private val statusManager: StatusManager,
     metadataManager: MetadataManager,
     private val mailboxPreferences: MailboxPreferences,
     private val androidExecutor: AndroidExecutor,
@@ -75,19 +70,9 @@ class MailboxViewModel @Inject constructor(
         _currentOnboardingPage.value = position
     }
 
-    private val _onboardingComplete = MutableLiveData<Boolean>()
-    val onboardingComplete: LiveData<Boolean> = _onboardingComplete
-
     val needToShowDoNotKillMeFragment get() = dozeHelper.needToShowDoNotKillMeFragment(app)
 
-    private val _doNotKillComplete = MutableLiveData<Boolean>()
-    val doNotKillComplete: LiveData<Boolean> = _doNotKillComplete
-
     val lifecycleState: StateFlow<LifecycleState> = lifecycleManager.lifecycleStateFlow
-
-    suspend fun hasDb(): Boolean = withContext(Dispatchers.IO) {
-        setupManager.hasDb
-    }
 
     val appState = statusManager.appState
 
@@ -95,12 +80,17 @@ class MailboxViewModel @Inject constructor(
 
     @UiThread
     fun onOnboardingComplete() {
-        _onboardingComplete.value = true
+        statusManager.setOnboardingDone()
     }
 
     @UiThread
     fun onDoNotKillComplete() {
-        _doNotKillComplete.value = true
+        statusManager.setDoesNotNeedDozeExemption()
+    }
+
+    @UiThread
+    fun onNeedsDozeExemption() {
+        statusManager.setNeedsDozeExemption()
     }
 
     override fun onCleared() {

@@ -27,13 +27,17 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.StatusManager.Starting
+import org.slf4j.LoggerFactory
 
 @AndroidEntryPoint
 class StartupFragment : Fragment() {
+
+    companion object {
+        private val LOG = LoggerFactory.getLogger(StartupFragment::class.java)
+    }
 
     private val viewModel: MailboxViewModel by activityViewModels()
     private lateinit var statusTextView: TextView

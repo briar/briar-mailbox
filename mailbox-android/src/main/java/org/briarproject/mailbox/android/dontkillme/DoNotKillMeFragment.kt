@@ -19,6 +19,10 @@
 
 package org.briarproject.mailbox.android.dontkillme
 
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.android.ui.MailboxViewModel
@@ -27,6 +31,18 @@ import org.briarproject.mailbox.android.ui.MailboxViewModel
 class DoNotKillMeFragment : AbstractDoNotKillMeFragment() {
 
     private val viewModel: MailboxViewModel by activityViewModels()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View? {
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+        if (!viewModel.needToShowDoNotKillMeFragment) {
+            viewModel.onDoNotKillComplete()
+        }
+        return view
+    }
 
     override fun onButtonClicked() {
         viewModel.onDoNotKillComplete()

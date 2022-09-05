@@ -24,17 +24,23 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import androidx.annotation.StringRes
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted.Companion.Lazily
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.briarproject.android.dontkillmelib.DozeHelper
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.StatusManager.DbState.DB_DOES_NOT_EXIST
+import org.briarproject.mailbox.android.StatusManager.DbState.DB_EXISTS
+import org.briarproject.mailbox.android.StatusManager.DbState.DB_UNKNOWN
+import org.briarproject.mailbox.android.StatusManager.DozeExemptionState.DOES_NOT_NEED_DOZE_EXEMPTION
+import org.briarproject.mailbox.android.StatusManager.DozeExemptionState.NEEDS_DOZE_EXEMPTION
+import org.briarproject.mailbox.android.StatusManager.DozeExemptionState.NEEDS_DOZE_EXEMPTION_UNKNOWN
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
 import org.briarproject.mailbox.core.setup.QrCodeEncoder
@@ -42,6 +48,8 @@ import org.briarproject.mailbox.core.setup.SetupComplete
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.tor.TorPlugin
 import org.briarproject.mailbox.core.tor.TorState
+import org.briarproject.mailbox.core.util.LogUtils.info
+import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import kotlin.math.min
 
@@ -52,48 +60,114 @@ class StatusManager @Inject constructor(
     setupManager: SetupManager,
     private val qrCodeEncoder: QrCodeEncoder,
     torPlugin: TorPlugin,
+    dozeHelper: DozeHelper,
 ) {
 
-    private val lifecycleState: StateFlow<LifecycleState> =
-        lifecycleManager.lifecycleStateFlow
+    companion object {
+        private val LOG = LoggerFactory.getLogger(StatusManager::class.java)
+    }
+
+    private enum class DbState {
+        DB_UNKNOWN,
+        DB_EXISTS,
+        DB_DOES_NOT_EXIST
+    }
+
+    private enum class DozeExemptionState {
+        NEEDS_DOZE_EXEMPTION_UNKNOWN,
+        NEEDS_DOZE_EXEMPTION,
+        DOES_NOT_NEED_DOZE_EXEMPTION
+    }
+
+    private var dbState = DB_UNKNOWN
+    private var needsDozeExemption = NEEDS_DOZE_EXEMPTION_UNKNOWN
+    private var onboardingDone = false
+
+    private val lifecycleState: StateFlow<LifecycleState> = lifecycleManager.lifecycleStateFlow
     private val torPluginState: StateFlow<TorState> = torPlugin.state
     private val setupComplete: StateFlow<SetupComplete> = setupManager.setupComplete
+
+    fun setDoesNotNeedDozeExemption() {
+        needsDozeExemption = DOES_NOT_NEED_DOZE_EXEMPTION
+        updateAppState()
+    }
+
+    fun setNeedsDozeExemption() {
+        needsDozeExemption = NEEDS_DOZE_EXEMPTION
+        updateAppState()
+    }
+
+    fun setOnboardingDone() {
+        onboardingDone = true
+        updateAppState()
+    }
 
     /**
      * Possible values for [appState]
      */
-    sealed class MailboxAppState
-    object NotStarted : MailboxAppState()
-    data class Starting(val status: String) : MailboxAppState()
-    data class StartedSettingUp(val qrCode: Bitmap) : MailboxAppState()
-    object StartedSetupComplete : MailboxAppState()
-    object ErrorClockSkew : MailboxAppState()
-    object ErrorNoNetwork : MailboxAppState()
-    object Wiping : MailboxAppState()
-    object Stopping : MailboxAppState()
-    object Stopped : MailboxAppState()
+    sealed class MailboxAppState(val hasNotification: Boolean)
+    object Undecided : MailboxAppState(false)
+    object NeedOnboarding : MailboxAppState(false)
+    object NeedsDozeExemption : MailboxAppState(false)
+    object NotStarted : MailboxAppState(false)
+    data class Starting(val status: String) : MailboxAppState(true)
+    data class StartedSettingUp(val qrCode: Bitmap) : MailboxAppState(true)
+    object StartedSetupComplete : MailboxAppState(true)
+    object ErrorClockSkew : MailboxAppState(true)
+    object ErrorNoNetwork : MailboxAppState(true)
+    object Wiping : MailboxAppState(false)
+    object Stopping : MailboxAppState(false)
+    object Stopped : MailboxAppState(false)
 
-    @Suppress("OPT_IN_USAGE")
-    val appState: Flow<MailboxAppState> = combine(
-        lifecycleState, torPluginState, setupComplete
-    ) { ls, ts, sc ->
-        when {
+    private val _appState: MutableStateFlow<MailboxAppState> = MutableStateFlow(Undecided)
+    val appState: Flow<MailboxAppState> = _appState.onEach { state ->
+        LOG.info { "state: ${state.javaClass.simpleName}" }
+        if (state.hasNotification) notificationManager.onMailboxAppStateChanged(state)
+    }
+
+    init {
+        GlobalScope.launch(Main) { lifecycleState.collect { updateAppState() } }
+        GlobalScope.launch(Main) { torPluginState.collect { updateAppState() } }
+        GlobalScope.launch(Main) { setupComplete.collect { updateAppState() } }
+        GlobalScope.launch(IO) {
+            dbState = if (setupManager.hasDb) DB_EXISTS else DB_DOES_NOT_EXIST
+            withContext(Main) {
+                needsDozeExemption = if (dozeHelper.needToShowDoNotKillMeFragment(context))
+                    NEEDS_DOZE_EXEMPTION else DOES_NOT_NEED_DOZE_EXEMPTION
+                updateAppState()
+            }
+        }
+    }
+
+    private fun updateAppState() {
+        val ls = lifecycleState.value
+        val tor = torPluginState.value
+        val setup = setupComplete.value
+        LOG.info(
+            "combining: $dbState, ls: $ls, $needsDozeExemption, onboarding done? $onboardingDone," +
+                " tor: ${tor.javaClass.simpleName}, setup: $setup"
+        )
+        _appState.value = when {
+            dbState == DB_UNKNOWN -> Undecided
+            ls == LifecycleState.NOT_STARTED && dbState == DB_DOES_NOT_EXIST &&
+                !onboardingDone -> NeedOnboarding
+            needsDozeExemption == NEEDS_DOZE_EXEMPTION -> NeedsDozeExemption
             ls == LifecycleState.NOT_STARTED -> NotStarted
             ls == LifecycleState.WIPING -> Wiping
             ls == LifecycleState.STOPPING -> Stopping
             ls == LifecycleState.STOPPED -> Stopped
             ls != LifecycleState.RUNNING -> Starting(getString(R.string.startup_starting_services))
             // RUNNING
-            ts != TorState.Published -> when (ts) {
+            tor != TorState.Published -> when (tor) {
                 TorState.StartingStopping -> Starting(getString(R.string.startup_starting_tor))
                 is TorState.Enabling -> Starting(
-                    getString(R.string.startup_bootstrapping_tor, ts.percent)
+                    getString(R.string.startup_bootstrapping_tor, tor.percent)
                 )
                 TorState.ClockSkewed -> ErrorClockSkew
                 TorState.Inactive -> ErrorNoNetwork
                 else -> Starting(getString(R.string.startup_publishing_onion_service))
             }
-            sc == SetupComplete.FALSE -> {
+            setup == SetupComplete.FALSE -> {
                 val dm = Resources.getSystem().displayMetrics
                 val size = min(dm.widthPixels, dm.heightPixels)
                 val bitMatrix = qrCodeEncoder.getQrCodeBitMatrix(size)
@@ -102,20 +176,13 @@ class StatusManager @Inject constructor(
                         ?: error("The QR code bit matrix is expected to be non-null here")
                 )
             }
-            sc == SetupComplete.TRUE -> StartedSetupComplete
-            // else means sc == SetupComplete.UNKNOWN
+            setup == SetupComplete.TRUE -> StartedSetupComplete
+            // else means setup == SetupComplete.UNKNOWN
             else -> error("Expected setup completion to be known at this point")
         }
-    }.flowOn(Dispatchers.IO)
-        .distinctUntilChanged()
-        .onEach { state ->
-            if (state != NotStarted && state != Wiping && state != Stopping && state != Stopped)
-                notificationManager.onMailboxAppStateChanged(state)
-        }
-        .stateIn(GlobalScope, Lazily, NotStarted)
+    }
 
     private fun getString(@StringRes resId: Int, vararg formatArgs: Any?): String {
         return context.getString(resId, *formatArgs)
     }
-
 }
