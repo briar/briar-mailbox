@@ -103,7 +103,8 @@ class MainActivity : AppCompatActivity() {
             Undecided -> {} // Do nothing yet
             NeedOnboarding -> if (nav.currentDestination?.id == R.id.initFragment)
                 nav.navigate(actionGlobalOnboardingContainer())
-            NeedsDozeExemption -> nav.navigate(actionGlobalDoNotKillMeFragment())
+            NeedsDozeExemption -> if (nav.currentDestination?.id != R.id.doNotKillMeFragment)
+                nav.navigate(actionGlobalDoNotKillMeFragment())
             NotStarted -> nav.navigate(actionGlobalStartupFragment())
             // It is important to navigate here from various fragments. The normal case is
             // that we come from the init fragment, do-not-kill fragment or the onboarding fragment.
