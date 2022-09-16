@@ -74,10 +74,7 @@ interface LifecycleManager {
      * registered [Services][Service].
      */
     @Wakeful
-    fun startServices(
-        exitAfterStopping: Boolean = true,
-        wipeHook: WipeHook = WipeHook { },
-    ): StartResult
+    fun startServices(wipeHook: WipeHook = WipeHook { }): StartResult
 
     /**
      * Stops any registered [Services][Service], shuts down any
@@ -85,7 +82,7 @@ interface LifecycleManager {
      * [Database].
      */
     @Wakeful
-    fun stopServices()
+    fun stopServices(exitAfterStopping: Boolean)
 
     /**
      * Wipes entire database as well as stored files. Also stops all services

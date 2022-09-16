@@ -121,12 +121,12 @@ class Main : CliktCommand(
     private fun startLifecycle() {
         Runtime.getRuntime().addShutdownHook(
             Thread {
-                lifecycleManager.stopServices()
+                lifecycleManager.stopServices(false)
                 lifecycleManager.waitForShutdown()
             }
         )
 
-        lifecycleManager.startServices(false)
+        lifecycleManager.startServices()
         lifecycleManager.waitForStartup()
 
         if (setupToken != null) {

@@ -158,7 +158,7 @@ class MailboxService : Service() {
         if (started) {
             androidExecutor.runOnBackgroundThread {
                 try {
-                    lifecycleManager.stopServices()
+                    lifecycleManager.stopServices(true)
                     lifecycleManager.waitForShutdown()
                 } catch (e: InterruptedException) {
                     LOG.info("Interrupted while waiting for shutdown")

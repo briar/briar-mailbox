@@ -87,7 +87,7 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
 
     @AfterAll
     fun tearDown() {
-        lifecycleManager.stopServices()
+        lifecycleManager.stopServices(false)
         lifecycleManager.waitForShutdown()
     }
 

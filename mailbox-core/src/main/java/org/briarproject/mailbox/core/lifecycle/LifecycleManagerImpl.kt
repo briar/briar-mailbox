@@ -82,7 +82,6 @@ internal class LifecycleManagerImpl @Inject constructor(
     private val state = MutableStateFlow(NOT_STARTED)
 
     private var wipeHook: WipeHook? = null
-    private var exitAfterStopping: Boolean = true
 
     init {
         services = CopyOnWriteArrayList()
@@ -106,7 +105,7 @@ internal class LifecycleManagerImpl @Inject constructor(
     }
 
     @GuardedBy("startStopWipeSemaphore")
-    override fun startServices(exitAfterStopping: Boolean, wipeHook: WipeHook): StartResult {
+    override fun startServices(wipeHook: WipeHook): StartResult {
         LOG.info("startServices()")
         try {
             LOG.info("acquiring start stop semaphore")
@@ -122,7 +121,6 @@ internal class LifecycleManagerImpl @Inject constructor(
             return LIFECYCLE_REUSE
         }
         this.wipeHook = wipeHook
-        this.exitAfterStopping = exitAfterStopping
         return try {
             LOG.info("Opening database")
             var start = now()
@@ -169,7 +167,7 @@ internal class LifecycleManagerImpl @Inject constructor(
     }
 
     @GuardedBy("startStopWipeSemaphore")
-    override fun stopServices() {
+    override fun stopServices(exitAfterStopping: Boolean) {
         LOG.info("stopServices()")
         try {
             LOG.info("acquiring start stop semaphore")
@@ -265,7 +263,7 @@ internal class LifecycleManagerImpl @Inject constructor(
             // If we were not do this, the webserver would wait for the request to finish and the
             // request would wait for the webserver to finish.
             thread {
-                stopServices()
+                stopServices(true)
             }
             return true
         } finally {
