@@ -82,7 +82,7 @@ interface LifecycleManager {
      * [Database].
      */
     @Wakeful
-    fun stopServices()
+    fun stopServices(exitAfterStopping: Boolean)
 
     /**
      * Wipes entire database as well as stored files. Also stops all services

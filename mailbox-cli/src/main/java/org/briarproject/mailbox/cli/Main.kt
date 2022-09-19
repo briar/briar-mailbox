@@ -25,7 +25,6 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.counted
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.CoreEagerSingletons
@@ -122,7 +121,7 @@ class Main : CliktCommand(
     private fun startLifecycle() {
         Runtime.getRuntime().addShutdownHook(
             Thread {
-                lifecycleManager.stopServices()
+                lifecycleManager.stopServices(false)
                 lifecycleManager.waitForShutdown()
             }
         )

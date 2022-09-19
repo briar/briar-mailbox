@@ -167,7 +167,7 @@ internal class LifecycleManagerImpl @Inject constructor(
     }
 
     @GuardedBy("startStopWipeSemaphore")
-    override fun stopServices() {
+    override fun stopServices(exitAfterStopping: Boolean) {
         LOG.info("stopServices()")
         try {
             LOG.info("acquiring start stop semaphore")
@@ -214,8 +214,10 @@ internal class LifecycleManagerImpl @Inject constructor(
             startStopWipeSemaphore.release()
             // This is for the CLI where we might call stopServices() twice due to the shutdown
             // hook. In order to avoid a deadlock with calling exitProcess() from two threads, make
-            // sure here that it gets called only once.
-            if (stopped) {
+            // sure here that it gets called only once. Also, only exit if exitAfterStopping is true
+            // because we need to avoid calling exitProcess() on a shutdown hook, which causes a
+            // deadlock by itself.
+            if (stopped && exitAfterStopping) {
                 LOG.info("Exiting")
                 exitProcess(0)
             }
@@ -261,7 +263,7 @@ internal class LifecycleManagerImpl @Inject constructor(
             // If we were not do this, the webserver would wait for the request to finish and the
             // request would wait for the webserver to finish.
             thread {
-                stopServices()
+                stopServices(true)
             }
             return true
         } finally {
