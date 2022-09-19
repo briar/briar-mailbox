@@ -32,6 +32,8 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.delay
 import org.briarproject.android.dontkillmelib.DozeUtils.getDozeWhitelistingIntent
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.dontkillme.DoNotKillMeUtils.showOnboardingDialog
@@ -104,8 +106,12 @@ abstract class AbstractDoNotKillMeFragment :
             dozeView.setChecked(true)
         } else if (context != null) {
             secondAttempt = true
-            val s = getString(R.string.dnkm_doze_explanation)
-            showOnboardingDialog(context, s)
+            lifecycleScope.launchWhenResumed {
+                // The system state is updated async on Xiaomi devices,
+                // so we need to give it a bit of extra time before showing a dialog.
+                delay(500)
+                showDozeExplanationIfStillNeeded()
+            }
         }
     }
 
@@ -121,5 +127,14 @@ abstract class AbstractDoNotKillMeFragment :
     private fun askForDozeWhitelisting() {
         if (context == null) return
         dozeLauncher.launch(getDozeWhitelistingIntent(requireContext()))
+    }
+
+    private fun showDozeExplanationIfStillNeeded() {
+        if (dozeView.needsToBeShown()) {
+            if (context == null) return
+            showOnboardingDialog(context, getString(R.string.dnkm_doze_explanation))
+        } else {
+            dozeView.setChecked(true)
+        }
     }
 }

@@ -51,8 +51,10 @@ import org.briarproject.mailbox.core.tor.TorState
 import org.briarproject.mailbox.core.util.LogUtils.info
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.math.min
 
+@Singleton
 class StatusManager @Inject constructor(
     @ApplicationContext private val context: Context,
     lifecycleManager: LifecycleManager,
@@ -132,6 +134,7 @@ class StatusManager @Inject constructor(
         GlobalScope.launch(IO) {
             dbState = if (setupManager.hasDb) DB_EXISTS else DB_DOES_NOT_EXIST
             withContext(Main) {
+                // TODO consider to make this dependent on DB state to not re-show with each launch
                 needsDozeExemption = if (dozeHelper.needToShowDoNotKillMeFragment(context))
                     NEEDS_DOZE_EXEMPTION else DOES_NOT_NEED_DOZE_EXEMPTION
                 updateAppState()

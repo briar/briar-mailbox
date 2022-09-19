@@ -81,7 +81,9 @@ abstract class PowerView @JvmOverloads constructor(
 
     override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
-        return SavedState(superState)
+        val ss = SavedState(superState)
+        ss.value[0] = checked
+        return ss
     }
 
     override fun onRestoreInstanceState(state: Parcelable) {
