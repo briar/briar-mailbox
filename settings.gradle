@@ -1,3 +1,4 @@
 include ':mailbox-core'
 include ':mailbox-android'
 include ':mailbox-cli'
+include ':mailbox-lib'

@@ -25,21 +25,9 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.counted
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
-import kotlinx.coroutines.flow.takeWhile
-import kotlinx.coroutines.runBlocking
-import org.briarproject.mailbox.core.CoreEagerSingletons
-import org.briarproject.mailbox.core.JavaCliEagerSingletons
-import org.briarproject.mailbox.core.db.TransactionManager
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager
-import org.briarproject.mailbox.core.setup.QrCodeEncoder
-import org.briarproject.mailbox.core.setup.SetupManager
-import org.briarproject.mailbox.core.setup.WipeManager
 import org.briarproject.mailbox.core.system.InvalidIdException
-import org.briarproject.mailbox.core.tor.TorPlugin
-import org.briarproject.mailbox.core.tor.TorState
+import org.briarproject.mailbox.lib.Mailbox
 import org.slf4j.LoggerFactory.getLogger
-import javax.inject.Inject
-import kotlin.system.exitProcess
 
 class Main : CliktCommand(
     name = "briar-mailbox",
@@ -62,30 +50,6 @@ class Main : CliktCommand(
     ).counted()
     private val setupToken: String? by option("--setup-token", hidden = true)
 
-    @Inject
-    internal lateinit var coreEagerSingletons: CoreEagerSingletons
-
-    @Inject
-    internal lateinit var javaCliEagerSingletons: JavaCliEagerSingletons
-
-    @Inject
-    internal lateinit var lifecycleManager: LifecycleManager
-
-    @Inject
-    internal lateinit var db: TransactionManager
-
-    @Inject
-    internal lateinit var setupManager: SetupManager
-
-    @Inject
-    internal lateinit var wipeManager: WipeManager
-
-    @Inject
-    internal lateinit var torPlugin: TorPlugin
-
-    @Inject
-    internal lateinit var qrCodeEncoder: QrCodeEncoder
-
     override fun run() {
         // logging
         val levelNamed = when {
@@ -107,56 +71,46 @@ class Main : CliktCommand(
         getLogger(this.javaClass).debug("Hello Mailbox")
         println("Hello Mailbox")
 
-        val javaCliComponent = DaggerJavaCliComponent.builder().build()
-        javaCliComponent.inject(this)
+        val mailbox = Mailbox()
 
         if (wipe) {
-            wipeManager.wipeFilesOnly()
+            mailbox.wipeFilesOnly()
             println("Mailbox wiped successfully \\o/")
-            exitProcess(0)
+            mailbox.getSystem().exit(0)
         }
-        startLifecycle()
+        startLifecycle(mailbox)
     }
 
-    private fun startLifecycle() {
+    private fun startLifecycle(mailbox: Mailbox) {
         Runtime.getRuntime().addShutdownHook(
             Thread {
-                lifecycleManager.stopServices(false)
-                lifecycleManager.waitForShutdown()
+                mailbox.stopLifecycle(false)
+                mailbox.waitForShutdown()
             }
         )
 
-        lifecycleManager.startServices()
-        lifecycleManager.waitForStartup()
+        mailbox.startLifecycle()
 
         if (setupToken != null) {
             try {
-                setupManager.setToken(setupToken, null)
+                mailbox.setSetupToken(setupToken!!)
             } catch (e: InvalidIdException) {
                 System.err.println("Invalid setup token")
-                exitProcess(1)
+                mailbox.getSystem().exit(1)
             }
         }
 
-        val ownerTokenExists = db.read { txn ->
-            setupManager.getOwnerToken(txn) != null
-        }
+        val ownerTokenExists = mailbox.getOwnerToken() != null
         if (!ownerTokenExists) {
             if (debug) {
-                val token = setupToken ?: db.read { setupManager.getSetupToken(it) }
+                val token = setupToken ?: mailbox.getSetupToken()
                 println(
                     "curl -v -H \"Authorization: Bearer $token\" -X PUT " +
                         "http://localhost:8000/setup"
                 )
             }
-            // If not set up, show QR code for manual setup
-            runBlocking {
-                // wait until Tor becomes active and published the onion service
-                torPlugin.state.takeWhile { state ->
-                    state != TorState.Published
-                }.collect { }
-            }
-            qrCodeEncoder.getQrCodeBitMatrix()?.let {
+            mailbox.waitForTorPublished()
+            mailbox.getQrCode()?.let {
                 println(QrCodeRenderer.getQrString(it))
             }
         }

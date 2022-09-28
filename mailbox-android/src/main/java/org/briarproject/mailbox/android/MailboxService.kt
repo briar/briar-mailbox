@@ -42,11 +42,11 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCC
 import org.briarproject.mailbox.core.system.AndroidExecutor
 import org.briarproject.mailbox.core.system.AndroidWakeLock
 import org.briarproject.mailbox.core.system.AndroidWakeLockManager
+import org.briarproject.mailbox.core.system.System
 import org.briarproject.mailbox.core.util.LogUtils.warn
 import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
-import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 class MailboxService : Service() {
@@ -82,6 +82,9 @@ class MailboxService : Service() {
 
     @Inject
     internal lateinit var androidExecutor: AndroidExecutor
+
+    @Inject
+    internal lateinit var system: System
 
     private lateinit var lifecycleWakeLock: AndroidWakeLock
 
@@ -179,7 +182,7 @@ class MailboxService : Service() {
             }
             stopSelf()
             LOG.info("Exiting")
-            exitProcess(1)
+            system.exit(1)
         }
     }
 }

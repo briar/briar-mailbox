@@ -14,6 +14,7 @@ import org.briarproject.mailbox.core.server.WebServerModule
 import org.briarproject.mailbox.core.settings.SettingsModule
 import org.briarproject.mailbox.core.setup.SetupModule
 import org.briarproject.mailbox.core.system.Clock
+import org.briarproject.mailbox.core.system.System
 import org.briarproject.mailbox.core.system.TestTaskSchedulerModule
 import java.io.File
 import java.util.concurrent.Executor
@@ -35,7 +36,11 @@ import javax.inject.Singleton
 internal class TestModule(private val tempDir: File) {
     @Singleton
     @Provides
-    fun provideClock() = Clock { System.currentTimeMillis() }
+    fun provideClock() = Clock { java.lang.System.currentTimeMillis() }
+
+    @Singleton
+    @Provides
+    fun provideSystem() = System { /* do nothing on exit */ }
 
     @Singleton
     @Provides

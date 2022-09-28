@@ -17,7 +17,7 @@
  *
  */
 
-package org.briarproject.mailbox.cli
+package org.briarproject.mailbox.lib
 
 import dagger.Module
 import dagger.Provides
@@ -51,10 +51,10 @@ import javax.inject.Singleton
     ]
 )
 @InstallIn(SingletonComponent::class)
-internal class JavaCliModule {
+open class MailboxLibModule(private val customDataDir: File? = null) {
 
     companion object {
-        private val LOG: Logger = getLogger(JavaCliModule::class.java)
+        private val LOG: Logger = getLogger(MailboxLibModule::class.java)
 
         private val DEFAULT_DATAHOME = System.getProperty("user.home") +
             separator + ".local" + separator + "share"
@@ -67,15 +67,19 @@ internal class JavaCliModule {
      * and otherwise it returns "~/.local/share/briar-mailbox".
      */
     private val dataDir: File by lazy {
-        val dataHome = when (val custom = System.getenv("XDG_DATA_HOME").orEmpty()) {
-            "" -> File(DEFAULT_DATAHOME)
-            else -> File(custom)
-        }
-        if (!dataHome.exists() || !dataHome.isDirectory) {
-            throw IOException("datahome missing or not a directory: ${dataHome.absolutePath}")
+        val dataDir = if (customDataDir != null) {
+            customDataDir
+        } else {
+            val dataHome = when (val custom = System.getenv("XDG_DATA_HOME").orEmpty()) {
+                "" -> File(DEFAULT_DATAHOME)
+                else -> File(custom)
+            }
+            if (!dataHome.exists() || !dataHome.isDirectory) {
+                throw IOException("datahome missing or not a directory: ${dataHome.absolutePath}")
+            }
+            File(dataHome.absolutePath + separator + DATAHOME_SUBDIR)
         }
 
-        val dataDir = File(dataHome.absolutePath + separator + DATAHOME_SUBDIR)
         if (!dataDir.exists() && !dataDir.mkdirs()) {
             throw IOException("datadir could not be created: ${dataDir.absolutePath}")
         } else if (!dataDir.isDirectory) {

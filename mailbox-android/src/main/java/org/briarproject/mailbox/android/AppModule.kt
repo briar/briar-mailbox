@@ -32,8 +32,10 @@ import org.briarproject.mailbox.core.db.DatabaseConfig
 import org.briarproject.mailbox.core.files.FileProvider
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.system.DozeWatchdog
+import org.briarproject.mailbox.core.system.System
 import java.io.File
 import javax.inject.Singleton
+import kotlin.system.exitProcess
 
 @Module(
     includes = [
@@ -73,4 +75,8 @@ internal class AppModule {
     @Singleton
     @Provides
     fun provideDozeHelper(): DozeHelper = DozeHelperImpl()
+
+    @Singleton
+    @Provides
+    fun provideSystem() = System { code -> exitProcess(code) }
 }

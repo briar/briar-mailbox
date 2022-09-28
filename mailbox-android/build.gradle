@@ -10,6 +10,10 @@ plugins {
     id 'checkstyle' // only needed for Java code
 }
 
+checkstyle {
+    configFile = new File('../config/checkstyle/checkstyle.xml')
+}
+
 android {
     compileSdkVersion 32
     buildToolsVersion "32.0.0"
@@ -148,5 +152,5 @@ tasks.withType(MergeResources) {
     dependsOn unpackTorBinaries
 }
 
-apply from: "${rootProject.rootDir}/gradle/ktlint.gradle"
-apply from: "${rootProject.rootDir}/gradle/checkstyle.gradle"
+apply from: "../gradle/ktlint.gradle"
+apply from: "../gradle/checkstyle.gradle"

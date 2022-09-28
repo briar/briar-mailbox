@@ -37,6 +37,7 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.LIFE
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
 import org.briarproject.mailbox.core.setup.WipeManager
+import org.briarproject.mailbox.core.system.System
 import org.briarproject.mailbox.core.util.LogUtils.info
 import org.briarproject.mailbox.core.util.LogUtils.logDuration
 import org.briarproject.mailbox.core.util.LogUtils.logException
@@ -52,12 +53,12 @@ import javax.annotation.concurrent.GuardedBy
 import javax.annotation.concurrent.ThreadSafe
 import javax.inject.Inject
 import kotlin.concurrent.thread
-import kotlin.system.exitProcess
 
 @ThreadSafe
 internal class LifecycleManagerImpl @Inject constructor(
     private val db: Database,
     private val wipeManager: WipeManager,
+    private val system: System,
 ) :
     LifecycleManager, MigrationListener {
 
@@ -219,7 +220,7 @@ internal class LifecycleManagerImpl @Inject constructor(
             // deadlock by itself.
             if (stopped && exitAfterStopping) {
                 LOG.info("Exiting")
-                exitProcess(0)
+                system.exit(0)
             }
         }
     }

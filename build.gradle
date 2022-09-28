@@ -1,12 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.6.21'
-    ext.hilt_version = '2.40'
-    ext.nav_version = '2.4.2'
-    ext.tor_version = '0.4.5.12-2'
-    ext.obfs4_version = '0.0.12'
-    ext.junit_version = '5.7.2'
-    ext.mockk_version = '1.10.4'
-    ext.ktlint_plugin_version = '10.2.1'
+    apply from: "gradle/variables.gradle"
 
     repositories {
         google()
