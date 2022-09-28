@@ -19,6 +19,7 @@
 
 package org.briarproject.mailbox.lib
 
+import com.google.zxing.common.BitMatrix
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.CoreEagerSingletons
@@ -28,6 +29,7 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.setup.QrCodeEncoder
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.setup.WipeManager
+import org.briarproject.mailbox.core.system.System
 import org.briarproject.mailbox.core.tor.TorPlugin
 import org.briarproject.mailbox.core.tor.TorState
 import org.briarproject.mailbox.core.util.LogUtils.info
@@ -66,9 +68,12 @@ abstract class Mailbox(protected val customDataDir: File? = null) {
     @Inject
     internal lateinit var qrCodeEncoder: QrCodeEncoder
 
+    @Inject
+    internal lateinit var system: System
+
     abstract fun init()
 
-    fun wipe() {
+    fun wipeFilesOnly() {
         wipeManager.wipeFilesOnly()
         LOG.info { "Mailbox wiped successfully \\o/" }
     }
@@ -81,9 +86,9 @@ abstract class Mailbox(protected val customDataDir: File? = null) {
         LOG.info { "Startup finished" }
     }
 
-    fun stopLifecycle() {
+    fun stopLifecycle(exitAfterStopping: Boolean) {
         LOG.info { "Stopping lifecycle" }
-        lifecycleManager.stopServices(true)
+        lifecycleManager.stopServices(exitAfterStopping)
         LOG.info { "Waiting for shutdown" }
         lifecycleManager.waitForShutdown()
         LOG.info { "Shutdown finished" }
@@ -108,6 +113,10 @@ abstract class Mailbox(protected val customDataDir: File? = null) {
         LOG.info { "Hidden service published" }
     }
 
+    fun waitForShutdown() {
+        lifecycleManager.waitForShutdown()
+    }
+
     fun getSetupToken(): String? {
         return db.read { txn ->
             setupManager.getSetupToken(txn)
@@ -119,4 +128,10 @@ abstract class Mailbox(protected val customDataDir: File? = null) {
             setupManager.getOwnerToken(txn)
         }
     }
+
+    fun getQrCode(): BitMatrix? {
+        return qrCodeEncoder.getQrCodeBitMatrix()
+    }
+
+    fun getSystem(): System = system
 }

@@ -15,13 +15,13 @@ class TestMailbox(mailboxDir: File? = null) : Mailbox(mailboxDir) {
     }
 
     @Inject
-    internal lateinit var system: TestSystem
+    internal lateinit var testSystem: TestSystem
 
     fun hasExited(): Boolean {
-        return system.hasExited()
+        return testSystem.hasExited()
     }
 
     fun getExitCode(): Int {
-        return system.getExitCode()
+        return testSystem.getExitCode()
     }
 }

@@ -36,7 +36,7 @@ class MailboxLibTest {
         mailbox.init()
         mailbox.startLifecycle()
         mailbox.waitForTorPublished()
-        mailbox.stopLifecycle()
+        mailbox.stopLifecycle(true)
         assertTrue(mailbox.hasExited())
         assertEquals(0, mailbox.getExitCode())
     }
