@@ -19,25 +19,17 @@
 
 package org.briarproject.mailbox.lib
 
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.io.TempDir
-import java.io.File
+import dagger.Component
+import org.briarproject.mailbox.system.TestSystemModule
+import javax.inject.Singleton
 
-class MailboxLibTest {
-
-    @TempDir
-    lateinit var mailboxDataDirectory: File
-
-    @Test
-    fun testStartStopMailbox() {
-        val mailbox = TestMailbox(mailboxDataDirectory)
-        mailbox.init()
-        mailbox.startLifecycle()
-        mailbox.waitForTorPublished()
-        mailbox.stopLifecycle()
-        assertTrue(mailbox.hasExited())
-        assertEquals(0, mailbox.getExitCode())
-    }
+@Singleton
+@Component(
+    modules = [
+        JavaLibModule::class,
+        TestSystemModule::class,
+    ]
+)
+interface JavaLibTestComponent {
+    fun inject(mailbox: TestMailbox)
 }

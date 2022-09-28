@@ -20,16 +20,16 @@
 package org.briarproject.mailbox.lib
 
 import dagger.Component
-import org.briarproject.mailbox.system.TestSystemModule
+import org.briarproject.mailbox.system.ProductionSystemModule
 import javax.inject.Singleton
 
 @Singleton
 @Component(
     modules = [
         JavaLibModule::class,
-        TestSystemModule::class,
+        ProductionSystemModule::class,
     ]
 )
-interface JavaLibComponent {
-    fun inject(mailbox: Mailbox)
+interface JavaLibProductionComponent {
+    fun inject(mailbox: ProductionMailbox)
 }

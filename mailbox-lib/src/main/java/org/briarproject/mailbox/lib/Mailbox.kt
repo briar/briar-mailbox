@@ -31,13 +31,12 @@ import org.briarproject.mailbox.core.setup.WipeManager
 import org.briarproject.mailbox.core.tor.TorPlugin
 import org.briarproject.mailbox.core.tor.TorState
 import org.briarproject.mailbox.core.util.LogUtils.info
-import org.briarproject.mailbox.system.TestSystem
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 import java.io.File
 import javax.inject.Inject
 
-class Mailbox(private val customDataDir: File? = null) {
+abstract class Mailbox(protected val customDataDir: File? = null) {
 
     companion object {
         val LOG: Logger = getLogger(Mailbox::class.java)
@@ -67,15 +66,7 @@ class Mailbox(private val customDataDir: File? = null) {
     @Inject
     internal lateinit var qrCodeEncoder: QrCodeEncoder
 
-    @Inject
-    internal lateinit var system: TestSystem
-
-    fun init() {
-        LOG.info { "Hello Mailbox" }
-        val javaLibComponent =
-            DaggerJavaLibComponent.builder().javaLibModule(JavaLibModule(customDataDir)).build()
-        javaLibComponent.inject(this)
-    }
+    abstract fun init()
 
     fun wipe() {
         wipeManager.wipeFilesOnly()
@@ -128,13 +119,4 @@ class Mailbox(private val customDataDir: File? = null) {
             setupManager.getOwnerToken(txn)
         }
     }
-
-    fun hasExited(): Boolean {
-        return system.hasExited()
-    }
-
-    fun getExitCode(): Int {
-        return system.getExitCode()
-    }
-
 }
