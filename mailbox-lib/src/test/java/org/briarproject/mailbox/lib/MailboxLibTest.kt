@@ -33,7 +33,6 @@ class MailboxLibTest {
     @Test
     fun testStartStopMailbox() {
         val mailbox = TestMailbox(mailboxDataDirectory)
-        mailbox.init()
         mailbox.startLifecycle()
         mailbox.waitForTorPublished()
         mailbox.stopLifecycle(true)

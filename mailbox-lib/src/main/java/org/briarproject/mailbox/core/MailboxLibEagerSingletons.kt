@@ -24,7 +24,7 @@ import org.briarproject.mailbox.core.tor.TorPlugin
 import javax.inject.Inject
 
 @Suppress("unused")
-internal class JavaLibEagerSingletons @Inject constructor(
+internal class MailboxLibEagerSingletons @Inject constructor(
     val taskScheduler: TaskScheduler,
     val javaTorPlugin: TorPlugin,
 )

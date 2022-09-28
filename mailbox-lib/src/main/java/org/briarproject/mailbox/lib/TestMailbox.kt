@@ -5,13 +5,13 @@ import org.briarproject.mailbox.system.TestSystem
 import java.io.File
 import javax.inject.Inject
 
-class TestMailbox(mailboxDir: File? = null) : Mailbox(mailboxDir) {
+class TestMailbox(mailboxDir: File? = null) : AbstractMailbox(mailboxDir) {
 
-    override fun init() {
+    init {
         LOG.info { "Hello Mailbox" }
-        val javaLibComponent = DaggerMailboxLibTestComponent.builder()
+        val mailboxLibComponent = DaggerMailboxLibTestComponent.builder()
             .mailboxLibModule(MailboxLibModule(customDataDir)).build()
-        javaLibComponent.inject(this)
+        mailboxLibComponent.inject(this)
     }
 
     @Inject

@@ -26,7 +26,7 @@ import com.github.ajalt.clikt.parameters.options.counted
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import org.briarproject.mailbox.core.system.InvalidIdException
-import org.briarproject.mailbox.lib.ProductionMailbox
+import org.briarproject.mailbox.lib.Mailbox
 import org.slf4j.LoggerFactory.getLogger
 
 class Main : CliktCommand(
@@ -71,8 +71,7 @@ class Main : CliktCommand(
         getLogger(this.javaClass).debug("Hello Mailbox")
         println("Hello Mailbox")
 
-        val mailbox = ProductionMailbox()
-        mailbox.init()
+        val mailbox = Mailbox()
 
         if (wipe) {
             mailbox.wipeFilesOnly()
@@ -82,7 +81,7 @@ class Main : CliktCommand(
         startLifecycle(mailbox)
     }
 
-    private fun startLifecycle(mailbox: ProductionMailbox) {
+    private fun startLifecycle(mailbox: Mailbox) {
         Runtime.getRuntime().addShutdownHook(
             Thread {
                 mailbox.stopLifecycle(false)

@@ -30,6 +30,6 @@ import javax.inject.Singleton
         ProductionSystemModule::class,
     ]
 )
-interface MailboxLibProductionComponent {
-    fun inject(mailbox: ProductionMailbox)
+interface MailboxLibComponent {
+    fun inject(mailbox: Mailbox)
 }
