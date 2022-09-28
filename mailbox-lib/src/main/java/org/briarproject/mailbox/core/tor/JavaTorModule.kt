@@ -109,7 +109,7 @@ class JavaTorModule {
 
     @Provides
     @Singleton
-    fun provideNetworkManager(networkManager: JavaLibNetworkManager): NetworkManager {
+    fun provideNetworkManager(networkManager: MailboxLibNetworkManager): NetworkManager {
         return networkManager
     }
 

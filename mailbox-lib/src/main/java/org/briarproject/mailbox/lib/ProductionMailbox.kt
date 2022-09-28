@@ -7,8 +7,8 @@ class ProductionMailbox(mailboxDir: File? = null) : Mailbox(mailboxDir) {
 
     override fun init() {
         LOG.info { "Hello Mailbox" }
-        val javaLibComponent = DaggerJavaLibProductionComponent.builder()
-            .javaLibModule(JavaLibModule(customDataDir)).build()
+        val javaLibComponent = DaggerMailboxLibProductionComponent.builder()
+            .mailboxLibModule(MailboxLibModule(customDataDir)).build()
         javaLibComponent.inject(this)
     }
 

@@ -26,10 +26,10 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     modules = [
-        JavaLibModule::class,
+        MailboxLibModule::class,
         ProductionSystemModule::class,
     ]
 )
-interface JavaLibProductionComponent {
+interface MailboxLibProductionComponent {
     fun inject(mailbox: ProductionMailbox)
 }

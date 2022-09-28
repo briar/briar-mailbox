@@ -9,8 +9,8 @@ class TestMailbox(mailboxDir: File? = null) : Mailbox(mailboxDir) {
 
     override fun init() {
         LOG.info { "Hello Mailbox" }
-        val javaLibComponent = DaggerJavaLibTestComponent.builder()
-            .javaLibModule(JavaLibModule(customDataDir)).build()
+        val javaLibComponent = DaggerMailboxLibTestComponent.builder()
+            .mailboxLibModule(MailboxLibModule(customDataDir)).build()
         javaLibComponent.inject(this)
     }
 

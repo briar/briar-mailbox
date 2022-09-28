@@ -51,10 +51,10 @@ import javax.inject.Singleton
     ]
 )
 @InstallIn(SingletonComponent::class)
-open class JavaLibModule(private val customDataDir: File? = null) {
+open class MailboxLibModule(private val customDataDir: File? = null) {
 
     companion object {
-        private val LOG: Logger = getLogger(JavaLibModule::class.java)
+        private val LOG: Logger = getLogger(MailboxLibModule::class.java)
 
         private val DEFAULT_DATAHOME = System.getProperty("user.home") +
             separator + ".local" + separator + "share"
