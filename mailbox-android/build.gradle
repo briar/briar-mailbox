@@ -152,5 +152,5 @@ tasks.withType(MergeResources) {
     dependsOn unpackTorBinaries
 }
 
-apply from: "${rootProject.rootDir}/gradle/ktlint.gradle"
-apply from: "${rootProject.rootDir}/gradle/checkstyle.gradle"
+apply from: "../gradle/ktlint.gradle"
+apply from: "../gradle/checkstyle.gradle"

@@ -71,4 +71,4 @@ idea {
     }
 }
 
-apply from: "${rootProject.rootDir}/gradle/ktlint.gradle"
+apply from: "../gradle/ktlint.gradle"
