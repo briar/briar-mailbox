@@ -15,8 +15,8 @@ checkstyle {
 }
 
 android {
-    compileSdkVersion 32
-    buildToolsVersion "32.0.0"
+    compileSdkVersion 33
+    buildToolsVersion "33.0.0"
 
     defaultConfig {
         applicationId "org.briarproject.mailbox"
@@ -32,7 +32,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled false // TODO enable for releases and test thoroughly
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -64,12 +64,12 @@ dependencies {
     implementation 'org.briarproject:dont-kill-me-lib:0.2.5'
 
     implementation 'com.github.tony19:logback-android:2.0.0'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation "androidx.activity:activity-ktx:1.4.0"
-    implementation "androidx.fragment:fragment-ktx:1.4.1"
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation "androidx.activity:activity-ktx:1.6.0"
+    implementation "androidx.fragment:fragment-ktx:1.5.3"
     implementation 'androidx.preference:preference-ktx:1.2.0'
 
-    def lifecycle_version = "2.4.1"
+    def lifecycle_version = "2.5.1"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
