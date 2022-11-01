@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_illustration_3"
+        app:srcCompat="@drawable/il_onboarding_3"
         tools:ignore="ContentDescription" />
 
     <androidx.constraintlayout.widget.Guideline
