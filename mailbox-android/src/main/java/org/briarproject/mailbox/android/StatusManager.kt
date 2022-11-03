@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.briarproject.android.dontkillmelib.DozeHelper
 import org.briarproject.mailbox.R
@@ -58,7 +59,7 @@ import kotlin.math.min
 class StatusManager @Inject constructor(
     @ApplicationContext private val context: Context,
     lifecycleManager: LifecycleManager,
-    notificationManager: MailboxNotificationManager,
+    private val notificationManager: MailboxNotificationManager,
     setupManager: SetupManager,
     private val qrCodeEncoder: QrCodeEncoder,
     torPlugin: TorPlugin,
@@ -91,17 +92,17 @@ class StatusManager @Inject constructor(
 
     fun setDoesNotNeedDozeExemption() {
         needsDozeExemption = DOES_NOT_NEED_DOZE_EXEMPTION
-        updateAppState()
+        runBlocking { updateAppState() }
     }
 
     fun setNeedsDozeExemption() {
         needsDozeExemption = NEEDS_DOZE_EXEMPTION
-        updateAppState()
+        runBlocking { updateAppState() }
     }
 
     fun setOnboardingDone() {
         onboardingDone = true
-        updateAppState()
+        runBlocking { updateAppState() }
     }
 
     /**
@@ -124,7 +125,6 @@ class StatusManager @Inject constructor(
     private val _appState: MutableStateFlow<MailboxAppState> = MutableStateFlow(Undecided)
     val appState: Flow<MailboxAppState> = _appState.onEach { state ->
         LOG.info { "state: ${state.javaClass.simpleName}" }
-        if (state.hasNotification) notificationManager.onMailboxAppStateChanged(state)
     }
 
     init {
@@ -142,7 +142,13 @@ class StatusManager @Inject constructor(
         }
     }
 
-    private fun updateAppState() {
+    private suspend fun updateAppState() {
+        val state = deriveAppState()
+        _appState.value = state
+        if (state.hasNotification) notificationManager.onMailboxAppStateChanged(state)
+    }
+
+    private fun deriveAppState(): MailboxAppState {
         val ls = lifecycleState.value
         val tor = torPluginState.value
         val setup = setupComplete.value
@@ -150,7 +156,7 @@ class StatusManager @Inject constructor(
             "combining: $dbState, ls: $ls, $needsDozeExemption, onboarding done? $onboardingDone," +
                 " tor: ${tor.javaClass.simpleName}, setup: $setup"
         )
-        _appState.value = when {
+        return when {
             dbState == DB_UNKNOWN -> Undecided
             ls == LifecycleState.NOT_STARTED && dbState == DB_DOES_NOT_EXIST &&
                 !onboardingDone -> NeedOnboarding
