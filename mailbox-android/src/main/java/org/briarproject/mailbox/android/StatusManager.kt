@@ -23,6 +23,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
 import androidx.annotation.StringRes
+import androidx.annotation.UiThread
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -32,7 +33,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.briarproject.android.dontkillmelib.DozeHelper
 import org.briarproject.mailbox.R
@@ -90,19 +90,22 @@ class StatusManager @Inject constructor(
     private val torPluginState: StateFlow<TorState> = torPlugin.state
     private val setupComplete: StateFlow<SetupComplete> = setupManager.setupComplete
 
+    @UiThread
     fun setDoesNotNeedDozeExemption() {
         needsDozeExemption = DOES_NOT_NEED_DOZE_EXEMPTION
-        runBlocking { updateAppState() }
+        updateAppState()
     }
 
+    @UiThread
     fun setNeedsDozeExemption() {
         needsDozeExemption = NEEDS_DOZE_EXEMPTION
-        runBlocking { updateAppState() }
+        updateAppState()
     }
 
+    @UiThread
     fun setOnboardingDone() {
         onboardingDone = true
-        runBlocking { updateAppState() }
+        updateAppState()
     }
 
     /**
@@ -142,12 +145,14 @@ class StatusManager @Inject constructor(
         }
     }
 
-    private suspend fun updateAppState() {
+    @UiThread // Dispatchers.Main
+    private fun updateAppState() {
         val state = deriveAppState()
         _appState.value = state
         if (state.hasNotification) notificationManager.onMailboxAppStateChanged(state)
     }
 
+    @UiThread
     private fun deriveAppState(): MailboxAppState {
         val ls = lifecycleState.value
         val tor = torPluginState.value

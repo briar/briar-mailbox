@@ -29,12 +29,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build.VERSION.SDK_INT
 import androidx.annotation.RequiresApi
+import androidx.annotation.UiThread
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_MIN
 import androidx.core.content.ContextCompat.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.StatusManager.ErrorClockSkew
 import org.briarproject.mailbox.android.StatusManager.ErrorNoNetwork
@@ -85,7 +84,8 @@ class MailboxNotificationManager @Inject constructor(
         nm.createNotificationChannels(channels)
     }
 
-    suspend fun onMailboxAppStateChanged(state: MailboxAppState) = withContext(Dispatchers.Main) {
+    @UiThread
+    fun onMailboxAppStateChanged(state: MailboxAppState) {
         val notification = getServiceNotification(state)
         nm.notify(NOTIFICATION_MAIN_ID, notification)
     }
