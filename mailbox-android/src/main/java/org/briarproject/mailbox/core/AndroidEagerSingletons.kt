@@ -29,6 +29,6 @@ import javax.inject.Inject
 internal class AndroidEagerSingletons @Inject constructor(
     val androidTaskScheduler: AndroidTaskScheduler,
     val androidNetworkManager: AndroidNetworkManager,
-    val androidTorPlugin: TorPlugin,
+    val torPlugin: TorPlugin,
     val dozeWatchdog: DozeWatchdog,
 )

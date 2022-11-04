@@ -35,7 +35,7 @@ import java.util.concurrent.Executor;
 
 import javax.annotation.Nullable;
 
-public class JavaTorPlugin extends TorPlugin {
+public class JavaTorPlugin extends AbstractTorPlugin {
 
 	JavaTorPlugin(Executor ioExecutor,
 			SettingsManager settingsManager,

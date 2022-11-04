@@ -51,7 +51,7 @@ import static java.util.Arrays.asList;
 import static org.briarproject.mailbox.core.util.LogUtils.info;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class AndroidTorPlugin extends TorPlugin {
+public class AndroidTorPlugin extends AbstractTorPlugin {
 
 	private static final List<String> LIBRARY_ARCHITECTURES =
 			asList("armeabi-v7a", "arm64-v8a", "x86", "x86_64");
