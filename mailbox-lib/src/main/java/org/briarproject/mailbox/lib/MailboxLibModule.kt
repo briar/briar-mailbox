@@ -28,7 +28,6 @@ import org.briarproject.mailbox.core.db.DatabaseConfig
 import org.briarproject.mailbox.core.event.DefaultEventExecutorModule
 import org.briarproject.mailbox.core.files.FileProvider
 import org.briarproject.mailbox.core.system.DefaultTaskSchedulerModule
-import org.briarproject.mailbox.core.tor.JavaTorModule
 import org.briarproject.mailbox.core.util.LogUtils.info
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
@@ -47,7 +46,6 @@ import javax.inject.Singleton
         CoreModule::class,
         DefaultEventExecutorModule::class,
         DefaultTaskSchedulerModule::class,
-        JavaTorModule::class,
     ]
 )
 @InstallIn(SingletonComponent::class)

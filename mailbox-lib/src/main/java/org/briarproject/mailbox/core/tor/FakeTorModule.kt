@@ -17,21 +17,24 @@
  *
  */
 
-package org.briarproject.mailbox.lib
+package org.briarproject.mailbox.core.tor
 
-import dagger.Component
-import org.briarproject.mailbox.core.tor.JavaTorModule
-import org.briarproject.mailbox.system.ProductionSystemModule
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import javax.inject.Singleton
 
-@Singleton
-@Component(
-    modules = [
-        MailboxLibModule::class,
-        ProductionSystemModule::class,
-        JavaTorModule::class,
-    ]
-)
-interface MailboxLibComponent {
-    fun inject(mailbox: Mailbox)
+@Module
+@InstallIn(SingletonComponent::class)
+class FakeTorModule {
+
+    @Provides
+    @Singleton
+    fun provideTorPlugin(lifecycleManager: LifecycleManager, plugin: FakeTorPlugin): TorPlugin {
+        lifecycleManager.registerService(plugin)
+        return plugin
+    }
+
 }

@@ -20,6 +20,7 @@
 package org.briarproject.mailbox.lib
 
 import dagger.Component
+import org.briarproject.mailbox.core.tor.FakeTorModule
 import org.briarproject.mailbox.system.TestSystemModule
 import javax.inject.Singleton
 
@@ -28,6 +29,7 @@ import javax.inject.Singleton
     modules = [
         MailboxLibModule::class,
         TestSystemModule::class,
+        FakeTorModule::class,
     ]
 )
 interface MailboxLibTestComponent {
