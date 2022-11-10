@@ -32,7 +32,7 @@ dependencies {
     implementation "io.ktor:ktor-server-call-logging:$ktor_version"
     implementation "io.ktor:ktor-serialization-jackson:$ktor_version"
     implementation "io.ktor:ktor-server-content-negotiation:$ktor_version"
-    api "org.slf4j:slf4j-api:1.7.36"
+    api "org.slf4j:slf4j-api:2.0.3"
 
     //noinspection GradleDependency
     implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
@@ -45,7 +45,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junit_version"
     testImplementation "org.junit.jupiter:junit-jupiter-engine:$junit_version"
     testImplementation "io.mockk:mockk:$mockk_version"
-    testImplementation "ch.qos.logback:logback-classic:1.2.10"
+    testImplementation "ch.qos.logback:logback-classic:1.4.4"
     testImplementation "io.ktor:ktor-client-cio:$ktor_version"
     testImplementation "io.ktor:ktor-serialization-jackson:$ktor_version"
     testImplementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
