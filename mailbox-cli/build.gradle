@@ -19,7 +19,7 @@ dependencies {
     implementation project(path: ':mailbox-core', configuration: 'default')
     implementation project(path: ':mailbox-lib', configuration: 'default')
 
-    implementation "ch.qos.logback:logback-classic:1.4.4"
+    implementation "ch.qos.logback:logback-classic:1.2.11"
     implementation 'com.github.ajalt:clikt:2.2.0'
 
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
