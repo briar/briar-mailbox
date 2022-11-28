@@ -28,7 +28,6 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.N
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.RUNNING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STARTING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STOPPED
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STOPPING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.WIPING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.OpenDatabaseHook
@@ -148,13 +147,14 @@ internal class LifecycleManagerImpl @Inject constructor(
 
     override fun stopServices(exitAfterStopping: Boolean) {
         LOG.info("stopServices()")
+        LOG.info { "checking state: ${state.value}" }
+        val wasRunning = state.compareAndSet(RUNNING, STOPPING)
+        val wasWiping = state.compareAndSet(WIPING, STOPPING)
+        if (!wasRunning && !wasWiping) {
+            LOG.warn { "Invalid state: ${state.value}, not stopping" }
+            return
+        }
         try {
-            val wasRunning = state.compareAndSet(RUNNING, STOPPING)
-            val wasWiping = state.compareAndSet(WIPING, STOPPING)
-            if (!wasRunning && !wasWiping) {
-                return
-            }
-
             run("Stopping services and executors", MIN_STOPPING_TIME) {
                 LOG.info("Stopping services")
                 stopAllServices()
@@ -181,13 +181,9 @@ internal class LifecycleManagerImpl @Inject constructor(
 
             shutdownLatch.countDown()
         } finally {
-            val stopped = state.compareAndSet(STOPPING, STOPPED)
-            // This is for the CLI where we might call stopServices() twice due to the shutdown
-            // hook. In order to avoid a deadlock with calling exitProcess() from two threads, make
-            // sure here that it gets called only once. Also, only exit if exitAfterStopping is true
-            // because we need to avoid calling exitProcess() on a shutdown hook, which causes a
-            // deadlock by itself.
-            if (stopped && exitAfterStopping) {
+            // Only exit if exitAfterStopping is true because we need to avoid calling exitProcess()
+            // on a shutdown hook, which causes a deadlock.
+            if (exitAfterStopping) {
                 LOG.info("Exiting")
                 system.exit(0)
             }
