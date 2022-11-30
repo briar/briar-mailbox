@@ -28,7 +28,6 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.N
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.RUNNING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STARTING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES
-import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STOPPED
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.STOPPING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.WIPING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.OpenDatabaseHook
@@ -48,8 +47,6 @@ import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.Semaphore
-import javax.annotation.concurrent.GuardedBy
 import javax.annotation.concurrent.ThreadSafe
 import javax.inject.Inject
 import kotlin.concurrent.thread
@@ -73,10 +70,6 @@ internal class LifecycleManagerImpl @Inject constructor(
     private val openDatabaseHooks: MutableList<OpenDatabaseHook>
     private val executors: MutableList<ExecutorService>
 
-    // This semaphore makes sure that startServices(), stopServices() and wipeMailbox()
-    // do not run concurrently. Also all write access to 'state' must happen while this
-    // semaphore is being held.
-    private val startStopWipeSemaphore = Semaphore(1)
     private val dbLatch = CountDownLatch(1)
     private val startupLatch = CountDownLatch(1)
     private val shutdownLatch = CountDownLatch(1)
@@ -105,17 +98,8 @@ internal class LifecycleManagerImpl @Inject constructor(
         executors.add(e)
     }
 
-    @GuardedBy("startStopWipeSemaphore")
     override fun startServices(wipeHook: WipeHook): StartResult {
         LOG.info("startServices()")
-        try {
-            LOG.info("acquiring start stop semaphore")
-            startStopWipeSemaphore.acquire()
-            LOG.info("acquired start stop semaphore")
-        } catch (e: InterruptedException) {
-            LOG.warn("Interrupted while waiting to start services")
-            return SERVICE_ERROR
-        }
         LOG.info { "checking state: ${state.value}" }
         if (!state.compareAndSet(NOT_STARTED, STARTING)) {
             LOG.warn { "Invalid state: ${state.value}" }
@@ -148,51 +132,37 @@ internal class LifecycleManagerImpl @Inject constructor(
         } catch (e: ServiceException) {
             logException(LOG, e) { "Error while starting services" }
             SERVICE_ERROR
-        } finally {
-            startStopWipeSemaphore.release()
         }
     }
 
-    // startStopWipeSemaphore is being held during this because it will be called during db.open()
-    // in startServices()
-    @GuardedBy("startStopWipeSemaphore")
+    // will be called during db.open() in startServices()
     override fun onDatabaseMigration() {
         state.value = MIGRATING_DATABASE
     }
 
-    // startStopWipeSemaphore is being held during this because it will be called during db.open()
-    // in startServices()
-    @GuardedBy("startStopWipeSemaphore")
+    // will be called during db.open() in startServices()
     override fun onDatabaseCompaction() {
         state.value = COMPACTING_DATABASE
     }
 
-    @GuardedBy("startStopWipeSemaphore")
     override fun stopServices(exitAfterStopping: Boolean) {
         LOG.info("stopServices()")
-        try {
-            LOG.info("acquiring start stop semaphore")
-            startStopWipeSemaphore.acquire()
-            LOG.info("acquired start stop semaphore")
-        } catch (e: InterruptedException) {
-            LOG.warn("Interrupted while waiting to stop services")
+        LOG.info { "checking state: ${state.value}" }
+        val wasRunning = state.compareAndSet(RUNNING, STOPPING)
+        val wasWiping = state.compareAndSet(WIPING, STOPPING)
+        if (!wasRunning && !wasWiping) {
+            LOG.warn { "Invalid state: ${state.value}, not stopping" }
             return
         }
         try {
-            if (state.value == STOPPED) {
-                return
-            }
-            val wiped = state.value == WIPING
-
             run("Stopping services and executors", MIN_STOPPING_TIME) {
-                state.value = STOPPING
                 LOG.info("Stopping services")
                 stopAllServices()
                 LOG.info("Stopping executors")
                 stopAllExecutors()
             }
 
-            if (wiped) {
+            if (wasWiping) {
                 // If we just wiped, the database has already been closed, so we should not call
                 // close(). Since the services are being shut down after wiping (so that the web
                 // server can still respond to a wipe request), it is possible that a concurrent
@@ -211,21 +181,16 @@ internal class LifecycleManagerImpl @Inject constructor(
 
             shutdownLatch.countDown()
         } finally {
-            val stopped = state.compareAndSet(STOPPING, STOPPED)
-            startStopWipeSemaphore.release()
-            // This is for the CLI where we might call stopServices() twice due to the shutdown
-            // hook. In order to avoid a deadlock with calling exitProcess() from two threads, make
-            // sure here that it gets called only once. Also, only exit if exitAfterStopping is true
-            // because we need to avoid calling exitProcess() on a shutdown hook, which causes a
-            // deadlock by itself.
-            if (stopped && exitAfterStopping) {
+            // Only exit if exitAfterStopping is true because we need to avoid calling exitProcess()
+            // on a shutdown hook, which causes a deadlock.
+            if (exitAfterStopping) {
                 LOG.info("Exiting")
                 system.exit(0)
             }
         }
     }
 
-    @GuardedBy("startStopWipeSemaphore")
+    // will be called during stopServices()
     private fun stopAllServices() {
         for (s in services) {
             run("stopping service ${s.name()}") {
@@ -234,7 +199,7 @@ internal class LifecycleManagerImpl @Inject constructor(
         }
     }
 
-    @GuardedBy("startStopWipeSemaphore")
+    // will be called during stopServices()
     private fun stopAllExecutors() {
         for (e in executors) {
             run("stopping executor ${e.name()}") {
@@ -243,33 +208,22 @@ internal class LifecycleManagerImpl @Inject constructor(
         }
     }
 
-    @GuardedBy("startStopWipeSemaphore")
     override fun wipeMailbox(): Boolean {
-        try {
-            startStopWipeSemaphore.acquire()
-        } catch (e: InterruptedException) {
-            LOG.warn("Interrupted while waiting to wipe mailbox")
-            return false
-        }
         if (!state.compareAndSet(RUNNING, WIPING)) {
             return false
         }
-        try {
-            run("wiping database and files", MIN_WIPING_TIME) {
-                wipeManager.wipeDatabaseAndFiles()
-            }
-            // We need to move this to a thread so that the webserver call can finish when it calls
-            // this. Otherwise we'll end up in a deadlock: the same thread trying to stop the
-            // webserver from within a call that wants to send a response on the very same webserver.
-            // If we were not do this, the webserver would wait for the request to finish and the
-            // request would wait for the webserver to finish.
-            thread {
-                stopServices(true)
-            }
-            return true
-        } finally {
-            startStopWipeSemaphore.release()
+        run("wiping database and files", MIN_WIPING_TIME) {
+            wipeManager.wipeDatabaseAndFiles()
         }
+        // We need to move this to a thread so that the webserver call can finish when it calls
+        // this. Otherwise we'll end up in a deadlock: the same thread trying to stop the
+        // webserver from within a call that wants to send a response on the very same webserver.
+        // If we were not do this, the webserver would wait for the request to finish and the
+        // request would wait for the webserver to finish.
+        thread {
+            stopServices(true)
+        }
+        return true
     }
 
     @Throws(InterruptedException::class)
