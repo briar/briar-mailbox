@@ -120,6 +120,7 @@ class MailboxNotificationManager @Inject constructor(
                 Stopped, Wiping,
                 -> error("No notifications when lifecycle not running")
             }
+            setWhen(0) // Don't show the time
             setSmallIcon(R.drawable.ic_notification_foreground)
             setContentIntent(pendingIntent)
             priority = PRIORITY_MIN
