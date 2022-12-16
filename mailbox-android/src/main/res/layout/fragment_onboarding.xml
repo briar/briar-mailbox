@@ -126,9 +126,11 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/bottomButton"
-        style="@style/TextButton"
-        android:layout_width="wrap_content"
+        style="@style/OutlinedButton"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:text="@string/button_skip_intro"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
