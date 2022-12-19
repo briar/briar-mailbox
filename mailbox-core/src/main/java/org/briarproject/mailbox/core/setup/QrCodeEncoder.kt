@@ -32,7 +32,17 @@ import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import javax.inject.Inject
 
-private const val VERSION = 32
+/**
+ * The QR code format identifier, used to distinguish mailbox QR codes from QR codes used for
+ * other purposes.
+ */
+private const val FORMAT_ID = 1
+
+/**
+ * The QR code format version.
+ */
+private const val FORMAT_VERSION = 0
+
 private val LOG = getLogger(QrCodeEncoder::class.java)
 
 class QrCodeEncoder @Inject constructor(
@@ -49,10 +59,12 @@ class QrCodeEncoder @Inject constructor(
     }
 
     private fun getQrCodeBytes(): ByteArray? {
+        // The ID and version of the QR code format: 3 bits for the format ID and 5 for the version
+        val formatIdAndVersion = ((FORMAT_ID shl 5) or FORMAT_VERSION).toByte()
         val hiddenServiceBytes = getHiddenServiceBytes() ?: return null
         val setupTokenBytes = getSetupTokenBytes() ?: return null
         return ByteBuffer.allocate(65)
-            .put(VERSION.toByte()) // 1
+            .put(formatIdAndVersion) // 1
             .put(hiddenServiceBytes) // 32
             .put(setupTokenBytes) // 32
             .array()
