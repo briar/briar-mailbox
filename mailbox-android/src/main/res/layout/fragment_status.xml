@@ -69,6 +69,20 @@
             app:layout_constraintTop_toBottomOf="@+id/description"
             app:layout_constraintVertical_bias="1.0" />
 
+        <ImageButton
+            android:id="@+id/buttonHelpStop"
+            style="@style/HelpButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/dnkm_help"
+            app:layout_constraintBottom_toBottomOf="@+id/buttonStop"
+            app:layout_constraintStart_toEndOf="@+id/buttonStop"
+            app:layout_constraintTop_toTopOf="@+id/buttonStop"
+            app:srcCompat="@drawable/ic_help_outline_white" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonUnlink"
             style="@style/OutlinedButtonDestructive"

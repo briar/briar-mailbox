@@ -24,6 +24,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -38,6 +39,7 @@ class StatusFragment : Fragment() {
     private val viewModel: MailboxViewModel by activityViewModels()
 
     private lateinit var buttonStop: Button
+    private lateinit var buttonHelpStop: ImageButton
     private lateinit var buttonUnlink: Button
     private lateinit var textViewDescription: TextView
 
@@ -51,18 +53,31 @@ class StatusFragment : Fragment() {
 
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
         buttonStop = v.findViewById(R.id.buttonStop)
+        buttonHelpStop = v.findViewById(R.id.buttonHelpStop)
         buttonUnlink = v.findViewById(R.id.buttonUnlink)
         textViewDescription = v.findViewById(R.id.description)
 
         buttonStop.setOnClickListener {
-            viewModel.stopLifecycle()
+            MaterialAlertDialogBuilder(
+                requireContext(), R.style.Theme_BriarMailbox_Dialog_Destructive
+            ).setTitle(R.string.confirm_stop_title)
+                .setMessage(R.string.confirm_stop_description)
+                .setPositiveButton(R.string.stop) { _, _ -> viewModel.stopLifecycle() }
+                .setNegativeButton(R.string.cancel, null)
+                .create().show()
+        }
+        buttonHelpStop.setOnClickListener {
+            MaterialAlertDialogBuilder(
+                requireContext(), R.style.Theme_BriarMailbox_Dialog
+            ).setMessage(R.string.confirm_stop_description)
+                .setNeutralButton(R.string.ok, null)
+                .create().show()
         }
         buttonUnlink.setOnClickListener {
             MaterialAlertDialogBuilder(
                 requireContext(), R.style.Theme_BriarMailbox_Dialog_Destructive
-            ).setTitle(
-                R.string.unlink_title
-            ).setMessage(R.string.unlink_description)
+            ).setTitle(R.string.unlink_title)
+                .setMessage(R.string.unlink_description)
                 .setPositiveButton(R.string.unlink) { _, _ -> viewModel.wipe() }
                 .setNegativeButton(R.string.cancel, null)
                 .create().show()
