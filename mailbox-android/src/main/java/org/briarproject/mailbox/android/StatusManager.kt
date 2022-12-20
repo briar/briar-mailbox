@@ -42,15 +42,19 @@ import org.briarproject.mailbox.android.StatusManager.DbState.DB_UNKNOWN
 import org.briarproject.mailbox.android.StatusManager.DozeExemptionState.DOES_NOT_NEED_DOZE_EXEMPTION
 import org.briarproject.mailbox.android.StatusManager.DozeExemptionState.NEEDS_DOZE_EXEMPTION
 import org.briarproject.mailbox.android.StatusManager.DozeExemptionState.NEEDS_DOZE_EXEMPTION_UNKNOWN
+import org.briarproject.mailbox.core.event.EventBus
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
 import org.briarproject.mailbox.core.setup.QrCodeEncoder
 import org.briarproject.mailbox.core.setup.SetupComplete
 import org.briarproject.mailbox.core.setup.SetupManager
+import org.briarproject.mailbox.core.system.AndroidExecutor
+import org.briarproject.mailbox.core.tor.NetworkStatusEvent
 import org.briarproject.mailbox.core.tor.TorPlugin
 import org.briarproject.mailbox.core.tor.TorState
 import org.briarproject.mailbox.core.util.LogUtils.info
 import org.slf4j.LoggerFactory
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.min
@@ -64,6 +68,8 @@ class StatusManager @Inject constructor(
     private val qrCodeEncoder: QrCodeEncoder,
     torPlugin: TorPlugin,
     dozeHelper: DozeHelper,
+    eventBus: EventBus,
+    androidExecutor: AndroidExecutor,
 ) {
 
     companion object {
@@ -86,6 +92,7 @@ class StatusManager @Inject constructor(
     private var needsDozeExemption = NEEDS_DOZE_EXEMPTION_UNKNOWN
     private var onboardingDone = false
 
+    private val online: AtomicReference<Boolean?> = AtomicReference(null)
     private val lifecycleState: StateFlow<LifecycleState> = lifecycleManager.lifecycleStateFlow
     private val torPluginState: StateFlow<TorState> = torPlugin.state
     private val setupComplete: StateFlow<SetupComplete> = setupManager.setupComplete
@@ -143,6 +150,17 @@ class StatusManager @Inject constructor(
                 updateAppState()
             }
         }
+        eventBus.addListener { event ->
+            if (event is NetworkStatusEvent) {
+                val nowConnected = event.status.isConnected
+                val connectedBefore = online.getAndSet(nowConnected)
+                if (nowConnected != connectedBefore) {
+                    androidExecutor.runOnUiThread {
+                        updateAppState()
+                    }
+                }
+            }
+        }
     }
 
     @UiThread // Dispatchers.Main
@@ -155,6 +173,7 @@ class StatusManager @Inject constructor(
     @UiThread
     private fun deriveAppState(): MailboxAppState {
         val ls = lifecycleState.value
+        val online = this.online.get()
         val tor = torPluginState.value
         val setup = setupComplete.value
         LOG.info(
@@ -170,6 +189,9 @@ class StatusManager @Inject constructor(
             ls == LifecycleState.WIPING -> Wiping
             ls == LifecycleState.STOPPING -> Stopping
             ls == LifecycleState.STOPPED -> Stopped
+            // Keep this check below WIPING, STOPPING and STOPPED so that the online check
+            // does not interfere with these states - no point in showing a network error then.
+            online != null && !online -> ErrorNoNetwork
             ls != LifecycleState.RUNNING -> Starting(getString(R.string.startup_starting_services))
             // RUNNING
             tor != TorState.Published -> when (tor) {
