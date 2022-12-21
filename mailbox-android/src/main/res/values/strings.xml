@@ -56,6 +56,8 @@
     <string name="unlink">Unlink</string>
     <string name="unlink_title">Unlink mailbox?</string>
     <string name="unlink_description">If you unlink your Mailbox, you won\'t be able to receive messages while Briar is offline.\n\nAre you sure you want to unlink your Mailbox?</string>
+    <string name="confirm_stop_title">Stop Mailbox?</string>
+    <string name="confirm_stop_description">When you stop your Mailbox, the app will shut down and it will stop receiving messages until you open the app again.\n\nAny messages that have already been received will be saved. Briar will be able to collect them when you reopen the Mailbox app.</string>
 
     <string name="setup_complete_title">Connected</string>
     <string name="setup_complete_description">Your Mailbox has been successfully linked with Briar.\n\nKeep your Mailbox connected to power and Wi-Fi so it\'s always online.</string>

@@ -24,15 +24,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.StatusManager
-import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.UiUtils.formatDate
 
 @AndroidEntryPoint
@@ -40,9 +38,8 @@ class StatusFragment : Fragment() {
 
     private val viewModel: MailboxViewModel by activityViewModels()
 
-    private lateinit var illustration: ImageView
-    private lateinit var headline: TextView
     private lateinit var buttonStop: Button
+    private lateinit var buttonHelpStop: ImageButton
     private lateinit var buttonUnlink: Button
     private lateinit var textViewDescription: TextView
 
@@ -55,21 +52,32 @@ class StatusFragment : Fragment() {
     }
 
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
-        illustration = v.findViewById(R.id.illustration)
-        headline = v.findViewById(R.id.headline)
         buttonStop = v.findViewById(R.id.buttonStop)
+        buttonHelpStop = v.findViewById(R.id.buttonHelpStop)
         buttonUnlink = v.findViewById(R.id.buttonUnlink)
         textViewDescription = v.findViewById(R.id.description)
 
         buttonStop.setOnClickListener {
-            viewModel.stopLifecycle()
+            MaterialAlertDialogBuilder(
+                requireContext(), R.style.Theme_BriarMailbox_Dialog_Destructive
+            ).setTitle(R.string.confirm_stop_title)
+                .setMessage(R.string.confirm_stop_description)
+                .setPositiveButton(R.string.stop) { _, _ -> viewModel.stopLifecycle() }
+                .setNegativeButton(R.string.cancel, null)
+                .create().show()
+        }
+        buttonHelpStop.setOnClickListener {
+            MaterialAlertDialogBuilder(
+                requireContext(), R.style.Theme_BriarMailbox_Dialog
+            ).setMessage(R.string.confirm_stop_description)
+                .setNeutralButton(R.string.ok, null)
+                .create().show()
         }
         buttonUnlink.setOnClickListener {
             MaterialAlertDialogBuilder(
                 requireContext(), R.style.Theme_BriarMailbox_Dialog_Destructive
-            ).setTitle(
-                R.string.unlink_title
-            ).setMessage(R.string.unlink_description)
+            ).setTitle(R.string.unlink_title)
+                .setMessage(R.string.unlink_description)
                 .setPositiveButton(R.string.unlink) { _, _ -> viewModel.wipe() }
                 .setNegativeButton(R.string.cancel, null)
                 .create().show()
@@ -77,7 +85,7 @@ class StatusFragment : Fragment() {
 
         viewModel.lastAccess.observe(viewLifecycleOwner) { onLastAccessChanged(it) }
         launchAndRepeatWhileStarted {
-            viewModel.appState.collect { onAppStateChanged(it) }
+            viewModel.appState.collect { onAppStateChanged() }
         }
     }
 
@@ -86,16 +94,8 @@ class StatusFragment : Fragment() {
             getString(R.string.last_connection, formatDate(requireContext(), lastAccess))
     }
 
-    private fun onAppStateChanged(state: MailboxAppState) {
-        if (state is StatusManager.ErrorNoNetwork) {
-            illustration.setImageResource(R.drawable.ic_error)
-            headline.setText(R.string.status_offline)
-            textViewDescription.setText(R.string.status_offline_description)
-        } else {
-            illustration.setImageResource(R.drawable.ic_success)
-            headline.setText(R.string.status_running)
-            onLastAccessChanged(viewModel.lastAccess.value ?: 0)
-        }
+    private fun onAppStateChanged() {
+        onLastAccessChanged(viewModel.lastAccess.value ?: 0)
     }
 
 }
