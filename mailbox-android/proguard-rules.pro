@@ -8,4 +8,20 @@
 -dontobfuscate
 -keepattributes SourceFile, LineNumberTable, *Annotation*, Signature, InnerClasses, EnclosingMethod
 
--keep class org.h2.** { *; }
+# Keep the H2 classes that are loaded via reflection
+-keep class org.h2.Driver { *; }
+-keep class org.h2.engine.Engine { *; }
+-keep class org.h2.store.fs.** { *; }
+# Don't warn about unused dependencies of H2 classes
+-dontwarn org.h2.**
+-dontnote org.h2.**
+
+-dontwarn com.fasterxml.jackson.databind.ext.Java7SupportImpl
+-dontwarn io.netty.internal.tcnative.*
+-dontwarn java.lang.management.*
+-dontwarn org.apache.log4j.*
+-dontwarn org.apache.logging.log4j.**
+-dontwarn org.conscrypt.*
+-dontwarn org.eclipse.jetty.npn.*
+-dontwarn org.jetbrains.annotations.*
+-dontwarn reactor.blockhound.integration.BlockHoundIntegration
