@@ -24,12 +24,14 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
+import org.briarproject.mailbox.android.ui.WipeCompleteFragment
 import javax.inject.Inject
 
 class MailboxPreferences @Inject constructor(@ApplicationContext val context: Context) {
 
     companion object {
         private const val AUTO_START_ENABLED = "auto-start-enabled"
+        private const val WIPED_LOCALLY = "wiped-locally"
     }
 
     private var preferences: SharedPreferences = getDefaultSharedPreferences(context)
@@ -51,4 +53,31 @@ class MailboxPreferences @Inject constructor(@ApplicationContext val context: Co
         }
     }
 
+    /**
+     * Set a flag from the status fragment when wiping is initiated locally, not remotely from
+     * Briar. Can be used to find out in [WipeCompleteFragment] whether wiping has been initiated
+     * remotely or locally.
+     */
+    fun setWipedLocally() {
+        preferences.edit {
+            putBoolean(WIPED_LOCALLY, true)
+        }
+    }
+
+    /**
+     * Find out whether wiping has been initiated locally or remotely. See [setWipedLocally].
+     */
+    fun hasBeenWipedLocally(): Boolean {
+        return preferences.getBoolean(WIPED_LOCALLY, false)
+    }
+
+    /**
+     * Unset the flag set using [setWipedLocally]. Restores the situation of a fresh install
+     * where the flag is neither true or false, just unset.
+     */
+    fun unsetWipedLocally() {
+        preferences.edit {
+            remove(WIPED_LOCALLY)
+        }
+    }
 }
