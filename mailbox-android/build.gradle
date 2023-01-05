@@ -18,6 +18,8 @@ android {
     compileSdkVersion 33
     buildToolsVersion "33.0.0"
 
+    namespace "org.briarproject.mailbox"
+
     defaultConfig {
         applicationId "org.briarproject.mailbox"
         minSdkVersion 16
@@ -31,8 +33,17 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            shrinkResources false
+            minifyEnabled true
+            crunchPngs false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
         release {
-            minifyEnabled false // TODO enable for releases and test thoroughly
+            shrinkResources false
+            minifyEnabled true
+            crunchPngs false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
