@@ -18,6 +18,8 @@ android {
     compileSdkVersion 33
     buildToolsVersion "33.0.0"
 
+    namespace "org.briarproject.mailbox"
+
     defaultConfig {
         applicationId "org.briarproject.mailbox"
         minSdkVersion 16
