@@ -22,11 +22,14 @@ package org.briarproject.mailbox.android.ui
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.core.system.AndroidExecutor
 import org.briarproject.mailbox.core.system.System
 import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
@@ -38,9 +41,15 @@ class WipeCompleteFragment : Fragment() {
         private val LOG = getLogger(WipeCompleteFragment::class.java)
     }
 
+    private val viewModel: MailboxViewModel by activityViewModels()
+
     @Inject
     internal lateinit var system: System
 
+    @Inject
+    internal lateinit var androidExecutor: AndroidExecutor
+
+    private lateinit var description: View
     private lateinit var button: Button
 
     override fun onCreateView(
@@ -52,6 +61,15 @@ class WipeCompleteFragment : Fragment() {
     }
 
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
+        description = v.findViewById(R.id.description)
+        androidExecutor.runOnBackgroundThread {
+            if (viewModel.hasBeenWipedLocally()) {
+                androidExecutor.runOnUiThread {
+                    description.visibility = VISIBLE
+                }
+            }
+        }
+
         button = v.findViewById(R.id.button)
 
         button.setOnClickListener {

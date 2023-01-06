@@ -102,7 +102,8 @@ class MailboxViewModel @Inject constructor(
      * subsequent boots of the device.
      */
     fun startLifecycle() {
-        setAutoStartEnabled(true)
+        mailboxPreferences.setAutoStartEnabled(true)
+        mailboxPreferences.unsetWipedLocally()
         MailboxService.startService(getApplication())
     }
 
@@ -111,22 +112,25 @@ class MailboxViewModel @Inject constructor(
      * on subsequent boots of the device.
      */
     fun stopLifecycle() {
-        setAutoStartEnabled(false)
+        mailboxPreferences.setAutoStartEnabled(false)
         MailboxService.stopService(getApplication())
     }
 
+    /**
+     * Called from the status fragment's unlink button.
+     */
     fun wipe() {
         androidExecutor.runOnBackgroundThread {
             LOG.info("calling wipeMailbox()")
             // TODO: handle return value
+            mailboxPreferences.setWipedLocally()
             lifecycleManager.wipeMailbox()
         }
     }
 
     fun getAndResetDozeFlag() = dozeWatchdog.andResetDozeFlag
 
-    private fun setAutoStartEnabled(enabled: Boolean) {
-        mailboxPreferences.setAutoStartEnabled(enabled)
+    fun hasBeenWipedLocally(): Boolean {
+        return mailboxPreferences.hasBeenWipedLocally()
     }
-
 }
