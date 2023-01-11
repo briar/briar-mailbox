@@ -44,10 +44,6 @@ interface LifecycleManager {
     enum class LifecycleState {
         NOT_STARTED, STARTING, MIGRATING_DATABASE, COMPACTING_DATABASE, STARTING_SERVICES,
         RUNNING, WIPING, STOPPING, STOPPED;
-
-        fun isAfter(state: LifecycleState): Boolean {
-            return ordinal > state.ordinal
-        }
     }
 
     /**

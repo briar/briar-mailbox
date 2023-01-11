@@ -28,14 +28,6 @@ public class OsUtils {
 	@Nullable
 	private static final String vendor = System.getProperty("java.vendor");
 
-	public static boolean isWindows() {
-		return os != null && os.contains("Windows");
-	}
-
-	public static boolean isMac() {
-		return os != null && os.contains("Mac OS");
-	}
-
 	public static boolean isLinux() {
 		return os != null && os.contains("Linux") && !isAndroid();
 	}

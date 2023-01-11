@@ -23,10 +23,7 @@ import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -66,23 +63,9 @@ class AndroidExecutorImpl implements AndroidExecutor {
 	}
 
 	@Override
-	public <V> Future<V> runOnBackgroundThread(Callable<V> c) {
-		FutureTask<V> f = new FutureTask<>(c);
-		runOnBackgroundThread(f);
-		return f;
-	}
-
-	@Override
 	public void runOnBackgroundThread(Runnable r) {
 		startIfNecessary();
 		backgroundHandler.post(r);
-	}
-
-	@Override
-	public <V> Future<V> runOnUiThread(Callable<V> c) {
-		FutureTask<V> f = new FutureTask<>(c);
-		runOnUiThread(f);
-		return f;
 	}
 
 	@Override

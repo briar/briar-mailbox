@@ -78,6 +78,7 @@ import static org.briarproject.mailbox.core.tor.TorConstants.CONTROL_PORT;
 import static org.briarproject.mailbox.core.tor.TorConstants.HS_ADDRESS_V3;
 import static org.briarproject.mailbox.core.tor.TorConstants.HS_PRIVATE_KEY_V3;
 import static org.briarproject.mailbox.core.tor.TorConstants.SETTINGS_NAMESPACE;
+import static org.briarproject.mailbox.core.tor.TorConstants.SOCKS_PORT;
 import static org.briarproject.mailbox.core.util.IoUtils.copyAndClose;
 import static org.briarproject.mailbox.core.util.IoUtils.tryToClose;
 import static org.briarproject.mailbox.core.util.LogUtils.info;
@@ -333,13 +334,13 @@ public abstract class AbstractTorPlugin
 	private InputStream getConfigInputStream() {
 		File dataDirectory = new File(torDirectory, ".tor");
 		StringBuilder strb = new StringBuilder();
-		append(strb, "ControlPort", 59055);
+		append(strb, "ControlPort", CONTROL_PORT);
 		append(strb, "CookieAuthentication", 1);
 		append(strb, "DataDirectory", dataDirectory.getAbsolutePath());
 		append(strb, "DisableNetwork", 1);
 		append(strb, "RunAsDaemon", 1);
 		append(strb, "SafeSocks", 1);
-		append(strb, "SocksPort", 59054);
+		append(strb, "SocksPort", SOCKS_PORT);
 		strb.append("GeoIPFile\n");
 		strb.append("GeoIPv6File\n");
 		append(strb, "ConnectionPadding", 0);

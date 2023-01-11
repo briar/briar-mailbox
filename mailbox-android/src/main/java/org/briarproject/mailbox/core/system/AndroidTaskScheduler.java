@@ -43,6 +43,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import androidx.annotation.NonNull;
+
 import static android.app.AlarmManager.ELAPSED_REALTIME_WAKEUP;
 import static android.app.AlarmManager.INTERVAL_FIFTEEN_MINUTES;
 import static android.app.PendingIntent.FLAG_CANCEL_CURRENT;
@@ -89,16 +91,20 @@ public class AndroidTaskScheduler implements TaskScheduler, Service {
 		cancelAlarm();
 	}
 
+	@NonNull
 	@Override
-	public Cancellable schedule(Runnable task, Executor executor, long delay,
-			TimeUnit unit) {
+	public Cancellable schedule(@NonNull Runnable task,
+			@NonNull Executor executor, long delay,
+			@NonNull TimeUnit unit) {
 		AtomicBoolean cancelled = new AtomicBoolean(false);
 		return schedule(task, executor, delay, unit, cancelled);
 	}
 
+	@NonNull
 	@Override
-	public Cancellable scheduleWithFixedDelay(Runnable task, Executor executor,
-			long delay, long interval, TimeUnit unit) {
+	public Cancellable scheduleWithFixedDelay(@NonNull Runnable task, @NonNull
+			Executor executor, long delay, long interval,
+			@NonNull TimeUnit unit) {
 		AtomicBoolean cancelled = new AtomicBoolean(false);
 		return scheduleWithFixedDelay(task, executor, delay, interval, unit,
 				cancelled);

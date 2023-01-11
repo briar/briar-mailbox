@@ -51,22 +51,6 @@ object TestUtils {
     }
 
     /**
-     * Allows you to mock [TransactionManager] access
-     * happening within a [Transaction] more comfortably.
-     * Calls to [TransactionManager.write] will be mocked.
-     * The given lambda [block] will get captured and invoked.
-     */
-    fun <T> TransactionManager.everyWrite(
-        block: (Transaction) -> T,
-    ) {
-        val txn = Transaction(mockk(), true)
-        every { write<T>(captureLambda()) } answers {
-            lambda<(Transaction) -> T>().captured.invoke(txn)
-        }
-        block(txn)
-    }
-
-    /**
      * Asserts that response is OK and contains the expected JSON.
      * The expected JSON can be specified in arbitrary formatting as it will be prettified before
      * comparing it to the response, which will be prettified, too.

@@ -44,11 +44,6 @@ class EventBusImpl implements EventBus {
 	}
 
 	@Override
-	public void removeListener(EventListener l) {
-		listeners.remove(l);
-	}
-
-	@Override
 	public void broadcast(Event e) {
 		eventExecutor.execute(() -> {
 			for (EventListener l : listeners) l.eventOccurred(e);

@@ -96,10 +96,6 @@ abstract class AbstractMailbox(protected val customDataDir: File? = null) {
         setupManager.setToken(token, null)
     }
 
-    fun setOwnerToken(token: String) {
-        setupManager.setToken(null, token)
-    }
-
     fun waitForTorPublished() {
         LOG.info { "Waiting for Tor to publish hidden service" }
         runBlocking {

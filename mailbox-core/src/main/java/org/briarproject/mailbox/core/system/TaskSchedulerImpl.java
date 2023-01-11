@@ -19,6 +19,8 @@
 
 package org.briarproject.mailbox.core.system;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -38,18 +40,21 @@ class TaskSchedulerImpl implements TaskScheduler {
 		this.scheduledExecutorService = scheduledExecutorService;
 	}
 
+	@NotNull
 	@Override
-	public Cancellable schedule(Runnable task, Executor executor, long delay,
-			TimeUnit unit) {
+	public Cancellable schedule(@NotNull Runnable task,
+			@NotNull Executor executor, long delay, @NotNull TimeUnit unit) {
 		Runnable execute = () -> executor.execute(task);
 		ScheduledFuture<?> future =
 				scheduledExecutorService.schedule(execute, delay, unit);
 		return () -> future.cancel(false);
 	}
 
+	@NotNull
 	@Override
-	public Cancellable scheduleWithFixedDelay(Runnable task, Executor executor,
-			long delay, long interval, TimeUnit unit) {
+	public Cancellable scheduleWithFixedDelay(@NotNull Runnable task, @NotNull
+			Executor executor, long delay, long interval,
+			@NotNull TimeUnit unit) {
 		Runnable execute = () -> executor.execute(task);
 		ScheduledFuture<?> future = scheduledExecutorService.
 				scheduleWithFixedDelay(execute, delay, interval, unit);

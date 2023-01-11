@@ -27,11 +27,6 @@ public interface EventBus {
 	void addListener(EventListener l);
 
 	/**
-	 * Removes a listener.
-	 */
-	void removeListener(EventListener l);
-
-	/**
 	 * Asynchronously notifies all listeners of an event. Listeners are
 	 * notified on the {@link EventExecutor}.
 	 * <p>
