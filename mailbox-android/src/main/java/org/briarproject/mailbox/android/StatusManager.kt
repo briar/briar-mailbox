@@ -192,10 +192,10 @@ class StatusManager @Inject constructor(
             // Keep this check below WIPING, STOPPING and STOPPED so that the online check
             // does not interfere with these states - no point in showing a network error then.
             online != null && !online -> ErrorNoNetwork
-            ls != LifecycleState.RUNNING -> Starting(getString(R.string.startup_starting_services))
+            ls != LifecycleState.RUNNING -> Starting(getString(R.string.startup_init_app))
             // RUNNING
             tor != TorState.Published -> when (tor) {
-                TorState.StartingStopping -> Starting(getString(R.string.startup_starting_tor))
+                TorState.StartingStopping -> Starting(getString(R.string.startup_init_app))
                 is TorState.Enabling -> Starting(
                     getString(R.string.startup_bootstrapping_tor, tor.percent)
                 )

@@ -11,23 +11,39 @@
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/statusTextView"
+        android:layout_marginVertical="8dp"
+        app:layout_constraintBottom_toTopOf="@id/statusHeadline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
-        android:id="@+id/statusTextView"
+        android:id="@+id/statusHeadline"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="8dp"
         android:gravity="center"
-        android:textSize="24sp"
+        android:text="@string/startup_headline"
+        android:textSize="32sp"
+        app:layout_constraintBottom_toTopOf="@id/statusDetail"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/progress" />
+
+    <TextView
+        android:id="@+id/statusDetail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="8dp"
+        android:gravity="center"
+        android:text="@string/startup_init_app"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/progress"
-        tools:text="@string/startup_bootstrapping_tor" />
+        app:layout_constraintTop_toBottomOf="@id/statusHeadline" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
