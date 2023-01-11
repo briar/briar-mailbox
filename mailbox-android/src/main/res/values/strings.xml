@@ -34,11 +34,11 @@
     <string name="link_description">Scan this QR code with Briar</string>
     <string name="link_cancel">Cancel Setup</string>
 
-    <string name="startup_starting_services">Starting mailbox</string>
-    <string name="startup_starting_tor">Starting Tor</string>
+    <string name="startup_headline">Starting Mailbox</string>
+    <string name="startup_init_app">Initializing app</string>
     <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
-    <string name="startup_bootstrapping_tor">Bootstrapping Tor (%d%%)</string>
-    <string name="startup_publishing_onion_service">Publishing onion service</string>
+    <string name="startup_bootstrapping_tor">Connecting to the Tor network (%d%%)</string>
+    <string name="startup_publishing_onion_service">Publishing the Tor onion service</string>
 
     <string name="clock_skew_title">Wrong system clock</string>
     <string name="clock_skew_description">Check your time, timezone, and date in system settings. After fixing, wait some time for Tor to recover.</string>

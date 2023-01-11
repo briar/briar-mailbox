@@ -40,7 +40,7 @@ class StartupFragment : Fragment() {
     }
 
     private val viewModel: MailboxViewModel by activityViewModels()
-    private lateinit var statusTextView: TextView
+    private lateinit var statusDetail: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,7 +51,7 @@ class StartupFragment : Fragment() {
     }
 
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
-        statusTextView = v.findViewById(R.id.statusTextView)
+        statusDetail = v.findViewById(R.id.statusDetail)
 
         launchAndRepeatWhileStarted {
             viewModel.appState.collect { onAppStateChanged(it) }
@@ -62,7 +62,7 @@ class StartupFragment : Fragment() {
 
     private fun onAppStateChanged(state: MailboxAppState) {
         if (state is Starting) {
-            statusTextView.text = state.status
+            statusDetail.text = state.status
         }
     }
 

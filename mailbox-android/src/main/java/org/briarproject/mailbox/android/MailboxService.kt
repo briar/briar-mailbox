@@ -103,7 +103,7 @@ class MailboxService : Service() {
         startForeground(
             NOTIFICATION_MAIN_ID,
             notificationManager.getServiceNotification(
-                Starting(getString(R.string.startup_starting_services))
+                Starting(getString(R.string.startup_headline))
             )
         )
 
