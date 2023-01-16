@@ -28,6 +28,7 @@ import android.os.Process;
 import android.os.SystemClock;
 
 import org.briarproject.mailbox.core.lifecycle.Service;
+import org.briarproject.nullsafety.NotNullByDefault;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -43,8 +44,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import androidx.annotation.NonNull;
-
 import static android.app.AlarmManager.ELAPSED_REALTIME_WAKEUP;
 import static android.app.AlarmManager.INTERVAL_FIFTEEN_MINUTES;
 import static android.app.PendingIntent.FLAG_CANCEL_CURRENT;
@@ -59,6 +58,7 @@ import static org.briarproject.mailbox.core.util.LogUtils.info;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @ThreadSafe
+@NotNullByDefault
 public class AndroidTaskScheduler implements TaskScheduler, Service {
 
 	private static final Logger LOG = getLogger(AndroidTaskScheduler.class);
@@ -91,20 +91,18 @@ public class AndroidTaskScheduler implements TaskScheduler, Service {
 		cancelAlarm();
 	}
 
-	@NonNull
+	// TODO: @NonNull should not be needed due to @NotNullByDefault
 	@Override
-	public Cancellable schedule(@NonNull Runnable task,
-			@NonNull Executor executor, long delay,
-			@NonNull TimeUnit unit) {
+	public Cancellable schedule(Runnable task, Executor executor, long delay,
+			TimeUnit unit) {
 		AtomicBoolean cancelled = new AtomicBoolean(false);
 		return schedule(task, executor, delay, unit, cancelled);
 	}
 
-	@NonNull
+	// TODO: @NonNull should not be needed due to @NotNullByDefault
 	@Override
-	public Cancellable scheduleWithFixedDelay(@NonNull Runnable task, @NonNull
-			Executor executor, long delay, long interval,
-			@NonNull TimeUnit unit) {
+	public Cancellable scheduleWithFixedDelay(Runnable task, Executor executor,
+			long delay, long interval, TimeUnit unit) {
 		AtomicBoolean cancelled = new AtomicBoolean(false);
 		return scheduleWithFixedDelay(task, executor, delay, interval, unit,
 				cancelled);
@@ -129,8 +127,8 @@ public class AndroidTaskScheduler implements TaskScheduler, Service {
 		long dueMillis = now + MILLISECONDS.convert(delay, unit);
 		Runnable wrapped = () -> executor.execute(task);
 		Future<?> check = scheduleCheckForDueTasks(delay, unit);
-		ScheduledTask s = new ScheduledTask(wrapped, dueMillis, check,
-				cancelled);
+		ScheduledTask s =
+				new ScheduledTask(wrapped, dueMillis, check, cancelled);
 		synchronized (lock) {
 			tasks.add(s);
 		}
@@ -149,8 +147,8 @@ public class AndroidTaskScheduler implements TaskScheduler, Service {
 	}
 
 	private Future<?> scheduleCheckForDueTasks(long delay, TimeUnit unit) {
-		return scheduledExecutorService
-				.schedule(this::runDueTasks, delay, unit);
+		return scheduledExecutorService.schedule(this::runDueTasks, delay,
+				unit);
 	}
 
 	@Wakeful
@@ -214,8 +212,8 @@ public class AndroidTaskScheduler implements TaskScheduler, Service {
 		private final Future<?> check;
 		private final AtomicBoolean cancelled;
 
-		public ScheduledTask(Runnable task, long dueMillis,
-				Future<?> check, AtomicBoolean cancelled) {
+		public ScheduledTask(Runnable task, long dueMillis, Future<?> check,
+				AtomicBoolean cancelled) {
 			this.task = task;
 			this.dueMillis = dueMillis;
 			this.check = check;
