@@ -2,7 +2,7 @@ ext {
     kotlin_version = '1.7.10'
     hilt_version = '2.43.2'
     nav_version = '2.5.3'
-    tor_version = '0.4.7.12'
+    tor_version = '0.4.7.13'
     obfs4_version = '0.0.14'
     junit_version = '5.7.2'
     mockk_version = '1.10.4'
