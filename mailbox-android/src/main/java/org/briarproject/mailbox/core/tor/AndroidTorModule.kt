@@ -19,6 +19,7 @@
 
 package org.briarproject.mailbox.core.tor
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
 import dagger.Module
@@ -53,6 +54,7 @@ internal class AndroidTorModule {
         return ResourceProvider { name, _ ->
             val res: Resources = ctx.resources
             // extension is ignored on Android, resources are retrieved without it
+            @SuppressLint("DiscouragedApi") // we really want this API, don't know name before
             val resId = res.getIdentifier(name, "raw", ctx.packageName)
             res.openRawResource(resId)
         }
