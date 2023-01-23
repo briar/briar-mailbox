@@ -19,6 +19,8 @@
 
 package org.briarproject.mailbox.core.system;
 
+import org.briarproject.nullsafety.NotNullByDefault;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -30,6 +32,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * A {@link TaskScheduler} that uses a {@link ScheduledExecutorService}.
  */
 @ThreadSafe
+@NotNullByDefault
 class TaskSchedulerImpl implements TaskScheduler {
 
 	private final ScheduledExecutorService scheduledExecutorService;
@@ -38,6 +41,7 @@ class TaskSchedulerImpl implements TaskScheduler {
 		this.scheduledExecutorService = scheduledExecutorService;
 	}
 
+	// TODO: @NonNull should not be needed due to @NotNullByDefault
 	@Override
 	public Cancellable schedule(Runnable task, Executor executor, long delay,
 			TimeUnit unit) {
@@ -47,6 +51,7 @@ class TaskSchedulerImpl implements TaskScheduler {
 		return () -> future.cancel(false);
 	}
 
+	// TODO: @NonNull should not be needed due to @NotNullByDefault
 	@Override
 	public Cancellable scheduleWithFixedDelay(Runnable task, Executor executor,
 			long delay, long interval, TimeUnit unit) {

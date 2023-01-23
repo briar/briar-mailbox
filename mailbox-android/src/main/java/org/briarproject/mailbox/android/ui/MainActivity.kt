@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         navHostFragment.navController
     }
 
-    var hadBeenStartedOnSave = false
+    private var hadBeenStartedOnSave = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

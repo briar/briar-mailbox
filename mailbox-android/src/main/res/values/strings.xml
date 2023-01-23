@@ -47,8 +47,6 @@
     <string name="no_network_description">Please ensure this device is online and connected to the Internet. Once you\'re online, setup should pick up automatically here.</string>
 
     <string name="status_running">Mailbox is running</string>
-    <string name="status_offline">Device offline</string>
-    <string name="status_offline_description">Ensure this device is online and connected to the (uncensored) Internet.</string>
     <string name="last_connection">Last connection: %s</string>
     <string name="now">now</string>
     <string name="never">never</string>

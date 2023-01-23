@@ -22,13 +22,10 @@ package org.briarproject.mailbox.core.util;
 import org.slf4j.Logger;
 
 import java.io.Closeable;
-import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 import javax.annotation.Nullable;
 
@@ -83,51 +80,6 @@ public class IoUtils {
 		} catch (IOException e) {
 			logException(logger, e, () -> "Error while closing " +
 					c.getClass().getSimpleName());
-		}
-	}
-
-	public static void tryToClose(@Nullable Socket s, Logger logger) {
-		try {
-			if (s != null) s.close();
-		} catch (IOException e) {
-			logException(logger, e, "Error while closing socket");
-		}
-	}
-
-	public static void tryToClose(@Nullable ServerSocket ss, Logger logger) {
-		try {
-			if (ss != null) ss.close();
-		} catch (IOException e) {
-			logException(logger, e, "Error while closing server socket");
-		}
-	}
-
-	public static void read(InputStream in, byte[] b) throws IOException {
-		int offset = 0;
-		while (offset < b.length) {
-			int read = in.read(b, offset, b.length - offset);
-			if (read == -1) throw new EOFException();
-			offset += read;
-		}
-	}
-
-	// Workaround for a bug in Android 7, see
-	// https://android-review.googlesource.com/#/c/271775/
-	public static InputStream getInputStream(Socket s) throws IOException {
-		try {
-			return s.getInputStream();
-		} catch (NullPointerException e) {
-			throw new IOException(e);
-		}
-	}
-
-	// Workaround for a bug in Android 7, see
-	// https://android-review.googlesource.com/#/c/271775/
-	public static OutputStream getOutputStream(Socket s) throws IOException {
-		try {
-			return s.getOutputStream();
-		} catch (NullPointerException e) {
-			throw new IOException(e);
 		}
 	}
 

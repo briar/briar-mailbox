@@ -101,7 +101,7 @@ object LogUtils {
         }
     }
 
-    fun logWithType(logger: Logger, f: File, type: String) {
+    private fun logWithType(logger: Logger, f: File, type: String) {
         logger.info("$type ${f.absolutePath} ${f.length()}")
     }
 

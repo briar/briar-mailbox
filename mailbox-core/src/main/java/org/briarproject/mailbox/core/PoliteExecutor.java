@@ -19,6 +19,7 @@
 
 package org.briarproject.mailbox.core;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.util.LinkedList;
@@ -63,7 +64,7 @@ public class PoliteExecutor implements Executor {
 	}
 
 	@Override
-	public void execute(Runnable r) {
+	public void execute(@NotNull Runnable r) {
 		long submitted = now();
 		Runnable wrapped = () -> {
 			if (LOG.isDebugEnabled()) {
