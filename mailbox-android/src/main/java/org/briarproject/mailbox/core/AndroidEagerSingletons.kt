@@ -19,6 +19,7 @@
 
 package org.briarproject.mailbox.core
 
+import org.briarproject.mailbox.android.StatusManager
 import org.briarproject.mailbox.core.system.AndroidTaskScheduler
 import org.briarproject.mailbox.core.system.DozeWatchdog
 import org.briarproject.mailbox.core.tor.AndroidNetworkManager
@@ -31,4 +32,5 @@ internal class AndroidEagerSingletons @Inject constructor(
     val androidNetworkManager: AndroidNetworkManager,
     val torPlugin: TorPlugin,
     val dozeWatchdog: DozeWatchdog,
+    val statusManager: StatusManager,
 )
