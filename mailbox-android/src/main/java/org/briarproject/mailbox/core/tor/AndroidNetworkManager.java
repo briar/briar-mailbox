@@ -122,6 +122,11 @@ public class AndroidNetworkManager implements NetworkManager, Service {
 	@Override
 	public NetworkStatus getNetworkStatus() {
 		NetworkInfo net = connectivityManager.getActiveNetworkInfo();
+		// Research into Android's behavior to check network connectivity
+		// (https://code.briarproject.org/briar/public-mesh-research/-/issues/19)
+		// has shown that NetworkInfo#isConnected() returns true if the device
+		// is connected to any Wifi, independent of whether any specific IP
+		// address can be reached using it or any domain names can be resolved.
 		boolean connected = net != null && net.isConnected();
 		boolean wifi = false, ipv6Only = false;
 		if (connected) {
