@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -197,7 +198,8 @@ public class AndroidTorPlugin extends AbstractTorPlugin {
 	}
 
 	private void findApkFiles(File f, List<File> files) {
-		if (f.isFile() && f.getName().toLowerCase().endsWith(".apk")) {
+		if (f.isFile() &&
+				f.getName().toLowerCase(Locale.ROOT).endsWith(".apk")) {
 			files.add(f);
 		} else if (f.isDirectory()) {
 			File[] children = f.listFiles();
