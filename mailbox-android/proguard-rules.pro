@@ -12,6 +12,9 @@
 -keep class org.h2.Driver { *; }
 -keep class org.h2.engine.Engine { *; }
 -keep class org.h2.store.fs.** { *; }
+# Keep logging
+-keep public class org.slf4j.** { *; }
+-keep public class ch.qos.logback.** { *; }
 # Don't warn about unused dependencies of H2 classes
 -dontwarn org.h2.**
 -dontnote org.h2.**
@@ -25,3 +28,4 @@
 -dontwarn org.eclipse.jetty.npn.*
 -dontwarn org.jetbrains.annotations.*
 -dontwarn reactor.blockhound.integration.BlockHoundIntegration
+-dontwarn javax.mail.**
