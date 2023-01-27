@@ -24,8 +24,8 @@ android {
         applicationId "org.briarproject.mailbox"
         minSdkVersion 16
         targetSdkVersion 33
-        versionCode 1
-        versionName "1.0"
+        versionCode 10001
+        versionName "1.0.1"
         multiDexEnabled true // only needed when minSdkVersion < 21
         vectorDrawables.useSupportLibrary = true
 
