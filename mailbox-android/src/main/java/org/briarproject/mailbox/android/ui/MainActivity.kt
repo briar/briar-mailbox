@@ -87,6 +87,7 @@ class MainActivity : AppCompatActivity() {
         nav.addOnDestinationChangedListener { _, destination, _ ->
             title = when (destination.id) {
                 R.id.qrCodeFragment -> getString(R.string.link_title)
+                R.id.qrCodeLinkFragment -> getString(R.string.link_text_title)
                 R.id.statusFragment -> getString(R.string.app_name)
                 else -> ""
             }
@@ -136,16 +137,20 @@ class MainActivity : AppCompatActivity() {
             }
             is StartedSettingUp -> {
                 supportActionBar?.show()
-                if (nav.currentDestination?.id != R.id.qrCodeFragment)
-                    nav.navigate(actionGlobalQrCodeFragment())
+                if (nav.currentDestination?.id != R.id.qrCodeFragment &&
+                    nav.currentDestination?.id != R.id.qrCodeLinkFragment
+                ) nav.navigate(actionGlobalQrCodeFragment())
             }
             StartedSetupComplete -> {
-                supportActionBar?.show()
-                if (nav.currentDestination?.id == R.id.qrCodeFragment)
+                if (nav.currentDestination?.id == R.id.qrCodeFragment) {
+                    supportActionBar?.hide()
                     nav.navigate(actionGlobalSetupCompleteFragment())
-                else if (nav.currentDestination?.id != R.id.statusFragment &&
+                } else if (nav.currentDestination?.id != R.id.statusFragment &&
                     nav.currentDestination?.id != R.id.setupCompleteFragment
-                ) nav.navigate(actionGlobalStatusFragment())
+                ) {
+                    supportActionBar?.show()
+                    nav.navigate(actionGlobalStatusFragment())
+                }
             }
             ErrorNoNetwork -> {
                 supportActionBar?.hide()

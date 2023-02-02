@@ -124,7 +124,7 @@ class StatusManager @Inject constructor(
     object NeedsDozeExemption : MailboxAppState(false)
     object NotStarted : MailboxAppState(false)
     data class Starting(val status: String) : MailboxAppState(true)
-    data class StartedSettingUp(val qrCode: Bitmap) : MailboxAppState(true)
+    data class StartedSettingUp(val qrCode: Bitmap, val link: String) : MailboxAppState(true)
     object StartedSetupComplete : MailboxAppState(true)
     object ErrorClockSkew : MailboxAppState(true)
     object ErrorNoNetwork : MailboxAppState(true)
@@ -204,12 +204,15 @@ class StatusManager @Inject constructor(
                 else -> Starting(getString(R.string.startup_publishing_onion_service))
             }
             setup == SetupComplete.FALSE -> {
+                // FIXME we shouldn't do expensive calls on the UiThread
                 val dm = Resources.getSystem().displayMetrics
                 val size = min(dm.widthPixels, dm.heightPixels)
                 val bitMatrix = qrCodeEncoder.getQrCodeBitMatrix(size)
                 StartedSettingUp(
-                    bitMatrix?.let { it -> QrCodeUtils.renderQrCode(it) }
-                        ?: error("The QR code bit matrix is expected to be non-null here")
+                    qrCode = bitMatrix?.let { it -> QrCodeUtils.renderQrCode(it) }
+                        ?: error("The QR code bit matrix is expected to be non-null here"),
+                    link = qrCodeEncoder.getLink()
+                        ?: error("The QR code link is expected to be non-null here"),
                 )
             }
             setup == SetupComplete.TRUE -> StartedSetupComplete

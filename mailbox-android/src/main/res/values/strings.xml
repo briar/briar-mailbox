@@ -29,9 +29,13 @@
     <string name="fix">Fix</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="share">Share</string>
 
     <string name="link_title">Link via QR code</string>
     <string name="link_description">Scan this QR code with Briar</string>
+    <string name="link_menu_title">Show as text</string>
+    <string name="link_text_title">Link via text</string>
+    <string name="link_text_description">Copy this and paste it into Briar Desktop:</string>
     <string name="link_cancel">Cancel Setup</string>
 
     <string name="startup_headline">Starting Mailbox</string>

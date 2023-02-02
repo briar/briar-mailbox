@@ -19,70 +19,65 @@
 
 package org.briarproject.mailbox.android.ui
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.content.Intent.ACTION_SEND
+import android.content.Intent.EXTRA_TEXT
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import androidx.core.view.MenuProvider
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle.State.RESUMED
-import androidx.navigation.fragment.findNavController
+import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
 
 @AndroidEntryPoint
-class QrCodeFragment : Fragment(), MenuProvider {
+class QrCodeLinkFragment : Fragment() {
 
     private val viewModel: MailboxViewModel by activityViewModels()
-    private lateinit var qrCodeView: ImageView
-    private lateinit var buttonCancel: Button
+    private lateinit var linkView: TextView
+    private lateinit var shareButton: MaterialButton
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        return inflater.inflate(R.layout.fragment_qr, container, false)
+        return inflater.inflate(R.layout.fragment_qr_link, container, false)
     }
 
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
-        qrCodeView = v.findViewById(R.id.qrcode)
-        buttonCancel = v.findViewById(R.id.buttonCancel)
-
-        buttonCancel.setOnClickListener {
-            viewModel.stopLifecycle()
-            requireActivity().finishAffinity()
+        linkView = v.findViewById(R.id.linkView)
+        shareButton = v.findViewById(R.id.shareButton)
+        v.findViewById<MaterialButton>(R.id.backButton).setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
-        requireActivity().addMenuProvider(this, viewLifecycleOwner, RESUMED)
 
         launchAndRepeatWhileStarted {
             viewModel.appState.collect { onAppStateChanged(it) }
         }
     }
 
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        menuInflater.inflate(R.menu.link_actions, menu)
-    }
-
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        if (menuItem.itemId == R.id.action_show_link) {
-            findNavController().navigate(R.id.action_qrCodeFragment_to_qrCodeLinkFragment)
-            return true
-        }
-        return false
-    }
-
     private fun onAppStateChanged(state: MailboxAppState) {
         if (state is StartedSettingUp) {
-            qrCodeView.setImageBitmap(state.qrCode)
+            linkView.text = state.link
+            shareButton.setOnClickListener {
+                val sendIntent = Intent().apply {
+                    action = ACTION_SEND
+                    putExtra(EXTRA_TEXT, state.link)
+                    type = "text/plain"
+                }
+                val shareIntent = Intent.createChooser(sendIntent, null)
+                try {
+                    startActivity(shareIntent)
+                } catch (ignored: ActivityNotFoundException) {
+                }
+            }
         }
     }
 
