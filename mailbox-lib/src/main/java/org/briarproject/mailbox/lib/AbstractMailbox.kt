@@ -127,5 +127,9 @@ abstract class AbstractMailbox(protected val customDataDir: File? = null) {
         return qrCodeEncoder.getQrCodeBitMatrix()
     }
 
+    fun getLink(): String? {
+        return qrCodeEncoder.getLink()
+    }
+
     fun getSystem(): System = system
 }
