@@ -83,6 +83,15 @@ class MainActivity : AppCompatActivity() {
         hadBeenStartedOnSave =
             savedInstanceState?.getBoolean(BUNDLE_LIFECYCLE_HAS_STARTED) ?: false
 
+        // set action bar titles based on navigation destination
+        nav.addOnDestinationChangedListener { _, destination, _ ->
+            title = when (destination.id) {
+                R.id.qrCodeFragment -> getString(R.string.link_title)
+                R.id.statusFragment -> getString(R.string.app_name)
+                else -> ""
+            }
+        }
+
         launchAndRepeatWhileStarted {
             viewModel.appState.collect { onAppStateChanged(it) }
         }
@@ -100,35 +109,64 @@ class MainActivity : AppCompatActivity() {
             return
         }
         when (state) {
-            Undecided -> {} // Do nothing yet
-            NeedOnboarding -> if (nav.currentDestination?.id == R.id.initFragment)
-                nav.navigate(actionGlobalOnboardingContainer())
-            NeedsDozeExemption -> if (nav.currentDestination?.id != R.id.doNotKillMeFragment)
-                nav.navigate(actionGlobalDoNotKillMeFragment())
-            NotStarted -> nav.navigate(actionGlobalStartupFragment())
+            Undecided -> supportActionBar?.hide() // hide action bar until we need it
+            NeedOnboarding -> {
+                supportActionBar?.hide()
+                if (nav.currentDestination?.id == R.id.initFragment)
+                    nav.navigate(actionGlobalOnboardingContainer())
+            }
+            NeedsDozeExemption -> {
+                supportActionBar?.hide()
+                if (nav.currentDestination?.id != R.id.doNotKillMeFragment)
+                    nav.navigate(actionGlobalDoNotKillMeFragment())
+            }
+            NotStarted -> {
+                supportActionBar?.hide()
+                nav.navigate(actionGlobalStartupFragment())
+            }
             // It is important to navigate here from various fragments. The normal case is
             // that we come from the init fragment, do-not-kill fragment or the onboarding fragment.
             // However, when the service got killed and the app has been restored with a different
             // UI state such as the qr code screen or the status screen, then we also want to
             // navigate to the startup fragment.
-            is Starting -> if (nav.currentDestination?.id != R.id.startupFragment)
-                nav.navigate(actionGlobalStartupFragment())
-            is StartedSettingUp -> if (nav.currentDestination?.id != R.id.qrCodeFragment)
-                nav.navigate(actionGlobalQrCodeFragment())
-            StartedSetupComplete ->
+            is Starting -> {
+                supportActionBar?.hide()
+                if (nav.currentDestination?.id != R.id.startupFragment)
+                    nav.navigate(actionGlobalStartupFragment())
+            }
+            is StartedSettingUp -> {
+                supportActionBar?.show()
+                if (nav.currentDestination?.id != R.id.qrCodeFragment)
+                    nav.navigate(actionGlobalQrCodeFragment())
+            }
+            StartedSetupComplete -> {
+                supportActionBar?.show()
                 if (nav.currentDestination?.id == R.id.qrCodeFragment)
                     nav.navigate(actionGlobalSetupCompleteFragment())
                 else if (nav.currentDestination?.id != R.id.statusFragment &&
                     nav.currentDestination?.id != R.id.setupCompleteFragment
                 ) nav.navigate(actionGlobalStatusFragment())
-            ErrorNoNetwork -> if (nav.currentDestination?.id != R.id.noNetworkFragment)
-                nav.navigate(actionGlobalNoNetworkFragment())
-            ErrorClockSkew -> if (nav.currentDestination?.id != R.id.clockSkewFragment)
-                nav.navigate(actionGlobalClockSkewFragment())
-            Stopping -> if (nav.currentDestination?.id != R.id.stoppingFragment)
-                nav.navigate(actionGlobalStoppingFragment())
-            Wiping -> if (nav.currentDestination?.id != R.id.wipingFragment)
-                nav.navigate(actionGlobalWipingFragment())
+            }
+            ErrorNoNetwork -> {
+                supportActionBar?.hide()
+                if (nav.currentDestination?.id != R.id.noNetworkFragment)
+                    nav.navigate(actionGlobalNoNetworkFragment())
+            }
+            ErrorClockSkew -> {
+                supportActionBar?.hide()
+                if (nav.currentDestination?.id != R.id.clockSkewFragment)
+                    nav.navigate(actionGlobalClockSkewFragment())
+            }
+            Stopping -> {
+                supportActionBar?.hide()
+                if (nav.currentDestination?.id != R.id.stoppingFragment)
+                    nav.navigate(actionGlobalStoppingFragment())
+            }
+            Wiping -> {
+                supportActionBar?.hide()
+                if (nav.currentDestination?.id != R.id.wipingFragment)
+                    nav.navigate(actionGlobalWipingFragment())
+            }
             Stopped -> {} // nothing to do but needs to be exhaustive for Kotlin 1.7
         }
     }

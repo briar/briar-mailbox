@@ -28,7 +28,7 @@
     <fragment
         android:id="@+id/qrCodeFragment"
         android:name="org.briarproject.mailbox.android.ui.QrCodeFragment"
-        android:label="QrCodeFragment"
+        android:label="@string/link_title"
         tools:layout="@layout/fragment_qr" />
     <fragment
         android:id="@+id/setupCompleteFragment"
