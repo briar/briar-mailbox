@@ -85,9 +85,14 @@ class MainActivity : AppCompatActivity() {
 
         // set action bar titles based on navigation destination
         nav.addOnDestinationChangedListener { _, destination, _ ->
+            // never show the up indicator. exceptions below
+            supportActionBar?.setDisplayHomeAsUpEnabled(false)
             title = when (destination.id) {
                 R.id.qrCodeFragment -> getString(R.string.link_title)
-                R.id.qrCodeLinkFragment -> getString(R.string.link_text_title)
+                R.id.qrCodeLinkFragment -> {
+                    supportActionBar?.setDisplayHomeAsUpEnabled(true)
+                    getString(R.string.link_text_title)
+                }
                 R.id.statusFragment -> getString(R.string.app_name)
                 else -> ""
             }
