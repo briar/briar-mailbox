@@ -20,6 +20,8 @@
 package org.briarproject.mailbox.android.ui
 
 import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.content.Intent.ACTION_SEND
 import android.content.Intent.EXTRA_TEXT
@@ -28,6 +30,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.button.MaterialButton
@@ -42,6 +45,7 @@ class QrCodeLinkFragment : Fragment() {
     private val viewModel: MailboxViewModel by activityViewModels()
     private lateinit var linkView: TextView
     private lateinit var shareButton: MaterialButton
+    private lateinit var copyButton: MaterialButton
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,9 +58,7 @@ class QrCodeLinkFragment : Fragment() {
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
         linkView = v.findViewById(R.id.linkView)
         shareButton = v.findViewById(R.id.shareButton)
-        v.findViewById<MaterialButton>(R.id.backButton).setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-        }
+        copyButton = v.findViewById(R.id.copyButton)
 
         launchAndRepeatWhileStarted {
             viewModel.appState.collect { onAppStateChanged(it) }
@@ -77,6 +79,12 @@ class QrCodeLinkFragment : Fragment() {
                     startActivity(shareIntent)
                 } catch (ignored: ActivityNotFoundException) {
                 }
+            }
+            copyButton.setOnClickListener {
+                val clipboard = getSystemService(requireContext(), ClipboardManager::class.java)
+                    ?: return@setOnClickListener
+                val clip = ClipData.newPlainText("Briar Mailbox text", state.link)
+                clipboard.setPrimaryClip(clip)
             }
         }
     }

@@ -1,76 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".android.ui.MainActivity">
 
-    <TextView
-        android:id="@+id/description"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:gravity="center_horizontal"
-        android:text="@string/link_text_description"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/card"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/description"
-        app:srcCompat="@drawable/ic_square">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/linkView"
+            android:id="@+id/description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:gravity="center_horizontal"
+            android:text="@string/link_text_description"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/description"
+            app:srcCompat="@drawable/ic_square">
+
+            <TextView
+                android:id="@+id/linkView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/white"
+                android:padding="8dp"
+                android:textColor="@color/briar_night_800"
+                android:textIsSelectable="true"
+                android:textSize="18sp"
+                tools:text="briar-mailbox://eb64akialxyqs74agq63u3nsjkuohf7i5wzht5va2rmu5acmvsczzcsrioemhaalhmakamjww4p3kiaznx6jcpnx7lzhj44gxm3zzd5o" />
+
+        </androidx.cardview.widget.CardView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/shareButton"
+            style="@style/Widget.Material3.Button.OutlinedButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@android:color/white"
-            android:padding="8dp"
-            android:textColor="@color/briar_night_800"
-            android:textIsSelectable="true"
-            android:textSize="18sp"
-            tools:text="briar-mailbox://eb64akialxyqs74agq63u3nsjkuohf7i5wzht5va2rmu5acmvsczzcsrioemhaalhmakamjww4p3kiaznx6jcpnx7lzhj44gxm3zzd5o" />
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:text="@string/share"
+            app:icon="@drawable/ic_share"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/card"
+            app:layout_constraintVertical_bias="0.0" />
 
-    </androidx.cardview.widget.CardView>
+        <Button
+            android:id="@+id/copyButton"
+            style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/copy"
+            app:icon="@drawable/ic_content_copy"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/shareButton"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/card"
+            app:layout_constraintVertical_bias="0.0" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/shareButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:text="@string/share"
-        app:icon="@drawable/ic_share"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/card"
-        app:layout_constraintVertical_bias="0.0" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <Button
-        android:id="@+id/backButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/button_back"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/shareButton"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/card"
-        app:layout_constraintVertical_bias="1.0" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
