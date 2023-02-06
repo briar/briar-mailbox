@@ -1,0 +1,74 @@
+<resources>
+    <string name="app_name">Briar Mailbox</string>
+    <string name="notification_channel_name">Канал Briar Mailbox</string>
+    <string name="notification_mailbox_title_starting">Запуск Mailbox</string>
+    <string name="notification_mailbox_content_starting">Запуск Mailbox...</string>
+    <string name="notification_mailbox_title_setup">Настройка Mailbox</string>
+    <string name="notification_mailbox_content_setup">Ожидание, пока Briar сосканирует QR-код...</string>
+    <string name="notification_mailbox_title_running">Briar Mailbox запущен</string>
+    <string name="notification_mailbox_content_running">Ожидание сообщений...</string>
+    <string name="notification_mailbox_title_offline">Briar Mailbox оффлайн</string>
+    <string name="notification_mailbox_content_offline">Ожидание подключения к интернету...</string>
+    <string name="notification_mailbox_content_clock_skew">Ожидание корректировки системных часов...</string>
+    <string name="button_continue">Продолжить</string>
+    <string name="button_skip_intro">Пропустить введение</string>
+    <string name="button_back">Назад</string>
+
+    <string name="onboarding_0_title">Будьте на связи</string>
+    <string name="onboarding_0_description">Mailbox помогает оставаться на связи с контактами и синхронизирует сообщения с Briar.</string>
+    <string name="onboarding_1_title">Использовать запасное устройство</string>
+    <string name="onboarding_1_description">Установите приложение Mailbox на запасной телефон или планшет и оставьте его подключенным к источнику питания и WiFi.</string>
+    <string name="onboarding_2_title">Доставка сообщений</string>
+    <string name="onboarding_2_description">Когда Mailbox онлайн, ваши контакты могут оставлять сообщения, даже если ваш Briar не в сети. Mailbox будет получать сообщения и пересылать их Briar, как только вы появитесь в сети.</string>
+    <string name="onboarding_3_title">Зашифровано</string>
+    <string name="onboarding_3_description">Сообщения, проходящие через Mailbox, шифруются и не могут быть прочитаны ни Mailbox, ни этим устройством. Mailbox просто пересылает их на ваш Briar Messenger.</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Briar Mailbox не может работать в фоновом режиме</string>
+    <string name="fix">Исправить</string>
+    <string name="ok">ОК</string>
+    <string name="cancel">Отмена</string>
+
+    <string name="link_title">Ссылка с помощью QR-кода</string>
+    <string name="link_description">Сосканируйте этот QR-код с помощью Briar</string>
+    <string name="link_cancel">Отменить настройку</string>
+
+    <string name="startup_headline">Запуск Mailbox</string>
+    <string name="startup_init_app">Инициализация приложения</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">Подключение к сети Tor (%d%%)</string>
+    <string name="startup_publishing_onion_service">Публикация службы Tor onion</string>
+
+    <string name="clock_skew_title">Системное время некорректно</string>
+    <string name="clock_skew_description">Проверьте время, часовой пояс и дату в настройках системы. После исправления подождите некоторое время, пока Tor восстановится.</string>
+
+    <string name="no_network_title">Устройство не в сети?</string>
+    <string name="no_network_description">Убедитесь, что устройство подключено к интернету. После подключения настройка начнется автоматически.</string>
+
+    <string name="status_running">Mailbox запущен</string>
+    <string name="last_connection">Последнее подключение: %s</string>
+    <string name="now">сейчас</string>
+    <string name="never">никогда</string>
+    <string name="stop">Остановить</string>
+    <string name="unlink">Разъединить</string>
+    <string name="unlink_title">Отвязать Mailbox?</string>
+    <string name="unlink_description">Если вы отвяжете свой Mailbox, вы не сможете получать сообщения, пока Briar находится не в сети.\n\nВы уверены, что хотите отвязать Mailbox?</string>
+    <string name="confirm_stop_title">Остановить Mailbox?</string>
+    <string name="confirm_stop_description">Когда вы остановите свой Mailbox, приложение выключится и перестанет получать сообщения, пока вы снова не откроете приложение.\n\nВсе уже полученные сообщения будут сохранены. Briar сможет получить их, когда вы снова откроете приложение Mailbox.</string>
+
+    <string name="setup_complete_title">Подключено</string>
+    <string name="setup_complete_description">Ваш Mailbox успешно связан с Briar.\n\nПодключите Mailbox к электропитанию и Wi-Fi, чтобы он всегда оставался в сети.</string>
+    <string name="setup_complete_finish">Завершить</string>
+
+    <string name="stopping">Остановка Mailbox…</string>
+
+    <string name="wipe_wiping">Очистка Mailbox…</string>
+    <string name="wipe_complete_title">Очистка выполнена</string>
+    <string name="wipe_complete_description">В следующий раз, когда у вас будет доступ к вашему устройству Briar, откройте экран настроек Mailbox в приложении Briar, затем нажмите кнопку \"Unlink\", чтобы завершить процесс.</string>
+
+    <string name="sorry">Сожалеем</string>
+    <string name="startup_failed_activity_title">Сбой при запуске Mailbox</string>
+    <string name="startup_failed_service_error">Mailbox не смог запустить необходимый компонент.\n\nПожалуйста, обновите приложение до последней версии и повторите попытку.</string>
+    <string name="startup_failed_lifecycle_reuse">Mailbox уже остановлен.\n\nПожалуйста, закройте приложение и попробуйте снова.</string>
+</resources>

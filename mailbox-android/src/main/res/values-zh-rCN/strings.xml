@@ -1,0 +1,74 @@
+<resources>
+    <string name="app_name">Briar Mailbox</string>
+    <string name="notification_channel_name">Briar Mailbox 渠道</string>
+    <string name="notification_mailbox_title_starting">Mailbox 启动中</string>
+    <string name="notification_mailbox_content_starting">正在启动 mailbox…</string>
+    <string name="notification_mailbox_title_setup">设置 Mailbox</string>
+    <string name="notification_mailbox_content_setup">正等待 Briar 扫描二维码…</string>
+    <string name="notification_mailbox_title_running">Briar Mailbox 运行中</string>
+    <string name="notification_mailbox_content_running">等待消息中…</string>
+    <string name="notification_mailbox_title_offline">Briar Mailbox 离线</string>
+    <string name="notification_mailbox_content_offline">等待互联网连接中…</string>
+    <string name="notification_mailbox_content_clock_skew">等待正确的系统时钟中…</string>
+    <string name="button_continue">继续</string>
+    <string name="button_skip_intro">跳过介绍</string>
+    <string name="button_back">返回</string>
+
+    <string name="onboarding_0_title">使用闲置设备</string>
+    <string name="onboarding_0_description">Mailbox 应用帮助你和你的联系人保持联系并将你的消息同步到 Briar</string>
+    <string name="onboarding_1_title">确保在线</string>
+    <string name="onboarding_1_description">在闲置的手机或平板上安装 Mailbox 应用并确保其不断电不断网</string>
+    <string name="onboarding_2_title">加密传递</string>
+    <string name="onboarding_2_description">当你的 Mailbox 在线时，即使你的 Briar 处在离线状态，你的联系人仍可以给你留消息。Mailbox 应用会接收这些消息并在你重新上线时将它们转发到 Briar。</string>
+    <string name="onboarding_3_title">消息</string>
+    <string name="onboarding_3_description">经由 Mailbox 的消息是加密的无法被 Mailbox 应用或这台手机所读取。Mailbox 应用只负责将消息转发到你装有 Briar Messenger 的手机上。</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Briar Mailbox 无法在后台运行</string>
+    <string name="fix">修复</string>
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+
+    <string name="link_title">通过二维码进行关联</string>
+    <string name="link_description">用 Briar 扫描这个二维码</string>
+    <string name="link_cancel">取消设置</string>
+
+    <string name="startup_headline">启动 Mailbox</string>
+    <string name="startup_init_app">初始化应用</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">正在连接到 Tor 网络（%d%%）</string>
+    <string name="startup_publishing_onion_service">发布 Tor 洋葱服务</string>
+
+    <string name="clock_skew_title">错误的系统时钟</string>
+    <string name="clock_skew_description">在系统设置中检查时间、时区和日期。修复后，稍等一段时间让 Tor 连接恢复。</string>
+
+    <string name="no_network_title">设备离线了？</string>
+    <string name="no_network_description">请确保这台设备处于在线状态并连接到了互联网。一旦你上线，安装程序应该在这里自动拾取。</string>
+
+    <string name="status_running">Mailbox 运行中</string>
+    <string name="last_connection">上次连接：%s</string>
+    <string name="now">现在</string>
+    <string name="never">永不</string>
+    <string name="stop">停止</string>
+    <string name="unlink">断开</string>
+    <string name="unlink_title">解除 mailbox 链接？</string>
+    <string name="unlink_description">取消链接 Mailbox 后，你将无法在 Briar 脱机时接收消息。\n\n你确保要取消 Briar 和 Mailbox 之间的链接吗？</string>
+    <string name="confirm_stop_title">停止 Mailbox？</string>
+    <string name="confirm_stop_description">当你停止运行你的 Mailbox，该应用会关闭并停止接收消息直到你再次打开它。\n\n任何已经接收到的消息将被保存。当你重新打开 Mailbox 应用， Briar 将可以收集这些消息。</string>
+
+    <string name="setup_complete_title">已连接</string>
+    <string name="setup_complete_description">已经成功地在你的 Mialbox 应用和 Briar 之间建立了链接。\n\n请保持装有 Mailbox 的设备不断电不断网，始终在线。</string>
+    <string name="setup_complete_finish">完成</string>
+
+    <string name="stopping">正在停止 Mailbox…</string>
+
+    <string name="wipe_wiping">正在擦除 Mailbox…</string>
+    <string name="wipe_complete_title">擦除完毕</string>
+    <string name="wipe_complete_description">下次你接触装有 Briar 应用的设备时，请打开 Briar 中的 Mailbox 设置屏幕，然后轻按“取消链接”按钮完成这一过程。</string>
+
+    <string name="sorry">抱歉</string>
+    <string name="startup_failed_activity_title">Mailbox 设置失败</string>
+    <string name="startup_failed_service_error">Mailbox 无法启动一个必需的部件。\n\n请升级到最新版应用并重试。</string>
+    <string name="startup_failed_lifecycle_reuse">Mailbox 已停止运行。\n\n请关闭它并重试。</string>
+</resources>

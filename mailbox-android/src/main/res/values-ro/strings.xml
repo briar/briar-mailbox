@@ -1,0 +1,74 @@
+<resources>
+    <string name="app_name">Căsuța poștală Briar</string>
+    <string name="notification_channel_name">Canal Căsuța poștală Briar</string>
+    <string name="notification_mailbox_title_starting">Pornirea căsuței poștale</string>
+    <string name="notification_mailbox_content_starting">Căsuța poștală de pornire…</string>
+    <string name="notification_mailbox_title_setup">Configurarea căsuței poștale</string>
+    <string name="notification_mailbox_content_setup">Așteptând ca Briar să scaneze codul QR...</string>
+    <string name="notification_mailbox_title_running">Briar Căsuța poștală care rulează</string>
+    <string name="notification_mailbox_content_running">În așteptare de mesaje…</string>
+    <string name="notification_mailbox_title_offline">Căsuța poștală Briar offline</string>
+    <string name="notification_mailbox_content_offline">Așteptând conexiunea la internet...</string>
+    <string name="notification_mailbox_content_clock_skew">Așteptând ceasul de sistem corect...</string>
+    <string name="button_continue">Continuați</string>
+    <string name="button_skip_intro">Skip Introducere</string>
+    <string name="button_back">Înapoi</string>
+
+    <string name="onboarding_0_title">Rămâi Accesibil</string>
+    <string name="onboarding_0_description">Căsuța poștală vă ajută să rămâneți în contact cu contactele dumneavoastră și vă sincronizează mesajele cu Briar.</string>
+    <string name="onboarding_1_title">Utilizați un dispozitiv de rezervă</string>
+    <string name="onboarding_1_description">Instalați app-ul Mailbox pe un telefon sau o tabletă de rezervă și lăsați-o conectată la curent și la WiFi.</string>
+    <string name="onboarding_2_title">Livrarea mesajelor</string>
+    <string name="onboarding_2_description">Atunci când căsuța poștală este online, contactele dumneavoastră vă pot lăsa mesaje chiar dacă Briar este offline. Căsuța poștală va primi mesajele și le va redirecționa către Briar atunci când sunteți online.</string>
+    <string name="onboarding_3_title">Criptat</string>
+    <string name="onboarding_3_description">Mesajele care trec prin căsuța poștală sunt criptate și nu pot fi citite de căsuța poștală sau de acest telefon. Căsuța poștală pur și simplu le redirecționează către telefonul Briar Messenger.</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Căsuța poștală Briar nu a putut rula în fundal</string>
+    <string name="fix">Remediați</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Anulați</string>
+
+    <string name="link_title">Link prin cod QR</string>
+    <string name="link_description">Scanați acest cod QR cu Briar</string>
+    <string name="link_cancel">Anulare configurare</string>
+
+    <string name="startup_headline">Căsuța poștală de pornire</string>
+    <string name="startup_init_app">Inițializare app</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">Conectarea la rețeaua Tor (%d%%)</string>
+    <string name="startup_publishing_onion_service">Publicarea serviciului Tor onion</string>
+
+    <string name="clock_skew_title">Ceas de sistem greșit</string>
+    <string name="clock_skew_description">Verificați ora, fusul orar și data în setările sistemului. După remediere, așteptați ceva timp pentru ca Tor să își revină.</string>
+
+    <string name="no_network_title">Dispozitiv offline?</string>
+    <string name="no_network_description">Vă rugăm să vă asigurați că acest dispozitiv este online și conectat la internet. Odată ce sunteți online, configurarea ar trebui să înceapă automat aici.</string>
+
+    <string name="status_running">Cutia poștală este în funcțiune</string>
+    <string name="last_connection">Ultima conectare: %s</string>
+    <string name="now">acum</string>
+    <string name="never">niciodată</string>
+    <string name="stop">Stop</string>
+    <string name="unlink">Deconectați</string>
+    <string name="unlink_title">Deconectați cutia poștală?</string>
+    <string name="unlink_description">Dacă vă deconectați căsuța poștală, nu veți mai putea primi mesaje în timp ce Briar este offline.\n\nSunteți sigur că doriți să vă deconectați căsuța poștală?</string>
+    <string name="confirm_stop_title">Opriți Mailbox?</string>
+    <string name="confirm_stop_description">Când vă opriți căsuța poștală, app-ul se va închide și nu va mai primi mesaje până când deschideți din nou acest app.\n\nToate mesajele care au fost deja primite vor fi salvate. Briar le va putea colecta atunci când veți redeschide aplicația Mailbox.</string>
+
+    <string name="setup_complete_title">Conectată</string>
+    <string name="setup_complete_description">Căsuța dumneavoastră poștală a fost conectată cu succes la Briar.\n\nPăstrați căsuța poștală conectată la curent și la Wi-Fi, astfel încât să fie mereu online.</string>
+    <string name="setup_complete_finish">Terminați</string>
+
+    <string name="stopping">Oprire Mailbox…</string>
+
+    <string name="wipe_wiping">Ștergerea căsuței poștale...</string>
+    <string name="wipe_complete_title">Ștergere completă</string>
+    <string name="wipe_complete_description">Data viitoare când aveți acces la dispozitivul Briar, deschideți ecranul de setări al căsuței poștale din app-ul Briar, apoi atingeți butonul \"Unlink\" pentru a finaliza procesul.</string>
+
+    <string name="sorry">Ne pare rău</string>
+    <string name="startup_failed_activity_title">Eșecul de pornire a căsuței poștale</string>
+    <string name="startup_failed_service_error">Mailbox nu a putut să pornească o componentă necesară.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a app-ului și să încercați din nou.</string>
+    <string name="startup_failed_lifecycle_reuse">Căsuța poștală s-a oprit deja.\n\nVă rugăm să închideți app-ului și să încercați din nou.</string>
+</resources>

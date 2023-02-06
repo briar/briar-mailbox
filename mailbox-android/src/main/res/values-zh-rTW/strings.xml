@@ -1,0 +1,74 @@
+<resources>
+    <string name="app_name">Briar Mailbox</string>
+    <string name="notification_channel_name">Briar Mailbox 頻道</string>
+    <string name="notification_mailbox_title_starting">Mailbox 啟動</string>
+    <string name="notification_mailbox_content_starting">啟動 Mailbox…</string>
+    <string name="notification_mailbox_title_setup">設置 Mailbox</string>
+    <string name="notification_mailbox_content_setup">等候 Briar 掃瞄二維碼</string>
+    <string name="notification_mailbox_title_running">Briar Mailbox 執行中</string>
+    <string name="notification_mailbox_content_running">等待消息中…</string>
+    <string name="notification_mailbox_title_offline">Briar Mailbox 離線</string>
+    <string name="notification_mailbox_content_offline">等待網際網路連接</string>
+    <string name="notification_mailbox_content_clock_skew">等待校正系統時間</string>
+    <string name="button_continue">繼續</string>
+    <string name="button_skip_intro">略過介紹</string>
+    <string name="button_back">返回</string>
+
+    <string name="onboarding_0_title">維持暢通連接</string>
+    <string name="onboarding_0_description">Mailbox 可讓您與聯絡人保持聯繫並訊息同步至 Briar</string>
+    <string name="onboarding_1_title">使用閒置設備</string>
+    <string name="onboarding_1_description">將 Mailbox 安裝在閒置的手機或平板並讓其保持通電與連接 WiFi</string>
+    <string name="onboarding_2_title">訊息送達</string>
+    <string name="onboarding_2_description">若您的 Mailbox 維持上線，即便您的 Briar 為離線，聯絡人仍然可以給您發送訊息。Mailbox 會接收這些訊息並待您的 Briar 上線轉寄給您。</string>
+    <string name="onboarding_3_title">已加密</string>
+    <string name="onboarding_3_description">通過 Mailbox 的訊息會予以加密故 Mailbox 或安裝的設備不能讀取，Mailbox 只是單純將訊息轉寄到您的 Briar 手機上</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Briar Mailbox 無法在後台執行</string>
+    <string name="fix">修復</string>
+    <string name="ok">確定</string>
+    <string name="cancel">取消</string>
+
+    <string name="link_title">透過二維碼鏈接</string>
+    <string name="link_description">利用 Briar 掃描此二維碼</string>
+    <string name="link_cancel">取消設置</string>
+
+    <string name="startup_headline">啟動 Mailbox</string>
+    <string name="startup_init_app">安裝應用</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">連接到 Tor 網路 (%d%%)</string>
+    <string name="startup_publishing_onion_service">發佈 Tor 洋葱服務</string>
+
+    <string name="clock_skew_title">系統時間錯誤</string>
+    <string name="clock_skew_description">檢查系統下的時間、時區與日期，修正後再稍待 Tor 重新恢復</string>
+
+    <string name="no_network_title">設備離線? </string>
+    <string name="no_network_description">請確認設備有連接上網際網路，一旦順利上網後設置即會自動展開</string>
+
+    <string name="status_running">郵箱正在運行</string>
+    <string name="last_connection">最近一次連接%s</string>
+    <string name="now">現在</string>
+    <string name="never">永不</string>
+    <string name="stop">停止</string>
+    <string name="unlink">解除鏈接</string>
+    <string name="unlink_title">解除 Mailbox 鏈接? </string>
+    <string name="unlink_description">若移除 Mailbox 鏈接，您將無法在 Briar  離線時收取訊息\n\n確定要解除 Mailbox 鏈接嗎？</string>
+    <string name="confirm_stop_title">停止 Mailbox</string>
+    <string name="confirm_stop_description">當您停止 Mailbox, 該應用軟體會自動關閉並停止收取訊息直到再次啟用。\n\n 已送達的訊息會儲存起來，當 Mailbox 再次打開後 Briar 就能夠收取這些訊息。</string>
+
+    <string name="setup_complete_title">已連接</string>
+    <string name="setup_complete_description">您已順利地完成 Briar Mailbox 的連接 \n\n將 Mailbox 維持連接電與Wi-Fi，保持在線狀態 </string>
+    <string name="setup_complete_finish">結束</string>
+
+    <string name="stopping">停止 Mailbox…</string>
+
+    <string name="wipe_wiping">抹除 Mailbox…</string>
+    <string name="wipe_complete_title">抹除完畢</string>
+    <string name="wipe_complete_description">下回使用 Briar 設備時，請開啟Briar 應用底下的 Mailbox 設定畫面，輕點\"解除鏈接\"按鍵以完成解除程序</string>
+
+    <string name="sorry">抱歉</string>
+    <string name="startup_failed_activity_title">Mailbox 啟動失敗</string>
+    <string name="startup_failed_service_error">Mailbox 無法啟動所需的元件\n\n請昇級至最新版後再重試</string>
+    <string name="startup_failed_lifecycle_reuse">Mailbox 已停止.\n\n 請關閉軟體後再重試</string>
+</resources>

@@ -1,0 +1,75 @@
+<resources>
+    <string name="app_name">Kuti postare Briar-i</string>
+    <string name="notification_channel_name">Kanal Kutie postare Briar-i</string>
+    <string name="notification_mailbox_title_starting">Po niset Kutia postare</string>
+    <string name="notification_mailbox_content_starting">Po niset kuti postare…</string>
+    <string name="notification_mailbox_title_setup">Po ujdiset Kuti postare</string>
+    <string name="notification_mailbox_content_setup">Po pritet që Briar-i të skanojë kodin QR…</string>
+    <string name="notification_mailbox_title_running">Kutia postare e Briar-it po xhiron</string>
+    <string name="notification_mailbox_content_running">Po pritet për mesazhe…</string>
+    <string name="notification_mailbox_title_offline">Kutia postare e Briar-i s’është e lidhur në internet</string>
+    <string name="notification_mailbox_content_offline">Po pritet për lidhje në internet…</string>
+    <string name="notification_mailbox_content_clock_skew">Po pritet për sahat të saktë të sistemit…</string>
+    <string name="button_continue">Vazhdoni</string>
+    <string name="button_skip_intro">Anashkalo Hyrjen</string>
+    <string name="button_back">Mbrapsht</string>
+
+    <string name="onboarding_0_description">Kutia postare ju ndihmon të mbani lidhjet me kontaktet tuaja dhe njëkohëson mesazhet tuaja në Briar.</string>
+    <string name="onboarding_1_title">Përdor pajisje alternative</string>
+    <string name="onboarding_1_description">Instaloni aplikacionin Kuti postare në një telefon apo tablet rezervë dhe lëreni të lidhur në rrjetin e energjisë dhe në atë WiFi.</string>
+    <string name="onboarding_2_title">Dërgim mesazhi</string>
+    <string name="onboarding_2_description">Kur Kutia juaj postare është në linjë, kontaktet tuaja mund të lënë mesazhe për ju, edhe në se Briar-i s’është në linjë. Kutia postare do të marrë mesazhet dhe t’ia kalojë ato Briar-it, kur të kaloni në linjë.</string>
+    <string name="onboarding_3_title">I fshehtëzuar</string>
+    <string name="onboarding_3_description">Mesazhet që kalojnë përmes Kutisë postare fshehtëzohen dhe s’mund të lexohen nga Kutia postare, apo ky telefon. Kutia postare thjesht i përcjell ato te telefoni juaj ku keni Briar Messenger.</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Kutia Postare Briar s\’qe në gjendje të xhirojë në prapaskenë</string>
+    <string name="fix">Ndreqeni</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Anuloje</string>
+
+    <string name="link_title">Lidhje përmes kodi QR</string>
+    <string name="link_description">Skanojeni këtë kod QR me Briar-in</string>
+    <string name="link_cancel">Anuloje Ujdisjen</string>
+
+    <string name="startup_headline">Po niset Kuti Postare</string>
+    <string name="startup_init_app">Po gatitet aplikacioni</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">Po lidhet me rrjetin Tor (%d%%)</string>
+    <string name="startup_publishing_onion_service">Po publikohet shërbim Onion Tor</string>
+
+    <string name="clock_skew_title">Sahat i gabuar sistemi</string>
+    <string name="clock_skew_description">Kontrolloni kohën, zonën kohore dhe datën te rregullimet e sistemit tuaj. Pas ndreqjes, prisni pak që të rifillojë Tor-i.</string>
+
+    <string name="no_network_title">Pajisje jo në linjë?</string>
+    <string name="no_network_description">Ju lutemi, garantoni që kjo pajisje të jetë e lidhur në internet. Pasi të jeni në linjë, ujdisja duhet të vazhdojë automatikisht këtu.</string>
+
+    <string name="status_running">Kutia postare po punon</string>
+    <string name="last_connection">Lidhja e fundit: %s</string>
+    <string name="now">tani</string>
+    <string name="never">kurrë</string>
+    <string name="stop">Ndale</string>
+    <string name="unlink">Shkëpute</string>
+    <string name="unlink_title">Të hiqet lidhja për kutinë postare?</string>
+    <string name="unlink_description">Kur e hiqni lidhjen e Kutisë tuaj postare, s’do të jeni në gjendje të merrni mesazhe, teksa Briar-i s’është në linjë.\n\nJeni i sigurt se doni të hiqni lidhjen e Kutisë tuaj postare?</string>
+    <string name="confirm_stop_title">Të ndalet Kutia Postare?</string>
+    <string name="confirm_stop_description">Kur e ndalni Kutinë tuaj postare, aplikacioni do të fiket dhe do të reshtë së marri mesazhe, deri sa ta rihapni aplikacionin.\n\nÇfarëdo mesazhesh që janë marrë tashmë, do të ruhen. Briar-i do të jetë në gjendje t’i grumbullojë, kur të rihapni aplikacionin Kuti postare.</string>
+
+    <string name="setup_complete_title">E lidhur</string>
+    <string name="setup_complete_description">Your Mailbox has been successfully linked with Briar.\n\nKeep your Mailbox connected to power and Wi-Fi so it\'s always online.
+Kutia juaj postare është lidhur me sukses me Briar-in.\n
+Mbajeni Kutinë tuaj postare të lidhur në rrjet energjie dhe me Wi-Fi, që të jetë përherë në linjë.</string>
+    <string name="setup_complete_finish">Përfundoje</string>
+
+    <string name="stopping">Po ndalet Kutia Postare…</string>
+
+    <string name="wipe_wiping">Po asgjësohet Kutia Postare…</string>
+    <string name="wipe_complete_title">Asgjësimi u plotësua</string>
+    <string name="wipe_complete_description">Herës tjetër që mund të përdorni pajisjen tuaj ku keni Briar-in, ju lutemi, hapni skenën e rregullimeve të Mailbox-it te aplikacioni Briar, mandej prekni butonin“Hiqja lidhjen”, që të plotësohet procesi.</string>
+
+    <string name="sorry">Na ndjeni</string>
+    <string name="startup_failed_activity_title">Dështim Nisjeje Kutie Postare</string>
+    <string name="startup_failed_service_error">Kutia postare s’arriti të nisë një përbërës të domosdoshëm.\n\nJu lutemi, përmirësojeni me versionin më të ri të aplikacionit dhe riprovoni.</string>
+    <string name="startup_failed_lifecycle_reuse">Kutia postare është ndalur tashmë.\n\nJu lutemi, mbylleni aplikacionin dhe riprovoni.</string>
+</resources>
