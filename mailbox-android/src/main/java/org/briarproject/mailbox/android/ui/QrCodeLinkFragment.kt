@@ -25,6 +25,7 @@ import android.content.ClipboardManager
 import android.content.Intent
 import android.content.Intent.ACTION_SEND
 import android.content.Intent.EXTRA_TEXT
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -35,6 +36,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
+import android.widget.Toast.LENGTH_SHORT
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -108,6 +110,8 @@ class QrCodeLinkFragment : Fragment(), MenuProvider {
                     ?: return@setOnClickListener
                 val clip = ClipData.newPlainText("Briar Mailbox text", state.link)
                 clipboard.setPrimaryClip(clip)
+                // Only show a toast for Android 12 and lower.
+                if (SDK_INT <= 32) Toast.makeText(context, R.string.copied, LENGTH_SHORT).show()
             }
         }
     }
