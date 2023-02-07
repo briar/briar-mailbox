@@ -111,7 +111,12 @@ class Main : CliktCommand(
             }
             mailbox.waitForTorPublished()
             mailbox.getQrCode()?.let {
+                println("Please scan this with the Briar Android app:")
                 println(QrCodeRenderer.getQrString(it))
+            }
+            mailbox.getLink()?.let {
+                println("Or copy and paste this into Briar Desktop:\n")
+                println(it)
             }
         }
     }

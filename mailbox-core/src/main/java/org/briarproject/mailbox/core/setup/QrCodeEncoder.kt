@@ -58,6 +58,11 @@ class QrCodeEncoder @Inject constructor(
         return QRCodeWriter().encode(content, QR_CODE, edgeLen, edgeLen)
     }
 
+    fun getLink(): String? {
+        val bytes = getQrCodeBytes() ?: return null
+        return "briar-mailbox://${Base32.encode(bytes).lowercase()}"
+    }
+
     private fun getQrCodeBytes(): ByteArray? {
         // The ID and version of the QR code format: 3 bits for the format ID and 5 for the version
         val formatIdAndVersion = ((FORMAT_ID shl 5) or FORMAT_VERSION).toByte()

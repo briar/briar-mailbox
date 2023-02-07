@@ -29,9 +29,14 @@
     <string name="fix">Fix</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="share">Share</string>
+    <string name="copied">Copied</string>
 
     <string name="link_title">Link via QR code</string>
     <string name="link_description">Scan this QR code with Briar</string>
+    <string name="link_menu_title">Show as text</string>
+    <string name="link_text_title">Link via text</string>
+    <string name="link_text_description">Copy this and paste it into Briar Desktop:</string>
     <string name="link_cancel">Cancel Setup</string>
 
     <string name="startup_headline">Starting Mailbox</string>
@@ -68,6 +73,7 @@
     <string name="wipe_complete_description">Next time you have access to your Briar device, please open the Mailbox settings screen in the Briar app, then tap the \"Unlink\" button to complete the process.</string>
 
     <string name="sorry">Sorry</string>
+    <string name="activity_not_found">No app found for this action</string>
     <string name="startup_failed_activity_title">Mailbox Startup Failure</string>
     <string name="startup_failed_service_error">Mailbox was unable to start a required component.\n\nPlease upgrade to the latest version of the app and try again.</string>
     <string name="startup_failed_lifecycle_reuse">Mailbox has already stopped.\n\nPlease close the app and try again.</string>

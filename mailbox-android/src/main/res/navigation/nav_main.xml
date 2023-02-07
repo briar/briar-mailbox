@@ -28,8 +28,17 @@
     <fragment
         android:id="@+id/qrCodeFragment"
         android:name="org.briarproject.mailbox.android.ui.QrCodeFragment"
-        android:label="QrCodeFragment"
-        tools:layout="@layout/fragment_qr" />
+        android:label="@string/link_title"
+        tools:layout="@layout/fragment_qr">
+        <action
+            android:id="@+id/action_qrCodeFragment_to_qrCodeLinkFragment"
+            app:destination="@id/qrCodeLinkFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/qrCodeLinkFragment"
+        android:name="org.briarproject.mailbox.android.ui.QrCodeLinkFragment"
+        android:label="@string/link_title"
+        tools:layout="@layout/fragment_qr_link" />
     <fragment
         android:id="@+id/setupCompleteFragment"
         android:name="org.briarproject.mailbox.android.ui.SetupCompleteFragment"

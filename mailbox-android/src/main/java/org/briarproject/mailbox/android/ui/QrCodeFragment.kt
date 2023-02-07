@@ -21,20 +21,25 @@ package org.briarproject.mailbox.android.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle.State.RESUMED
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
 
 @AndroidEntryPoint
-class QrCodeFragment : Fragment() {
+class QrCodeFragment : Fragment(), MenuProvider {
 
     private val viewModel: MailboxViewModel by activityViewModels()
     private lateinit var qrCodeView: ImageView
@@ -56,10 +61,23 @@ class QrCodeFragment : Fragment() {
             viewModel.stopLifecycle()
             requireActivity().finishAffinity()
         }
+        requireActivity().addMenuProvider(this, viewLifecycleOwner, RESUMED)
 
         launchAndRepeatWhileStarted {
             viewModel.appState.collect { onAppStateChanged(it) }
         }
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.link_actions, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if (menuItem.itemId == R.id.action_show_link) {
+            findNavController().navigate(R.id.action_qrCodeFragment_to_qrCodeLinkFragment)
+            return true
+        }
+        return false
     }
 
     private fun onAppStateChanged(state: MailboxAppState) {
