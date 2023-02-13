@@ -2,6 +2,7 @@ image: briar/ci-image-android:latest
 
 stages:
   - test
+  - check_reproducibility
 
 workflow:
   # when to create a CI pipeline
@@ -32,3 +33,10 @@ test:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
     - when: always
+
+test_reproducible:
+  stage: check_reproducibility
+  script:
+    - "curl -X POST -F token=${RELEASE_CHECK_TOKEN} -F ref=main -F variables[RELEASE_TAG]='briar-mailbox ${CI_COMMIT_REF_NAME}' https://code.briarproject.org/api/v4/projects/61/trigger/pipeline"
+  only:
+    - tags
