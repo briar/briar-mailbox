@@ -60,7 +60,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             setBody(bytes)
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
-        assertEquals("\"Malformed ID: foo\"", response.bodyAsText())
+        assertEquals("Malformed ID: foo", response.bodyAsText())
     }
 
     @Test
@@ -72,7 +72,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             setBody(maxBytes)
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
-        assertEquals("\"Bad request: File larger than allowed.\"", response.bodyAsText())
+        assertEquals("Bad request: File larger than allowed.", response.bodyAsText())
         assertNoTmpFiles()
     }
 
@@ -179,7 +179,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
-        assertEquals("\"Malformed ID: foo\"", response.bodyAsText())
+        assertEquals("Malformed ID: foo", response.bodyAsText())
     }
 
     @Test
@@ -218,7 +218,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
-        assertEquals("\"Malformed ID: foo\"", response.bodyAsText())
+        assertEquals("Malformed ID: foo", response.bodyAsText())
     }
 
     @Test
@@ -227,7 +227,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
-        assertEquals("\"Malformed ID: bar\"", response.bodyAsText())
+        assertEquals("Malformed ID: bar", response.bodyAsText())
     }
 
     @Test
@@ -274,7 +274,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
-        assertEquals("\"Malformed ID: foo\"", response.bodyAsText())
+        assertEquals("Malformed ID: foo", response.bodyAsText())
     }
 
     @Test
@@ -283,7 +283,7 @@ class FileManagerIntegrationTest : IntegrationTest() {
             authenticateWithToken(ownerToken)
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
-        assertEquals("\"Malformed ID: bar\"", response.bodyAsText())
+        assertEquals("Malformed ID: bar", response.bodyAsText())
     }
 
     @Test

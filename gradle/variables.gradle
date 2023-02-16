@@ -1,5 +1,5 @@
 ext {
-    kotlin_version = '1.8.0'
+    kotlin_version = '1.7.22' // 1.8.x has a jackson issue, test with JacksonProguardTest
     hilt_version = '2.44.2'
     nav_version = '2.5.3'
     tor_version = '0.4.7.13'

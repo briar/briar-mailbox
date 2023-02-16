@@ -21,6 +21,11 @@
 -keep class io.netty.util.ReferenceCountUtil { *; }
 -keep class io.netty.buffer.WrappedByteBuf { *; }
 
+# Keep classes needed for instrumentation tests (here because testProguardFiles doesn't work)
+-keep class kotlin.LazyKt
+-keep class com.fasterxml.jackson.core.type.TypeReference
+-keep class com.fasterxml.jackson.databind.ObjectMapper { *; }
+
 # Don't warn about unused dependencies of H2 classes
 -dontwarn org.h2.**
 -dontnote org.h2.**

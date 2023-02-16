@@ -256,7 +256,7 @@ class ContactsManagerIntegrationTest : IntegrationTest() {
         }
         assertEquals(BadRequest, response.status)
         assertEquals(
-            "\"Bad request: Invalid value for parameter contactId\"",
+            "Bad request: Invalid value for parameter contactId",
             response.bodyAsText(),
         )
     }
