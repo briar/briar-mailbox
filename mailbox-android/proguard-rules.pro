@@ -8,6 +8,9 @@
 -dontobfuscate
 -keepattributes SourceFile, LineNumberTable, *Annotation*, Signature, InnerClasses, EnclosingMethod
 
+# Keep our own classes, we remove unused ones ourselves
+-keep class org.briarproject.** { *; }
+
 # Keep the H2 classes that are loaded via reflection
 -keep class org.h2.Driver { *; }
 -keep class org.h2.engine.Engine { *; }
