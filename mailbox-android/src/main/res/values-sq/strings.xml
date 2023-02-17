@@ -28,9 +28,14 @@
     <string name="fix">Ndreqeni</string>
     <string name="ok">OK</string>
     <string name="cancel">Anuloje</string>
+    <string name="share">Ndajeni me të tjerë</string>
+    <string name="copied">U kopjua</string>
 
     <string name="link_title">Lidhje përmes kodi QR</string>
     <string name="link_description">Skanojeni këtë kod QR me Briar-in</string>
+    <string name="link_menu_title">Shfaqe si tekst</string>
+    <string name="link_text_title">Lidhje përmes teksti</string>
+    <string name="link_text_description">Kopjojeni këtë dhe ngjiteni te Briar Desktop:</string>
     <string name="link_cancel">Anuloje Ujdisjen</string>
 
     <string name="startup_headline">Po niset Kuti Postare</string>
@@ -69,6 +74,7 @@ Mbajeni Kutinë tuaj postare të lidhur në rrjet energjie dhe me Wi-Fi, që të
     <string name="wipe_complete_description">Herës tjetër që mund të përdorni pajisjen tuaj ku keni Briar-in, ju lutemi, hapni skenën e rregullimeve të Mailbox-it te aplikacioni Briar, mandej prekni butonin“Hiqja lidhjen”, që të plotësohet procesi.</string>
 
     <string name="sorry">Na ndjeni</string>
+    <string name="activity_not_found">S’u gjet aplikacion për këtë veprim</string>
     <string name="startup_failed_activity_title">Dështim Nisjeje Kutie Postare</string>
     <string name="startup_failed_service_error">Kutia postare s’arriti të nisë një përbërës të domosdoshëm.\n\nJu lutemi, përmirësojeni me versionin më të ri të aplikacionit dhe riprovoni.</string>
     <string name="startup_failed_lifecycle_reuse">Kutia postare është ndalur tashmë.\n\nJu lutemi, mbylleni aplikacionin dhe riprovoni.</string>

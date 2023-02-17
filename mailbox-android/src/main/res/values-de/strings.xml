@@ -29,6 +29,8 @@
     <string name="fix">Beheben</string>
     <string name="ok">OK</string>
     <string name="cancel">Abbrechen</string>
+    <string name="share">Freigabe</string>
+    <string name="copied">Kopiert</string>
 
     <string name="link_title">Verknüpfung über QR-Code</string>
     <string name="link_description">Scanne diesen QR-Code mit Briar</string>

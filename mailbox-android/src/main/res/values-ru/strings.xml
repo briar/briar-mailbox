@@ -29,9 +29,14 @@
     <string name="fix">Исправить</string>
     <string name="ok">ОК</string>
     <string name="cancel">Отмена</string>
+    <string name="share">Поделиться</string>
+    <string name="copied">Скопировано</string>
 
     <string name="link_title">Ссылка с помощью QR-кода</string>
     <string name="link_description">Сосканируйте этот QR-код с помощью Briar</string>
+    <string name="link_menu_title">Показать как текст</string>
+    <string name="link_text_title">Ссылка через текст</string>
+    <string name="link_text_description">Скопируйте это и вставьте в Briar Desktop:</string>
     <string name="link_cancel">Отменить настройку</string>
 
     <string name="startup_headline">Запуск Mailbox</string>
@@ -68,6 +73,7 @@
     <string name="wipe_complete_description">В следующий раз, когда у вас будет доступ к вашему устройству Briar, откройте экран настроек Mailbox в приложении Briar, затем нажмите кнопку \"Unlink\", чтобы завершить процесс.</string>
 
     <string name="sorry">Сожалеем</string>
+    <string name="activity_not_found">Приложение для этого действия не найдено</string>
     <string name="startup_failed_activity_title">Сбой при запуске Mailbox</string>
     <string name="startup_failed_service_error">Mailbox не смог запустить необходимый компонент.\n\nПожалуйста, обновите приложение до последней версии и повторите попытку.</string>
     <string name="startup_failed_lifecycle_reuse">Mailbox уже остановлен.\n\nПожалуйста, закройте приложение и попробуйте снова.</string>

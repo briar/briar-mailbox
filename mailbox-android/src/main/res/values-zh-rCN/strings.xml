@@ -18,9 +18,9 @@
     <string name="onboarding_0_description">Mailbox 应用帮助你和你的联系人保持联系并将你的消息同步到 Briar</string>
     <string name="onboarding_1_title">确保在线</string>
     <string name="onboarding_1_description">在闲置的手机或平板上安装 Mailbox 应用并确保其不断电不断网</string>
-    <string name="onboarding_2_title">加密传递</string>
+    <string name="onboarding_2_title">消息加密</string>
     <string name="onboarding_2_description">当你的 Mailbox 在线时，即使你的 Briar 处在离线状态，你的联系人仍可以给你留消息。Mailbox 应用会接收这些消息并在你重新上线时将它们转发到 Briar。</string>
-    <string name="onboarding_3_title">消息</string>
+    <string name="onboarding_3_title">传递</string>
     <string name="onboarding_3_description">经由 Mailbox 的消息是加密的无法被 Mailbox 应用或这台手机所读取。Mailbox 应用只负责将消息转发到你装有 Briar Messenger 的手机上。</string>
 
     <!-- TODO: We might want to copy string from don't kill me lib,
@@ -29,9 +29,14 @@
     <string name="fix">修复</string>
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
+    <string name="share">分享</string>
+    <string name="copied">已复制</string>
 
     <string name="link_title">通过二维码进行关联</string>
     <string name="link_description">用 Briar 扫描这个二维码</string>
+    <string name="link_menu_title">显示为文本</string>
+    <string name="link_text_title">通过文本链接</string>
+    <string name="link_text_description">复制这个并将它粘贴到 Briar Desktop：</string>
     <string name="link_cancel">取消设置</string>
 
     <string name="startup_headline">启动 Mailbox</string>
@@ -68,6 +73,7 @@
     <string name="wipe_complete_description">下次你接触装有 Briar 应用的设备时，请打开 Briar 中的 Mailbox 设置屏幕，然后轻按“取消链接”按钮完成这一过程。</string>
 
     <string name="sorry">抱歉</string>
+    <string name="activity_not_found">找不到进行此操作的应用程序</string>
     <string name="startup_failed_activity_title">Mailbox 设置失败</string>
     <string name="startup_failed_service_error">Mailbox 无法启动一个必需的部件。\n\n请升级到最新版应用并重试。</string>
     <string name="startup_failed_lifecycle_reuse">Mailbox 已停止运行。\n\n请关闭它并重试。</string>

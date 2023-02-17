@@ -29,6 +29,8 @@
     <string name="fix">Remediați</string>
     <string name="ok">OK</string>
     <string name="cancel">Anulați</string>
+    <string name="share">Partajați</string>
+    <string name="copied">Copiat</string>
 
     <string name="link_title">Link prin cod QR</string>
     <string name="link_description">Scanați acest cod QR cu Briar</string>
