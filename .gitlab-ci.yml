@@ -29,6 +29,12 @@ test:
     paths:
       - .gradle/wrapper
       - .gradle/caches
+  artifacts:
+    name: "${CI_PROJECT_PATH}_${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_${CI_COMMIT_SHA}"
+    paths:
+      - build/reports
+    expire_in: 3 days
+    when: on_failure
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
