@@ -22,7 +22,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.runBlocking
-import org.briarproject.mailbox.core.server.WebServerManager.Companion.PORT
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -43,7 +42,7 @@ class WebServerIntegrationTest : IntegrationTest() {
 
     @Test
     fun testJacksonUnsafeDeserialization(): Unit = runBlocking {
-        val port = PORT + 1
+        val port = 8000
         val server = embeddedServer(Netty, port, watchPaths = emptyList()) {
             install(CallLogging)
             install(ContentNegotiation) {

@@ -15,7 +15,6 @@ import org.briarproject.mailbox.core.TestModule
 import org.briarproject.mailbox.core.TestUtils.getNewRandomContact
 import org.briarproject.mailbox.core.TestUtils.getNewRandomId
 import org.briarproject.mailbox.core.contacts.Contact
-import org.briarproject.mailbox.core.server.WebServerManager.Companion.PORT
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
@@ -54,11 +53,11 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
             level = LogLevel.ALL
         }
     }
-    protected val baseUrl = "http://127.0.0.1:$PORT"
+    protected lateinit var baseUrl: String
+        private set
 
     protected val ownerToken = getNewRandomId()
     protected val token = getNewRandomId()
-    protected val id = getNewRandomId()
     protected val contact1 = getNewRandomContact()
     protected val contact2 = getNewRandomContact()
     protected var tempDir: File? = null
@@ -83,6 +82,7 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
         assertFalse(setupManager.hasDb)
         lifecycleManager.startServices()
         lifecycleManager.waitForStartup()
+        baseUrl = "http://127.0.0.1:${testComponent.getWebServerManager().port}"
     }
 
     @AfterAll
