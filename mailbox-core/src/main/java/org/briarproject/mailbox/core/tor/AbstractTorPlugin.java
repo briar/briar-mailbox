@@ -29,7 +29,6 @@ import org.briarproject.mailbox.core.event.Event;
 import org.briarproject.mailbox.core.event.EventListener;
 import org.briarproject.mailbox.core.lifecycle.IoExecutor;
 import org.briarproject.mailbox.core.lifecycle.ServiceException;
-import org.briarproject.mailbox.core.server.WebServerManager;
 import org.briarproject.mailbox.core.settings.Settings;
 import org.briarproject.mailbox.core.settings.SettingsManager;
 import org.briarproject.mailbox.core.system.Clock;
@@ -63,6 +62,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import io.netty.util.IntSupplier;
 import kotlinx.coroutines.flow.MutableStateFlow;
 import kotlinx.coroutines.flow.StateFlow;
 
@@ -128,6 +128,7 @@ public abstract class AbstractTorPlugin
 	private final ResourceProvider resourceProvider;
 	private final File torDirectory, configFile;
 	private final File doneFile, cookieFile;
+	private final IntSupplier portSupplier;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	protected final PluginState state = new PluginState();
@@ -147,7 +148,8 @@ public abstract class AbstractTorPlugin
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			@Nullable String architecture,
-			File torDirectory) {
+			File torDirectory,
+			IntSupplier portSupplier) {
 		this.ioExecutor = ioExecutor;
 		this.settingsManager = settingsManager;
 		this.networkManager = networkManager;
@@ -160,6 +162,7 @@ public abstract class AbstractTorPlugin
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
+		this.portSupplier = portSupplier;
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor =
 				new PoliteExecutor("TorPlugin", ioExecutor, 1);
@@ -264,8 +267,16 @@ public abstract class AbstractTorPlugin
 		// Check whether we're online
 		updateConnectionStatus(networkManager.getNetworkStatus());
 		// Create a hidden service if necessary
-		ioExecutor.execute(() -> publishHiddenService(
-				String.valueOf(WebServerManager.PORT)));
+		ioExecutor.execute(() -> {
+			int port;
+			try {
+				port = portSupplier.get();
+			} catch (Exception e) {
+				throw new AssertionError(e);
+			}
+			info(LOG, () -> "Binding hidden service to port: " + port);
+			publishHiddenService(String.valueOf(port));
+		});
 	}
 
 	private boolean assetsAreUpToDate() {

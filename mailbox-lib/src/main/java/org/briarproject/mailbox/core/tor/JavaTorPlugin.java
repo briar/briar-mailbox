@@ -35,6 +35,8 @@ import java.util.concurrent.Executor;
 
 import javax.annotation.Nullable;
 
+import io.netty.util.IntSupplier;
+
 public class JavaTorPlugin extends AbstractTorPlugin {
 
 	JavaTorPlugin(Executor ioExecutor,
@@ -45,10 +47,11 @@ public class JavaTorPlugin extends AbstractTorPlugin {
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			@Nullable String architecture,
-			File torDirectory) {
+			File torDirectory,
+			IntSupplier portSupplier) {
 		super(ioExecutor, settingsManager, networkManager, locationUtils, clock,
 				resourceProvider, circumventionProvider, architecture,
-				torDirectory);
+				torDirectory, portSupplier);
 	}
 
 	@Override

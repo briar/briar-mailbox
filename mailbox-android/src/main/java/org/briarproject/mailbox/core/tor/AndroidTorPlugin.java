@@ -47,6 +47,8 @@ import java.util.zip.ZipInputStream;
 
 import javax.annotation.Nullable;
 
+import io.netty.util.IntSupplier;
+
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Arrays.asList;
 import static org.briarproject.mailbox.core.util.LogUtils.info;
@@ -76,10 +78,11 @@ public class AndroidTorPlugin extends AbstractTorPlugin {
 			CircumventionProvider circumventionProvider,
 			AndroidWakeLockManager wakeLockManager,
 			@Nullable String architecture,
-			File torDirectory) {
+			File torDirectory,
+			IntSupplier portSupplier) {
 		super(ioExecutor, settingsManager, networkManager, locationUtils, clock,
 				resourceProvider, circumventionProvider, architecture,
-				torDirectory);
+				torDirectory, portSupplier);
 		this.ctx = ctx;
 		wakeLock = wakeLockManager.createWakeLock("TorPlugin");
 		String nativeLibDir = ctx.getApplicationInfo().nativeLibraryDir;
