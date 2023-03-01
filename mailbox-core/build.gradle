@@ -31,8 +31,15 @@ dependencies {
     implementation "io.ktor:ktor-server-netty:$ktor_version"
     implementation "io.ktor:ktor-server-auth:$ktor_version"
     implementation "io.ktor:ktor-server-call-logging:$ktor_version"
-    implementation "io.ktor:ktor-serialization-jackson:$ktor_version"
     implementation "io.ktor:ktor-server-content-negotiation:$ktor_version"
+    implementation "io.ktor:ktor-serialization-jackson:$ktor_version"
+    def jackson_version = '2.13.5'
+    implementation('com.fasterxml.jackson.core:jackson-databind') {
+        version { strictly "$jackson_version" }
+    }
+    implementation('com.fasterxml.jackson.module:jackson-module-kotlin') {
+        version { strictly "$jackson_version" }
+    }
     api "org.slf4j:slf4j-api:1.7.36"
 
     //noinspection GradleDependency
