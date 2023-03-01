@@ -34,6 +34,9 @@
 
     <string name="link_title">Verknüpfung über QR-Code</string>
     <string name="link_description">Scanne diesen QR-Code mit Briar</string>
+    <string name="link_menu_title">Als Text anzeigen</string>
+    <string name="link_text_title">Als Text verlinken</string>
+    <string name="link_text_description">Kopiere dies und füge es in Briar Desktop ein:</string>
     <string name="link_cancel">Einrichtung abbrechen</string>
 
     <string name="startup_headline">Starten der Mailbox</string>
@@ -70,6 +73,7 @@
     <string name="wipe_complete_description">Wenn du das nächste Mal Zugang zu deinem Briar-Gerät hast, öffne bitte die Mailbox-Einstellungen in der Briar-App und tippe dann auf die Schaltfläche \"Trennen\", um den Vorgang abzuschließen.</string>
 
     <string name="sorry">Entschuldigung</string>
+    <string name="activity_not_found">Für diese Aktion wurde keine App gefunden</string>
     <string name="startup_failed_activity_title">Fehler beim Start der Mailbox</string>
     <string name="startup_failed_service_error">Mailbox konnte eine erforderliche Komponente nicht starten.\n\nBitte aktualisiere auf die neueste Version der App und versuche es erneut.</string>
     <string name="startup_failed_lifecycle_reuse">Die Mailbox wurde bereits gestoppt.\n\nBitte schließe die App und versuche es erneut.</string>

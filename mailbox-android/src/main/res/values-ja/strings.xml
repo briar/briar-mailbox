@@ -1,0 +1,80 @@
+<resources>
+    <string name="app_name">Briarメールボックス</string>
+    <string name="notification_channel_name">Briarメールボックスチャンネル</string>
+    <string name="notification_mailbox_title_starting">メールボックス起動</string>
+    <string name="notification_mailbox_content_starting">メールボックスを起動中…</string>
+    <string name="notification_mailbox_title_setup">メールボックスを構成</string>
+    <string name="notification_mailbox_content_setup">BriarがQRコードを読み取るのを待機しています…</string>
+    <string name="notification_mailbox_title_running">Briarメールボックス実行</string>
+    <string name="notification_mailbox_content_running">メッセージを待機中…</string>
+    <string name="notification_mailbox_title_offline">Briarメールボックスがオフライン</string>
+    <string name="notification_mailbox_content_offline">インターネット接続を待機中…</string>
+    <string name="notification_mailbox_content_clock_skew">システム時刻の修正を待機中…</string>
+    <string name="button_continue">続ける</string>
+    <string name="button_skip_intro">導入を飛ばす</string>
+    <string name="button_back">戻る</string>
+
+    <string name="onboarding_0_title">到達可能を保持</string>
+    <string name="onboarding_0_description">メールボックスは、連絡先との接触と、Briarへのメッセージが同期した状態を保つのを助けます。</string>
+    <string name="onboarding_1_title">予備端末を使う</string>
+    <string name="onboarding_1_description">予備の電話機またはタブレット上にメールボックスアプリをインストールして、電源とWiFiに接続されたまま放置してください。</string>
+    <string name="onboarding_2_title">メッセージ配達</string>
+    <string name="onboarding_2_description">Briarがオフラインでも、メールボックスがオンラインの時、連絡先はあなたにメッセージを残せます。メールボックスはあなたがオンラインに復帰すると、メッセージを受け取って、Briarにそれらを転送します。</string>
+    <string name="onboarding_3_title">暗号化</string>
+    <string name="onboarding_3_description">メールボックスを経由するメッセージは暗号化され、メールボックスやこの電話機で読むことはできません。メールボックスは単に、あなたのBriarメッセンジャー電話機に転送するだけです。</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Briarメールボックスはバックグラウンドで実行できませんでした</string>
+    <string name="fix">修復する</string>
+    <string name="ok">OK</string>
+    <string name="cancel">キャンセル</string>
+    <string name="share">共有</string>
+    <string name="copied">コピーされました</string>
+
+    <string name="link_title">QRコードでリンク</string>
+    <string name="link_description">BriarでこのQRコードを読み取ってください</string>
+    <string name="link_menu_title">テキストとして表示</string>
+    <string name="link_text_title">テキストでリンク</string>
+    <string name="link_text_description">Briarデスクトップへ、これをコピーして貼り付けてください:</string>
+    <string name="link_cancel">セットアップをキャンセル</string>
+
+    <string name="startup_headline">メールボックス起動</string>
+    <string name="startup_init_app">アプリを初期化中</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">Torネットワークに接続中(%d%%)</string>
+    <string name="startup_publishing_onion_service">Torオニオンサービスを公開中</string>
+
+    <string name="clock_skew_title">間違ったシステム時刻</string>
+    <string name="clock_skew_description">時刻、標準時、及びシステム設定内の日時を確認してください。修正後、Torが回復するしばらくの間お待ちください。</string>
+
+    <string name="no_network_title">端末がオフライン?</string>
+    <string name="no_network_description">この端末がオンラインで、インターネットに接続されていることを確実にしてください。一度オンラインになると、セットアップは自動的にここで行われます。</string>
+
+    <string name="status_running">メールボックスは実行中</string>
+    <string name="last_connection">最終接続: %s</string>
+    <string name="now">たった今</string>
+    <string name="never">永遠</string>
+    <string name="stop">停止</string>
+    <string name="unlink">リンク解除</string>
+    <string name="unlink_title">メールボックスをリンク解除しますか？</string>
+    <string name="unlink_description">メールボックスをリンク解除すると、Briarがオフライン中にメッセージを受け取れません。\n\nメールボックスを本当にリンク解除しますか?</string>
+    <string name="confirm_stop_title">メールボックスを停止しますか?</string>
+    <string name="confirm_stop_description">メールボックスを停止すると、アプリはシャットダウンして、アプリを再び開くまでは、メッセージ受け取りを停止します。\n\n既に受け取ったあらゆるメッセージは保存されます。Briarはそのメールボックスアプリを再度開いたとき、それらのメッセージを収集できます。</string>
+
+    <string name="setup_complete_title">接続済み</string>
+    <string name="setup_complete_description">あなたのメールボックスはBriarとのリンクに成功しています。\nメールボックスを電源とW-Fiに接続して、常時オンラインにしてください。</string>
+    <string name="setup_complete_finish">終了</string>
+
+    <string name="stopping">メールボックスを停止中…</string>
+
+    <string name="wipe_wiping">メールボックスを完全消去中…</string>
+    <string name="wipe_complete_title">完全消去完了</string>
+    <string name="wipe_complete_description">次回Briar端末にアクセスしたら、Briarアプリ内のメールボックス設定画面を開いて、「リンク解除」ボタンをタップして、処理を完了してください。</string>
+
+    <string name="sorry">申し訳ありません</string>
+    <string name="activity_not_found">この動作を行うアプリがありません</string>
+    <string name="startup_failed_activity_title">メールボックス起動失敗</string>
+    <string name="startup_failed_service_error">メールボックスは要求されたコンポーネントを起動できませんでした。\n\nアプリの最新版にアップグレードしてから、もう一度試してください。</string>
+    <string name="startup_failed_lifecycle_reuse">メールボックスは既に停止されています。\n\nアプリを閉じて、再びお試しください。</string>
+</resources>

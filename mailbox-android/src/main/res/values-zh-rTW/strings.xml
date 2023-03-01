@@ -30,8 +30,13 @@
     <string name="ok">確定</string>
     <string name="cancel">取消</string>
     <string name="share">分享</string>
+    <string name="copied">已複製</string>
+
     <string name="link_title">透過二維碼鏈接</string>
     <string name="link_description">利用 Briar 掃描此二維碼</string>
+    <string name="link_menu_title">以純文字顯示</string>
+    <string name="link_text_title">透過文字鏈接</string>
+    <string name="link_text_description">複製並將它貼在 Briar 桌面</string>
     <string name="link_cancel">取消設置</string>
 
     <string name="startup_headline">啟動 Mailbox</string>
@@ -68,6 +73,7 @@
     <string name="wipe_complete_description">下回使用 Briar 設備時，請開啟Briar 應用底下的 Mailbox 設定畫面，輕點\"解除鏈接\"按鍵以完成解除程序</string>
 
     <string name="sorry">抱歉</string>
+    <string name="activity_not_found">找不到可執行此動作的應用軟體</string>
     <string name="startup_failed_activity_title">Mailbox 啟動失敗</string>
     <string name="startup_failed_service_error">Mailbox 無法啟動所需的元件\n\n請昇級至最新版後再重試</string>
     <string name="startup_failed_lifecycle_reuse">Mailbox 已停止.\n\n 請關閉軟體後再重試</string>

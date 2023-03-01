@@ -1,0 +1,80 @@
+<resources>
+    <string name="app_name">Briar Mailbox</string>
+    <string name="notification_channel_name">Kanál Briar Mailbox</string>
+    <string name="notification_mailbox_title_starting">Mailbox sa spúšťa</string>
+    <string name="notification_mailbox_content_starting">Spúštanie Mailbox…</string>
+    <string name="notification_mailbox_title_setup">Nastavovanie Mailbox</string>
+    <string name="notification_mailbox_content_setup">Čakanie na Briar, aby naskenoval QR kód...</string>
+    <string name="notification_mailbox_title_running">Briar Mailbox je spustený</string>
+    <string name="notification_mailbox_content_running">Čakanie na správy...</string>
+    <string name="notification_mailbox_title_offline">Briar Mailbox je offline</string>
+    <string name="notification_mailbox_content_offline">Čaká sa na pripojenie k internetu...</string>
+    <string name="notification_mailbox_content_clock_skew">Čaká sa na správne systémové hodiny...</string>
+    <string name="button_continue">Pokračovať</string>
+    <string name="button_skip_intro">Preskočiť úvod</string>
+    <string name="button_back">Späť</string>
+
+    <string name="onboarding_0_title">Zostať dostupný</string>
+    <string name="onboarding_0_description">Mailbox vám pomôže zostať v kontakte s vašimi kontaktmi a synchronizuje vaše správy s aplikáciou Briar.</string>
+    <string name="onboarding_1_title">Použite náhradné zariadenie</string>
+    <string name="onboarding_1_description">Nainštalujte aplikáciu Mailbox do náhradného telefónu alebo tabletu a nechajte ho pripojený k napájaniu a Wi-Fi.</string>
+    <string name="onboarding_2_title">Doručenie správy</string>
+    <string name="onboarding_2_description">Keď je váš Mailbox online, vaše kontakty vám môžu zanechať správu, aj keď je váš Briar offline. Schránka bude prijímať správy a po vašom príchode online ich prepošle do Briaru.</string>
+    <string name="onboarding_3_title">Zašifrované</string>
+    <string name="onboarding_3_description">Správy prechádzajúce cez Mailbox sú šifrované a nie je možné ich prečítať v aplikácii Mailbox ani v tomto telefóne. Mailbox ich jednoducho prepošle do vášho telefónu s aplikáciou Briar Messenger.</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Briar Mailbox sa nepodarilo spustiť na pozadí</string>
+    <string name="fix">Opraviť</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Zrušiť</string>
+    <string name="share">Zdieľať</string>
+    <string name="copied">Skopírované</string>
+
+    <string name="link_title">Odkaz cez QR kód</string>
+    <string name="link_description">Naskenujte tento QR kód pomocou aplikácie Briar</string>
+    <string name="link_menu_title">Zobraziť ako text</string>
+    <string name="link_text_title">Odkaz cez text</string>
+    <string name="link_text_description">Skopírujte toto a vložte do aplikácie Briar Desktop:</string>
+    <string name="link_cancel">Zrušiť nastavenie</string>
+
+    <string name="startup_headline">Mailbox sa spúšťa</string>
+    <string name="startup_init_app">Inicializácia aplikácie</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">Pripájanie k sieti Tor (%d%%)</string>
+    <string name="startup_publishing_onion_service">Zverejnenie služby Tor onion</string>
+
+    <string name="clock_skew_title">Nesprávne systémové hodiny</string>
+    <string name="clock_skew_description">Skontrolujte svoj čas, časové pásmo a dátum v nastaveniach systému. Po oprave počkajte nejaký čas, kým sa Tor obnoví.</string>
+
+    <string name="no_network_title">Zariadenie v režime offline?</string>
+    <string name="no_network_description">Uistite sa, že je toto zariadenie online a pripojené k internetu. Keď budete online, nastavenie by sa malo automaticky spustiť práve na tomto mieste.</string>
+
+    <string name="status_running">Mailbox je spustený</string>
+    <string name="last_connection">Posledné pripojenie: %s</string>
+    <string name="now">teraz</string>
+    <string name="never">nikdy</string>
+    <string name="stop">Stop</string>
+    <string name="unlink">Odpojiť</string>
+    <string name="unlink_title">Odpojiť Mailbox?</string>
+    <string name="unlink_description">Ak odpojíte svoj Mailbox, nebudete môcť prijímať správy, kým je Briar offline.\n\nSte si istí, že chcete odpojiť svoj Mailbox?</string>
+    <string name="confirm_stop_title">Zastaviť Mailbox?</string>
+    <string name="confirm_stop_description">Keď zastavíte aplikáciu Mailbox, aplikácia sa vypne a prestane prijímať správy, kým ju znova neotvoríte.\n\nVšetky správy, ktoré už boli prijaté, sa uložia. Briar ich bude môcť prijať, keď znovu otvoríte aplikáciu Mailbox.</string>
+
+    <string name="setup_complete_title">Pripojené</string>
+    <string name="setup_complete_description">Váš Mailbox bol úspešne prepojený s aplikáciou Briar.\n\nUdržujte svoj Mailbox pripojený k napájaniu a Wi-Fi, aby bol vždy online.</string>
+    <string name="setup_complete_finish">Dokončiť</string>
+
+    <string name="stopping">Mailbox sa zastavuje...</string>
+
+    <string name="wipe_wiping">Čistenie aplikácie Mailbox...</string>
+    <string name="wipe_complete_title">Čistenie dokončené</string>
+    <string name="wipe_complete_description">Keď budete mať nabudúce prístup k zariadeniu Briar, otvorte prosím obrazovku nastavení Mailbox v aplikácii Briar a potom ťuknutím na tlačidlo \"Odpojiť\" dokončite tento proces.</string>
+
+    <string name="sorry">Prepáčte</string>
+    <string name="activity_not_found">Pre túto akciu nebola nájdená žiadna aplikácia</string>
+    <string name="startup_failed_activity_title">Zlyhanie spustenia Mailbox</string>
+    <string name="startup_failed_service_error">Mailbox nedokázal spustiť požadovanú súčasť.\n\nProsím, aktualizujte na najnovšiu verziu aplikácie a skúste to znova.</string>
+    <string name="startup_failed_lifecycle_reuse">Aplikácia Mailbox sa už zastavila.\n\nProsím, zatvorte aplikáciu a skúste to znova.</string>
+</resources>

@@ -34,6 +34,9 @@
 
     <string name="link_title">Link prin cod QR</string>
     <string name="link_description">Scanați acest cod QR cu Briar</string>
+    <string name="link_menu_title">Arată ca text</string>
+    <string name="link_text_title">Adresă via text</string>
+    <string name="link_text_description">Copiați aceasta și lipiți-o în Briar Desktop:</string>
     <string name="link_cancel">Anulare configurare</string>
 
     <string name="startup_headline">Căsuța poștală de pornire</string>
@@ -70,6 +73,7 @@
     <string name="wipe_complete_description">Data viitoare când aveți acces la dispozitivul Briar, deschideți ecranul de setări al căsuței poștale din app-ul Briar, apoi atingeți butonul \"Unlink\" pentru a finaliza procesul.</string>
 
     <string name="sorry">Ne pare rău</string>
+    <string name="activity_not_found">Nu s-a găsit nici o aplicație pentru această acțiune</string>
     <string name="startup_failed_activity_title">Eșecul de pornire a căsuței poștale</string>
     <string name="startup_failed_service_error">Mailbox nu a putut să pornească o componentă necesară.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a app-ului și să încercați din nou.</string>
     <string name="startup_failed_lifecycle_reuse">Căsuța poștală s-a oprit deja.\n\nVă rugăm să închideți app-ului și să încercați din nou.</string>
