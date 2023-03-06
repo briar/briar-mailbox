@@ -54,6 +54,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.IntSupplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
@@ -62,7 +63,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import io.netty.util.IntSupplier;
 import kotlinx.coroutines.flow.MutableStateFlow;
 import kotlinx.coroutines.flow.StateFlow;
 
@@ -113,7 +113,7 @@ public abstract class AbstractTorPlugin
 	 */
 	private static final int HS_DESC_UPLOADS = 1;
 	private final Pattern bootstrapPattern =
-			Pattern.compile("^Bootstrapped ([0-9]{1,3})%.*$");
+			Pattern.compile("^Bootstrapped (\\d{1,3})%.*$");
 	private final Pattern clockSkewPattern = Pattern.compile("CLOCK_SKEW");
 
 	private final Executor ioExecutor;
@@ -270,7 +270,7 @@ public abstract class AbstractTorPlugin
 		ioExecutor.execute(() -> {
 			int port;
 			try {
-				port = portSupplier.get();
+				port = portSupplier.getAsInt();
 			} catch (Exception e) {
 				throw new AssertionError(e);
 			}
@@ -301,6 +301,7 @@ public abstract class AbstractTorPlugin
 	}
 
 	protected void extract(InputStream in, File dest) throws IOException {
+		@SuppressWarnings("IOStreamConstructor") // not in Java 6 minSdk 16
 		OutputStream out = new FileOutputStream(dest);
 		copyAndClose(in, out);
 	}

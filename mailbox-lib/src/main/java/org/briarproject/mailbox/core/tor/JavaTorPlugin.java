@@ -32,10 +32,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.CodeSource;
 import java.util.concurrent.Executor;
+import java.util.function.IntSupplier;
 
 import javax.annotation.Nullable;
-
-import io.netty.util.IntSupplier;
 
 public class JavaTorPlugin extends AbstractTorPlugin {
 

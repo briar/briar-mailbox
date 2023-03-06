@@ -42,12 +42,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executor;
+import java.util.function.IntSupplier;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.annotation.Nullable;
-
-import io.netty.util.IntSupplier;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Arrays.asList;
