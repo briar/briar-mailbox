@@ -25,6 +25,7 @@ import android.graphics.Bitmap
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
@@ -60,6 +61,7 @@ import javax.inject.Singleton
 import kotlin.math.min
 
 @Singleton
+@OptIn(DelicateCoroutinesApi::class)
 class StatusManager @Inject constructor(
     @ApplicationContext private val context: Context,
     lifecycleManager: LifecycleManager,
