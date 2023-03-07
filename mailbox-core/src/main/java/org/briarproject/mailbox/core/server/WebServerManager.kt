@@ -27,10 +27,10 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.callloging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import kotlinx.coroutines.runBlocking
 import org.briarproject.mailbox.core.contacts.ContactsManager
 import org.briarproject.mailbox.core.files.FileRouteManager
 import org.briarproject.mailbox.core.lifecycle.Service
-import org.briarproject.mailbox.core.server.WebServerManager.Companion.PORT
 import org.briarproject.mailbox.core.settings.MetadataRouteManager
 import org.briarproject.mailbox.core.setup.SetupRouteManager
 import org.briarproject.mailbox.core.setup.WipeRouteManager
@@ -38,9 +38,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 interface WebServerManager : Service {
-    companion object {
-        const val PORT: Int = 8000
-    }
+    /**
+     * Accessing this can block the current thread until the port chosen by the webserver is known.
+     */
+    val port: Int
 }
 
 @Singleton
@@ -54,7 +55,7 @@ internal class WebServerManagerImpl @Inject constructor(
 ) : WebServerManager {
 
     private val server by lazy {
-        embeddedServer(Netty, PORT, watchPaths = emptyList()) {
+        embeddedServer(Netty, 0, watchPaths = emptyList()) {
             install(CallLogging)
             install(Authentication) {
                 bearer {
@@ -73,6 +74,7 @@ internal class WebServerManagerImpl @Inject constructor(
             configureFilesApi(fileRouteManager)
         }
     }
+    override val port get() = runBlocking { server.resolvedConnectors().first().port }
 
     override fun startService() {
         server.start()

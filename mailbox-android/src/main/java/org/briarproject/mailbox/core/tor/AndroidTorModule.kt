@@ -30,6 +30,7 @@ import dagger.hilt.components.SingletonComponent
 import org.briarproject.mailbox.core.event.EventBus
 import org.briarproject.mailbox.core.lifecycle.IoExecutor
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.server.WebServerManager
 import org.briarproject.mailbox.core.settings.SettingsManager
 import org.briarproject.mailbox.core.system.AndroidWakeLockManager
 import org.briarproject.mailbox.core.system.Clock
@@ -74,6 +75,7 @@ internal class AndroidTorModule {
         androidWakeLockManager: AndroidWakeLockManager,
         lifecycleManager: LifecycleManager,
         eventBus: EventBus,
+        webServerManager: WebServerManager,
     ): TorPlugin = AndroidTorPlugin(
         ioExecutor,
         app,
@@ -85,8 +87,8 @@ internal class AndroidTorModule {
         circumventionProvider,
         androidWakeLockManager,
         architecture,
-        app.getDir("tor", Context.MODE_PRIVATE),
-    ).also {
+        app.getDir("tor", Context.MODE_PRIVATE)
+    ) { webServerManager.port }.also {
         lifecycleManager.registerService(it)
         eventBus.addListener(it)
     }

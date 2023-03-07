@@ -42,6 +42,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executor;
+import java.util.function.IntSupplier;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -76,10 +77,11 @@ public class AndroidTorPlugin extends AbstractTorPlugin {
 			CircumventionProvider circumventionProvider,
 			AndroidWakeLockManager wakeLockManager,
 			@Nullable String architecture,
-			File torDirectory) {
+			File torDirectory,
+			IntSupplier portSupplier) {
 		super(ioExecutor, settingsManager, networkManager, locationUtils, clock,
 				resourceProvider, circumventionProvider, architecture,
-				torDirectory);
+				torDirectory, portSupplier);
 		this.ctx = ctx;
 		wakeLock = wakeLockManager.createWakeLock("TorPlugin");
 		String nativeLibDir = ctx.getApplicationInfo().nativeLibraryDir;

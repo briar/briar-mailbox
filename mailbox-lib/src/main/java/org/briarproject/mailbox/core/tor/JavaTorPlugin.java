@@ -32,6 +32,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.CodeSource;
 import java.util.concurrent.Executor;
+import java.util.function.IntSupplier;
 
 import javax.annotation.Nullable;
 
@@ -45,10 +46,11 @@ public class JavaTorPlugin extends AbstractTorPlugin {
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			@Nullable String architecture,
-			File torDirectory) {
+			File torDirectory,
+			IntSupplier portSupplier) {
 		super(ioExecutor, settingsManager, networkManager, locationUtils, clock,
 				resourceProvider, circumventionProvider, architecture,
-				torDirectory);
+				torDirectory, portSupplier);
 	}
 
 	@Override

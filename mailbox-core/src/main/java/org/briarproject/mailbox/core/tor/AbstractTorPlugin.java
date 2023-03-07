@@ -29,7 +29,6 @@ import org.briarproject.mailbox.core.event.Event;
 import org.briarproject.mailbox.core.event.EventListener;
 import org.briarproject.mailbox.core.lifecycle.IoExecutor;
 import org.briarproject.mailbox.core.lifecycle.ServiceException;
-import org.briarproject.mailbox.core.server.WebServerManager;
 import org.briarproject.mailbox.core.settings.Settings;
 import org.briarproject.mailbox.core.settings.SettingsManager;
 import org.briarproject.mailbox.core.system.Clock;
@@ -55,6 +54,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.IntSupplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
@@ -113,7 +113,7 @@ public abstract class AbstractTorPlugin
 	 */
 	private static final int HS_DESC_UPLOADS = 1;
 	private final Pattern bootstrapPattern =
-			Pattern.compile("^Bootstrapped ([0-9]{1,3})%.*$");
+			Pattern.compile("^Bootstrapped (\\d{1,3})%.*$");
 	private final Pattern clockSkewPattern = Pattern.compile("CLOCK_SKEW");
 
 	private final Executor ioExecutor;
@@ -128,6 +128,7 @@ public abstract class AbstractTorPlugin
 	private final ResourceProvider resourceProvider;
 	private final File torDirectory, configFile;
 	private final File doneFile, cookieFile;
+	private final IntSupplier portSupplier;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	protected final PluginState state = new PluginState();
@@ -147,7 +148,8 @@ public abstract class AbstractTorPlugin
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			@Nullable String architecture,
-			File torDirectory) {
+			File torDirectory,
+			IntSupplier portSupplier) {
 		this.ioExecutor = ioExecutor;
 		this.settingsManager = settingsManager;
 		this.networkManager = networkManager;
@@ -160,6 +162,7 @@ public abstract class AbstractTorPlugin
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
+		this.portSupplier = portSupplier;
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor =
 				new PoliteExecutor("TorPlugin", ioExecutor, 1);
@@ -264,8 +267,16 @@ public abstract class AbstractTorPlugin
 		// Check whether we're online
 		updateConnectionStatus(networkManager.getNetworkStatus());
 		// Create a hidden service if necessary
-		ioExecutor.execute(() -> publishHiddenService(
-				String.valueOf(WebServerManager.PORT)));
+		ioExecutor.execute(() -> {
+			int port;
+			try {
+				port = portSupplier.getAsInt();
+			} catch (Exception e) {
+				throw new AssertionError(e);
+			}
+			info(LOG, () -> "Binding hidden service to port: " + port);
+			publishHiddenService(String.valueOf(port));
+		});
 	}
 
 	private boolean assetsAreUpToDate() {
@@ -290,6 +301,7 @@ public abstract class AbstractTorPlugin
 	}
 
 	protected void extract(InputStream in, File dest) throws IOException {
+		@SuppressWarnings("IOStreamConstructor") // not in Java 6 minSdk 16
 		OutputStream out = new FileOutputStream(dest);
 		copyAndClose(in, out);
 	}

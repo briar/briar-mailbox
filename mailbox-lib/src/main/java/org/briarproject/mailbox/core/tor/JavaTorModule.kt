@@ -27,6 +27,7 @@ import org.briarproject.mailbox.core.event.EventBus
 import org.briarproject.mailbox.core.files.FileProvider
 import org.briarproject.mailbox.core.lifecycle.IoExecutor
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.server.WebServerManager
 import org.briarproject.mailbox.core.settings.SettingsManager
 import org.briarproject.mailbox.core.system.Clock
 import org.briarproject.mailbox.core.system.LocationUtils
@@ -67,6 +68,7 @@ class JavaTorModule {
         lifecycleManager: LifecycleManager,
         eventBus: EventBus,
         fileProvider: FileProvider,
+        webServerManager: WebServerManager,
     ): TorPlugin {
         val torDir = File(fileProvider.root, "tor")
         return JavaTorPlugin(
@@ -78,8 +80,8 @@ class JavaTorModule {
             resourceProvider,
             circumventionProvider,
             architecture,
-            torDir,
-        ).also {
+            torDir
+        ) { webServerManager.port }.also {
             lifecycleManager.registerService(it)
             eventBus.addListener(it)
         }
