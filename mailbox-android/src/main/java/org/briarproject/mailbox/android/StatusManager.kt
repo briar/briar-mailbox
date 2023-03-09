@@ -125,7 +125,7 @@ class StatusManager @Inject constructor(
     object NeedOnboarding : MailboxAppState(false)
     object NeedsDozeExemption : MailboxAppState(false)
     object NotStarted : MailboxAppState(false)
-    data class Starting(val status: String) : MailboxAppState(true)
+    data class Starting(val status: String, val isCancelable: Boolean) : MailboxAppState(true)
     data class StartedSettingUp(val qrCode: Bitmap, val link: String) : MailboxAppState(true)
     object StartedSetupComplete : MailboxAppState(true)
     object ErrorClockSkew : MailboxAppState(true)
@@ -194,16 +194,26 @@ class StatusManager @Inject constructor(
             // Keep this check below WIPING, STOPPING and STOPPED so that the online check
             // does not interfere with these states - no point in showing a network error then.
             online != null && !online -> ErrorNoNetwork
-            ls != LifecycleState.RUNNING -> Starting(getString(R.string.startup_init_app))
+            ls != LifecycleState.RUNNING -> Starting(
+                status = getString(R.string.startup_init_app),
+                isCancelable = false,
+            )
             // RUNNING
             tor != TorState.Published -> when (tor) {
-                TorState.StartingStopping -> Starting(getString(R.string.startup_init_app))
+                TorState.StartingStopping -> Starting(
+                    status = getString(R.string.startup_init_app),
+                    isCancelable = true,
+                )
                 is TorState.Enabling -> Starting(
-                    getString(R.string.startup_bootstrapping_tor, tor.percent)
+                    status = getString(R.string.startup_bootstrapping_tor, tor.percent),
+                    isCancelable = true,
                 )
                 TorState.ClockSkewed -> ErrorClockSkew
                 TorState.Inactive -> ErrorNoNetwork
-                else -> Starting(getString(R.string.startup_publishing_onion_service))
+                else -> Starting(
+                    status = getString(R.string.startup_publishing_onion_service),
+                    isCancelable = true,
+                )
             }
             setup == SetupComplete.FALSE -> {
                 // FIXME we shouldn't do expensive calls on the UiThread

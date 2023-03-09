@@ -105,7 +105,10 @@ class MailboxService : Service() {
         startForeground(
             NOTIFICATION_MAIN_ID,
             notificationManager.getServiceNotification(
-                Starting(getString(R.string.startup_headline))
+                Starting(
+                    status = getString(R.string.startup_headline),
+                    isCancelable = false,
+                )
             )
         )
 
