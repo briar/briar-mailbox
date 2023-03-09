@@ -26,6 +26,7 @@ import org.briarproject.mailbox.core.CoreEagerSingletons
 import org.briarproject.mailbox.core.MailboxLibEagerSingletons
 import org.briarproject.mailbox.core.db.TransactionManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.server.WebServerManager
 import org.briarproject.mailbox.core.setup.QrCodeEncoder
 import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.setup.WipeManager
@@ -58,6 +59,9 @@ abstract class AbstractMailbox(protected val customDataDir: File? = null) {
 
     @Inject
     internal lateinit var setupManager: SetupManager
+
+    @Inject
+    internal lateinit var webserverManager: WebServerManager
 
     @Inject
     internal lateinit var wipeManager: WipeManager
@@ -130,6 +134,12 @@ abstract class AbstractMailbox(protected val customDataDir: File? = null) {
     fun getLink(): String? {
         return qrCodeEncoder.getLink()
     }
+
+    /**
+     * The port, the webserver has bound to.
+     * Accessing this will block the current thread until the port chosen by the webserver is known.
+     */
+    val port get() = webserverManager.port
 
     fun getSystem(): System = system
 }
