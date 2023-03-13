@@ -57,7 +57,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntSupplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipInputStream;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -85,6 +84,7 @@ import static org.briarproject.mailbox.core.util.LogUtils.info;
 import static org.briarproject.mailbox.core.util.LogUtils.logException;
 import static org.briarproject.mailbox.core.util.LogUtils.warn;
 import static org.briarproject.mailbox.core.util.PrivacyUtils.scrubOnion;
+import static org.briarproject.nullsafety.NullSafety.requireNonNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public abstract class AbstractTorPlugin
@@ -174,6 +174,10 @@ public abstract class AbstractTorPlugin
 
 	protected File getObfs4ExecutableFile() {
 		return new File(torDirectory, "obfs4proxy");
+	}
+
+	protected File getSnowflakeExecutableFile() {
+		return new File(torDirectory, "snowflake");
 	}
 
 	public StateFlow<TorState> getState() {
@@ -293,6 +297,7 @@ public abstract class AbstractTorPlugin
 			doneFile.delete();
 			installTorExecutable();
 			installObfs4Executable();
+			installSnowflakeExecutable();
 			if (!doneFile.createNewFile())
 				LOG.warn("Failed to create done file");
 		} catch (IOException e) {
@@ -309,31 +314,27 @@ public abstract class AbstractTorPlugin
 	protected void installTorExecutable() throws IOException {
 		info(LOG, () -> "Installing Tor binary for " + architecture);
 		File torFile = getTorExecutableFile();
-		extract(getTorInputStream(), torFile);
+		extract(getExecutableInputStream("tor"), torFile);
 		if (!torFile.setExecutable(true, true)) throw new IOException();
 	}
 
 	protected void installObfs4Executable() throws IOException {
 		info(LOG, () -> "Installing obfs4proxy binary for " + architecture);
 		File obfs4File = getObfs4ExecutableFile();
-		extract(getObfs4InputStream(), obfs4File);
+		extract(getExecutableInputStream("obfs4proxy"), obfs4File);
 		if (!obfs4File.setExecutable(true, true)) throw new IOException();
 	}
-
-	private InputStream getTorInputStream() throws IOException {
-		InputStream in = resourceProvider
-				.getResourceInputStream("tor_" + architecture, ".zip");
-		ZipInputStream zin = new ZipInputStream(in);
-		if (zin.getNextEntry() == null) throw new IOException();
-		return zin;
+	protected void installSnowflakeExecutable() throws IOException {
+		info(LOG, () -> "Installing snowflake binary for " + architecture);
+		File snowflakeFile = getSnowflakeExecutableFile();
+		extract(getExecutableInputStream("snowflake"), snowflakeFile);
+		if (!snowflakeFile.setExecutable(true, true)) throw new IOException();
 	}
 
-	private InputStream getObfs4InputStream() throws IOException {
-		InputStream in = resourceProvider
-				.getResourceInputStream("obfs4proxy_" + architecture, ".zip");
-		ZipInputStream zin = new ZipInputStream(in);
-		if (zin.getNextEntry() == null) throw new IOException();
-		return zin;
+	private InputStream getExecutableInputStream(String basename) {
+		String ext = "";
+		return requireNonNull(resourceProvider
+				.getResourceInputStream(architecture + "/" + basename, ext));
 	}
 
 	private static void append(StringBuilder strb, String name, Object value) {
@@ -359,6 +360,8 @@ public abstract class AbstractTorPlugin
 		String obfs4Path = getObfs4ExecutableFile().getAbsolutePath();
 		append(strb, "ClientTransportPlugin obfs4 exec", obfs4Path);
 		append(strb, "ClientTransportPlugin meek_lite exec", obfs4Path);
+		String snowflakePath = getSnowflakeExecutableFile().getAbsolutePath();
+		append(strb, "ClientTransportPlugin snowflake exec", snowflakePath);
 		//noinspection CharsetObjectCanBeUsed
 		return new ByteArrayInputStream(
 				strb.toString().getBytes(Charset.forName("UTF-8")));

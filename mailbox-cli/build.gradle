@@ -53,7 +53,8 @@ idea {
     }
 }
 
-void jarFactory(Jar jarTask, jarArchitecture) {
+void jarFactory(Jar jarTask, os, architecture, configuration) {
+    def jarArchitecture = os + "-" + architecture
     jarTask.doFirst {
         println 'Building ' + jarArchitecture + ' version has started'
     }
@@ -64,16 +65,17 @@ void jarFactory(Jar jarTask, jarArchitecture) {
     }
     jarTask.setArchiveClassifier(jarArchitecture)
     jarTask.from {
-        configurations.runtimeClasspath.collect { file ->
+        configuration.collect { file ->
             file.isDirectory() ? file : zipTree(file)
         }
     } { copySpec ->
         copySpec.duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-        String[] architectures = ["linux-aarch64", "linux-armhf", "linux-x86_64"]
+        String[] architectures = ["aarch64", "armhf", "x86_64"]
         for (String arch : architectures) {
-            if (arch != jarArchitecture) {
-                exclude "obfs4proxy_" + arch + ".zip"
-                exclude "tor_" + arch + ".zip"
+            if (arch != architecture) {
+                exclude arch + "/obfs4proxy"
+                exclude arch + "/tor"
+                exclude arch + "/snowflake"
             }
         }
         exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
@@ -114,7 +116,7 @@ void jarFactory(Jar jarTask, jarArchitecture) {
 task x86LinuxJar(type: Jar) {
     group = "Build"
     description = "Assembles a runnable fat jar for x86-64 Linux"
-    jarFactory(it, 'linux-x86_64')
+    jarFactory(it, 'linux', 'x86_64', configurations.runtimeClasspath)
 }
 
 tasks.withType(Test) {

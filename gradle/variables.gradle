@@ -2,8 +2,9 @@ ext {
     kotlin_version = '1.7.22' // 1.8.x has a jackson issue, test with JacksonProguardTest
     hilt_version = '2.44.2'
     nav_version = '2.5.3'
-    tor_version = '0.4.7.13'
-    obfs4_version = '0.0.14'
+    tor_version = '0.4.7.13-2'
+    obfs4_version = '0.0.14-tor2'
+    snowflake_version = '2.5.1'
     junit_version = '5.7.2'
     mockk_version = '1.10.4'
     ktlint_plugin_version = '10.2.1'
