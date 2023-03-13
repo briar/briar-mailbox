@@ -22,7 +22,10 @@ package org.briarproject.mailbox.android.ui
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -36,6 +39,7 @@ class StartupFragment : Fragment() {
 
     private val viewModel: MailboxViewModel by activityViewModels()
     private lateinit var statusDetail: TextView
+    private lateinit var cancelButton: Button
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,6 +51,7 @@ class StartupFragment : Fragment() {
 
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
         statusDetail = v.findViewById(R.id.statusDetail)
+        cancelButton = v.findViewById(R.id.button)
 
         launchAndRepeatWhileStarted {
             viewModel.appState.collect { onAppStateChanged(it) }
@@ -58,6 +63,15 @@ class StartupFragment : Fragment() {
     private fun onAppStateChanged(state: MailboxAppState) {
         if (state is Starting) {
             statusDetail.text = state.status
+            if (state.isCancelable) {
+                cancelButton.visibility = VISIBLE
+                cancelButton.setOnClickListener {
+                    viewModel.stopLifecycle()
+                    requireActivity().finishAffinity()
+                }
+            } else {
+                cancelButton.visibility = GONE
+            }
         }
     }
 

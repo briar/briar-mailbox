@@ -26,6 +26,8 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.IntentFilter
 import android.os.IBinder
+import androidx.core.app.ServiceCompat
+import androidx.core.app.ServiceCompat.stopForeground
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
@@ -103,7 +105,10 @@ class MailboxService : Service() {
         startForeground(
             NOTIFICATION_MAIN_ID,
             notificationManager.getServiceNotification(
-                Starting(getString(R.string.startup_headline))
+                Starting(
+                    status = getString(R.string.startup_headline),
+                    isCancelable = false,
+                )
             )
         )
 
@@ -156,7 +161,7 @@ class MailboxService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         LOG.info("Destroyed")
-        stopForeground(true)
+        stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         if (receiver != null) unregisterReceiver(receiver)
         if (started) {
             androidExecutor.runOnBackgroundThread {
