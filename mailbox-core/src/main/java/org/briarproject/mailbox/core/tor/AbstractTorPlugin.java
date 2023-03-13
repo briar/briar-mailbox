@@ -476,7 +476,7 @@ public abstract class AbstractTorPlugin
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
 	}
 
-	private void enableBridges(List<BridgeType> bridgeTypes)
+	private void enableBridges(List<BridgeType> bridgeTypes, String countryCode)
 			throws IOException {
 		if (!state.setBridgeTypes(bridgeTypes)) return; // Unchanged
 		if (bridgeTypes.isEmpty()) {
@@ -485,11 +485,22 @@ public abstract class AbstractTorPlugin
 		} else {
 			Collection<String> conf = new ArrayList<>();
 			conf.add("UseBridges 1");
+			boolean letsEncrypt = canVerifyLetsEncryptCerts();
 			for (BridgeType bridgeType : bridgeTypes) {
-				conf.addAll(circumventionProvider.getBridges(bridgeType));
+				conf.addAll(circumventionProvider
+						.getBridges(bridgeType, countryCode, letsEncrypt));
 			}
 			controlConnection.setConf(conf);
 		}
+	}
+
+	/**
+	 * Returns true if this device can verify Let's Encrypt certificates signed
+	 * with the IdentTrust DST Root X3 certificate, which expired at the end of
+	 * September 2021.
+	 */
+	protected boolean canVerifyLetsEncryptCerts() {
+		return true;
 	}
 
 	@Override
@@ -677,7 +688,7 @@ public abstract class AbstractTorPlugin
 
 			try {
 				if (enableNetwork) {
-					enableBridges(bridgeTypes);
+					enableBridges(bridgeTypes, country);
 					enableConnectionPadding(enableConnectionPadding);
 					enableIpv6(ipv6Only);
 				}

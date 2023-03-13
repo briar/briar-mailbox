@@ -20,21 +20,32 @@
 package org.briarproject.mailbox.core.tor;
 
 import org.briarproject.mailbox.core.lifecycle.IoExecutor;
+import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.List;
 
+@NotNullByDefault
 public interface CircumventionProvider {
 
 	enum BridgeType {
 		DEFAULT_OBFS4,
 		NON_DEFAULT_OBFS4,
 		VANILLA,
-		MEEK
+		MEEK,
+		SNOWFLAKE
 	}
 
 	/**
+	 * Countries where Tor is blocked, i.e. vanilla Tor connection won't work.
+	 * <p>
+	 * See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+	 * and https://trac.torproject.org/projects/tor/wiki/doc/OONI/censorshipwiki
+	 */
+	String[] BLOCKED = {"BY", "CN", "EG", "IR", "RU", "TM", "VE"};
+
+	/**
 	 * Countries where bridge connections are likely to work.
-	 * Should be the union of
+	 * Should be a subset of {@link #BLOCKED} and the union of
 	 * {@link #DEFAULT_BRIDGES}, {@link #NON_DEFAULT_BRIDGES} and
 	 * {@link #DPI_BRIDGES}.
 	 */
@@ -50,13 +61,14 @@ public interface CircumventionProvider {
 	 * Countries where non-default obfs4 or vanilla bridges are likely to work.
 	 * Should be a subset of {@link #BRIDGES}.
 	 */
-	String[] NON_DEFAULT_BRIDGES = {"BY", "RU", "TM"};
+	String[] NON_DEFAULT_BRIDGES = {"BY", "RU"};
 
 	/**
 	 * Countries where vanilla bridges are blocked via DPI but non-default
-	 * obfs4 bridges and meek may work. Should be a subset of {@link #BRIDGES}.
+	 * obfs4 bridges, meek and snowflake may work. Should be a subset of
+	 * {@link #BRIDGES}.
 	 */
-	String[] DPI_BRIDGES = {"CN", "IR"};
+	String[] DPI_BRIDGES = {"CN", "IR", "TM"};
 
 	/**
 	 * Returns true if bridge connections of some type work in the given
@@ -72,6 +84,6 @@ public interface CircumventionProvider {
 	List<BridgeType> getSuitableBridgeTypes(String countryCode);
 
 	@IoExecutor
-	List<String> getBridges(BridgeType type);
-
+	List<String> getBridges(BridgeType type, String countryCode,
+			boolean letsEncrypt);
 }
