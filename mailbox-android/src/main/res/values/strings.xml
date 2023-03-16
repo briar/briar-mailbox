@@ -79,4 +79,17 @@
     <string name="startup_failed_lifecycle_reuse">Mailbox has already stopped.\n\nPlease close the app and try again.</string>
     <string name="startup_failed_clock_error">Mailbox was unable to start because your device\'s clock is wrong.\n\nPlease set your device\'s clock to the right time and try again.</string>
 
+    <!-- Preference -->
+    <string name="prefs_title">Settings</string>
+    <string name="prefs_tor_category_title">Tor circumvention settings</string>
+    <string name="prefs_tor_auto_title">Automatic bridge selection</string>
+    <string name="prefs_tor_auto_summary">Bridges get chosen based on your location</string>
+    <string name="prefs_tor_bridges_title">Use bridges</string>
+    <string name="prefs_bridges_category_title">Bridge types</string>
+    <string name="prefs_bridges_snowflake_title">Snowflake</string>
+    <string name="prefs_bridges_vanilla_title">Vanilla</string>
+    <string name="prefs_bridges_obfs4_title">Obfs4</string>
+    <string name="prefs_bridges_obfs_builtin_title">Obfs4 from Tor Browser</string>
+    <string name="prefs_bridges_meek_title">Meek</string>
+
 </resources>

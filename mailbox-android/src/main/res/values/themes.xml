@@ -19,4 +19,10 @@
     <style name="Theme.BriarMailbox.Dialog.Destructive" parent="Theme.BriarMailbox.Dialog">
         <item name="buttonBarPositiveButtonStyle">@style/TextButtonDestructive</item>
     </style>
+
+    <style name="Theme.BriarMailbox.NoActionBar" parent="Theme.BriarMailboxBase">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
 </resources>
