@@ -17,18 +17,25 @@
  *
  */
 
-package org.briarproject.mailbox.android.ui
+package org.briarproject.mailbox.android.ui.wipe
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
 
 @AndroidEntryPoint
-class WipeCompleteActivity : AppCompatActivity() {
+class WipingFragment : Fragment() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_wipe_complete)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View? {
+        return inflater.inflate(R.layout.fragment_wiping, container, false)
     }
+
 }

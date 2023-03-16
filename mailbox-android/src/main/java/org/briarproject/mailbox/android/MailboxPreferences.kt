@@ -24,7 +24,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
-import org.briarproject.mailbox.android.ui.WipeCompleteFragment
+import org.briarproject.mailbox.android.ui.wipe.WipeCompleteFragment
 import javax.inject.Inject
 
 class MailboxPreferences @Inject constructor(@ApplicationContext val context: Context) {

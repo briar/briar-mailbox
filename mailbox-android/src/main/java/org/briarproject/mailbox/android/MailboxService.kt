@@ -35,10 +35,10 @@ import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManager
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
 import org.briarproject.mailbox.android.StatusManager.Starting
-import org.briarproject.mailbox.android.ui.StartupFailureActivity
-import org.briarproject.mailbox.android.ui.StartupFailureActivity.Companion.EXTRA_START_RESULT
-import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure
-import org.briarproject.mailbox.android.ui.WipeCompleteActivity
+import org.briarproject.mailbox.android.ui.startup.StartupFailureActivity
+import org.briarproject.mailbox.android.ui.startup.StartupFailureActivity.Companion.EXTRA_START_RESULT
+import org.briarproject.mailbox.android.ui.startup.StartupFailureActivity.StartupFailure
+import org.briarproject.mailbox.android.ui.wipe.WipeCompleteActivity
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.CLOCK_ERROR
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.LIFECYCLE_REUSE

@@ -2,7 +2,7 @@
 <androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragmentContainer"
-    android:name="org.briarproject.mailbox.android.ui.WipeCompleteFragment"
+    android:name="org.briarproject.mailbox.android.ui.wipe.WipeCompleteFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".android.ui.WipeCompleteActivity" />
+    tools:context=".android.ui.wipe.WipeCompleteActivity" />

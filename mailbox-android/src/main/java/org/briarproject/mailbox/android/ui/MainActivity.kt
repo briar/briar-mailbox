@@ -64,6 +64,7 @@ import org.briarproject.mailbox.android.StatusManager.Stopping
 import org.briarproject.mailbox.android.StatusManager.Undecided
 import org.briarproject.mailbox.android.StatusManager.Wiping
 import org.briarproject.mailbox.android.ui.settings.SettingsActivity
+import org.briarproject.mailbox.android.ui.wipe.WipeCompleteActivity
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.NOT_STARTED
 import org.briarproject.mailbox.core.util.LogUtils.info
 import org.slf4j.LoggerFactory.getLogger

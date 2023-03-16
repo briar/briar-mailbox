@@ -17,7 +17,7 @@
  *
  */
 
-package org.briarproject.mailbox.android.ui
+package org.briarproject.mailbox.android.ui.status
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -32,6 +32,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.UiUtils.formatDate
+import org.briarproject.mailbox.android.ui.MailboxViewModel
+import org.briarproject.mailbox.android.ui.launchAndRepeatWhileStarted
 
 @AndroidEntryPoint
 class StatusFragment : Fragment() {

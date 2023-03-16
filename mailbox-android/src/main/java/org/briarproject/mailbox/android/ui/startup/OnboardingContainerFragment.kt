@@ -17,7 +17,7 @@
  *
  */
 
-package org.briarproject.mailbox.android.ui
+package org.briarproject.mailbox.android.ui.startup
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -27,6 +27,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import org.briarproject.mailbox.android.ui.MailboxViewModel
 import org.briarproject.mailbox.databinding.FragmentOnboardingContainerBinding
 
 class OnboardingContainerFragment : Fragment() {

@@ -17,7 +17,7 @@
  *
  */
 
-package org.briarproject.mailbox.android.ui
+package org.briarproject.mailbox.android.ui.setup
 
 import android.content.ActivityNotFoundException
 import android.content.ClipData
@@ -41,6 +41,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
+import org.briarproject.mailbox.android.ui.BackFragment
+import org.briarproject.mailbox.android.ui.MailboxViewModel
+import org.briarproject.mailbox.android.ui.launchAndRepeatWhileStarted
 
 @AndroidEntryPoint
 class QrCodeLinkFragment : BackFragment() {

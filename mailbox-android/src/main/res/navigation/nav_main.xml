@@ -7,12 +7,12 @@
 
     <fragment
         android:id="@+id/initFragment"
-        android:name="org.briarproject.mailbox.android.ui.InitFragment"
+        android:name="org.briarproject.mailbox.android.ui.startup.InitFragment"
         android:label="InitFragment"
         tools:layout="@layout/fragment_init" />
     <fragment
         android:id="@+id/onboardingFragment"
-        android:name="org.briarproject.mailbox.android.ui.OnboardingContainerFragment"
+        android:name="org.briarproject.mailbox.android.ui.startup.OnboardingContainerFragment"
         android:label="OnboardingContainerFragment"
         tools:layout="@layout/fragment_onboarding" />
     <fragment
@@ -22,12 +22,12 @@
         tools:layout="@layout/fragment_dont_kill_me" />
     <fragment
         android:id="@+id/startupFragment"
-        android:name="org.briarproject.mailbox.android.ui.StartupFragment"
+        android:name="org.briarproject.mailbox.android.ui.startup.StartupFragment"
         android:label="StartupFragment"
         tools:layout="@layout/fragment_startup" />
     <fragment
         android:id="@+id/qrCodeFragment"
-        android:name="org.briarproject.mailbox.android.ui.QrCodeFragment"
+        android:name="org.briarproject.mailbox.android.ui.setup.QrCodeFragment"
         android:label="@string/link_title"
         tools:layout="@layout/fragment_qr">
         <action
@@ -36,37 +36,37 @@
     </fragment>
     <fragment
         android:id="@+id/qrCodeLinkFragment"
-        android:name="org.briarproject.mailbox.android.ui.QrCodeLinkFragment"
+        android:name="org.briarproject.mailbox.android.ui.setup.QrCodeLinkFragment"
         android:label="@string/link_title"
         tools:layout="@layout/fragment_qr_link" />
     <fragment
         android:id="@+id/setupCompleteFragment"
-        android:name="org.briarproject.mailbox.android.ui.SetupCompleteFragment"
+        android:name="org.briarproject.mailbox.android.ui.setup.SetupCompleteFragment"
         android:label="SetupCompleteFragment"
         tools:layout="@layout/fragment_setup_complete" />
     <fragment
         android:id="@+id/statusFragment"
-        android:name="org.briarproject.mailbox.android.ui.StatusFragment"
+        android:name="org.briarproject.mailbox.android.ui.status.StatusFragment"
         android:label="StatusFragment"
         tools:layout="@layout/fragment_status" />
     <fragment
         android:id="@+id/noNetworkFragment"
-        android:name="org.briarproject.mailbox.android.ui.NoNetworkFragment"
+        android:name="org.briarproject.mailbox.android.ui.status.NoNetworkFragment"
         android:label="NoNetworkFragment"
         tools:layout="@layout/fragment_no_network" />
     <fragment
         android:id="@+id/clockSkewFragment"
-        android:name="org.briarproject.mailbox.android.ui.ClockSkewFragment"
+        android:name="org.briarproject.mailbox.android.ui.status.ClockSkewFragment"
         android:label="ClockSkewFragment"
         tools:layout="@layout/fragment_clock_skew" />
     <fragment
         android:id="@+id/stoppingFragment"
-        android:name="org.briarproject.mailbox.android.ui.StoppingFragment"
+        android:name="org.briarproject.mailbox.android.ui.status.StoppingFragment"
         android:label="StoppingFragment"
         tools:layout="@layout/fragment_stopping" />
     <fragment
         android:id="@+id/wipingFragment"
-        android:name="org.briarproject.mailbox.android.ui.WipingFragment"
+        android:name="org.briarproject.mailbox.android.ui.wipe.WipingFragment"
         android:label="WipingFragment"
         tools:layout="@layout/fragment_wiping" />
     <action

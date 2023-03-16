@@ -17,7 +17,7 @@
  *
  */
 
-package org.briarproject.mailbox.android.ui
+package org.briarproject.mailbox.android.ui.startup
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -31,6 +31,7 @@ import androidx.core.widget.ImageViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.ui.MailboxViewModel
 import org.briarproject.mailbox.databinding.FragmentOnboardingBinding
 
 class Onboarding0Fragment : OnboardingFragment(

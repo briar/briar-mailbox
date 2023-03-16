@@ -37,13 +37,13 @@
             android:exported="false"
             android:label="@string/prefs_title" />
         <activity
-            android:name=".android.ui.WipeCompleteActivity"
+            android:name=".android.ui.wipe.WipeCompleteActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:process=":briar_mailbox_wipe_complete"
             android:theme="@style/Theme.BriarMailbox.NoActionBar" />
         <activity
-            android:name=".android.ui.StartupFailureActivity"
+            android:name=".android.ui.startup.StartupFailureActivity"
             android:excludeFromRecents="true"
             android:exported="false"
             android:finishOnTaskLaunch="true"
