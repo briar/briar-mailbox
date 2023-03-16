@@ -28,9 +28,6 @@ import android.content.Intent.EXTRA_TEXT
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -38,10 +35,7 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.LENGTH_SHORT
 import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.view.MenuProvider
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
@@ -49,7 +43,7 @@ import org.briarproject.mailbox.android.StatusManager.MailboxAppState
 import org.briarproject.mailbox.android.StatusManager.StartedSettingUp
 
 @AndroidEntryPoint
-class QrCodeLinkFragment : Fragment(), MenuProvider {
+class QrCodeLinkFragment : BackFragment() {
 
     private val viewModel: MailboxViewModel by activityViewModels()
     private lateinit var linkView: TextView
@@ -65,27 +59,14 @@ class QrCodeLinkFragment : Fragment(), MenuProvider {
     }
 
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(v, savedInstanceState)
         linkView = v.findViewById(R.id.linkView)
         shareButton = v.findViewById(R.id.shareButton)
         copyButton = v.findViewById(R.id.copyButton)
 
-        // only needed for up/back navigation in action bar
-        requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
-
         launchAndRepeatWhileStarted {
             viewModel.appState.collect { onAppStateChanged(it) }
         }
-    }
-
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-    }
-
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        if (menuItem.itemId == android.R.id.home) {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-            return true
-        }
-        return false
     }
 
     private fun onAppStateChanged(state: MailboxAppState) {
