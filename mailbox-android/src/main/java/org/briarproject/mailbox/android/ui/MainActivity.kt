@@ -19,11 +19,16 @@
 
 package org.briarproject.mailbox.android.ui
 
+import android.Manifest.permission.POST_NOTIFICATIONS
 import android.content.Intent
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
+import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,6 +75,9 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.fragmentContainer) as NavHostFragment
         navHostFragment.navController
+    }
+    private val permissionLauncher = registerForActivityResult(RequestPermission()) {
+        // if the user doesn't want to allow permissions, so be it
     }
 
     private var hadBeenStartedOnSave = false
@@ -127,6 +135,7 @@ class MainActivity : AppCompatActivity() {
                     nav.navigate(actionGlobalDoNotKillMeFragment())
             }
             NotStarted -> {
+                askForNotificationPermission()
                 supportActionBar?.hide()
                 nav.navigate(actionGlobalStartupFragment())
             }
@@ -194,6 +203,12 @@ class MainActivity : AppCompatActivity() {
         if (needsDozeWhitelisting(this) && viewModel.getAndResetDozeFlag()) {
             showDozeDialog()
         }
+    }
+
+    private fun askForNotificationPermission() {
+        if (SDK_INT >= 33 && !isDestroyed && !isFinishing &&
+            checkSelfPermission(this, POST_NOTIFICATIONS) != PERMISSION_GRANTED
+        ) permissionLauncher.launch(POST_NOTIFICATIONS)
     }
 
     private fun showDozeDialog() = AlertDialog.Builder(this)

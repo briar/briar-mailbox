@@ -56,7 +56,7 @@ class StartupFragment : Fragment() {
         launchAndRepeatWhileStarted {
             viewModel.appState.collect { onAppStateChanged(it) }
         }
-
+        // FIXME Should this be the job of the fragment? What if I rotate the screen? Start twice?
         viewModel.startLifecycle()
     }
 
