@@ -40,7 +40,7 @@ dependencies {
     implementation('com.fasterxml.jackson.module:jackson-module-kotlin') {
         version { strictly "$jackson_version" }
     }
-    api "org.slf4j:slf4j-api:1.7.36"
+    api "org.slf4j:slf4j-api:2.0.6"
 
     //noinspection GradleDependency
     implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
@@ -53,7 +53,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junit_version"
     testImplementation "org.junit.jupiter:junit-jupiter-engine:$junit_version"
     testImplementation "io.mockk:mockk:$mockk_version"
-    testImplementation "ch.qos.logback:logback-classic:1.2.11"
+    testImplementation "ch.qos.logback:logback-classic:1.4.5"
     testImplementation "io.ktor:ktor-client-cio:$ktor_version"
     testImplementation "io.ktor:ktor-serialization-jackson:$ktor_version"
     testImplementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
