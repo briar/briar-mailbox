@@ -340,15 +340,14 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 		private synchronized TorPluginState getCurrentState(TorState torState) {
 			if (torState == TorState.STARTING_STOPPING) {
 				return TorPluginState.StartingStopping.INSTANCE;
-			} else if (torState == TorState.CONNECTING) {
-				return new TorPluginState.Enabling(bootstrapPercent);
 			} else if (torState == TorState.DISABLED) {
 				return TorPluginState.Inactive.INSTANCE;
+			} else if (clockSkewed) {
+				return TorPluginState.ClockSkewed.INSTANCE;
+			} else if (torState == TorState.CONNECTING) {
+				return new TorPluginState.Enabling(bootstrapPercent);
 			} else if (torState == TorState.CONNECTED) {
-				if (clockSkewed) {
-					// TODO: Should we also report clock skew while connecting?
-					return TorPluginState.ClockSkewed.INSTANCE;
-				} else if (numServiceUploads >= HS_DESC_UPLOADS) {
+				if (numServiceUploads >= HS_DESC_UPLOADS) {
 					return TorPluginState.Published.INSTANCE;
 				} else {
 					return TorPluginState.Active.INSTANCE;
