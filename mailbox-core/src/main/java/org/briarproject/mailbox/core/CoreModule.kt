@@ -32,6 +32,7 @@ import org.briarproject.mailbox.core.settings.SettingsModule
 import org.briarproject.mailbox.core.setup.SetupModule
 import org.briarproject.mailbox.core.system.Clock
 import org.briarproject.mailbox.core.tor.TorModule
+import org.briarproject.onionwrapper.CircumventionModule
 import javax.inject.Singleton
 
 @Module(
@@ -44,6 +45,7 @@ import javax.inject.Singleton
         WebServerModule::class,
         SettingsModule::class,
         TorModule::class,
+        CircumventionModule::class,
     ]
 )
 @InstallIn(SingletonComponent::class)

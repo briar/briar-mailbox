@@ -68,11 +68,4 @@ public class AndroidSystemModule {
 	Executor provideEventExecutor(AndroidExecutor androidExecutor) {
 		return androidExecutor::runOnUiThread;
 	}
-
-	@Provides
-	@Singleton
-	AndroidWakeLockManager provideWakeLockManager(
-			AndroidWakeLockManagerImpl wakeLockManager) {
-		return wakeLockManager;
-	}
 }

@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow;
 
 public interface TorPlugin extends Service {
 
-	StateFlow<TorState> getState();
+	StateFlow<TorPluginState> getState();
 
 	String getHiddenServiceAddress() throws DbException;
 

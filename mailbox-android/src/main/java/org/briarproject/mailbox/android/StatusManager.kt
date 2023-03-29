@@ -52,7 +52,7 @@ import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.system.AndroidExecutor
 import org.briarproject.mailbox.core.tor.NetworkStatusEvent
 import org.briarproject.mailbox.core.tor.TorPlugin
-import org.briarproject.mailbox.core.tor.TorState
+import org.briarproject.mailbox.core.tor.TorPluginState
 import org.briarproject.mailbox.core.util.LogUtils.info
 import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicReference
@@ -96,7 +96,7 @@ class StatusManager @Inject constructor(
 
     private val online: AtomicReference<Boolean?> = AtomicReference(null)
     private val lifecycleState: StateFlow<LifecycleState> = lifecycleManager.lifecycleStateFlow
-    private val torPluginState: StateFlow<TorState> = torPlugin.state
+    private val torPluginState: StateFlow<TorPluginState> = torPlugin.state
     private val setupComplete: StateFlow<SetupComplete> = setupManager.setupComplete
 
     @UiThread
@@ -199,17 +199,17 @@ class StatusManager @Inject constructor(
                 isCancelable = false,
             )
             // RUNNING
-            tor != TorState.Published -> when (tor) {
-                TorState.StartingStopping -> Starting(
+            tor != TorPluginState.Published -> when (tor) {
+                TorPluginState.StartingStopping -> Starting(
                     status = getString(R.string.startup_init_app),
                     isCancelable = true,
                 )
-                is TorState.Enabling -> Starting(
+                is TorPluginState.Enabling -> Starting(
                     status = getString(R.string.startup_bootstrapping_tor, tor.percent),
                     isCancelable = true,
                 )
-                TorState.ClockSkewed -> ErrorClockSkew
-                TorState.Inactive -> ErrorNoNetwork
+                TorPluginState.ClockSkewed -> ErrorClockSkew
+                TorPluginState.Inactive -> ErrorNoNetwork
                 else -> Starting(
                     status = getString(R.string.startup_publishing_onion_service),
                     isCancelable = true,

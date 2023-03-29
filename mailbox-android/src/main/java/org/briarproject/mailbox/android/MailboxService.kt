@@ -30,6 +30,8 @@ import androidx.core.app.ServiceCompat
 import androidx.core.app.ServiceCompat.stopForeground
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
+import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLock
+import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManager
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.MailboxNotificationManager.Companion.NOTIFICATION_MAIN_ID
 import org.briarproject.mailbox.android.StatusManager.Starting
@@ -42,8 +44,6 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.LIFE
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
 import org.briarproject.mailbox.core.system.AndroidExecutor
-import org.briarproject.mailbox.core.system.AndroidWakeLock
-import org.briarproject.mailbox.core.system.AndroidWakeLockManager
 import org.briarproject.mailbox.core.system.System
 import org.briarproject.mailbox.core.util.LogUtils.warn
 import org.slf4j.LoggerFactory.getLogger

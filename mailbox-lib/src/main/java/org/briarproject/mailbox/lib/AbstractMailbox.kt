@@ -32,7 +32,7 @@ import org.briarproject.mailbox.core.setup.SetupManager
 import org.briarproject.mailbox.core.setup.WipeManager
 import org.briarproject.mailbox.core.system.System
 import org.briarproject.mailbox.core.tor.TorPlugin
-import org.briarproject.mailbox.core.tor.TorState
+import org.briarproject.mailbox.core.tor.TorPluginState
 import org.briarproject.mailbox.core.util.LogUtils.info
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
@@ -105,7 +105,7 @@ abstract class AbstractMailbox(protected val customDataDir: File? = null) {
         runBlocking {
             // wait until Tor becomes active and published the onion service
             torPlugin.state.takeWhile { state ->
-                state != TorState.Published
+                state != TorPluginState.Published
             }.collect { }
         }
         LOG.info { "Hidden service published" }

@@ -21,9 +21,8 @@ configurations {
 dependencies {
     implementation project(path: ':mailbox-core', configuration: 'default')
 
-    def jna_version = '5.8.0'
-    implementation "net.java.dev.jna:jna:$jna_version"
-    implementation "net.java.dev.jna:jna-platform:$jna_version"
+    implementation "org.briarproject:onionwrapper-java:$onionwrapper_version"
+
     tor "org.briarproject:tor-linux:$tor_version"
     tor "org.briarproject:obfs4proxy-linux:$obfs4_version"
     tor "org.briarproject:snowflake-linux:$snowflake_version"
