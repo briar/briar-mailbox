@@ -95,13 +95,13 @@ class JavaTorModule {
                 }
                 when (System.getProperty("os.arch")) {
                     "amd64" -> {
-                        return "linux-x86_64"
+                        return "x86_64"
                     }
                     "aarch64" -> {
-                        return "linux-aarch64"
+                        return "aarch64"
                     }
                     "arm" -> {
-                        return "linux-armhf"
+                        return "armhf"
                     }
                 }
             }
