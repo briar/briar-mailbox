@@ -19,36 +19,36 @@
 
 package org.briarproject.mailbox.core.tor
 
-sealed class TorState {
+sealed class TorPluginState {
     /**
      * The plugin has not finished starting or has been stopped.
      */
-    object StartingStopping : TorState()
+    object StartingStopping : TorPluginState()
 
     /**
      * The plugin is being enabled and can't yet make or receive
      * connections.
      */
-    class Enabling(val percent: Int) : TorState()
+    class Enabling(val percent: Int) : TorPluginState()
 
     /**
      * Tor has detected a wrong system clock. The user should be advised to check their clock
      * and timezone settings.
      */
-    object ClockSkewed : TorState()
+    object ClockSkewed : TorPluginState()
 
     /**
      * The plugin is enabled and can make or receive connections.
      */
-    object Active : TorState()
+    object Active : TorPluginState()
 
     /**
      * The plugin has published the onion service.
      */
-    object Published : TorState()
+    object Published : TorPluginState()
 
     /**
      * The plugin is enabled but can't make or receive connections
      */
-    object Inactive : TorState()
+    object Inactive : TorPluginState()
 }

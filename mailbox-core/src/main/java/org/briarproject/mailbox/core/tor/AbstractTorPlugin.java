@@ -19,10 +19,6 @@
 
 package org.briarproject.mailbox.core.tor;
 
-import net.freehaven.tor.control.EventHandler;
-import net.freehaven.tor.control.TorControlConnection;
-import net.freehaven.tor.control.TorNotRunningException;
-
 import org.briarproject.mailbox.core.PoliteExecutor;
 import org.briarproject.mailbox.core.db.DbException;
 import org.briarproject.mailbox.core.event.Event;
@@ -31,33 +27,23 @@ import org.briarproject.mailbox.core.lifecycle.IoExecutor;
 import org.briarproject.mailbox.core.lifecycle.ServiceException;
 import org.briarproject.mailbox.core.settings.Settings;
 import org.briarproject.mailbox.core.settings.SettingsManager;
-import org.briarproject.mailbox.core.system.Clock;
 import org.briarproject.mailbox.core.system.LocationUtils;
-import org.briarproject.mailbox.core.system.ResourceProvider;
-import org.briarproject.mailbox.core.tor.CircumventionProvider.BridgeType;
+import org.briarproject.onionwrapper.CircumventionProvider;
+import org.briarproject.onionwrapper.CircumventionProvider.BridgeType;
+import org.briarproject.onionwrapper.TorWrapper;
+import org.briarproject.onionwrapper.TorWrapper.HiddenServiceProperties;
+import org.briarproject.onionwrapper.TorWrapper.Observer;
+import org.briarproject.onionwrapper.TorWrapper.TorState;
 import org.slf4j.Logger;
 
-import java.io.ByteArrayInputStream;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntSupplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -67,44 +53,21 @@ import kotlinx.coroutines.flow.StateFlow;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
 import static kotlinx.coroutines.flow.StateFlowKt.MutableStateFlow;
-import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
-import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
-import static org.briarproject.mailbox.core.tor.CircumventionProvider.BridgeType.MEEK;
-import static org.briarproject.mailbox.core.tor.TorConstants.CONTROL_PORT;
 import static org.briarproject.mailbox.core.tor.TorConstants.HS_ADDRESS_V3;
 import static org.briarproject.mailbox.core.tor.TorConstants.HS_PRIVATE_KEY_V3;
 import static org.briarproject.mailbox.core.tor.TorConstants.SETTINGS_NAMESPACE;
-import static org.briarproject.mailbox.core.tor.TorConstants.SOCKS_PORT;
-import static org.briarproject.mailbox.core.util.IoUtils.copyAndClose;
-import static org.briarproject.mailbox.core.util.IoUtils.tryToClose;
 import static org.briarproject.mailbox.core.util.LogUtils.info;
 import static org.briarproject.mailbox.core.util.LogUtils.logException;
-import static org.briarproject.mailbox.core.util.LogUtils.warn;
 import static org.briarproject.mailbox.core.util.PrivacyUtils.scrubOnion;
-import static org.briarproject.nullsafety.NullSafety.requireNonNull;
+import static org.briarproject.onionwrapper.CircumventionProvider.BridgeType.MEEK;
+import static org.briarproject.onionwrapper.CircumventionProvider.BridgeType.SNOWFLAKE;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public abstract class AbstractTorPlugin
-		implements TorPlugin, EventHandler, EventListener {
+public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 
 	private static final Logger LOG = getLogger(AbstractTorPlugin.class);
 
-	private static final String[] EVENTS = {
-			"CIRC",
-			"ORCONN",
-			"STATUS_GENERAL",
-			"STATUS_CLIENT",
-			"HS_DESC",
-			"NOTICE",
-			"WARN",
-			"ERR"
-	};
-	private static final String OWNER = "__OwningControllerProcess";
-	private static final int COOKIE_TIMEOUT_MS = 3000;
-	private static final int COOKIE_POLLING_INTERVAL_MS = 200;
 	/**
 	 * The number of uploads of our onion service descriptor we wait for
 	 * before we consider our onion service to be published.
@@ -112,162 +75,80 @@ public abstract class AbstractTorPlugin
 	 * but this might be a reasonable heuristic.
 	 */
 	private static final int HS_DESC_UPLOADS = 1;
-	private final Pattern bootstrapPattern =
-			Pattern.compile("^Bootstrapped (\\d{1,3})%.*$");
-	private final Pattern clockSkewPattern = Pattern.compile("CLOCK_SKEW");
 
 	private final Executor ioExecutor;
 	private final Executor connectionStatusExecutor;
 	private final SettingsManager settingsManager;
 	private final NetworkManager networkManager;
 	private final LocationUtils locationUtils;
-	private final Clock clock;
-	@Nullable
-	private final String architecture;
 	private final CircumventionProvider circumventionProvider;
-	private final ResourceProvider resourceProvider;
-	private final File torDirectory, configFile;
-	private final File doneFile, cookieFile;
 	private final IntSupplier portSupplier;
+	private final boolean canVerifyLetsEncryptCerts;
+	private final TorWrapper tor;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	protected final PluginState state = new PluginState();
-
-	private volatile Socket controlSocket = null;
-	private volatile TorControlConnection controlConnection = null;
-
-	protected abstract int getProcessId();
-
-	protected abstract long getLastUpdateTime();
 
 	AbstractTorPlugin(Executor ioExecutor,
 			SettingsManager settingsManager,
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
-			Clock clock,
-			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
-			@Nullable String architecture,
-			File torDirectory,
-			IntSupplier portSupplier) {
+			IntSupplier portSupplier,
+			boolean canVerifyLetsEncryptCerts,
+			TorWrapper tor) {
 		this.ioExecutor = ioExecutor;
 		this.settingsManager = settingsManager;
 		this.networkManager = networkManager;
 		this.locationUtils = locationUtils;
-		this.clock = clock;
-		this.resourceProvider = resourceProvider;
 		this.circumventionProvider = circumventionProvider;
-		this.architecture = architecture;
-		this.torDirectory = torDirectory;
-		configFile = new File(torDirectory, "torrc");
-		doneFile = new File(torDirectory, "done");
-		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
 		this.portSupplier = portSupplier;
+		this.canVerifyLetsEncryptCerts = canVerifyLetsEncryptCerts;
+		this.tor = tor;
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor =
 				new PoliteExecutor("TorPlugin", ioExecutor, 1);
+		tor.setObserver(new Observer() {
+
+			@Override
+			public void onState(@Nonnull TorState s) {
+				state.onStateChanged(s);
+			}
+
+			@Override
+			public void onBootstrapPercentage(int percentage) {
+				state.setBootstrapPercent(percentage);
+			}
+
+			@Override
+			public void onHsDescriptorUpload(@Nonnull String onion) {
+				state.onServiceDescriptorUploaded();
+			}
+
+			@Override
+			public void onClockSkewDetected(long skewSeconds) {
+				state.onClockSkewDetected();
+			}
+		});
 	}
 
-	protected File getTorExecutableFile() {
-		return new File(torDirectory, "tor");
-	}
-
-	protected File getObfs4ExecutableFile() {
-		return new File(torDirectory, "obfs4proxy");
-	}
-
-	protected File getSnowflakeExecutableFile() {
-		return new File(torDirectory, "snowflake");
-	}
-
-	public StateFlow<TorState> getState() {
+	public StateFlow<TorPluginState> getState() {
 		return state.state;
 	}
 
 	@Override
 	public void startService() throws ServiceException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
-		if (!torDirectory.exists()) {
-			if (!torDirectory.mkdirs()) {
-				LOG.warn("Could not create Tor directory.");
-				throw new ServiceException();
-			}
-		}
+		// Start Tor
 		try {
-			// Install or update the assets if necessary
-			if (!assetsAreUpToDate()) installAssets();
-			// Start from the default config every time
-			extract(getConfigInputStream(), configFile);
-		} catch (IOException e) {
-			throw new ServiceException(e);
-		}
-		if (cookieFile.exists() && !cookieFile.delete())
-			LOG.warn("Old auth cookie not deleted");
-		// Start a new Tor process
-		LOG.info("Starting Tor");
-		File torFile = getTorExecutableFile();
-		String torPath = torFile.getAbsolutePath();
-		String configPath = configFile.getAbsolutePath();
-		String pid = String.valueOf(getProcessId());
-		Process torProcess;
-		ProcessBuilder pb =
-				new ProcessBuilder(torPath, "-f", configPath, OWNER, pid);
-		Map<String, String> env = pb.environment();
-		env.put("HOME", torDirectory.getAbsolutePath());
-		pb.directory(torDirectory);
-		pb.redirectErrorStream(true);
-		try {
-			torProcess = pb.start();
-		} catch (SecurityException | IOException e) {
-			throw new ServiceException(e);
-		}
-		try {
-			// Wait for the Tor process to start
-			waitForTorToStart(torProcess);
-			// Wait for the auth cookie file to be created/updated
-			long start = clock.currentTimeMillis();
-			while (cookieFile.length() < 32) {
-				if (clock.currentTimeMillis() - start > COOKIE_TIMEOUT_MS) {
-					LOG.warn("Auth cookie not created");
-					if (LOG.isInfoEnabled()) listFiles(torDirectory);
-					throw new ServiceException();
-				}
-				//noinspection BusyWait
-				Thread.sleep(COOKIE_POLLING_INTERVAL_MS);
-			}
-			LOG.info("Auth cookie created");
+			tor.start();
 		} catch (InterruptedException e) {
 			LOG.warn("Interrupted while starting Tor");
 			Thread.currentThread().interrupt();
-			throw new ServiceException();
-		}
-		try {
-			// Open a control connection and authenticate using the cookie file
-			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
-			controlConnection = new TorControlConnection(controlSocket);
-			controlConnection.authenticate(read(cookieFile));
-			// Tell Tor to exit when the control connection is closed
-			controlConnection.takeOwnership();
-			controlConnection.resetConf(singletonList(OWNER));
-			// Register to receive events from the Tor process
-			controlConnection.setEventHandler(this);
-			controlConnection.setEvents(asList(EVENTS));
-			// Check whether Tor has already bootstrapped
-			String info = controlConnection.getInfo("status/bootstrap-phase");
-			if (info != null && info.contains("PROGRESS=100")) {
-				LOG.info("Tor has already bootstrapped");
-				state.setBootstrapPercent(100);
-			}
-			// Check whether Tor has already built a circuit
-			info = controlConnection.getInfo("status/circuit-established");
-			if ("1".equals(info)) {
-				LOG.info("Tor has already built a circuit");
-				state.setCircuitBuilt(true);
-			}
+			throw new ServiceException(e);
 		} catch (IOException e) {
 			throw new ServiceException(e);
 		}
-		state.setStarted();
 		// Check whether we're online
 		updateConnectionStatus(networkManager.getNetworkStatus());
 		// Create a hidden service if necessary
@@ -279,138 +160,13 @@ public abstract class AbstractTorPlugin
 				throw new AssertionError(e);
 			}
 			info(LOG, () -> "Binding hidden service to port: " + port);
-			publishHiddenService(String.valueOf(port));
+			publishHiddenService(port);
 		});
 	}
 
-	private boolean assetsAreUpToDate() {
-		return doneFile.lastModified() > getLastUpdateTime();
-	}
-
-	private void installAssets() throws ServiceException {
-		if (architecture == null)
-			throw new ServiceException(
-					"Tor not supported on this architecture");
-		try {
-			// The done file may already exist from a previous installation
-			//noinspection ResultOfMethodCallIgnored
-			doneFile.delete();
-			installTorExecutable();
-			installObfs4Executable();
-			installSnowflakeExecutable();
-			if (!doneFile.createNewFile())
-				LOG.warn("Failed to create done file");
-		} catch (IOException e) {
-			throw new ServiceException(e);
-		}
-	}
-
-	protected void extract(InputStream in, File dest) throws IOException {
-		@SuppressWarnings("IOStreamConstructor") // not in Java 6 minSdk 16
-		OutputStream out = new FileOutputStream(dest);
-		copyAndClose(in, out);
-	}
-
-	protected void installTorExecutable() throws IOException {
-		info(LOG, () -> "Installing Tor binary for " + architecture);
-		File torFile = getTorExecutableFile();
-		extract(getExecutableInputStream("tor"), torFile);
-		if (!torFile.setExecutable(true, true)) throw new IOException();
-	}
-
-	protected void installObfs4Executable() throws IOException {
-		info(LOG, () -> "Installing obfs4proxy binary for " + architecture);
-		File obfs4File = getObfs4ExecutableFile();
-		extract(getExecutableInputStream("obfs4proxy"), obfs4File);
-		if (!obfs4File.setExecutable(true, true)) throw new IOException();
-	}
-	protected void installSnowflakeExecutable() throws IOException {
-		info(LOG, () -> "Installing snowflake binary for " + architecture);
-		File snowflakeFile = getSnowflakeExecutableFile();
-		extract(getExecutableInputStream("snowflake"), snowflakeFile);
-		if (!snowflakeFile.setExecutable(true, true)) throw new IOException();
-	}
-
-	private InputStream getExecutableInputStream(String basename) {
-		String ext = "";
-		return requireNonNull(resourceProvider
-				.getResourceInputStream(architecture + "/" + basename, ext));
-	}
-
-	private static void append(StringBuilder strb, String name, Object value) {
-		strb.append(name);
-		strb.append(" ");
-		strb.append(value);
-		strb.append("\n");
-	}
-
-	private InputStream getConfigInputStream() {
-		File dataDirectory = new File(torDirectory, ".tor");
-		StringBuilder strb = new StringBuilder();
-		append(strb, "ControlPort", CONTROL_PORT);
-		append(strb, "CookieAuthentication", 1);
-		append(strb, "DataDirectory", dataDirectory.getAbsolutePath());
-		append(strb, "DisableNetwork", 1);
-		append(strb, "RunAsDaemon", 1);
-		append(strb, "SafeSocks", 1);
-		append(strb, "SocksPort", SOCKS_PORT);
-		strb.append("GeoIPFile\n");
-		strb.append("GeoIPv6File\n");
-		append(strb, "ConnectionPadding", 0);
-		String obfs4Path = getObfs4ExecutableFile().getAbsolutePath();
-		append(strb, "ClientTransportPlugin obfs4 exec", obfs4Path);
-		append(strb, "ClientTransportPlugin meek_lite exec", obfs4Path);
-		String snowflakePath = getSnowflakeExecutableFile().getAbsolutePath();
-		append(strb, "ClientTransportPlugin snowflake exec", snowflakePath);
-		//noinspection CharsetObjectCanBeUsed
-		return new ByteArrayInputStream(
-				strb.toString().getBytes(Charset.forName("UTF-8")));
-	}
-
-	private void listFiles(File f) {
-		if (f.isDirectory()) {
-			File[] children = f.listFiles();
-			if (children != null) for (File child : children) listFiles(child);
-		} else {
-			LOG.info(f.getAbsolutePath() + " " + f.length());
-		}
-	}
-
-	private byte[] read(File f) throws IOException {
-		byte[] b = new byte[(int) f.length()];
-		FileInputStream in = new FileInputStream(f);
-		try {
-			int offset = 0;
-			while (offset < b.length) {
-				int read = in.read(b, offset, b.length - offset);
-				if (read == -1) throw new EOFException();
-				offset += read;
-			}
-			return b;
-		} finally {
-			tryToClose(in, LOG);
-		}
-	}
-
-	protected void waitForTorToStart(Process torProcess)
-			throws InterruptedException, ServiceException {
-		Scanner stdout = new Scanner(torProcess.getInputStream());
-		// Log the first line of stdout (contains Tor and library versions)
-		if (stdout.hasNextLine()) LOG.info(stdout.nextLine());
-		// Read the process's stdout (and redirected stderr) until it detaches
-		while (stdout.hasNextLine()) stdout.nextLine();
-		stdout.close();
-		// Wait for the process to detach or exit
-		int exit = torProcess.waitFor();
-		if (exit != 0) {
-			warn(LOG, () -> "Tor exited with value " + exit);
-			throw new ServiceException();
-		}
-	}
-
 	@IoExecutor
-	private void publishHiddenService(String port) {
-		if (!state.isTorRunning()) return;
+	private void publishHiddenService(int port) {
+		if (!tor.isTorRunning()) return;
 
 		Settings s;
 		try {
@@ -424,39 +180,21 @@ public abstract class AbstractTorPlugin
 	}
 
 	@IoExecutor
-	private void createV3HiddenService(String port, @Nullable String privKey) {
+	private void createV3HiddenService(int port, @Nullable String privKey) {
 		LOG.info("Creating v3 hidden service");
-		Map<Integer, String> portLines = singletonMap(80, "127.0.0.1:" + port);
-		Map<String, String> response;
+		HiddenServiceProperties hsProps;
 		try {
-			// Use the control connection to set up the hidden service
-			if (privKey == null) {
-				response = controlConnection.addOnion("NEW:ED25519-V3",
-						portLines, null);
-			} else {
-				response = controlConnection.addOnion(privKey, portLines);
-			}
-		} catch (TorNotRunningException e) {
-			throw new RuntimeException(e);
+			hsProps = tor.publishHiddenService(port, 80, privKey);
 		} catch (IOException e) {
 			logException(LOG, e, "Error while add onion service");
 			return;
 		}
-		if (!response.containsKey(HS_ADDRESS)) {
-			LOG.warn("Tor did not return a hidden service address");
-			return;
-		}
-		if (privKey == null && !response.containsKey(HS_PRIVKEY)) {
-			LOG.warn("Tor did not return a private key");
-			return;
-		}
-		Settings s = new Settings();
-		String onion3 = response.get(HS_ADDRESS);
-		s.put(HS_ADDRESS_V3, onion3);
-		info(LOG, () -> "V3 hidden service " + scrubOnion(onion3));
+		info(LOG, () -> "V3 hidden service " + scrubOnion(hsProps.onion));
 
 		if (privKey == null) {
-			s.put(HS_PRIVATE_KEY_V3, response.get(HS_PRIVKEY));
+			Settings s = new Settings();
+			s.put(HS_ADDRESS_V3, hsProps.onion);
+			s.put(HS_PRIVATE_KEY_V3, hsProps.privKey);
 			try {
 				settingsManager.mergeSettings(s, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
@@ -471,166 +209,27 @@ public abstract class AbstractTorPlugin
 		return s.get(HS_ADDRESS_V3);
 	}
 
-	protected void enableNetwork(boolean enable) throws IOException {
-		if (!state.enableNetwork(enable)) return; // Unchanged
-		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
-	}
-
 	private void enableBridges(List<BridgeType> bridgeTypes, String countryCode)
 			throws IOException {
-		if (!state.setBridgeTypes(bridgeTypes)) return; // Unchanged
 		if (bridgeTypes.isEmpty()) {
-			controlConnection.setConf("UseBridges", "0");
-			controlConnection.resetConf(singletonList("Bridge"));
+			tor.disableBridges();
 		} else {
-			Collection<String> conf = new ArrayList<>();
-			conf.add("UseBridges 1");
-			boolean letsEncrypt = canVerifyLetsEncryptCerts();
+			List<String> bridges = new ArrayList<>();
 			for (BridgeType bridgeType : bridgeTypes) {
-				conf.addAll(circumventionProvider
-						.getBridges(bridgeType, countryCode, letsEncrypt));
+				bridges.addAll(circumventionProvider.getBridges(bridgeType,
+						countryCode, canVerifyLetsEncryptCerts));
 			}
-			controlConnection.setConf(conf);
+			tor.enableBridges(bridges);
 		}
-	}
-
-	/**
-	 * Returns true if this device can verify Let's Encrypt certificates signed
-	 * with the IdentTrust DST Root X3 certificate, which expired at the end of
-	 * September 2021.
-	 */
-	protected boolean canVerifyLetsEncryptCerts() {
-		return true;
 	}
 
 	@Override
 	public void stopService() {
-		state.setStopped();
-		if (controlSocket != null && controlConnection != null) {
-			try {
-				LOG.info("Stopping Tor");
-				controlConnection.shutdownTor("TERM");
-				controlSocket.close();
-			} catch (IOException e) {
-				logException(LOG, e,
-						"Error while sending tor shutdown instructions");
-			}
-		}
-	}
-
-	@Override
-	public void circuitStatus(String status, String id, String path) {
-		// In case of races between receiving CIRCUIT_ESTABLISHED and setting
-		// DisableNetwork, set our circuitBuilt flag if not already set
-		if (status.equals("BUILT") && state.setCircuitBuilt(true)) {
-			LOG.info("Circuit built");
-		}
-	}
-
-	@Override
-	public void streamStatus(String status, String id, String target) {
-	}
-
-	@Override
-	public void orConnStatus(String status, String orName) {
-		info(LOG, () -> "OR connection " + status);
-
-		if (status.equals("CONNECTED")) state.onOrConnectionConnected();
-		else if (status.equals("CLOSED")) state.onOrConnectionClosed();
-	}
-
-	@Override
-	public void bandwidthUsed(long read, long written) {
-	}
-
-	@Override
-	public void newDescriptors(List<String> orList) {
-	}
-
-	@Override
-	public void message(String severity, String msg) {
-		info(LOG, () -> severity + " " + msg);
-		if (severity.equals("NOTICE")) {
-			Matcher matcher = bootstrapPattern.matcher(msg);
-			if (matcher.matches()) {
-				String percentStr = matcher.group(1);
-				int percent = Integer.parseInt(percentStr);
-				state.setBootstrapPercent(percent);
-			}
-		} else if (severity.equals("WARN")) {
-			Matcher matcher = clockSkewPattern.matcher(msg);
-			if (matcher.find()) state.setClockSkewed();
-		}
-	}
-
-	@Override
-	public void unrecognized(String type, String msg) {
-		if (type.equals("STATUS_CLIENT")) {
-			handleClientStatus(removeSeverity(msg));
-		} else if (type.equals("STATUS_GENERAL")) {
-			handleGeneralStatus(removeSeverity(msg));
-		} else if (type.equals("HS_DESC") && msg.startsWith("UPLOADED")) {
-			LOG.info("V3 descriptor uploaded");
-			state.onServiceDescriptorUploaded();
-		}
-	}
-
-	private String removeSeverity(String msg) {
-		return msg.replaceFirst("[^ ]+ ", "");
-	}
-
-	private void handleClientStatus(String msg) {
-		if (msg.startsWith("BOOTSTRAP PROGRESS=100")) {
-			LOG.info("Bootstrapped");
-			state.setBootstrapPercent(100);
-		} else if (msg.startsWith("CIRCUIT_ESTABLISHED")) {
-			if (state.setCircuitBuilt(true)) {
-				LOG.info("Circuit built");
-			}
-		} else if (msg.startsWith("CIRCUIT_NOT_ESTABLISHED")) {
-			if (state.setCircuitBuilt(false)) {
-				LOG.info("Circuit not built");
-				// TODO: Disable and re-enable network to prompt Tor to rebuild
-				//  its guard/bridge connections? This will also close any
-				//  established circuits, which might still be functioning
-			}
-		}
-	}
-
-	private void handleGeneralStatus(String msg) {
-		if (msg.startsWith("CLOCK_JUMPED")) {
-			Long time = parseLongArgument(msg, "TIME");
-			if (time != null) {
-				warn(LOG, () -> "Clock jumped " + time + " seconds");
-			}
-		} else if (msg.startsWith("CLOCK_SKEW")) {
-			Long skew = parseLongArgument(msg, "SKEW");
-			if (skew != null) {
-				warn(LOG, () -> "Clock is skewed by " + skew + " seconds");
-			}
-		}
-	}
-
-	@Nullable
-	private Long parseLongArgument(String msg, String argName) {
-		String[] args = msg.split(" ");
-		for (String arg : args) {
-			if (arg.startsWith(argName + "=")) {
-				try {
-					return Long.parseLong(arg.substring(argName.length() + 1));
-				} catch (NumberFormatException e) {
-					break;
-				}
-			}
-		}
-		warn(LOG, () -> "Failed to parse " + argName + " from '" + msg + "'");
-		return null;
-	}
-
-	@Override
-	public void controlConnectionClosed() {
-		if (state.isTorRunning()) {
-			throw new RuntimeException("Control connection closed");
+		try {
+			tor.stop();
+		} catch (IOException e) {
+			logException(LOG, e,
+					"Error while sending tor shutdown instructions");
 		}
 	}
 
@@ -643,7 +242,7 @@ public abstract class AbstractTorPlugin
 
 	private void updateConnectionStatus(NetworkStatus status) {
 		connectionStatusExecutor.execute(() -> {
-			if (!state.isTorRunning()) return;
+			if (!tor.isTorRunning()) return;
 			boolean online = status.isConnected();
 			boolean wifi = status.isWifi();
 			boolean ipv6Only = status.isIpv6Only();
@@ -667,7 +266,7 @@ public abstract class AbstractTorPlugin
 				enableNetwork = true;
 				if (bridgesWork) {
 					if (ipv6Only) {
-						bridgeTypes = singletonList(MEEK);
+						bridgeTypes = asList(MEEK, SNOWFLAKE);
 					} else {
 						bridgeTypes = circumventionProvider
 								.getSuitableBridgeTypes(country);
@@ -689,73 +288,27 @@ public abstract class AbstractTorPlugin
 			try {
 				if (enableNetwork) {
 					enableBridges(bridgeTypes, country);
-					enableConnectionPadding(enableConnectionPadding);
-					enableIpv6(ipv6Only);
+					tor.enableConnectionPadding(enableConnectionPadding);
+					tor.enableIpv6(ipv6Only);
 				}
-				enableNetwork(enableNetwork);
+				tor.enableNetwork(enableNetwork);
 			} catch (IOException e) {
 				logException(LOG, e, "Error enabling network");
 			}
 		});
 	}
 
-	private void enableConnectionPadding(boolean enable) throws IOException {
-		if (!state.enableConnectionPadding(enable)) return; // Unchanged
-		try {
-			controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
-		} catch (TorNotRunningException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private void enableIpv6(boolean enable) throws IOException {
-		if (!state.enableIpv6(enable)) return; // Unchanged
-		try {
-			controlConnection.setConf("ClientUseIPv4", enable ? "0" : "1");
-			controlConnection.setConf("ClientUseIPv6", enable ? "1" : "0");
-		} catch (TorNotRunningException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	@ThreadSafe
-	protected static class PluginState {
+	private class PluginState {
 
-		private final MutableStateFlow<TorState> state =
-				MutableStateFlow(TorState.StartingStopping.INSTANCE);
+		private final MutableStateFlow<TorPluginState> state =
+				MutableStateFlow(TorPluginState.StartingStopping.INSTANCE);
 
 		@GuardedBy("this")
-		private boolean started = false,
-				stopped = false,
-				networkInitialised = false,
-				networkEnabled = false,
-				paddingEnabled = false,
-				ipv6Enabled = false,
-				circuitBuilt = false,
-				clockSkewed = false;
+		private boolean clockSkewed = false;
+
 		@GuardedBy("this")
 		private int bootstrapPercent = 0, numServiceUploads = 0;
-
-		@GuardedBy("this")
-		private int orConnectionsConnected = 0;
-
-		@GuardedBy("this")
-		private List<BridgeType> bridgeTypes = emptyList();
-
-		synchronized void setStarted() {
-			started = true;
-			state.setValue(getCurrentState());
-		}
-
-		@SuppressWarnings("BooleanMethodIsAlwaysInverted")
-		synchronized boolean isTorRunning() {
-			return started && !stopped;
-		}
-
-		synchronized void setStopped() {
-			stopped = true;
-			state.setValue(getCurrentState());
-		}
 
 		synchronized void setBootstrapPercent(int percent) {
 			if (percent < 0 || percent > 100) {
@@ -766,21 +319,9 @@ public abstract class AbstractTorPlugin
 			state.setValue(getCurrentState());
 		}
 
-		synchronized void setClockSkewed() {
+		synchronized void onClockSkewDetected() {
 			clockSkewed = true;
 			state.setValue(getCurrentState());
-		}
-
-		/**
-		 * Sets the `circuitBuilt` flag and returns true if the flag has
-		 * changed.
-		 */
-		private synchronized boolean setCircuitBuilt(boolean built) {
-			if (built == circuitBuilt) return false; // Unchanged
-			circuitBuilt = built;
-			if (bootstrapPercent == 100) clockSkewed = false;
-			state.setValue(getCurrentState());
-			return true; // Changed
 		}
 
 		synchronized void onServiceDescriptorUploaded() {
@@ -788,94 +329,32 @@ public abstract class AbstractTorPlugin
 			state.setValue(getCurrentState());
 		}
 
-		/**
-		 * Sets the `networkEnabled` flag and returns true if the flag has
-		 * changed.
-		 */
-		synchronized boolean enableNetwork(boolean enable) {
-			boolean wasInitialised = networkInitialised;
-			boolean wasEnabled = networkEnabled;
-			networkInitialised = true;
-			networkEnabled = enable;
-			if (!enable) circuitBuilt = false;
-			if (!wasInitialised || enable != wasEnabled) {
-				state.setValue(getCurrentState());
-			}
-			return enable != wasEnabled;
+		synchronized void onStateChanged(TorState torState) {
+			state.setValue(getCurrentState(torState));
 		}
 
-		/**
-		 * Sets the `paddingEnabled` flag and returns true if the flag has
-		 * changed. Doesn't affect getState().
-		 */
-		private synchronized boolean enableConnectionPadding(boolean enable) {
-			if (enable == paddingEnabled) return false; // Unchanged
-			paddingEnabled = enable;
-			return true; // Changed
+		private synchronized TorPluginState getCurrentState() {
+			return getCurrentState(tor.getTorState());
 		}
 
-		/**
-		 * Sets the `ipv6Enabled` flag and returns true if the flag has
-		 * changed. Doesn't affect getState().
-		 */
-		private synchronized boolean enableIpv6(boolean enable) {
-			if (enable == ipv6Enabled) return false; // Unchanged
-			ipv6Enabled = enable;
-			return true; // Changed
-		}
-
-		/**
-		 * Sets the list of bridge types being used and returns true if the
-		 * list has changed. The list is empty if bridges are disabled.
-		 * Doesn't affect getState().
-		 */
-		private synchronized boolean setBridgeTypes(List<BridgeType> types) {
-			if (types.equals(bridgeTypes)) return false; // Unchanged
-			bridgeTypes = types;
-			return true; // Changed
-		}
-
-		private synchronized TorState getCurrentState() {
-			if (!started || stopped) {
-				return TorState.StartingStopping.INSTANCE;
-			}
-			if (!networkInitialised) {
-				return new TorState.Enabling(bootstrapPercent);
-			}
-			if (!networkEnabled) return TorState.Inactive.INSTANCE;
-			if (clockSkewed) return TorState.ClockSkewed.INSTANCE;
-			if (bootstrapPercent == 100 && circuitBuilt &&
-					orConnectionsConnected > 0) {
-				return (numServiceUploads >= HS_DESC_UPLOADS) ?
-						TorState.Published.INSTANCE : TorState.Active.INSTANCE;
-			} else return new TorState.Enabling(bootstrapPercent);
-		}
-
-		private synchronized void onOrConnectionConnected() {
-			int oldConnected = orConnectionsConnected;
-			orConnectionsConnected++;
-			logOrConnections();
-			if (oldConnected == 0) state.setValue(getCurrentState());
-		}
-
-		private synchronized void onOrConnectionClosed() {
-			int oldConnected = orConnectionsConnected;
-			orConnectionsConnected--;
-			if (orConnectionsConnected < 0) {
-				LOG.warn("Count was zero before connection closed");
-				orConnectionsConnected = 0;
-			}
-			logOrConnections();
-			if (orConnectionsConnected == 0 && oldConnected != 0) {
-				state.setValue(getCurrentState());
+		private synchronized TorPluginState getCurrentState(TorState torState) {
+			if (torState == TorState.STARTING_STOPPING) {
+				return TorPluginState.StartingStopping.INSTANCE;
+			} else if (torState == TorState.DISABLED) {
+				return TorPluginState.Inactive.INSTANCE;
+			} else if (clockSkewed) {
+				return TorPluginState.ClockSkewed.INSTANCE;
+			} else if (torState == TorState.CONNECTING) {
+				return new TorPluginState.Enabling(bootstrapPercent);
+			} else if (torState == TorState.CONNECTED) {
+				if (numServiceUploads >= HS_DESC_UPLOADS) {
+					return TorPluginState.Published.INSTANCE;
+				} else {
+					return TorPluginState.Active.INSTANCE;
+				}
+			} else {
+				throw new AssertionError();
 			}
 		}
-
-		@GuardedBy("this")
-		private void logOrConnections() {
-			info(LOG, () ->
-					orConnectionsConnected + " OR connections connected");
-		}
-
 	}
 }

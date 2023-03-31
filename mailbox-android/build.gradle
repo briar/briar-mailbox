@@ -77,7 +77,8 @@ configurations {
 
 dependencies {
     implementation project(path: ':mailbox-core', configuration: 'default')
-    implementation 'org.briarproject:dont-kill-me-lib:0.2.5'
+    implementation 'org.briarproject:dont-kill-me-lib:0.2.6'
+    implementation "org.briarproject:onionwrapper-android:$onionwrapper_version"
 
     implementation 'com.github.tony19:logback-android:3.0.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -116,6 +117,12 @@ dependencies {
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    constraints {
+        // Work around duplicate class issues caused by dont-kill-me-lib, this project, and the
+        // IDEA plugin using different versions of Kotlin
+        implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0'
+    }
 }
 
 def torLibsDir = 'src/main/jniLibs'

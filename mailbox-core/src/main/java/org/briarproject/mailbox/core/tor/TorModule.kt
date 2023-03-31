@@ -37,12 +37,6 @@ internal class TorModule {
 
     @Provides
     @Singleton
-    fun provideCircumventionProvider(provider: CircumventionProviderImpl): CircumventionProvider {
-        return provider
-    }
-
-    @Provides
-    @Singleton
     @IoExecutor
     fun provideIoExecutor(): Executor = ThreadPoolExecutor(
         0,

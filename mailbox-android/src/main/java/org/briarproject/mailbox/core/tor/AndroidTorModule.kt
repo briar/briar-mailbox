@@ -19,23 +19,23 @@
 
 package org.briarproject.mailbox.core.tor
 
-import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
-import android.content.res.Resources
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.flow.StateFlow
+import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManager
 import org.briarproject.mailbox.core.event.EventBus
+import org.briarproject.mailbox.core.event.EventExecutor
 import org.briarproject.mailbox.core.lifecycle.IoExecutor
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.lifecycle.ServiceException
 import org.briarproject.mailbox.core.server.WebServerManager
 import org.briarproject.mailbox.core.settings.SettingsManager
-import org.briarproject.mailbox.core.system.AndroidWakeLockManager
-import org.briarproject.mailbox.core.system.Clock
 import org.briarproject.mailbox.core.system.LocationUtils
-import org.briarproject.mailbox.core.system.ResourceProvider
+import org.briarproject.onionwrapper.CircumventionProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.Executor
@@ -51,46 +51,53 @@ internal class AndroidTorModule {
 
     @Provides
     @Singleton
-    fun provideResourceProvider(@ApplicationContext ctx: Context): ResourceProvider {
-        return ResourceProvider { name, _ ->
-            val res: Resources = ctx.resources
-            // extension is ignored on Android, resources are retrieved without it
-            @SuppressLint("DiscouragedApi") // we really want this API, don't know name before
-            val resId = res.getIdentifier(name, "raw", ctx.packageName)
-            res.openRawResource(resId)
-        }
-    }
-
-    @Provides
-    @Singleton
     fun provideAndroidTorPlugin(
-        @ApplicationContext app: Context,
+        app: Application,
         @IoExecutor ioExecutor: Executor,
+        @EventExecutor eventExecutor: Executor,
         settingsManager: SettingsManager,
         networkManager: NetworkManager,
         locationUtils: LocationUtils,
-        clock: Clock,
-        resourceProvider: ResourceProvider,
         circumventionProvider: CircumventionProvider,
         androidWakeLockManager: AndroidWakeLockManager,
         lifecycleManager: LifecycleManager,
         eventBus: EventBus,
         webServerManager: WebServerManager,
-    ): TorPlugin = AndroidTorPlugin(
-        ioExecutor,
-        app,
-        settingsManager,
-        networkManager,
-        locationUtils,
-        clock,
-        resourceProvider,
-        circumventionProvider,
-        androidWakeLockManager,
-        architecture,
-        app.getDir("tor", Context.MODE_PRIVATE)
-    ) { webServerManager.port }.also {
-        lifecycleManager.registerService(it)
-        eventBus.addListener(it)
+    ): TorPlugin {
+        if (architecture == null) {
+            return object : TorPlugin {
+
+                override fun startService() {
+                    throw ServiceException("Tor not supported on this architecture")
+                }
+
+                override fun stopService() {
+                }
+
+                override fun getState(): StateFlow<TorPluginState> {
+                    throw UnsupportedOperationException()
+                }
+
+                override fun getHiddenServiceAddress(): String {
+                    throw UnsupportedOperationException()
+                }
+            }
+        }
+        return AndroidTorPlugin(
+            ioExecutor,
+            eventExecutor,
+            app,
+            settingsManager,
+            networkManager,
+            locationUtils,
+            circumventionProvider,
+            androidWakeLockManager,
+            architecture,
+            app.getDir("tor", Context.MODE_PRIVATE)
+        ) { webServerManager.port }.also {
+            lifecycleManager.registerService(it)
+            eventBus.addListener(it)
+        }
     }
 
     private val architecture: String?

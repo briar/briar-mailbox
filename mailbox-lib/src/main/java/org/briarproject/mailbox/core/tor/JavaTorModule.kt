@@ -24,15 +24,15 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.briarproject.mailbox.core.event.EventBus
+import org.briarproject.mailbox.core.event.EventExecutor
 import org.briarproject.mailbox.core.files.FileProvider
 import org.briarproject.mailbox.core.lifecycle.IoExecutor
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.server.WebServerManager
 import org.briarproject.mailbox.core.settings.SettingsManager
-import org.briarproject.mailbox.core.system.Clock
 import org.briarproject.mailbox.core.system.LocationUtils
-import org.briarproject.mailbox.core.system.ResourceProvider
 import org.briarproject.mailbox.core.util.OsUtils.isLinux
+import org.briarproject.onionwrapper.CircumventionProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 import java.io.File
@@ -50,20 +50,12 @@ class JavaTorModule {
 
     @Provides
     @Singleton
-    fun provideResourceProvider() = ResourceProvider { name, extension ->
-        val cl = javaClass.classLoader
-        cl.getResourceAsStream(name + extension)
-    }
-
-    @Provides
-    @Singleton
     fun provideJavaTorPlugin(
         @IoExecutor ioExecutor: Executor,
+        @EventExecutor eventExecutor: Executor,
         settingsManager: SettingsManager,
         networkManager: NetworkManager,
         locationUtils: LocationUtils,
-        clock: Clock,
-        resourceProvider: ResourceProvider,
         circumventionProvider: CircumventionProvider,
         lifecycleManager: LifecycleManager,
         eventBus: EventBus,
@@ -73,11 +65,10 @@ class JavaTorModule {
         val torDir = File(fileProvider.root, "tor")
         return JavaTorPlugin(
             ioExecutor,
+            eventExecutor,
             settingsManager,
             networkManager,
             locationUtils,
-            clock,
-            resourceProvider,
             circumventionProvider,
             architecture,
             torDir

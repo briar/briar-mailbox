@@ -17,19 +17,21 @@
  *
  */
 
-package org.briarproject.mailbox.core.system;
+package org.briarproject.onionwrapper
 
-public interface AndroidWakeLock {
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-	/**
-	 * Acquires the wake lock. This has no effect if the wake lock has already
-	 * been acquired.
-	 */
-	void acquire();
+@Module
+@InstallIn(SingletonComponent::class)
+internal class CircumventionModule {
 
-	/**
-	 * Releases the wake lock. This has no effect if the wake lock has already
-	 * been released.
-	 */
-	void release();
+    @Provides
+    @Singleton
+    fun provideCircumventionProvider(provider: CircumventionProviderImpl): CircumventionProvider {
+        return provider
+    }
 }

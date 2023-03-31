@@ -6,17 +6,17 @@ import javax.inject.Inject
 
 class FakeTorPlugin @Inject constructor() : TorPlugin {
 
-    private val state = MutableStateFlow<TorState>(TorState.StartingStopping)
+    private val state = MutableStateFlow<TorPluginState>(TorPluginState.StartingStopping)
 
     override fun startService() {
-        state.value = TorState.Published
+        state.value = TorPluginState.Published
     }
 
     override fun stopService() {
-        state.value = TorState.StartingStopping
+        state.value = TorPluginState.StartingStopping
     }
 
-    override fun getState(): StateFlow<TorState> {
+    override fun getState(): StateFlow<TorPluginState> {
         return state
     }
 
