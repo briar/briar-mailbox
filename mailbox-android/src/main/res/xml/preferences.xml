@@ -8,15 +8,15 @@
             app:defaultValue="true"
             app:disableDependentsState="true"
             app:iconSpaceReserved="false"
-            app:key="pref_auto"
+            app:key="bridgeAuto"
             app:summary="@string/prefs_tor_auto_summary"
             app:title="@string/prefs_tor_auto_title" />
 
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:dependency="pref_auto"
+            app:dependency="bridgeAuto"
             app:iconSpaceReserved="false"
-            app:key="pref_use_bridges"
+            app:key="bridgeUse"
             app:title="@string/prefs_tor_bridges_title" />
 
     </PreferenceCategory>
@@ -27,37 +27,37 @@
 
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:dependency="pref_use_bridges"
+            app:dependency="bridgeUse"
             app:iconSpaceReserved="false"
-            app:key="pref_bridges_snowflake"
+            app:key="bridgeUseSnowflake"
             app:title="@string/prefs_bridges_snowflake_title" />
 
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:dependency="pref_use_bridges"
+            app:dependency="bridgeUse"
             app:iconSpaceReserved="false"
-            app:key="pref_bridges_meek"
+            app:key="bridgeUseMeek"
             app:title="@string/prefs_bridges_meek_title" />
 
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:dependency="pref_use_bridges"
+            app:dependency="bridgeUse"
             app:iconSpaceReserved="false"
-            app:key="pref_bridges_obfs4"
+            app:key="bridgeUseObfs4"
             app:title="@string/prefs_bridges_obfs4_title" />
 
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:dependency="pref_use_bridges"
+            app:dependency="bridgeUse"
             app:iconSpaceReserved="false"
-            app:key="pref_bridges_obfs_builtin"
+            app:key="bridgeUseObfs4Default"
             app:title="@string/prefs_bridges_obfs_builtin_title" />
 
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:dependency="pref_use_bridges"
+            app:dependency="bridgeUse"
             app:iconSpaceReserved="false"
-            app:key="pref_bridges_vanilla"
+            app:key="bridgeUseVanilla"
             app:title="@string/prefs_bridges_vanilla_title" />
 
     </PreferenceCategory>

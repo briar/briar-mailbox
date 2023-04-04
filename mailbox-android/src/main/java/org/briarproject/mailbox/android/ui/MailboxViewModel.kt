@@ -37,6 +37,7 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState
 import org.briarproject.mailbox.core.settings.MetadataManager
 import org.briarproject.mailbox.core.system.AndroidExecutor
 import org.briarproject.mailbox.core.system.DozeWatchdog
+import org.briarproject.mailbox.core.tor.TorPlugin
 import org.briarproject.mailbox.core.util.LogUtils.info
 import org.slf4j.LoggerFactory.getLogger
 import javax.inject.Inject
@@ -51,6 +52,7 @@ class MailboxViewModel @Inject constructor(
     metadataManager: MetadataManager,
     private val mailboxPreferences: MailboxPreferences,
     private val androidExecutor: AndroidExecutor,
+    private val torPlugin: TorPlugin,
     handle: SavedStateHandle,
 ) : AndroidViewModel(app) {
 
@@ -114,6 +116,10 @@ class MailboxViewModel @Inject constructor(
     fun stopLifecycle() {
         mailboxPreferences.setAutoStartEnabled(false)
         MailboxService.stopService(getApplication())
+    }
+
+    fun onSettingsChanged() {
+        torPlugin.onSettingsChanged()
     }
 
     /**
