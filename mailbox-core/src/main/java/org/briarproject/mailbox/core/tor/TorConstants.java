@@ -25,6 +25,20 @@ public interface TorConstants {
 	String SETTINGS_NAMESPACE = "Tor";
 	String HS_PRIVATE_KEY_V3 = "onionPrivKey3";
 	String HS_ADDRESS_V3 = "onionAddress3";
+	/**
+	 * Whether circumvention bridge handling should be handled automatically.
+	 */
+	String BRIDGE_AUTO = "bridgeAuto";
+	/**
+	 * Whether bridges should be used for circumvention.
+	 * Only consider when {@link #BRIDGE_AUTO} is false.
+	 */
+	String BRIDGE_USE = "bridgeUse";
+	String BRIDGE_USE_SNOWFLAKE = "bridgeUseSnowflake";
+	String BRIDGE_USE_MEEK = "bridgeUseMeek";
+	String BRIDGE_USE_OBFS4 = "bridgeUseObfs4";
+	String BRIDGE_USE_OBFS4_DEFAULT = "bridgeUseObfs4Default";
+	String BRIDGE_USE_VANILLA = "bridgeUseVanilla";
 
 	int SOCKS_PORT = 59054;
 	int CONTROL_PORT = 59055;

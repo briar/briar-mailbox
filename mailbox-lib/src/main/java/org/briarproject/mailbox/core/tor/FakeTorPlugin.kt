@@ -20,5 +20,8 @@ class FakeTorPlugin @Inject constructor() : TorPlugin {
         return state
     }
 
+    override fun onSettingsChanged() {
+    }
+
     override fun getHiddenServiceAddress(): String? = null
 }

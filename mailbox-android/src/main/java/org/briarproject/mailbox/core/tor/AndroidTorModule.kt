@@ -78,6 +78,10 @@ internal class AndroidTorModule {
                     throw UnsupportedOperationException()
                 }
 
+                override fun onSettingsChanged() {
+                    throw UnsupportedOperationException()
+                }
+
                 override fun getHiddenServiceAddress(): String {
                     throw UnsupportedOperationException()
                 }
