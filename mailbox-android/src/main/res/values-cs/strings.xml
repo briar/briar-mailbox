@@ -1,0 +1,80 @@
+<resources>
+    <string name="app_name">Briar Mailbox</string>
+    <string name="notification_channel_name">Briar Mailbox kanál</string>
+    <string name="notification_mailbox_title_starting">Mailbox se spouští</string>
+    <string name="notification_mailbox_content_starting">Spuštění mailboxu...</string>
+    <string name="notification_mailbox_title_setup">Nastavování Mailboxu...</string>
+    <string name="notification_mailbox_content_setup">Čekání až Briar oskenuje QR kód...</string>
+    <string name="notification_mailbox_title_running">Briar Mailbox běží</string>
+    <string name="notification_mailbox_content_running">Čekání na zprávy...</string>
+    <string name="notification_mailbox_title_offline">Briar Mailbox offline</string>
+    <string name="notification_mailbox_content_offline">Čekání na internetové připojení...</string>
+    <string name="notification_mailbox_content_clock_skew">Čekání na správný čas systému...</string>
+    <string name="button_continue">Pokračovat</string>
+    <string name="button_skip_intro">Přeskočit úvod</string>
+    <string name="button_back">Zpět</string>
+
+    <string name="onboarding_0_title">Zůstat dostupný</string>
+    <string name="onboarding_0_description">Mailbox vám pomáhá zůstat ve spojení s vašimi kontakty a synchronizuje vaše zprávy do Briaru.</string>
+    <string name="onboarding_1_title">Použít nevyužité zařízení</string>
+    <string name="onboarding_1_description">Nainstalujte aplikaci Mailbox na nevyužitý telefon nebo tablet a nechte jej připojený k elektrické síti a WiFi.</string>
+    <string name="onboarding_2_title">Doručení zprávy</string>
+    <string name="onboarding_2_description">Když je váš Mailbox online, vaše kontakty vám mohou zanechat zprávu i když je váš Briar offline. Mailbox zprávy přijme a jakmile budete dostupní online, přenese je do Briaru.</string>
+    <string name="onboarding_3_title">Zašifrováno</string>
+    <string name="onboarding_3_description">Zprávy procházející Mailboxem, jsou šifrované a nemohou být čteny Mailboxem ani tímto telefonem. Mailbox je jednoduše přeposílá do vašeho telefonu, kde máte Briar.</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Briar Mailbox nemohl běžet na pozadí</string>
+    <string name="fix">Opravit</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Zrušit</string>
+    <string name="share">Sdílet</string>
+    <string name="copied">Zkopírováno</string>
+
+    <string name="link_title">Odkaz pomocí QR kódu</string>
+    <string name="link_description">Oskenujte tento QR kód pomocí Briaru</string>
+    <string name="link_menu_title">Zobrazit jako text</string>
+    <string name="link_text_title">Odkaz pomocí textu</string>
+    <string name="link_text_description">Toto zkopírujte a vložte do Briaru:</string>
+    <string name="link_cancel">Zrušit nastavení</string>
+
+    <string name="startup_headline">Startování Mailboxu</string>
+    <string name="startup_init_app">Inicializace aplikace</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">Připojování k síti Tor (%d%%)</string>
+    <string name="startup_publishing_onion_service">Zveřejňování služby Tor onion</string>
+
+    <string name="clock_skew_title">Nesprávný čas systému</string>
+    <string name="clock_skew_description">Zkontrolujte v nastavení systému váš čas, časové pásmo a datum. Po úpravě počkejte až se Tor obnoví.</string>
+
+    <string name="no_network_title">Zařízení offline?</string>
+    <string name="no_network_description">Ujistěte se prosím, že toto zařízení je online, připojeno k internetu. Jakmile budete online, nastavení zde by mělo automaticky pokračovat.</string>
+
+    <string name="status_running">Mailbox běží</string>
+    <string name="last_connection">Poslední připojení: %s</string>
+    <string name="now">nyní</string>
+    <string name="never">nikdy</string>
+    <string name="stop">Zastaveno</string>
+    <string name="unlink">Odpojit</string>
+    <string name="unlink_title">Odpojit Mailbox?</string>
+    <string name="unlink_description">Pokud odpojíte váš Mailbox, nebudete moci dostávat zprávy když bude Briar offline.\n\nJste si jisti, že chcete odpojit váš Mailbox?</string>
+    <string name="confirm_stop_title">Zastavit Mailbox?</string>
+    <string name="confirm_stop_description">Když zastavíte váš Mailbox, aplikace se vypne a nebude přijímat zprávy, dokud ji znovu neotevřete.\n\nPřípadné zprávy, které již byly přijaty budou uloženy. Briar je bude moci získat, jakmile znovu otevřete aplikaci Mailbox.</string>
+
+    <string name="setup_complete_title">Připojeno</string>
+    <string name="setup_complete_description">Váš Mailbox byl úspěšně spojen s Briarem.\n\nMějte Mailbox zařízení připojené k elektrické a Wi-Fi síti, bude tak stále online.</string>
+    <string name="setup_complete_finish">Dokončit</string>
+
+    <string name="stopping">Zastavování Mailboxu...</string>
+
+    <string name="wipe_wiping">Mazání Mailboxu...</string>
+    <string name="wipe_complete_title">Mazání dokončeno</string>
+    <string name="wipe_complete_description">Jakmile budete mít příště přístup k vašemu zařízení Briar, prosím otevřete v aplikaci Briar obrazovku nastavení Mailboxu, klepněte pro dokončení procesu na tlačítko \"Odpojit\".</string>
+
+    <string name="sorry">Promiňte</string>
+    <string name="activity_not_found">Pro tuto akci nebyla nalezena aplikace</string>
+    <string name="startup_failed_activity_title">Spuštení Mailboxu selhalo</string>
+    <string name="startup_failed_service_error">Mailbox nemohl spustit požadovanou součást/komponent.\n\nProsím navyšte aplikaci na nejnovější verzi a zkuste to znovu.</string>
+    <string name="startup_failed_lifecycle_reuse">Mailbox již byl zastaven.\n\nProsím zavřete aplikaci a zkuste to znovu.</string>
+</resources>

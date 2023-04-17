@@ -29,13 +29,13 @@
     <string name="fix">Beheben</string>
     <string name="ok">OK</string>
     <string name="cancel">Abbrechen</string>
-    <string name="share">Freigabe</string>
+    <string name="share">Teilen</string>
     <string name="copied">Kopiert</string>
 
     <string name="link_title">Verknüpfung über QR-Code</string>
     <string name="link_description">Scanne diesen QR-Code mit Briar</string>
     <string name="link_menu_title">Als Text anzeigen</string>
-    <string name="link_text_title">Als Text verlinken</string>
+    <string name="link_text_title">Verlinken über Text</string>
     <string name="link_text_description">Kopiere dies und füge es in Briar Desktop ein:</string>
     <string name="link_cancel">Einrichtung abbrechen</string>
 

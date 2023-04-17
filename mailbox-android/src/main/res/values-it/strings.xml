@@ -1,0 +1,80 @@
+<resources>
+    <string name="app_name">Briar Mailbox</string>
+    <string name="notification_channel_name">Canale di Briar Mailbox</string>
+    <string name="notification_mailbox_title_starting">Avvio casella postale</string>
+    <string name="notification_mailbox_content_starting">Avvio casella postale…</string>
+    <string name="notification_mailbox_title_setup">Configurazione casella postale</string>
+    <string name="notification_mailbox_content_setup">In attesa che Briar scansioni il codice QR…</string>
+    <string name="notification_mailbox_title_running">Briar Mailbox in esecuzione</string>
+    <string name="notification_mailbox_content_running">In attesa di messaggi…</string>
+    <string name="notification_mailbox_title_offline">Briar Mailbox offline</string>
+    <string name="notification_mailbox_content_offline">In attesa di una connessione internet…</string>
+    <string name="notification_mailbox_content_clock_skew">In attesa dell\'orologio di sistema giusto…</string>
+    <string name="button_continue">Continua</string>
+    <string name="button_skip_intro">Salta intro</string>
+    <string name="button_back">Indietro</string>
+
+    <string name="onboarding_0_title">Resta raggiungibile</string>
+    <string name="onboarding_0_description">La casella postale ti aiuta a restare in contatto con gli altri e sincronizza i tuoi messaggi con Briar.</string>
+    <string name="onboarding_1_title">Usa un dispositivo di scorta</string>
+    <string name="onboarding_1_description">Installa l\'app Mailbox in un telefono o tablet di scorta e lascialo collegato alla corrente e al WiFi.</string>
+    <string name="onboarding_2_title">Consegna dei messaggi</string>
+    <string name="onboarding_2_description">Quando la casella postale è in linea, i tuoi contatti possono lasciarti messaggi anche se Briar è offline. La casella postale riceverà i messaggi e li inoltrerà a Briar quando torni in linea.</string>
+    <string name="onboarding_3_title">Codificato</string>
+    <string name="onboarding_3_description">I messaggi che passano per la casella postale sono cifrati e non possono essere letti dalla stessa o da questo telefono. La casella fa solo l\'inoltro al tuo telefono con Briar.</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Briar Mailbox non è riuscito a funzionare in secondo piano</string>
+    <string name="fix">Correggi</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Annulla</string>
+    <string name="share">Condividi</string>
+    <string name="copied">Copiato</string>
+
+    <string name="link_title">Collega via codice QR</string>
+    <string name="link_description">Scansiona questo codice QR con Briar</string>
+    <string name="link_menu_title">Mostra come testo</string>
+    <string name="link_text_title">Collega via testo</string>
+    <string name="link_text_description">Copialo e incollalo in Briar Desktop:</string>
+    <string name="link_cancel">Annulla configurazione</string>
+
+    <string name="startup_headline">Avvio casella postale</string>
+    <string name="startup_init_app">Inizializzazione app</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">Connessione alla rete Tor (%d%%)</string>
+    <string name="startup_publishing_onion_service">Pubblicazione del servizio onion di Tor</string>
+
+    <string name="clock_skew_title">Orologio di sistema sbagliato</string>
+    <string name="clock_skew_description">Controlla l\'ora, il fuso orario e la data nelle impostazioni di sistema, Dopo averli corretti, attendi un po\' affinché Tor si riprenda.</string>
+
+    <string name="no_network_title">Dispositivo offline?</string>
+    <string name="no_network_description">Assicurati che questo dispositivo sia in linea e connesso a internet. Quando sarai in linea, la configurazione dovrebbe riprendere qui.</string>
+
+    <string name="status_running">Casella postale in esecuzione</string>
+    <string name="last_connection">Ultima connessione: %s</string>
+    <string name="now">ora</string>
+    <string name="never">mai</string>
+    <string name="stop">Ferma</string>
+    <string name="unlink">Scollega</string>
+    <string name="unlink_title">Scollegare la casella postale?</string>
+    <string name="unlink_description">Se scolleghi la casella postale, non potrai più ricevere messaggi mentre Briar è offline.\n\nVuoi davvero scollegare la casella postale?</string>
+    <string name="confirm_stop_title">Fermare la casella postale?</string>
+    <string name="confirm_stop_description">Quando fermi la casella postale, l\'app si chiuderà e non riceverà più messaggi fino a che non la riaprirai.\n\nQualsiasi messaggio già ricevuto verrà salvato. Briar sarà in grado di recuperarli quando riaprirai l\'app Mailbox.</string>
+
+    <string name="setup_complete_title">Connesso</string>
+    <string name="setup_complete_description">La casella postale è stata collegata correttamente con Briar.\n\nTienila collegata alla corrente e al WiFi affinché sia sempre in linea.</string>
+    <string name="setup_complete_finish">Fine</string>
+
+    <string name="stopping">Arresto casella postale…</string>
+
+    <string name="wipe_wiping">Svuotamento casella postale…</string>
+    <string name="wipe_complete_title">Svuotamento completato</string>
+    <string name="wipe_complete_description">La prossima volta che hai accesso al dispositivo con Briar, apri le impostazioni della casella postale in Briar, poi tocca il pulsante \"Scollega\" per completare il processo.</string>
+
+    <string name="sorry">Scusa</string>
+    <string name="activity_not_found">Nessuna app trovata per questa azione</string>
+    <string name="startup_failed_activity_title">Fallimento avvio Mailbox</string>
+    <string name="startup_failed_service_error">La casella postale non ha potuto avviare un componente necessario.\n\nAggiorna all\'ultima versione dell\'app e riprova.</string>
+    <string name="startup_failed_lifecycle_reuse">La casella postale è già stata fermata.\n\nChiudi l\'app e riprova.</string>
+</resources>
