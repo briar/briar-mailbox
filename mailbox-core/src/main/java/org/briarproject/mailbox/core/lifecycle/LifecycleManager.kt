@@ -34,7 +34,7 @@ interface LifecycleManager {
      * The result of calling [startServices].
      */
     enum class StartResult {
-        SERVICE_ERROR, LIFECYCLE_REUSE, SUCCESS
+        SERVICE_ERROR, LIFECYCLE_REUSE, CLOCK_ERROR, SUCCESS
     }
 
     /**

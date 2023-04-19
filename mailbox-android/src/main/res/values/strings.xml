@@ -77,4 +77,6 @@
     <string name="startup_failed_activity_title">Mailbox Startup Failure</string>
     <string name="startup_failed_service_error">Mailbox was unable to start a required component.\n\nPlease upgrade to the latest version of the app and try again.</string>
     <string name="startup_failed_lifecycle_reuse">Mailbox has already stopped.\n\nPlease close the app and try again.</string>
+    <string name="startup_failed_clock_error">Mailbox was unable to start because your device\'s clock is wrong.\n\nPlease set your device\'s clock to the right time and try again.</string>
+
 </resources>

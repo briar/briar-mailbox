@@ -25,6 +25,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure.CLOCK_ERROR
 import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure.LIFECYCLE_REUSE
 import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure.SERVICE_ERROR
 
@@ -36,7 +37,7 @@ class StartupFailureActivity : AppCompatActivity() {
     }
 
     enum class StartupFailure {
-        SERVICE_ERROR, LIFECYCLE_REUSE
+        SERVICE_ERROR, LIFECYCLE_REUSE, CLOCK_ERROR
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +52,7 @@ class StartupFailureActivity : AppCompatActivity() {
         val errorRes = when (i.getSerializableExtra(EXTRA_START_RESULT) as StartupFailure) {
             SERVICE_ERROR -> R.string.startup_failed_service_error
             LIFECYCLE_REUSE -> R.string.startup_failed_lifecycle_reuse
+            CLOCK_ERROR -> R.string.startup_failed_clock_error
         }
         val msg: TextView = findViewById(R.id.errorMessage)
         msg.text = getString(errorRes)

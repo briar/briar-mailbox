@@ -26,6 +26,7 @@ import org.briarproject.mailbox.core.CoreEagerSingletons
 import org.briarproject.mailbox.core.MailboxLibEagerSingletons
 import org.briarproject.mailbox.core.db.TransactionManager
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
 import org.briarproject.mailbox.core.server.WebServerManager
 import org.briarproject.mailbox.core.setup.QrCodeEncoder
 import org.briarproject.mailbox.core.setup.SetupManager
@@ -82,7 +83,8 @@ abstract class AbstractMailbox(protected val customDataDir: File? = null) {
 
     fun startLifecycle() {
         LOG.info { "Starting lifecycle" }
-        lifecycleManager.startServices()
+        val startResult = lifecycleManager.startServices()
+        if (startResult != SUCCESS) error(startResult.name)
         LOG.info { "Waiting for startup" }
         lifecycleManager.waitForStartup()
         LOG.info { "Startup finished" }
