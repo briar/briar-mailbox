@@ -83,7 +83,7 @@
     <string name="prefs_title">Settings</string>
     <string name="prefs_tor_category_title">Tor circumvention settings</string>
     <string name="prefs_tor_auto_title">Automatic bridge selection</string>
-    <string name="prefs_tor_auto_summary">Bridges get chosen based on your location</string>
+    <string name="prefs_tor_auto_summary">Bridges are chosen based on your location</string>
     <string name="prefs_tor_bridges_title">Use bridges</string>
     <string name="prefs_bridges_category_title">Bridge types</string>
     <string name="prefs_bridges_snowflake_title">Snowflake</string>

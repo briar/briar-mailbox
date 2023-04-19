@@ -3,6 +3,9 @@ package org.briarproject.mailbox.core.tor;
 import org.briarproject.mailbox.core.db.DbException;
 import org.briarproject.mailbox.core.lifecycle.Service;
 import org.briarproject.mailbox.core.settings.Settings;
+import org.briarproject.onionwrapper.CircumventionProvider.BridgeType;
+
+import java.util.List;
 
 import kotlinx.coroutines.flow.StateFlow;
 
@@ -21,5 +24,11 @@ public interface TorPlugin extends Service {
 	 * Otherwise returns null.
 	 */
 	String getHiddenServiceAddress() throws DbException;
+
+	/**
+	 * Get a list of bridge types that Tor will be using with current settings,
+	 * country and {@link NetworkStatus}.
+	 */
+	List<BridgeType> getCustomBridgeTypes();
 
 }

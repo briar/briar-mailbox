@@ -85,6 +85,10 @@ internal class AndroidTorModule {
                 override fun getHiddenServiceAddress(): String {
                     throw UnsupportedOperationException()
                 }
+
+                override fun getCustomBridgeTypes(): MutableList<CircumventionProvider.BridgeType> {
+                    throw UnsupportedOperationException()
+                }
             }
         }
         return AndroidTorPlugin(

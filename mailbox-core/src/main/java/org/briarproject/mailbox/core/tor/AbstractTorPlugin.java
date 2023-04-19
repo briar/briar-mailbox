@@ -312,6 +312,44 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 		});
 	}
 
+	@Override
+	public List<BridgeType> getCustomBridgeTypes() {
+		return getCustomBridgeTypes(locationUtils.getCurrentCountry(),
+				networkManager.getNetworkStatus().isIpv6Only());
+	}
+
+	private List<BridgeType> getCustomBridgeTypes(String country,
+			boolean ipv6Only) {
+		List<BridgeType> defaultTypes;
+		if (ipv6Only) {
+			defaultTypes = asList(MEEK, SNOWFLAKE);
+		} else {
+			defaultTypes =
+					circumventionProvider.getSuitableBridgeTypes(country);
+		}
+		ArrayList<BridgeType> types = new ArrayList<>();
+		if (settings.getBoolean(BRIDGE_USE_SNOWFLAKE,
+				defaultTypes.contains(SNOWFLAKE))) {
+			types.add(SNOWFLAKE);
+		}
+		if (settings.getBoolean(BRIDGE_USE_MEEK, defaultTypes.contains(MEEK))) {
+			types.add(MEEK);
+		}
+		if (settings.getBoolean(BRIDGE_USE_OBFS4,
+				defaultTypes.contains(NON_DEFAULT_OBFS4))) {
+			types.add(NON_DEFAULT_OBFS4);
+		}
+		if (settings.getBoolean(BRIDGE_USE_OBFS4_DEFAULT,
+				defaultTypes.contains(DEFAULT_OBFS4))) {
+			types.add(DEFAULT_OBFS4);
+		}
+		if (settings.getBoolean(BRIDGE_USE_VANILLA,
+				defaultTypes.contains(VANILLA))) {
+			types.add(VANILLA);
+		}
+		return types;
+	}
+
 	private List<BridgeType> getBridgeTypes(String country, boolean ipv6Only) {
 		List<BridgeType> bridgeTypes = emptyList();
 		boolean bridgesNeeded =
@@ -334,30 +372,7 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 		} else {
 			boolean useBridges = settings.getBoolean(BRIDGE_USE, bridgesNeeded);
 			if (useBridges) {
-				List<BridgeType> defaultTypes =
-						circumventionProvider.getSuitableBridgeTypes(country);
-				ArrayList<BridgeType> types = new ArrayList<>();
-				if (settings.getBoolean(BRIDGE_USE_SNOWFLAKE,
-						defaultTypes.contains(SNOWFLAKE))) {
-					types.add(SNOWFLAKE);
-				}
-				if (settings.getBoolean(BRIDGE_USE_MEEK,
-						defaultTypes.contains(MEEK))) {
-					types.add(MEEK);
-				}
-				if (settings.getBoolean(BRIDGE_USE_OBFS4,
-						defaultTypes.contains(NON_DEFAULT_OBFS4))) {
-					types.add(NON_DEFAULT_OBFS4);
-				}
-				if (settings.getBoolean(BRIDGE_USE_OBFS4_DEFAULT,
-						defaultTypes.contains(DEFAULT_OBFS4))) {
-					types.add(DEFAULT_OBFS4);
-				}
-				if (settings.getBoolean(BRIDGE_USE_VANILLA,
-						defaultTypes.contains(VANILLA))) {
-					types.add(VANILLA);
-				}
-				bridgeTypes = types;
+				bridgeTypes = getCustomBridgeTypes(country, ipv6Only);
 				if (LOG.isInfoEnabled()) {
 					LOG.info("Using bridge types " + bridgeTypes);
 				}

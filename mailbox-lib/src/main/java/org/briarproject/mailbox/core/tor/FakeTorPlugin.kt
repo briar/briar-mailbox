@@ -2,6 +2,7 @@ package org.briarproject.mailbox.core.tor
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.briarproject.onionwrapper.CircumventionProvider.BridgeType
 import javax.inject.Inject
 
 class FakeTorPlugin @Inject constructor() : TorPlugin {
@@ -24,4 +25,5 @@ class FakeTorPlugin @Inject constructor() : TorPlugin {
     }
 
     override fun getHiddenServiceAddress(): String? = null
+    override fun getCustomBridgeTypes(): List<BridgeType> = emptyList()
 }
