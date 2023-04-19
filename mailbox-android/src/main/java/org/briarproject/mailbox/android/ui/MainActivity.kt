@@ -111,8 +111,7 @@ class MainActivity : AppCompatActivity(), MenuProvider {
                     supportActionBar?.setDisplayHomeAsUpEnabled(true)
                     getString(R.string.link_text_title)
                 }
-                R.id.statusFragment -> getString(R.string.app_name)
-                else -> ""
+                else -> getString(R.string.app_name)
             }
         }
 
