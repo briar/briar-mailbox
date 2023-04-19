@@ -81,8 +81,9 @@ object TestUtils {
     fun assertTimestampRecent(timestamp: Long) {
         assertNotEquals(0, timestamp)
         assertTrue(
-            System.currentTimeMillis() - timestamp < 1000,
-            "Timestamp is ${System.currentTimeMillis() - timestamp}ms old."
+            // a number too low can cause flaky tests (seen with 1000 already)
+            actual = System.currentTimeMillis() - timestamp < 2000,
+            message = "Timestamp is ${System.currentTimeMillis() - timestamp}ms old."
         )
     }
 
