@@ -15,6 +15,7 @@ import org.briarproject.mailbox.core.TestModule
 import org.briarproject.mailbox.core.TestUtils.getNewRandomContact
 import org.briarproject.mailbox.core.TestUtils.getNewRandomId
 import org.briarproject.mailbox.core.contacts.Contact
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.io.TempDir
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -80,7 +82,7 @@ abstract class IntegrationTest(private val installJsonFeature: Boolean = true) {
         testComponent = DaggerTestComponent.builder().testModule(TestModule(tempDir)).build()
         testComponent.injectCoreEagerSingletons()
         assertFalse(setupManager.hasDb)
-        lifecycleManager.startServices()
+        assertEquals(SUCCESS, lifecycleManager.startServices())
         lifecycleManager.waitForStartup()
         baseUrl = "http://127.0.0.1:${testComponent.getWebServerManager().port}"
     }

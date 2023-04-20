@@ -40,6 +40,7 @@ import org.briarproject.mailbox.android.ui.StartupFailureActivity.Companion.EXTR
 import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure
 import org.briarproject.mailbox.android.ui.WipeCompleteActivity
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.CLOCK_ERROR
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.LIFECYCLE_REUSE
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
@@ -138,6 +139,7 @@ class MailboxService : Service() {
                 SUCCESS -> started = true
                 SERVICE_ERROR -> showStartupFailure(StartupFailure.SERVICE_ERROR)
                 LIFECYCLE_REUSE -> showStartupFailure(StartupFailure.LIFECYCLE_REUSE)
+                CLOCK_ERROR -> showStartupFailure(StartupFailure.CLOCK_ERROR)
             }
         }
         // Register for device shutdown broadcasts

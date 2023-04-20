@@ -32,10 +32,14 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.S
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.WIPING
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.OpenDatabaseHook
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult
+import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.CLOCK_ERROR
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.LIFECYCLE_REUSE
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.StartResult.SUCCESS
 import org.briarproject.mailbox.core.setup.WipeManager
+import org.briarproject.mailbox.core.system.Clock
+import org.briarproject.mailbox.core.system.Clock.MAX_REASONABLE_TIME_MS
+import org.briarproject.mailbox.core.system.Clock.MIN_REASONABLE_TIME_MS
 import org.briarproject.mailbox.core.system.System
 import org.briarproject.mailbox.core.util.LogUtils.info
 import org.briarproject.mailbox.core.util.LogUtils.logDuration
@@ -56,6 +60,7 @@ internal class LifecycleManagerImpl @Inject constructor(
     private val db: Database,
     private val wipeManager: WipeManager,
     private val system: System,
+    private val clock: Clock,
 ) :
     LifecycleManager, MigrationListener {
 
@@ -104,6 +109,11 @@ internal class LifecycleManagerImpl @Inject constructor(
         if (!state.compareAndSet(NOT_STARTED, STARTING)) {
             LOG.warn { "Invalid state: ${state.value}" }
             return LIFECYCLE_REUSE
+        }
+        val now = clock.currentTimeMillis()
+        if (now < MIN_REASONABLE_TIME_MS || now > MAX_REASONABLE_TIME_MS) {
+            LOG.warn { "System clock is unreasonable: $now" }
+            return CLOCK_ERROR
         }
         this.wipeHook = wipeHook
         return try {
