@@ -10,10 +10,8 @@ import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.ui.MailboxViewModel
-import org.briarproject.mailbox.core.settings.Settings
 import org.briarproject.mailbox.core.settings.SettingsManager
 import org.briarproject.mailbox.core.system.LocationUtils
 import org.briarproject.mailbox.core.tor.NetworkManager
@@ -25,7 +23,6 @@ import org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE_OBFS4
 import org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE_OBFS4_DEFAULT
 import org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE_SNOWFLAKE
 import org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE_VANILLA
-import org.briarproject.mailbox.core.tor.TorConstants.SETTINGS_NAMESPACE
 import org.briarproject.mailbox.core.tor.TorPlugin
 import org.briarproject.onionwrapper.CircumventionProvider
 import org.briarproject.onionwrapper.CircumventionProvider.BridgeType.DEFAULT_OBFS4
@@ -50,9 +47,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private lateinit var brideTypePrefs: List<Preference>
     private lateinit var bridgeTypesCategory: PreferenceCategory
 
-    @Volatile
-    private var settings: Settings? = null
-
     @Inject
     lateinit var settingsManager: SettingsManager
 
@@ -73,6 +67,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
+        torSettingsStore.setOnSettingsLoadedCallback { settings ->
+            lifecycleScope.launch(Dispatchers.Main) {
+                onAutoChanged(settings.getBoolean(BRIDGE_AUTO, BRIDGE_AUTO_DEFAULT))
+                // we set the store for persistence of settings only after setting up auto value
+                preferenceManager.preferenceDataStore = torSettingsStore
+            }
+        }
         autoPref = findPreference(BRIDGE_AUTO)!!
         usePref = findPreference(BRIDGE_USE)!!
         snowflakePref = findPreference(BRIDGE_USE_SNOWFLAKE)!!
@@ -92,14 +93,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             onUseBridgesChanged(newValue as Boolean)
             true
         }
-        lifecycleScope.launch(Dispatchers.IO) {
-            val settings = settingsManager.getSettings(SETTINGS_NAMESPACE)
-            this@SettingsFragment.settings = settings
-            withContext(Dispatchers.Main) {
-                onAutoChanged(settings.getBoolean(BRIDGE_AUTO, BRIDGE_AUTO_DEFAULT))
-                preferenceManager.preferenceDataStore = torSettingsStore
-            }
-        }
     }
 
     override fun onDestroy() {
@@ -114,6 +107,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val doBridgesWork = circumventionProvider.doBridgesWork(country)
         // if automatic mode is on, we show what Tor is using, otherwise we show what user has set
         if (auto) {
+            setIsPersistent(false)
             usePref.isChecked = doBridgesWork
             onUseBridgesChanged(doBridgesWork)
             val autoTypes = if (networkManager.networkStatus.isIpv6Only) {
@@ -128,28 +122,33 @@ class SettingsFragment : PreferenceFragmentCompat() {
             obfs4DefaultPref.isChecked = autoTypes.contains(DEFAULT_OBFS4)
             vanillaPref.isChecked = autoTypes.contains(VANILLA)
         } else {
-            val settings = this.settings ?: return
-            val useBridges = settings.getBoolean(BRIDGE_USE, doBridgesWork)
-            usePref.isChecked = useBridges
+            setIsPersistent(true)
+            val useBridges =
+                torSettingsStore.getBooleanAndStoreDefault(usePref, BRIDGE_USE, doBridgesWork)
             onUseBridgesChanged(useBridges)
             val customTypes = torPlugin.customBridgeTypes
-            snowflakePref.isChecked = settings.getBoolean(
+            torSettingsStore.getBooleanAndStoreDefault(
+                pref = snowflakePref,
                 key = BRIDGE_USE_SNOWFLAKE,
-                defaultValue = customTypes.contains(SNOWFLAKE),
+                defaultValue = customTypes.contains(SNOWFLAKE)
             )
-            meekPref.isChecked = settings.getBoolean(
+            torSettingsStore.getBooleanAndStoreDefault(
+                pref = meekPref,
                 key = BRIDGE_USE_MEEK,
                 defaultValue = customTypes.contains(MEEK),
             )
-            obfs4Pref.isChecked = settings.getBoolean(
+            torSettingsStore.getBooleanAndStoreDefault(
+                pref = obfs4Pref,
                 key = BRIDGE_USE_OBFS4,
                 defaultValue = customTypes.contains(NON_DEFAULT_OBFS4),
             )
-            obfs4DefaultPref.isChecked = settings.getBoolean(
+            torSettingsStore.getBooleanAndStoreDefault(
+                pref = obfs4DefaultPref,
                 key = BRIDGE_USE_OBFS4_DEFAULT,
                 defaultValue = customTypes.contains(DEFAULT_OBFS4),
             )
-            vanillaPref.isChecked = settings.getBoolean(
+            torSettingsStore.getBooleanAndStoreDefault(
+                pref = vanillaPref,
                 key = BRIDGE_USE_VANILLA,
                 defaultValue = customTypes.contains(VANILLA),
             )
@@ -159,5 +158,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun onUseBridgesChanged(useBridges: Boolean) {
         brideTypePrefs.forEach { it.isVisible = useBridges }
         bridgeTypesCategory.isVisible = useBridges
+    }
+
+    private fun setIsPersistent(enable: Boolean) {
+        usePref.isPersistent = enable
+        brideTypePrefs.forEach { pref -> pref.isPersistent = enable }
     }
 }
