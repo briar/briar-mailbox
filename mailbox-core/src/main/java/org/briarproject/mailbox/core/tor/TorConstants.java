@@ -30,6 +30,10 @@ public interface TorConstants {
 	 */
 	String BRIDGE_AUTO = "bridgeAuto";
 	/**
+	 * Whether automatic circumvention handling is enabled by default or not.
+	 */
+	boolean BRIDGE_AUTO_DEFAULT = true;
+	/**
 	 * Whether bridges should be used for circumvention.
 	 * Only consider when {@link #BRIDGE_AUTO} is false.
 	 */

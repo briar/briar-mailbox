@@ -18,6 +18,7 @@ import org.briarproject.mailbox.core.settings.SettingsManager
 import org.briarproject.mailbox.core.system.LocationUtils
 import org.briarproject.mailbox.core.tor.NetworkManager
 import org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_AUTO
+import org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_AUTO_DEFAULT
 import org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE
 import org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE_MEEK
 import org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE_OBFS4
@@ -95,7 +96,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             val settings = settingsManager.getSettings(SETTINGS_NAMESPACE)
             this@SettingsFragment.settings = settings
             withContext(Dispatchers.Main) {
-                onAutoChanged(settings.getBoolean(BRIDGE_AUTO, true))
+                onAutoChanged(settings.getBoolean(BRIDGE_AUTO, BRIDGE_AUTO_DEFAULT))
                 preferenceManager.preferenceDataStore = torSettingsStore
             }
         }

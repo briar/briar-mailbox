@@ -55,6 +55,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static kotlinx.coroutines.flow.StateFlowKt.MutableStateFlow;
 import static org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_AUTO;
+import static org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_AUTO_DEFAULT;
 import static org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE;
 import static org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE_MEEK;
 import static org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE_OBFS4;
@@ -354,7 +355,8 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 		List<BridgeType> bridgeTypes = emptyList();
 		boolean bridgesNeeded =
 				circumventionProvider.doBridgesWork(country);
-		boolean bridgeAuto = settings.getBoolean(BRIDGE_AUTO, true);
+		boolean bridgeAuto =
+				settings.getBoolean(BRIDGE_AUTO, BRIDGE_AUTO_DEFAULT);
 		if (bridgeAuto) {
 			if (bridgesNeeded) {
 				if (ipv6Only) {
