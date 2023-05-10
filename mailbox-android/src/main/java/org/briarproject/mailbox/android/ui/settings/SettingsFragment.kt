@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.ui.MailboxViewModel
 import org.briarproject.mailbox.core.settings.SettingsManager
-import org.briarproject.mailbox.core.system.LocationUtils
 import org.briarproject.mailbox.core.tor.NetworkManager
 import org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_AUTO
 import org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_AUTO_DEFAULT
@@ -30,6 +29,7 @@ import org.briarproject.onionwrapper.CircumventionProvider.BridgeType.MEEK
 import org.briarproject.onionwrapper.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4
 import org.briarproject.onionwrapper.CircumventionProvider.BridgeType.SNOWFLAKE
 import org.briarproject.onionwrapper.CircumventionProvider.BridgeType.VANILLA
+import org.briarproject.onionwrapper.LocationUtils
 import javax.inject.Inject
 
 @AndroidEntryPoint
