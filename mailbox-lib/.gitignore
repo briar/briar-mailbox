@@ -1,1 +1,3 @@
-/src/main/resources/*.zip
+/src/main/resources/aarch64/
+/src/main/resources/armhf/
+/src/main/resources/x86_64/

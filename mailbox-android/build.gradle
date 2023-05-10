@@ -77,7 +77,7 @@ configurations {
 
 dependencies {
     implementation project(path: ':mailbox-core', configuration: 'default')
-    implementation 'org.briarproject:dont-kill-me-lib:0.2.6'
+    implementation 'org.briarproject:dont-kill-me-lib:0.2.7'
     implementation "org.briarproject:onionwrapper-android:$onionwrapper_version"
 
     implementation 'com.github.tony19:logback-android:3.0.0'

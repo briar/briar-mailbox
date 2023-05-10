@@ -20,8 +20,8 @@
 package org.briarproject.mailbox.core.tor;
 
 import org.briarproject.mailbox.core.settings.SettingsManager;
-import org.briarproject.mailbox.core.system.LocationUtils;
 import org.briarproject.onionwrapper.CircumventionProvider;
+import org.briarproject.onionwrapper.LocationUtils;
 import org.briarproject.onionwrapper.UnixTorWrapper;
 
 import java.io.File;

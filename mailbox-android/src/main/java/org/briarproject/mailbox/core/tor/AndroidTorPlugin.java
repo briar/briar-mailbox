@@ -20,15 +20,13 @@
 package org.briarproject.mailbox.core.tor;
 
 import android.app.Application;
-import android.content.Context;
 import android.os.Build;
 
-import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLock;
 import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManager;
 import org.briarproject.mailbox.core.settings.SettingsManager;
-import org.briarproject.mailbox.core.system.LocationUtils;
 import org.briarproject.onionwrapper.AndroidTorWrapper;
 import org.briarproject.onionwrapper.CircumventionProvider;
+import org.briarproject.onionwrapper.LocationUtils;
 
 import java.io.File;
 import java.util.ArrayList;

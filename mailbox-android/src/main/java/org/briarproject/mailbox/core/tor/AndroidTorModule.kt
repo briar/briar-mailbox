@@ -34,8 +34,9 @@ import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.lifecycle.ServiceException
 import org.briarproject.mailbox.core.server.WebServerManager
 import org.briarproject.mailbox.core.settings.SettingsManager
-import org.briarproject.mailbox.core.system.LocationUtils
+import org.briarproject.onionwrapper.AndroidLocationUtilsFactory
 import org.briarproject.onionwrapper.CircumventionProvider
+import org.briarproject.onionwrapper.LocationUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 import java.util.concurrent.Executor
@@ -116,9 +117,9 @@ internal class AndroidTorModule {
         }
 
     @Provides
-    fun provideLocationUtils(locationUtils: AndroidLocationUtils): LocationUtils {
-        return locationUtils
-    }
+    @Singleton
+    fun provideLocationUtils(app: Application): LocationUtils =
+        AndroidLocationUtilsFactory.createAndroidLocationUtils(app)
 
     @Provides
     @Singleton
