@@ -115,7 +115,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             } else {
                 circumventionProvider.getSuitableBridgeTypes(country)
             }
-            circumventionProvider.getSuitableBridgeTypes(country)
             snowflakePref.isChecked = autoTypes.contains(SNOWFLAKE)
             meekPref.isChecked = autoTypes.contains(MEEK)
             obfs4Pref.isChecked = autoTypes.contains(NON_DEFAULT_OBFS4)

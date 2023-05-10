@@ -263,7 +263,6 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 				logException(LOG, e, "Error while retrieving settings");
 				settings = new Settings();
 			}
-			// TODO reset actual plugin state, if this causes us to lose conn
 			updateConnectionStatus(networkManager.getNetworkStatus());
 		});
 	}
