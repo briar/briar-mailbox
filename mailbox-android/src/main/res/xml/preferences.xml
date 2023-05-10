@@ -1,0 +1,66 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/prefs_tor_category_title">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:disableDependentsState="true"
+            app:iconSpaceReserved="false"
+            app:key="bridgeAuto"
+            app:summary="@string/prefs_tor_auto_summary"
+            app:title="@string/prefs_tor_auto_title" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:dependency="bridgeAuto"
+            app:iconSpaceReserved="false"
+            app:key="bridgeUse"
+            app:title="@string/prefs_tor_bridges_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="bridgeTypesCategory"
+        app:iconSpaceReserved="false"
+        app:title="@string/prefs_bridges_category_title">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:dependency="bridgeUse"
+            app:iconSpaceReserved="false"
+            app:key="bridgeUseSnowflake"
+            app:title="@string/prefs_bridges_snowflake_title" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:dependency="bridgeUse"
+            app:iconSpaceReserved="false"
+            app:key="bridgeUseMeek"
+            app:title="@string/prefs_bridges_meek_title" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:dependency="bridgeUse"
+            app:iconSpaceReserved="false"
+            app:key="bridgeUseObfs4"
+            app:title="@string/prefs_bridges_obfs4_title" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:dependency="bridgeUse"
+            app:iconSpaceReserved="false"
+            app:key="bridgeUseObfs4Default"
+            app:title="@string/prefs_bridges_obfs_builtin_title" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:dependency="bridgeUse"
+            app:iconSpaceReserved="false"
+            app:key="bridgeUseVanilla"
+            app:title="@string/prefs_bridges_vanilla_title" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -23,12 +23,18 @@ import android.Manifest.permission.POST_NOTIFICATIONS
 import android.content.Intent
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.viewModels
+import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import androidx.core.content.PermissionChecker.checkSelfPermission
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -57,12 +63,14 @@ import org.briarproject.mailbox.android.StatusManager.Stopped
 import org.briarproject.mailbox.android.StatusManager.Stopping
 import org.briarproject.mailbox.android.StatusManager.Undecided
 import org.briarproject.mailbox.android.StatusManager.Wiping
+import org.briarproject.mailbox.android.ui.settings.SettingsActivity
+import org.briarproject.mailbox.android.ui.wipe.WipeCompleteActivity
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager.LifecycleState.NOT_STARTED
 import org.briarproject.mailbox.core.util.LogUtils.info
 import org.slf4j.LoggerFactory.getLogger
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MenuProvider {
 
     companion object {
         private val LOG = getLogger(MainActivity::class.java)
@@ -87,6 +95,8 @@ class MainActivity : AppCompatActivity() {
         LOG.info("onCreate()")
         setContentView(R.layout.activity_main)
 
+        addMenuProvider(this, this, RESUMED)
+
         LOG.info { "do we have a saved instance state? " + (savedInstanceState != null) }
         hadBeenStartedOnSave =
             savedInstanceState?.getBoolean(BUNDLE_LIFECYCLE_HAS_STARTED) ?: false
@@ -101,8 +111,7 @@ class MainActivity : AppCompatActivity() {
                     supportActionBar?.setDisplayHomeAsUpEnabled(true)
                     getString(R.string.link_text_title)
                 }
-                R.id.statusFragment -> getString(R.string.app_name)
-                else -> ""
+                else -> getString(R.string.app_name)
             }
         }
 
@@ -111,6 +120,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.main_actions, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if (menuItem.itemId == R.id.action_settings) {
+            startActivity(Intent(this, SettingsActivity::class.java))
+            return true
+        }
+        return false
+    }
+
+    @UiThread
     private fun onAppStateChanged(state: MailboxAppState) {
         // Catch the situation where we come back to the activity after a remote wipe has happened
         // while the app was in the background and gets restored from the recent app list after
@@ -122,21 +144,20 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, WipeCompleteActivity::class.java))
             return
         }
+        val currentDestId = nav.currentDestination?.id
         when (state) {
             Undecided -> supportActionBar?.hide() // hide action bar until we need it
-            NeedOnboarding -> {
+            NeedOnboarding -> if (currentDestId == R.id.initFragment) {
                 supportActionBar?.hide()
-                if (nav.currentDestination?.id == R.id.initFragment)
-                    nav.navigate(actionGlobalOnboardingContainer())
+                nav.navigate(actionGlobalOnboardingContainer())
             }
-            NeedsDozeExemption -> {
+            NeedsDozeExemption -> if (currentDestId != R.id.doNotKillMeFragment) {
                 supportActionBar?.hide()
-                if (nav.currentDestination?.id != R.id.doNotKillMeFragment)
-                    nav.navigate(actionGlobalDoNotKillMeFragment())
+                nav.navigate(actionGlobalDoNotKillMeFragment())
             }
             NotStarted -> {
                 askForNotificationPermission()
-                supportActionBar?.hide()
+                supportActionBar?.show()
                 nav.navigate(actionGlobalStartupFragment())
             }
             // It is important to navigate here from various fragments. The normal case is
@@ -144,47 +165,40 @@ class MainActivity : AppCompatActivity() {
             // However, when the service got killed and the app has been restored with a different
             // UI state such as the qr code screen or the status screen, then we also want to
             // navigate to the startup fragment.
-            is Starting -> {
-                supportActionBar?.hide()
-                if (nav.currentDestination?.id != R.id.startupFragment)
-                    nav.navigate(actionGlobalStartupFragment())
-            }
-            is StartedSettingUp -> {
+            is Starting -> if (currentDestId != R.id.startupFragment) {
                 supportActionBar?.show()
-                if (nav.currentDestination?.id != R.id.qrCodeFragment &&
-                    nav.currentDestination?.id != R.id.qrCodeLinkFragment
-                ) nav.navigate(actionGlobalQrCodeFragment())
+                nav.navigate(actionGlobalStartupFragment())
             }
-            StartedSetupComplete -> {
-                if (nav.currentDestination?.id == R.id.qrCodeFragment) {
-                    supportActionBar?.hide()
-                    nav.navigate(actionGlobalSetupCompleteFragment())
-                } else if (nav.currentDestination?.id != R.id.statusFragment &&
-                    nav.currentDestination?.id != R.id.setupCompleteFragment
-                ) {
-                    supportActionBar?.show()
-                    nav.navigate(actionGlobalStatusFragment())
-                }
+            is StartedSettingUp -> if (currentDestId != R.id.qrCodeFragment &&
+                currentDestId != R.id.qrCodeLinkFragment
+            ) {
+                supportActionBar?.show()
+                nav.navigate(actionGlobalQrCodeFragment())
             }
-            ErrorNoNetwork -> {
+            StartedSetupComplete -> if (currentDestId == R.id.qrCodeFragment) {
                 supportActionBar?.hide()
-                if (nav.currentDestination?.id != R.id.noNetworkFragment)
-                    nav.navigate(actionGlobalNoNetworkFragment())
+                nav.navigate(actionGlobalSetupCompleteFragment())
+            } else if (currentDestId != R.id.statusFragment &&
+                currentDestId != R.id.setupCompleteFragment
+            ) {
+                supportActionBar?.show()
+                nav.navigate(actionGlobalStatusFragment())
             }
-            ErrorClockSkew -> {
+            ErrorNoNetwork -> if (currentDestId != R.id.noNetworkFragment) {
                 supportActionBar?.hide()
-                if (nav.currentDestination?.id != R.id.clockSkewFragment)
-                    nav.navigate(actionGlobalClockSkewFragment())
+                nav.navigate(actionGlobalNoNetworkFragment())
             }
-            Stopping -> {
+            ErrorClockSkew -> if (currentDestId != R.id.clockSkewFragment) {
                 supportActionBar?.hide()
-                if (nav.currentDestination?.id != R.id.stoppingFragment)
-                    nav.navigate(actionGlobalStoppingFragment())
+                nav.navigate(actionGlobalClockSkewFragment())
             }
-            Wiping -> {
+            Stopping -> if (currentDestId != R.id.stoppingFragment) {
                 supportActionBar?.hide()
-                if (nav.currentDestination?.id != R.id.wipingFragment)
-                    nav.navigate(actionGlobalWipingFragment())
+                nav.navigate(actionGlobalStoppingFragment())
+            }
+            Wiping -> if (nav.currentDestination?.id != R.id.wipingFragment) {
+                supportActionBar?.hide()
+                nav.navigate(actionGlobalWipingFragment())
             }
             Stopped -> {} // nothing to do but needs to be exhaustive for Kotlin 1.7
         }

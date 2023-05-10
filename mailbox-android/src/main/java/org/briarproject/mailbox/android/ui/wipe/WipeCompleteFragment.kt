@@ -17,22 +17,40 @@
  *
  */
 
-package org.briarproject.mailbox.android.ui
+package org.briarproject.mailbox.android.ui.wipe
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.activityViewModels
 import dagger.hilt.android.AndroidEntryPoint
-import org.briarproject.mailbox.NavMainDirections.actionGlobalStatusFragment
 import org.briarproject.mailbox.R
+import org.briarproject.mailbox.android.ui.MailboxViewModel
+import org.briarproject.mailbox.core.system.AndroidExecutor
+import org.briarproject.mailbox.core.system.System
+import org.slf4j.LoggerFactory.getLogger
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class SetupCompleteFragment : Fragment() {
+class WipeCompleteFragment : Fragment() {
 
+    companion object {
+        private val LOG = getLogger(WipeCompleteFragment::class.java)
+    }
+
+    private val viewModel: MailboxViewModel by activityViewModels()
+
+    @Inject
+    internal lateinit var system: System
+
+    @Inject
+    internal lateinit var androidExecutor: AndroidExecutor
+
+    private lateinit var description: View
     private lateinit var button: Button
 
     override fun onCreateView(
@@ -40,13 +58,24 @@ class SetupCompleteFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        return inflater.inflate(R.layout.fragment_setup_complete, container, false)
+        return inflater.inflate(R.layout.fragment_wipe_complete, container, false)
     }
 
     override fun onViewCreated(v: View, savedInstanceState: Bundle?) {
+        description = v.findViewById(R.id.description)
+        androidExecutor.runOnBackgroundThread {
+            if (viewModel.hasBeenWipedLocally()) {
+                androidExecutor.runOnUiThread {
+                    description.visibility = VISIBLE
+                }
+            }
+        }
+
         button = v.findViewById(R.id.button)
+
         button.setOnClickListener {
-            findNavController().navigate(actionGlobalStatusFragment())
+            LOG.info("Exiting")
+            system.exit(0)
         }
     }
 

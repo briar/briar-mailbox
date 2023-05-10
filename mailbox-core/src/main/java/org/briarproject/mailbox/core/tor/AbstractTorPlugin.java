@@ -54,14 +54,25 @@ import kotlinx.coroutines.flow.StateFlow;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static kotlinx.coroutines.flow.StateFlowKt.MutableStateFlow;
+import static org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_AUTO;
+import static org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_AUTO_DEFAULT;
+import static org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE;
+import static org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE_MEEK;
+import static org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE_OBFS4;
+import static org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE_OBFS4_DEFAULT;
+import static org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE_SNOWFLAKE;
+import static org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_USE_VANILLA;
 import static org.briarproject.mailbox.core.tor.TorConstants.HS_ADDRESS_V3;
 import static org.briarproject.mailbox.core.tor.TorConstants.HS_PRIVATE_KEY_V3;
 import static org.briarproject.mailbox.core.tor.TorConstants.SETTINGS_NAMESPACE;
 import static org.briarproject.mailbox.core.util.LogUtils.info;
 import static org.briarproject.mailbox.core.util.LogUtils.logException;
 import static org.briarproject.mailbox.core.util.PrivacyUtils.scrubOnion;
+import static org.briarproject.onionwrapper.CircumventionProvider.BridgeType.DEFAULT_OBFS4;
 import static org.briarproject.onionwrapper.CircumventionProvider.BridgeType.MEEK;
+import static org.briarproject.onionwrapper.CircumventionProvider.BridgeType.NON_DEFAULT_OBFS4;
 import static org.briarproject.onionwrapper.CircumventionProvider.BridgeType.SNOWFLAKE;
+import static org.briarproject.onionwrapper.CircumventionProvider.BridgeType.VANILLA;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
@@ -88,6 +99,8 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	protected final PluginState state = new PluginState();
+
+	private volatile Settings settings = null;
 
 	AbstractTorPlugin(Executor ioExecutor,
 			SettingsManager settingsManager,
@@ -139,6 +152,13 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 	@Override
 	public void startService() throws ServiceException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
+		// Load the settings
+		try {
+			settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
+		} catch (DbException e) {
+			logException(LOG, e, "Error while retrieving settings");
+			settings = new Settings();
+		}
 		// Start Tor
 		try {
 			tor.start();
@@ -168,14 +188,7 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 	private void publishHiddenService(int port) {
 		if (!tor.isTorRunning()) return;
 
-		Settings s;
-		try {
-			s = settingsManager.getSettings(SETTINGS_NAMESPACE);
-		} catch (DbException e) {
-			logException(LOG, e, "Error while retrieving settings");
-			s = new Settings();
-		}
-		String privateKey3 = s.get(HS_PRIVATE_KEY_V3);
+		String privateKey3 = settings.get(HS_PRIVATE_KEY_V3);
 		createV3HiddenService(port, privateKey3);
 	}
 
@@ -197,6 +210,8 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 			s.put(HS_PRIVATE_KEY_V3, hsProps.privKey);
 			try {
 				settingsManager.mergeSettings(s, SETTINGS_NAMESPACE);
+				// update cached settings with merge result
+				settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
 			} catch (DbException e) {
 				logException(LOG, e, "Error while merging settings");
 			}
@@ -204,9 +219,8 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 	}
 
 	@Nullable
-	public String getHiddenServiceAddress() throws DbException {
-		Settings s = settingsManager.getSettings(SETTINGS_NAMESPACE);
-		return s.get(HS_ADDRESS_V3);
+	public String getHiddenServiceAddress() {
+		return settings == null ? null : settings.get(HS_ADDRESS_V3);
 	}
 
 	private void enableBridges(List<BridgeType> bridgeTypes, String countryCode)
@@ -240,6 +254,19 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 		}
 	}
 
+	@Override
+	public void onSettingsChanged() {
+		ioExecutor.execute(() -> {
+			try {
+				settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
+			} catch (DbException e) {
+				logException(LOG, e, "Error while retrieving settings");
+				settings = new Settings();
+			}
+			updateConnectionStatus(networkManager.getNetworkStatus());
+		});
+	}
+
 	private void updateConnectionStatus(NetworkStatus status) {
 		connectionStatusExecutor.execute(() -> {
 			if (!tor.isTorRunning()) return;
@@ -247,7 +274,6 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 			boolean wifi = status.isWifi();
 			boolean ipv6Only = status.isIpv6Only();
 			String country = locationUtils.getCurrentCountry();
-			boolean bridgesWork = circumventionProvider.doBridgesWork(country);
 
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Online: " + online + ", wifi: " + wifi
@@ -264,19 +290,7 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 			} else {
 				LOG.info("Enabling network");
 				enableNetwork = true;
-				if (bridgesWork) {
-					if (ipv6Only) {
-						bridgeTypes = asList(MEEK, SNOWFLAKE);
-					} else {
-						bridgeTypes = circumventionProvider
-								.getSuitableBridgeTypes(country);
-					}
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Using bridge types " + bridgeTypes);
-					}
-				} else {
-					LOG.info("Not using bridges");
-				}
+				bridgeTypes = getBridgeTypes(country, ipv6Only);
 				if (wifi) {
 					LOG.info("Enabling connection padding");
 					enableConnectionPadding = true;
@@ -296,6 +310,78 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 				logException(LOG, e, "Error enabling network");
 			}
 		});
+	}
+
+	@Override
+	public List<BridgeType> getCustomBridgeTypes() {
+		return getCustomBridgeTypes(locationUtils.getCurrentCountry(),
+				networkManager.getNetworkStatus().isIpv6Only());
+	}
+
+	private List<BridgeType> getCustomBridgeTypes(String country,
+			boolean ipv6Only) {
+		List<BridgeType> defaultTypes;
+		if (ipv6Only) {
+			defaultTypes = asList(MEEK, SNOWFLAKE);
+		} else {
+			defaultTypes =
+					circumventionProvider.getSuitableBridgeTypes(country);
+		}
+		ArrayList<BridgeType> types = new ArrayList<>();
+		if (settings.getBoolean(BRIDGE_USE_SNOWFLAKE,
+				defaultTypes.contains(SNOWFLAKE))) {
+			types.add(SNOWFLAKE);
+		}
+		if (settings.getBoolean(BRIDGE_USE_MEEK, defaultTypes.contains(MEEK))) {
+			types.add(MEEK);
+		}
+		if (settings.getBoolean(BRIDGE_USE_OBFS4,
+				defaultTypes.contains(NON_DEFAULT_OBFS4))) {
+			types.add(NON_DEFAULT_OBFS4);
+		}
+		if (settings.getBoolean(BRIDGE_USE_OBFS4_DEFAULT,
+				defaultTypes.contains(DEFAULT_OBFS4))) {
+			types.add(DEFAULT_OBFS4);
+		}
+		if (settings.getBoolean(BRIDGE_USE_VANILLA,
+				defaultTypes.contains(VANILLA))) {
+			types.add(VANILLA);
+		}
+		return types;
+	}
+
+	private List<BridgeType> getBridgeTypes(String country, boolean ipv6Only) {
+		List<BridgeType> bridgeTypes = emptyList();
+		boolean bridgesNeeded =
+				circumventionProvider.doBridgesWork(country);
+		boolean bridgeAuto =
+				settings.getBoolean(BRIDGE_AUTO, BRIDGE_AUTO_DEFAULT);
+		if (bridgeAuto) {
+			if (bridgesNeeded) {
+				if (ipv6Only) {
+					bridgeTypes = asList(MEEK, SNOWFLAKE);
+				} else {
+					bridgeTypes = circumventionProvider
+							.getSuitableBridgeTypes(country);
+				}
+				if (LOG.isInfoEnabled()) {
+					LOG.info("Using bridge types " + bridgeTypes);
+				}
+			} else {
+				LOG.info("Not using bridges");
+			}
+		} else {
+			boolean useBridges = settings.getBoolean(BRIDGE_USE, bridgesNeeded);
+			if (useBridges) {
+				bridgeTypes = getCustomBridgeTypes(country, ipv6Only);
+				if (LOG.isInfoEnabled()) {
+					LOG.info("Using bridge types " + bridgeTypes);
+				}
+			} else {
+				LOG.info("Not using bridges");
+			}
+		}
+		return bridgeTypes;
 	}
 
 	@ThreadSafe

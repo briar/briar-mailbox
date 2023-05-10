@@ -17,7 +17,7 @@
  *
  */
 
-package org.briarproject.mailbox.android.ui
+package org.briarproject.mailbox.android.ui.startup
 
 import android.content.Intent
 import android.os.Bundle
@@ -25,9 +25,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
-import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure.CLOCK_ERROR
-import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure.LIFECYCLE_REUSE
-import org.briarproject.mailbox.android.ui.StartupFailureActivity.StartupFailure.SERVICE_ERROR
+import org.briarproject.mailbox.android.ui.startup.StartupFailureActivity.StartupFailure.CLOCK_ERROR
+import org.briarproject.mailbox.android.ui.startup.StartupFailureActivity.StartupFailure.LIFECYCLE_REUSE
+import org.briarproject.mailbox.android.ui.startup.StartupFailureActivity.StartupFailure.SERVICE_ERROR
 
 @AndroidEntryPoint
 class StartupFailureActivity : AppCompatActivity() {

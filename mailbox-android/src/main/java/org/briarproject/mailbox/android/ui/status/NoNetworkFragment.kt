@@ -17,7 +17,7 @@
  *
  */
 
-package org.briarproject.mailbox.android.ui
+package org.briarproject.mailbox.android.ui.status
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -28,14 +28,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.briarproject.mailbox.R
 
 @AndroidEntryPoint
-class WipingFragment : Fragment() {
+class NoNetworkFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        return inflater.inflate(R.layout.fragment_wiping, container, false)
+        return inflater.inflate(R.layout.fragment_no_network, container, false)
     }
-
 }
