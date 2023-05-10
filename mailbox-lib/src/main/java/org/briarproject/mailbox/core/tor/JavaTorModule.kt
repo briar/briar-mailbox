@@ -30,13 +30,13 @@ import org.briarproject.mailbox.core.lifecycle.IoExecutor
 import org.briarproject.mailbox.core.lifecycle.LifecycleManager
 import org.briarproject.mailbox.core.server.WebServerManager
 import org.briarproject.mailbox.core.settings.SettingsManager
-import org.briarproject.mailbox.core.system.LocationUtils
 import org.briarproject.mailbox.core.util.OsUtils.isLinux
 import org.briarproject.onionwrapper.CircumventionProvider
+import org.briarproject.onionwrapper.JavaLocationUtilsFactory
+import org.briarproject.onionwrapper.LocationUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 import java.io.File
-import java.util.Locale
 import java.util.concurrent.Executor
 import javax.inject.Singleton
 
@@ -108,6 +108,6 @@ class JavaTorModule {
 
     @Provides
     @Singleton
-    fun provideLocationUtils() = LocationUtils { Locale.getDefault().country }
+    fun provideLocationUtils(): LocationUtils = JavaLocationUtilsFactory.createJavaLocationUtils()
 
 }

@@ -27,6 +27,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.briarproject.android.dontkillmelib.DozeHelper
 import org.briarproject.android.dontkillmelib.DozeHelperImpl
+import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManager
+import org.briarproject.android.dontkillmelib.wakelock.AndroidWakeLockManagerFactory
 import org.briarproject.mailbox.core.CoreModule
 import org.briarproject.mailbox.core.db.DatabaseConfig
 import org.briarproject.mailbox.core.files.FileProvider
@@ -79,4 +81,9 @@ internal class AppModule {
     @Singleton
     @Provides
     fun provideSystem() = System { code -> exitProcess(code) }
+
+    @Singleton
+    @Provides
+    fun provideAndroidWakeLockManager(app: Application): AndroidWakeLockManager =
+        AndroidWakeLockManagerFactory.createAndroidWakeLockManager(app)
 }
