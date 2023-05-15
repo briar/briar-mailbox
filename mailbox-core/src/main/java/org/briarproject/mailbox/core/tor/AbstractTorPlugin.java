@@ -27,6 +27,7 @@ import org.briarproject.mailbox.core.lifecycle.IoExecutor;
 import org.briarproject.mailbox.core.lifecycle.ServiceException;
 import org.briarproject.mailbox.core.settings.Settings;
 import org.briarproject.mailbox.core.settings.SettingsManager;
+import org.briarproject.nullsafety.InterfaceNotNullByDefault;
 import org.briarproject.onionwrapper.CircumventionProvider;
 import org.briarproject.onionwrapper.CircumventionProvider.BridgeType;
 import org.briarproject.onionwrapper.LocationUtils;
@@ -43,7 +44,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntSupplier;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -75,6 +75,7 @@ import static org.briarproject.onionwrapper.CircumventionProvider.BridgeType.SNO
 import static org.briarproject.onionwrapper.CircumventionProvider.BridgeType.VANILLA;
 import static org.slf4j.LoggerFactory.getLogger;
 
+@InterfaceNotNullByDefault
 public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 
 	private static final Logger LOG = getLogger(AbstractTorPlugin.class);
@@ -124,7 +125,7 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 		tor.setObserver(new Observer() {
 
 			@Override
-			public void onState(@Nonnull TorState s) {
+			public void onState(TorState s) {
 				state.onStateChanged(s);
 			}
 
@@ -134,7 +135,7 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 			}
 
 			@Override
-			public void onHsDescriptorUpload(@Nonnull String onion) {
+			public void onHsDescriptorUpload(String onion) {
 				state.onServiceDescriptorUploaded();
 			}
 
@@ -244,6 +245,9 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 		} catch (IOException e) {
 			logException(LOG, e,
 					"Error while sending tor shutdown instructions");
+		} catch (InterruptedException e) {
+			LOG.warn("Interrupted while stopping Tor");
+			Thread.currentThread().interrupt();
 		}
 	}
 
@@ -424,7 +428,14 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 		}
 
 		private synchronized TorPluginState getCurrentState(TorState torState) {
-			if (torState == TorState.STARTING_STOPPING) {
+			// Treat TorState.STARTED as TorPluginState.STARTING_STOPPING
+			// because it's only seen during startup, before
+			// TorWrapper#enableNetwork() is called for the first time
+			if (torState == TorState.NOT_STARTED ||
+					torState == TorState.STARTING ||
+					torState == TorState.STARTED ||
+					torState == TorState.STOPPING ||
+					torState == TorState.STOPPED) {
 				return TorPluginState.StartingStopping.INSTANCE;
 			} else if (torState == TorState.DISABLED) {
 				return TorPluginState.Inactive.INSTANCE;
