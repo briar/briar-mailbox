@@ -91,5 +91,6 @@
     <string name="prefs_bridges_obfs4_title" translatable="false">Obfs4</string>
     <string name="prefs_bridges_obfs_builtin_title">Obfs4 from Tor Browser</string>
     <string name="prefs_bridges_meek_title" translatable="false">Meek</string>
+    <string name="prefs_bridges_at_least_one">At least one bridge type must be enabled, or disable \"Use bridges\".</string>
 
 </resources>
