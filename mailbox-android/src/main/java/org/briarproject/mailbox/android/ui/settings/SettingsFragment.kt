@@ -3,10 +3,12 @@ package org.briarproject.mailbox.android.ui.settings
 import android.os.Bundle
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.Preference
+import androidx.preference.Preference.OnPreferenceChangeListener
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,7 +46,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private lateinit var obfs4Pref: SwitchPreferenceCompat
     private lateinit var obfs4DefaultPref: SwitchPreferenceCompat
     private lateinit var vanillaPref: SwitchPreferenceCompat
-    private lateinit var brideTypePrefs: List<Preference>
+    private lateinit var brideTypePrefs: List<SwitchPreferenceCompat>
     private lateinit var bridgeTypesCategory: PreferenceCategory
 
     @Inject
@@ -84,6 +86,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
         brideTypePrefs = listOf(
             snowflakePref, meekPref, obfs4Pref, obfs4DefaultPref, vanillaPref
         )
+        val typePrefChangedListener = OnPreferenceChangeListener { _, newValue ->
+            if (!(newValue as Boolean)) {
+                // allow change only if more than one bridge type is still checked
+                val allowChange = brideTypePrefs.count { it.isChecked } > 1
+                if (!allowChange) showBridgeTypeSnackbar()
+                allowChange
+            } else true
+        }
+        brideTypePrefs.forEach { preference ->
+            preference.onPreferenceChangeListener = typePrefChangedListener
+        }
         bridgeTypesCategory = findPreference("bridgeTypesCategory")!!
         autoPref.setOnPreferenceChangeListener { _, newValue ->
             onAutoChanged(newValue as Boolean)
@@ -93,6 +106,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
             onUseBridgesChanged(newValue as Boolean)
             true
         }
+    }
+
+    private fun showBridgeTypeSnackbar() {
+        val v = view ?: return
+        Snackbar.make(v, R.string.prefs_bridges_at_least_one, LENGTH_SHORT).show()
     }
 
     override fun onDestroy() {
