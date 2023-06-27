@@ -19,7 +19,7 @@ dependencies {
     api 'com.google.code.findbugs:jsr305:3.0.2'
     api 'javax.inject:javax.inject:1' // required for @Qualifier in @Wakeful
     api 'org.briarproject:null-safety:0.1'
-    api "org.slf4j:slf4j-api:2.0.6"
+    api "org.slf4j:slf4j-api:2.0.7"
     api "org.briarproject:onionwrapper-core:$onionwrapper_version"
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version" // used by jackson
@@ -27,7 +27,7 @@ dependencies {
     implementation "com.google.dagger:hilt-core:$hilt_version"
     kapt "com.google.dagger:dagger-compiler:$hilt_version"
 
-    def ktor_version = '2.2.3'
+    def ktor_version = '2.3.1'
     implementation "io.ktor:ktor-server-core:$ktor_version"
     implementation "io.ktor:ktor-server-netty:$ktor_version"
     implementation "io.ktor:ktor-server-auth:$ktor_version"
