@@ -8,5 +8,5 @@ ext {
     junit_version = '5.7.2'
     mockk_version = '1.10.4'
     ktlint_plugin_version = '10.2.1'
-    onionwrapper_version = '0.0.4'
+    onionwrapper_version = '0.0.5'
 }
