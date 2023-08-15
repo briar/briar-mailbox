@@ -14,7 +14,7 @@
     <string name="button_skip_intro">Preskočiť úvod</string>
     <string name="button_back">Späť</string>
 
-    <string name="onboarding_0_title">Zostať dostupný</string>
+    <string name="onboarding_0_title">Buďte na dosah</string>
     <string name="onboarding_0_description">Mailbox vám pomôže zostať v kontakte s vašimi kontaktmi a synchronizuje vaše správy s aplikáciou Briar.</string>
     <string name="onboarding_1_title">Použite náhradné zariadenie</string>
     <string name="onboarding_1_description">Nainštalujte aplikáciu Mailbox do náhradného telefónu alebo tabletu a nechajte ho pripojený k napájaniu a Wi-Fi.</string>
@@ -77,4 +77,16 @@
     <string name="startup_failed_activity_title">Zlyhanie spustenia Mailbox</string>
     <string name="startup_failed_service_error">Mailbox nedokázal spustiť požadovanú súčasť.\n\nProsím, aktualizujte na najnovšiu verziu aplikácie a skúste to znova.</string>
     <string name="startup_failed_lifecycle_reuse">Aplikácia Mailbox sa už zastavila.\n\nProsím, zatvorte aplikáciu a skúste to znova.</string>
+    <string name="startup_failed_clock_error">Mailbox sa nepodarilo spustiť, pretože hodiny vášho zariadenia nie sú správne.\n\nProsím, nastavte hodiny vášho zariadenia na správny čas a skúste to znova.</string>
+
+    <!-- Preference -->
+    <string name="prefs_title">Nastavenia</string>
+    <string name="prefs_tor_category_title">Nastavenia obchádzania Tor</string>
+    <string name="prefs_tor_auto_title">Automatický výber premostenia</string>
+    <string name="prefs_tor_auto_summary">Premostenia sa vyberajú na základe vašej polohy</string>
+    <string name="prefs_tor_bridges_title">Použiť premostenia</string>
+    <string name="prefs_bridges_category_title">Typy premostení</string>
+    <string name="prefs_bridges_obfs_builtin_title">Obfs4 z prehliadača Tor</string>
+    <string name="prefs_bridges_at_least_one">Musí byť povolený aspoň jeden typ premostenia alebo vypnite možnosť \"Použiť premostenia\".</string>
+
 </resources>

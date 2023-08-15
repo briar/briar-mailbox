@@ -14,9 +14,9 @@
     <string name="button_skip_intro">Пропустить введение</string>
     <string name="button_back">Назад</string>
 
-    <string name="onboarding_0_title">Будьте на связи</string>
-    <string name="onboarding_0_description">Mailbox помогает оставаться на связи с контактами и синхронизирует сообщения с Briar.</string>
-    <string name="onboarding_1_title">Использовать запасное устройство</string>
+    <string name="onboarding_0_title">Оставайтесь на связи</string>
+    <string name="onboarding_0_description">Mailbox помогает поддерживать связь с вашими контактами и синхронизирует сообщения с Briar.</string>
+    <string name="onboarding_1_title">Используйте запасное устройство</string>
     <string name="onboarding_1_description">Установите приложение Mailbox на запасной телефон или планшет и оставьте его подключенным к источнику питания и WiFi.</string>
     <string name="onboarding_2_title">Доставка сообщений</string>
     <string name="onboarding_2_description">Когда Mailbox онлайн, ваши контакты могут оставлять сообщения, даже если ваш Briar не в сети. Mailbox будет получать сообщения и пересылать их Briar, как только вы появитесь в сети.</string>
@@ -32,10 +32,10 @@
     <string name="share">Поделиться</string>
     <string name="copied">Скопировано</string>
 
-    <string name="link_title">Ссылка с помощью QR-кода</string>
+    <string name="link_title">Связать, используя QR-код</string>
     <string name="link_description">Сосканируйте этот QR-код с помощью Briar</string>
     <string name="link_menu_title">Показать как текст</string>
-    <string name="link_text_title">Ссылка через текст</string>
+    <string name="link_text_title">Связать, используя текст</string>
     <string name="link_text_description">Скопируйте это и вставьте в Briar Desktop:</string>
     <string name="link_cancel">Отменить настройку</string>
 
@@ -77,4 +77,16 @@
     <string name="startup_failed_activity_title">Сбой при запуске Mailbox</string>
     <string name="startup_failed_service_error">Mailbox не смог запустить необходимый компонент.\n\nПожалуйста, обновите приложение до последней версии и повторите попытку.</string>
     <string name="startup_failed_lifecycle_reuse">Mailbox уже остановлен.\n\nПожалуйста, закройте приложение и попробуйте снова.</string>
+    <string name="startup_failed_clock_error">Не удалось запустить Mailbox, поскольку время на вашем устройстве некорректно.\n\nПожалуйста, установите правильное время и повторите попытку.</string>
+
+    <!-- Preference -->
+    <string name="prefs_title">Настройки</string>
+    <string name="prefs_tor_category_title">Настройки обхода блокировок Tor</string>
+    <string name="prefs_tor_auto_title">Автоматический выбор моста</string>
+    <string name="prefs_tor_auto_summary">Мосты выбираются в зависимости от вашего местоположения</string>
+    <string name="prefs_tor_bridges_title">Использовать мосты</string>
+    <string name="prefs_bridges_category_title">Типы мостов</string>
+    <string name="prefs_bridges_obfs_builtin_title">Obfs4 от браузера Tor</string>
+    <string name="prefs_bridges_at_least_one">Должен быть включен хотя бы один тип моста, или отключите \"Использовать мосты\".</string>
+
 </resources>

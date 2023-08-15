@@ -77,4 +77,6 @@
     <string name="startup_failed_activity_title">Mailbox 啟動失敗</string>
     <string name="startup_failed_service_error">Mailbox 無法啟動所需的元件\n\n請昇級至最新版後再重試</string>
     <string name="startup_failed_lifecycle_reuse">Mailbox 已停止.\n\n 請關閉軟體後再重試</string>
-</resources>
+    <!-- Preference -->
+    <string name="prefs_title">設置</string>
+    </resources>

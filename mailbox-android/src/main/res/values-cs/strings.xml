@@ -77,4 +77,16 @@
     <string name="startup_failed_activity_title">Spuštení Mailboxu selhalo</string>
     <string name="startup_failed_service_error">Mailbox nemohl spustit požadovanou součást/komponent.\n\nProsím navyšte aplikaci na nejnovější verzi a zkuste to znovu.</string>
     <string name="startup_failed_lifecycle_reuse">Mailbox již byl zastaven.\n\nProsím zavřete aplikaci a zkuste to znovu.</string>
+    <string name="startup_failed_clock_error">Nepodařilo se spustit Mailbox, protože hodiny vašeho zařízení jsou špatně nastavené.\n\nNastavte prosím hodiny vašeho zařízení na správný čas a zkuste to znovu.</string>
+
+    <!-- Preference -->
+    <string name="prefs_title">Nastavení</string>
+    <string name="prefs_tor_category_title">Nastavení obejití pomocí Tor</string>
+    <string name="prefs_tor_auto_title">Automatický výběr mostu</string>
+    <string name="prefs_tor_auto_summary">Mosty jsou vybírány podle vašeho umístění</string>
+    <string name="prefs_tor_bridges_title">Použít mosty</string>
+    <string name="prefs_bridges_category_title">Typy mostů</string>
+    <string name="prefs_bridges_obfs_builtin_title">Obfs4 z Prohlížeče Tor</string>
+    <string name="prefs_bridges_at_least_one">Nejméně jeden typ mostu musí být zapnut a nebo vypněte \"Použít mosty\".</string>
+
 </resources>

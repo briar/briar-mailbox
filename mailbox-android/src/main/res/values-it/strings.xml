@@ -77,4 +77,16 @@
     <string name="startup_failed_activity_title">Fallimento avvio Mailbox</string>
     <string name="startup_failed_service_error">La casella postale non ha potuto avviare un componente necessario.\n\nAggiorna all\'ultima versione dell\'app e riprova.</string>
     <string name="startup_failed_lifecycle_reuse">La casella postale è già stata fermata.\n\nChiudi l\'app e riprova.</string>
+    <string name="startup_failed_clock_error">Mailbox non ha potuto avviarsi perchè l\'orologio del tuo dispositivo è sbagliato.\n\nRegola correttamente l\'orologio e riprova.</string>
+
+    <!-- Preference -->
+    <string name="prefs_title">Impostazioni</string>
+    <string name="prefs_tor_category_title">Impostazioni di elusione di Tor</string>
+    <string name="prefs_tor_auto_title">Selezione automatica di bridge</string>
+    <string name="prefs_tor_auto_summary">I bridge vengono scelti in base alla tua posizione</string>
+    <string name="prefs_tor_bridges_title">Usa i bridge</string>
+    <string name="prefs_bridges_category_title">Tipi di bridge</string>
+    <string name="prefs_bridges_obfs_builtin_title">Obfs4 da Tor Browser</string>
+    <string name="prefs_bridges_at_least_one">Almeno un tipo di bridge deve essere attivo, o disattiva \"Usa i bridge\".</string>
+
 </resources>

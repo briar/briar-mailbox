@@ -77,4 +77,6 @@
     <string name="startup_failed_activity_title">メールボックス起動失敗</string>
     <string name="startup_failed_service_error">メールボックスは必要なコンポーネントを起動できませんでした。\n\nアプリの最新版にアップグレードしてから、もう一度試してください。</string>
     <string name="startup_failed_lifecycle_reuse">メールボックスは既に停止されています。\n\nアプリを閉じて、再びお試しください。</string>
-</resources>
+    <!-- Preference -->
+    <string name="prefs_title">設定</string>
+    </resources>

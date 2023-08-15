@@ -78,4 +78,16 @@ Mbajeni Kutinë tuaj postare të lidhur në rrjet energjie dhe me Wi-Fi, që të
     <string name="startup_failed_activity_title">Dështim Nisjeje Kutie Postare</string>
     <string name="startup_failed_service_error">Kutia postare s’arriti të nisë një përbërës të domosdoshëm.\n\nJu lutemi, përmirësojeni me versionin më të ri të aplikacionit dhe riprovoni.</string>
     <string name="startup_failed_lifecycle_reuse">Kutia postare është ndalur tashmë.\n\nJu lutemi, mbylleni aplikacionin dhe riprovoni.</string>
+    <string name="startup_failed_clock_error">Kutia posta s’u nis dot, ngaqë sahati i pajisjes tuaj është gabim.\n\nJu lutemi, vëreni sahatin e pajisjes tuaj në kohën e saktë dhe riprovoni.</string>
+
+    <!-- Preference -->
+    <string name="prefs_title">Rregullime</string>
+    <string name="prefs_tor_category_title">Rregullime anashkalimi Tor-i</string>
+    <string name="prefs_tor_auto_title">Përzgjedhje e automatizuar urash</string>
+    <string name="prefs_tor_auto_summary">Urat zgjidhen bazuar në vendndodhjen tuaj</string>
+    <string name="prefs_tor_bridges_title">Përdor ura</string>
+    <string name="prefs_bridges_category_title">Lloje urash</string>
+    <string name="prefs_bridges_obfs_builtin_title">Obfs4 nga Shfletuesi Tor</string>
+    <string name="prefs_bridges_at_least_one">Duhet të jetë e aktivizuar të paktën një nga urat, ose çaktivizoni “Përdor ura”.</string>
+
 </resources>

@@ -1,0 +1,92 @@
+<resources>
+    <string name="app_name">Briar Mailbox</string>
+    <string name="notification_channel_name">قناة Briar Mailbox </string>
+    <string name="notification_mailbox_title_starting">Mailbox طور البدء</string>
+    <string name="notification_mailbox_content_starting">بدء تشغيل Mailbox...</string>
+    <string name="notification_mailbox_title_setup">إعداد Mailbox</string>
+    <string name="notification_mailbox_content_setup">في انتظار Briar لمسح رمز QR الاستجابة السريعة ...</string>
+    <string name="notification_mailbox_title_running">Briar Mailbox قيد التشغيل</string>
+    <string name="notification_mailbox_content_running">في انتظار الرسائل ...</string>
+    <string name="notification_mailbox_title_offline">Briar Mailbox غير متصل بالإنترنت</string>
+    <string name="notification_mailbox_content_offline">في انتظار الاتصال بالإنترنت ...</string>
+    <string name="notification_mailbox_content_clock_skew">في انتظار ساعة النظام الصحيحة ...</string>
+    <string name="button_continue">تابع (ي)</string>
+    <string name="button_skip_intro">تخطي المقدمة</string>
+    <string name="button_back">الرجوع</string>
+
+    <string name="onboarding_0_title">ابقى في المتناول </string>
+    <string name="onboarding_0_description">يساعدك صندوق البريد Mailbox على البقاء على اتصال مع جهات الاتصال الخاصة بك ومزامنة رسائلك مع Briar.</string>
+    <string name="onboarding_1_title">استخدم جهازًا احتياطيًا</string>
+    <string name="onboarding_1_description">قم بتثبيت تطبيق Mailbox على هاتف أو كمبيوتر لوحي احتياطي واتركه متصلاً بالطاقة و WiFi.</string>
+    <string name="onboarding_2_title">تسليم الرسائل</string>
+    <string name="onboarding_2_description">عندما يكون صندوق البريد الخاص Mailbox بك متصلاً ، يمكن لجهات الاتصال الخاصة بك ترك رسائل لك حتى إذا كان Briar غير متصل. سيستقبل صندوق البريد Mailbox الرسائل، ويعيد توجيهها إلى Briar عندما تتصل بالإنترنت.</string>
+    <string name="onboarding_3_title">مشفرة</string>
+    <string name="onboarding_3_description">يتم تشفير الرسائل التي تمر عبر صندوق البريد Mailbox ولا يمكن قراءتها بواسطة صندوق البريد أو هذا الهاتف. يقوم صندوق البريد Mailbox عادة  بتوجيهها ببساطة إلى هاتف Briar Messenger الخاص بك.</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">تعذر تشغيل Briar Mailbox في الخلفية</string>
+    <string name="fix">إصلاح</string>
+    <string name="ok">موافق</string>
+    <string name="cancel">إلغاء </string>
+    <string name="share">شارك</string>
+    <string name="copied">تم نسخه</string>
+
+    <string name="link_title">الارتباط عبر رمز الاستجابة السريعة الرمز المربع QR</string>
+    <string name="link_description">امسح رمز الاستجابة السريعة هذا باستخدام Briar</string>
+    <string name="link_menu_title">إظهار كنص</string>
+    <string name="link_text_title">الارتباط عبر نص</string>
+    <string name="link_text_description">انسخ هذا والصقه في Briar Desktop:</string>
+    <string name="link_cancel">إلغاء التثبيت</string>
+
+    <string name="startup_headline">بدء تشغيل Mailbox</string>
+    <string name="startup_init_app">جارٍ بدء التطبيق</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">جاري الاتصال بشبكة Tor (%d%%)</string>
+    <string name="startup_publishing_onion_service">نشر خدمة Tor onion</string>
+
+    <string name="clock_skew_title">ساعة النظام خاطئة</string>
+    <string name="clock_skew_description">تحقق من الوقت والمنطقة الزمنية والتاريخ في إعدادات النظام. بعد الإصلاح ، انتظر بعض الوقت حتى يتعافى Tor.</string>
+
+    <string name="no_network_title">الجهاز غير متصل بالإنترنت؟</string>
+    <string name="no_network_description">يرجى التأكد من أن هذا الجهاز متصل بالإنترنت. بمجرد اتصالك بالإنترنت ، يجب أن ينتقل الإعداد تلقائيًا هنا.</string>
+
+    <string name="status_running">صندوق البريد قيد التشغيل</string>
+    <string name="last_connection">آخر اتصال: %s</string>
+    <string name="now">الآن</string>
+    <string name="never">أبدا</string>
+    <string name="stop">قف</string>
+    <string name="unlink">فك الارتباط</string>
+    <string name="unlink_title">هل تريد إلغاء ارتباط mailbox؟</string>
+    <string name="unlink_description">إذا قمت بإلغاء ربط صندوق البريد الخاص بك ، فلن تتمكن من تلقي الرسائل عندما يكون Briar غير متصل. \ n \ n هل تريد بالتأكيد إلغاء ارتباط \"علبة البريدMailbox\" الخاصة بك؟</string>
+    <string name="confirm_stop_title">إيقاف Mailbox؟</string>
+    <string name="confirm_stop_description">عند إيقاف \"صندوق البريد\" Mailbox الخاص بك، سيتم إيقاف تشغيل التطبيق وسيتوقف عن تلقي الرسائل حتى تفتح التطبيق مرة أخرى. \ n \ n سيتم حفظ أي رسائل تم استلامها بالفعل. سيتمكن Briar من جمعها عند إعادة فتح تطبيق Mailbox.</string>
+
+    <string name="setup_complete_title">متصل</string>
+    <string name="setup_complete_description">تم ربط \"علبة البريد Mailbox\" الخاصة بك بـ \"Briar\" بنجاح. \ n \ n احتفظ بعلبة البريد الخاصة بك متصلة بالطاقة وشبكة Wi-Fi حتى تكون متصلة بالإنترنت دائمًا.</string>
+    <string name="setup_complete_finish">إنهاء</string>
+
+    <string name="stopping">جارٍ إيقاف Mailbox...</string>
+
+    <string name="wipe_wiping">جارٍ مسح Mailbox ...</string>
+    <string name="wipe_complete_title">تم المسح</string>
+    <string name="wipe_complete_description">في المرة القادمة التي يمكنك فيها الوصول إلى جهاز Briar الخاص بك ، يرجى فتح شاشة إعدادات صندوق البريد Mailbox تطبيق Briar ، ثم النقر فوق الزر \"إلغاء الارتباط\" لإكمال العملية.</string>
+
+    <string name="sorry">معذرة</string>
+    <string name="activity_not_found">لم يتم العثور على تطبيق لهذا الإجراء</string>
+    <string name="startup_failed_activity_title">فشل بدء تشغيل Mailbox </string>
+    <string name="startup_failed_service_error">تعذر على Mailbox بدء تشغيل المكون المطلوب.‪‫\n\nالرجاء الترقية إلى آخر إصدار من التطبيق والمحاولة مرة أخرى.</string>
+    <string name="startup_failed_lifecycle_reuse">Mailbox قد توقف بالفعل.\n\nالرجاء إغلاق التطبيق والمحاولة مرة أخرى.</string>
+    <string name="startup_failed_clock_error">تعذر بدء تشغيل Mailbox لأن ساعة جهازك خاطئة.\n\ nالرجاء ضبط ساعة جهازك على الوقت الصحيح والمحاولة مرة أخرى.</string>
+
+    <!-- Preference -->
+    <string name="prefs_title">الإعدادات</string>
+    <string name="prefs_tor_category_title">إعدادات التحايل على Tor</string>
+    <string name="prefs_tor_auto_title">اختيار الجسر التلقائي</string>
+    <string name="prefs_tor_auto_summary">يتم اختيار الجسور بناءً على موقعك</string>
+    <string name="prefs_tor_bridges_title">استخدم الجسور</string>
+    <string name="prefs_bridges_category_title">أنواع الجسور</string>
+    <string name="prefs_bridges_obfs_builtin_title">Obfs4 من Tor Browser </string>
+    <string name="prefs_bridges_at_least_one">يجب تمكين نوع جسر واحد على الأقل ، أو تعطيل \"استخدام الجسور\".</string>
+
+</resources>

@@ -76,5 +76,17 @@
     <string name="activity_not_found">Für diese Aktion wurde keine App gefunden</string>
     <string name="startup_failed_activity_title">Fehler beim Start der Mailbox</string>
     <string name="startup_failed_service_error">Mailbox konnte eine erforderliche Komponente nicht starten.\n\nBitte aktualisiere auf die neueste Version der App und versuche es erneut.</string>
-    <string name="startup_failed_lifecycle_reuse">Die Mailbox wurde bereits gestoppt.\n\nBitte schließe die App und versuche es erneut.</string>
+    <string name="startup_failed_lifecycle_reuse">Mailbox wurde bereits gestoppt.\n\nBitte schließe die App und versuche es erneut.</string>
+    <string name="startup_failed_clock_error">Mailbox konnte nicht gestartet werden, weil die Uhr deines Geräts falsch eingestellt ist.\n\nBitte stelle die Uhr deines Geräts auf die richtige Zeit ein und versuche es erneut.</string>
+
+    <!-- Preference -->
+    <string name="prefs_title">Einstellungen</string>
+    <string name="prefs_tor_category_title">Tor Umgehungseinstellungen</string>
+    <string name="prefs_tor_auto_title">Automatische Auswahl der Brücke</string>
+    <string name="prefs_tor_auto_summary">Brücken werden anhand deines Standorts ausgewählt</string>
+    <string name="prefs_tor_bridges_title">Brücken benutzen</string>
+    <string name="prefs_bridges_category_title">Brückentypen</string>
+    <string name="prefs_bridges_obfs_builtin_title">Obfs4 vom Tor Browser</string>
+    <string name="prefs_bridges_at_least_one">Mindestens ein Brückentyp muss aktiviert sein, oder deaktiviere \"Brücken benutzen\".</string>
+
 </resources>

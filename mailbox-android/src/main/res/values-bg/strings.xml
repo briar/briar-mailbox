@@ -1,0 +1,75 @@
+<resources>
+    <string name="app_name">Пощенска кутия на Briar</string>
+    <string name="notification_channel_name">Канал на пощенска кутия на Briar</string>
+    <string name="notification_mailbox_title_starting">Пощенската кутия стартира</string>
+    <string name="notification_mailbox_content_starting">Стартиране на пощенска кутия…</string>
+    <string name="notification_mailbox_title_setup">Настройка на пощенска кутия</string>
+    <string name="notification_mailbox_content_setup">Изчакване на Briar да сканира кода за QR…</string>
+    <string name="notification_mailbox_title_running">Пощенската кутия на Briar работи</string>
+    <string name="notification_mailbox_content_running">Изчаква съобщения…</string>
+    <string name="notification_mailbox_title_offline">Пощенската кутия на Briar е без мрежа</string>
+    <string name="notification_mailbox_content_offline">Изчакване на връзка с интернет…</string>
+    <string name="notification_mailbox_content_clock_skew">Изчакване на верен системен часовник…</string>
+    <string name="button_continue">Напред</string>
+    <string name="button_skip_intro">Пропускане на увода</string>
+    <string name="button_back">Назад</string>
+
+    <string name="onboarding_0_title">Бъдете на разположение</string>
+    <string name="onboarding_0_description">Пощенската кутия ви помага да поддържате връзка с контактите си и синхронизира съобщенията с Briar.</string>
+    <string name="onboarding_1_title">Използвайте друго устройство</string>
+    <string name="onboarding_1_description">Инсталирайте приложението на пощенската кутия на резервен телефон или таблет и му осигурете захранване и безжична връзка.</string>
+    <string name="onboarding_2_title">Доставка на съобщения</string>
+    <string name="onboarding_2_description">Когато пощенската кутия е свързана с интернет, контактите ви могат да ви оставят съобщения, дори ако вашият Briar е без връзка. Пощенската кутия ще получи съобщенията и ще ги препрати към Briar, когато сте свързани.</string>
+    <string name="onboarding_3_title">Шифроване</string>
+    <string name="onboarding_3_description">Съобщенията, които преминават през пощенската кутия, са шифровани и не могат да бъдат прочетени от пощенската кутия или от този телефон. Пощенската кутия просто ги препраща към телефона с Briar.</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Пощенската кутия на Briar не може да работи във фонов режим</string>
+    <string name="fix">Поправяне</string>
+    <string name="ok">Добре</string>
+    <string name="cancel">Отказ</string>
+    <string name="share">Споделяне</string>
+    <string name="copied">Копирано</string>
+
+    <string name="link_title">Свържете посредством код на QR</string>
+    <string name="link_description">Сканирайте кода с Briar</string>
+    <string name="link_menu_title">Като текст</string>
+    <string name="link_text_title">Свържете посредством текст</string>
+    <string name="link_text_description">Копирайте текста и го поставете в Briar Desktop:</string>
+    <string name="link_cancel">Прекъсване на настройката</string>
+
+    <string name="startup_headline">Стартиране на пощенската кутия</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">Свързване с мрежата на Тор (%d%%)</string>
+    <string name="startup_publishing_onion_service">Публикуване на услугата на Тор</string>
+
+    <string name="clock_skew_title">Системният часовник не е верен</string>
+    <string name="clock_skew_description">Проверете часа, часовия пояс и датата в системните настройки. След сверите часовника, изчакайте Тор да се възстанови.</string>
+
+    <string name="no_network_title">Има ли връзка?</string>
+    <string name="no_network_description">Уверете се, че устройството е свързано с интернет. След това, настройката автоматично ще продължи от тук.</string>
+
+    <string name="status_running">Пощенската кутия работи</string>
+    <string name="last_connection">Последно свързване: %s</string>
+    <string name="now">току-що</string>
+    <string name="never">никога</string>
+    <string name="stop">Спиране</string>
+    <string name="unlink">Прекъсване на връзката</string>
+    <string name="unlink_title">Желаете ли да прекъснете връзката с пощенската кутия?</string>
+    <string name="unlink_description">Ако прекъснете връзката с пощенската си кутия, няма да можете да получавате съобщения, докато Briar е без връзка.\n\nСигурни ли сте, че желаете да прекъснете връзката с пощенската си кутия?</string>
+    <string name="confirm_stop_title">Спиране на кутията?</string>
+    <string name="setup_complete_title">Свързан</string>
+    <string name="setup_complete_description">Пощенската кутия е свързана с Briar.\n\nЗа да е винаги на линия, я дръжте включена в захранване и свързана с безжична мрежа.</string>
+    <string name="setup_complete_finish">Край</string>
+
+    <string name="stopping">Спиране на пощенската кутия…</string>
+
+    <string name="sorry">Съжаляваме</string>
+    <string name="startup_failed_activity_title">Неуспешно стартиране</string>
+    <!-- Preference -->
+    <string name="prefs_title">Настройки</string>
+    <string name="prefs_tor_auto_title">Автоматичен избор на мост</string>
+    <string name="prefs_tor_bridges_title">Използване на мостове</string>
+    <string name="prefs_bridges_category_title">Видове на мостовете</string>
+    </resources>

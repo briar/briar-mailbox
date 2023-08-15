@@ -77,4 +77,16 @@
     <string name="startup_failed_activity_title">Mailbox 设置失败</string>
     <string name="startup_failed_service_error">Mailbox 无法启动一个必需的部件。\n\n请升级到最新版应用并重试。</string>
     <string name="startup_failed_lifecycle_reuse">Mailbox 已停止运行。\n\n请关闭它并重试。</string>
+    <string name="startup_failed_clock_error">无法启动 Mailbox 应用，因为设备的时钟错误。\n\n请将设备的时钟设置到正确的时间并重试。</string>
+
+    <!-- Preference -->
+    <string name="prefs_title">设置</string>
+    <string name="prefs_tor_category_title">规避 Tor 连接阻断的设置</string>
+    <string name="prefs_tor_auto_title">自动选择网桥</string>
+    <string name="prefs_tor_auto_summary">网桥是基于你的位置进行选择的</string>
+    <string name="prefs_tor_bridges_title">使用桥接</string>
+    <string name="prefs_bridges_category_title">网桥类型</string>
+    <string name="prefs_bridges_obfs_builtin_title">来自 Tor 浏览器的 Obfs4</string>
+    <string name="prefs_bridges_at_least_one">必须启用至少一种桥接类型，或禁用“使用桥接”</string>
+
 </resources>

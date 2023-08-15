@@ -77,4 +77,16 @@
     <string name="startup_failed_activity_title">Eșecul de pornire a căsuței poștale</string>
     <string name="startup_failed_service_error">Mailbox nu a putut să pornească o componentă necesară.\n\nVă rugăm să faceți upgrade la cea mai recentă versiune a app-ului și să încercați din nou.</string>
     <string name="startup_failed_lifecycle_reuse">Căsuța poștală s-a oprit deja.\n\nVă rugăm să închideți app-ului și să încercați din nou.</string>
+    <string name="startup_failed_clock_error">Căsuța poștală nu a putut porni pentru că ceasul dispozitivului dvs. nu indică ora corectă.\n\nVă rugăm să setați ora corectă și să încercați din nou.</string>
+
+    <!-- Preference -->
+    <string name="prefs_title">Setări</string>
+    <string name="prefs_tor_category_title">Setări Tor de eludare</string>
+    <string name="prefs_tor_auto_title">Selectarea automată a punților</string>
+    <string name="prefs_tor_auto_summary">Punțile sunt alese pe baza locației dumneavoastră</string>
+    <string name="prefs_tor_bridges_title">Folosește punți</string>
+    <string name="prefs_bridges_category_title">Tipuri de punți</string>
+    <string name="prefs_bridges_obfs_builtin_title">Obfs4 din Tor Browser</string>
+    <string name="prefs_bridges_at_least_one">Activați cel puțin o punte sau dezactivați \"Folosește punți\"</string>
+
 </resources>
