@@ -1,27 +1,27 @@
 <resources>
     <string name="app_name">Briar Mailbox</string>
     <string name="notification_channel_name">Briar Mailbox Kanalı</string>
-    <string name="notification_mailbox_title_starting">Mailbox başlıyor</string>
+    <string name="notification_mailbox_title_starting">Mailbox başlatılıyor</string>
     <string name="notification_mailbox_content_starting">Mailbox başlatılıyor…</string>
     <string name="notification_mailbox_title_setup">Malibox kuruluyor</string>
-    <string name="notification_mailbox_content_setup">Briar\'ın karekodu taraması bekleniyor…</string>
+    <string name="notification_mailbox_content_setup">Briar ile karekodun taranması bekleniyor…</string>
     <string name="notification_mailbox_title_running">Briar Mailbox çalışıyor</string>
-    <string name="notification_mailbox_content_running">İletiler için bekleniyor…</string>
-    <string name="notification_mailbox_title_offline">Briar Mailbox çevrimdışı</string>
+    <string name="notification_mailbox_content_running">İletiler bekleniyor…</string>
+    <string name="notification_mailbox_title_offline">Briar Mailbox çevrim dışı</string>
     <string name="notification_mailbox_content_offline">İnternet bağlantısı bekleniyor…</string>
-    <string name="notification_mailbox_content_clock_skew">Doğru sistem saati için bekleniyor…</string>
-    <string name="button_continue">Devam et</string>
-    <string name="button_skip_intro">Girişi Atla</string>
+    <string name="notification_mailbox_content_clock_skew">Doğru sistem saati bekleniyor…</string>
+    <string name="button_continue">İlerle</string>
+    <string name="button_skip_intro">Tanıtımı atla</string>
     <string name="button_back">Geri</string>
 
-    <string name="onboarding_0_title">Erişilebilir Kal</string>
-    <string name="onboarding_0_description">Mailbox kişilerinizle bağlantıda kalmanıza yardım eder ve Briar\'a gelen iletilerinizi eşzamanlar.</string>
+    <string name="onboarding_0_title">Erişilebilir kal</string>
+    <string name="onboarding_0_description">Mailbox kişilerinizle bağlantıda kalmanızı sağlar ve iletilerinizi Briar ile eşitler.</string>
     <string name="onboarding_1_title">Yedek bir aygıt kullan</string>
-    <string name="onboarding_1_description">Mailbox uygulamasını yedek bir telefon veya tablete kurun ve bu aygıtı güç ve WiFi\'ye bağlı tutun.</string>
-    <string name="onboarding_2_title">İleti teslimatı</string>
-    <string name="onboarding_2_description">Mailbox\'unuz çevrimiçi ise, kişileriniz size Briar\'ınız çevrimdışı olsa bile ileti bırakabilir. Mailbox iletileri alır ve çevrimiçi olduğunuzda Briar\'a yönlendirir.</string>
-    <string name="onboarding_3_title">Şifrelendi</string>
-    <string name="onboarding_3_description">Mailbox aracılığıyla giden iletiler şifrelidir ve Mailbox veya bu telefon tarafından okunamaz. Mailbox onları sadece Briar Messenger telefonunuza yönlendirir.</string>
+    <string name="onboarding_1_description">Mailbox uygulamasını yedek bir telefon ya da tablet üzerine kurun ve bu aygıtı şarjda ve Wi-Fi bağlantısında bırakın.</string>
+    <string name="onboarding_2_title">İleti aktarımı</string>
+    <string name="onboarding_2_description">Mailbox uygulaması çevrim içi ise, Briar uygulamanız çevrim dışı olsa bile kişileriniz size ileti bırakabilir. Mailbox iletileri alır ve çevrim içi olduğunuzda Briar üzerine iletir.</string>
+    <string name="onboarding_3_title">Şifrelenmiş</string>
+    <string name="onboarding_3_description">Mailbox üzerinden giden iletiler şifrelenmiştir ve Mailbox veya bu telefon tarafından okunamaz. Mailbox onları yalnızca Briar Messenger olan telefonunuza iletir.</string>
 
     <!-- TODO: We might want to copy string from don't kill me lib,
           so translation memory can auto-translate most of them. -->
@@ -32,24 +32,24 @@
     <string name="share">Paylaş</string>
     <string name="copied">Kopyalandı</string>
 
-    <string name="link_title">Karekod ile bağlantı</string>
-    <string name="link_description">Bu karekodu briar ile taratın</string>
-    <string name="link_menu_title">Metin olarak göster</string>
-    <string name="link_text_title">Metin ile bağlantı</string>
-    <string name="link_text_description">Bunu kopyalayın ve Briar Desktop\'a yapıştırın:</string>
-    <string name="link_cancel">Kurulumu İptal Et</string>
+    <string name="link_title">Karekod ile bağlan</string>
+    <string name="link_description">Bu karekodu Briar ile tarayın</string>
+    <string name="link_menu_title">Metin olarak görüntüle</string>
+    <string name="link_text_title">Metin ile bağlan</string>
+    <string name="link_text_description">Bunu kopyalayıp Briar Desktop uygulamasına yapıştırın:</string>
+    <string name="link_cancel">Kurulumu iptal et</string>
 
-    <string name="startup_headline">Mailbox Başlatılıyor</string>
+    <string name="startup_headline">Mailbox başlatılıyor</string>
     <string name="startup_init_app">Uygulama başlatılıyor</string>
     <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
-    <string name="startup_bootstrapping_tor">Tor ağına bağlanılıyor (%d%%)</string>
-    <string name="startup_publishing_onion_service">Tor onion hizmeti yayınlanıyor</string>
+    <string name="startup_bootstrapping_tor">Tor ağı ile bağlantı kuruluyor (%d%%)</string>
+    <string name="startup_publishing_onion_service">Tor Onion hizmeti yayınlanıyor</string>
 
-    <string name="clock_skew_title">Hatalı sistem saati</string>
-    <string name="clock_skew_description">Sistem ayarlarında saat, saat dilimi ve tarih ayarlarınız kontrol edin. Düzelttikten sonra Tor\'un düzelmesini bekleyin.</string>
+    <string name="clock_skew_title">Sistem saati yanlış</string>
+    <string name="clock_skew_description">Sistem ayarlarından saat, saat dilimi ve tarih ayarlarınızı kontrol edin. Bunları düzelttikten sonra Tor\'un gelmesi için biraz bekleyin.</string>
 
-    <string name="no_network_title">Aygıt çevrimdışı mı?</string>
-    <string name="no_network_description">Bu aygıtın çevrimiçi ve İnternet\'e bağlı olduğundan emin olun. Çevrimiçi olduğunuzda, kurulum sonrasını otomatik bir şekilde yapmalıdır.</string>
+    <string name="no_network_title">Aygıt çevrim dışı mı?</string>
+    <string name="no_network_description">Bu aygıtın çevrim içi ve İnternet bağlantısı olduğundan emin olun. Çevrim içi olduğunuzda, kurulum otomatik olarak buradan başlamalıdır.</string>
 
     <string name="status_running">Mailbox çalışıyor</string>
     <string name="last_connection">Son bağlantı: %s</string>
@@ -57,36 +57,36 @@
     <string name="never">asla</string>
     <string name="stop">Durdur</string>
     <string name="unlink">Bağlantıyı kaldır</string>
-    <string name="unlink_title">Mailbox bağlantısını kaldır?</string>
-    <string name="unlink_description">Mailbox bağlantısını kaldırırsanız, Briar çevrimdışı iken ileti alamayacaksınız.\n\nMailbox\'unuzun bağlantısını kaldırmak istediğinizden emin misiniz?</string>
+    <string name="unlink_title">Mailbox bağlantısı kaldırılsın mı?</string>
+    <string name="unlink_description">Mailbox bağlantısını kaldırırsanız, Briar çevrim dışı olduğunda iletileri alamazsınız.\n\nMailbox bağlantınızı kaldırmak istediğinize emin misiniz?</string>
     <string name="confirm_stop_title">Mailbox durdurulsun mu?</string>
-    <string name="confirm_stop_description">Mailbox\'u durdurduğunuzda, uygulama kapanacak ve siz uygulamayı tekrar açana kadar iletileri alması duracaktır.\n\nZaten almış olduğunuz iletiler saklanacaktır. Briar, Mailbox uygulamasını yeniden açtığınızda onlara erişebilecektir.</string>
+    <string name="confirm_stop_description">Mailbox durdurulduğunda, uygulama kapanır ve siz uygulamayı yeniden açana kadar iletileri alamaz.\n\nZaten almış olduğunuz iletiler korunur. Mailbox uygulamasını yeniden açtığınızda Briar bunlara erişebilir.</string>
 
     <string name="setup_complete_title">Bağlantı kuruldu</string>
-    <string name="setup_complete_description">Mailbox\'unuz Briar ile başarılı bir şekilde bağlandı.\n\nMailbox\'unuzu güç kaynağı ve kablosuz ağa bağlı tutun, böylece her zaman çevrimiçi olsun.</string>
+    <string name="setup_complete_description">Mailbox ile Briar bağlantısı kuruldu.\n\nMailbox aygıtınızı şarja ve kablosuz ağa bağlı tutun. Böylece her zaman çevrim içi olur.</string>
     <string name="setup_complete_finish">Bitir</string>
 
     <string name="stopping">Mailbox durduruluyor…</string>
 
-    <string name="wipe_wiping">Mailbox temizleniyor…</string>
-    <string name="wipe_complete_title">Temizleme tamamlandı</string>
-    <string name="wipe_complete_description">Süreci tamamlamak için Briar aygıtınıza sonraki erişiminizde lütfen Briar\'da Mailbox ayarları ekranını açın ve \"Bağlantıyı kaldır\" düğmesine dokunun.</string>
+    <string name="wipe_wiping">Mailbox siliniyor…</string>
+    <string name="wipe_complete_title">Silme tamamlandı</string>
+    <string name="wipe_complete_description">Süreci tamamlamak için Briar aygıtınıza sonraki erişiminizde lütfen Briar üzerinde Mailbox ayarları bölümüne gidin ve \"Bağlantıyı kaldır\" düğmesine dokunun.</string>
 
     <string name="sorry">Üzgünüm</string>
-    <string name="activity_not_found">Bu eylem için bir uygulama bulunamadı</string>
-    <string name="startup_failed_activity_title">Mailbox Başlangıç Hatası</string>
-    <string name="startup_failed_service_error">Mailbox gerekli bir bileşeni çalıştıramadı.\n\nLütfen uygulamayı son sürüme yükseltip tekrar deneyin.</string>
-    <string name="startup_failed_lifecycle_reuse">Mailbox zaten kapatılmış.\n\nLütfen uygulamayı kapatıp tekrar deneyin.</string>
-    <string name="startup_failed_clock_error">Mailbox aygıtınızın saati yanlış olduğu için başlatılamadı.\n\nLütfen aygıtınızın saatini doğru zamana ayarlayıp tekrar deneyin.</string>
+    <string name="activity_not_found">Bu işlem için bir uygulama bulunamadı</string>
+    <string name="startup_failed_activity_title">Mailbox başlatılamadı</string>
+    <string name="startup_failed_service_error">Mailbox gerek duyduğu bir bileşeni başlatamadı.\n\nLütfen uygulamayı güncel sürümüne yükseltip yeniden deneyin.</string>
+    <string name="startup_failed_lifecycle_reuse">Mailbox zaten durdurulmuş.\n\nLütfen uygulamayı kapatıp yeniden deneyin.</string>
+    <string name="startup_failed_clock_error">Aygıtınızın saati yanlış olduğu için Mailbox başlatılamadı.\n\nLütfen aygıtınızın saatini doğru zamana ayarlayıp yeniden deneyin.</string>
 
     <!-- Preference -->
     <string name="prefs_title">Ayarlar</string>
-    <string name="prefs_tor_category_title">Tor engel aşma ayarları</string>
+    <string name="prefs_tor_category_title">Tor sansürü aşma ayarları</string>
     <string name="prefs_tor_auto_title">Otomatik köprü seçimi</string>
-    <string name="prefs_tor_auto_summary">Köprüler konumunuza göre seçiliyor</string>
-    <string name="prefs_tor_bridges_title">Köprüler kullanın</string>
-    <string name="prefs_bridges_category_title">Köprü türü</string>
-    <string name="prefs_bridges_obfs_builtin_title">Tor Tarayıcıdan Obfs4</string>
-    <string name="prefs_bridges_at_least_one">En azından bir köprü türü etkinleştirilmeli veya \"Köprü kullanın\" seçeneğini devre dışı bırakın.</string>
+    <string name="prefs_tor_auto_summary">Köprüler konumunuza göre seçildi</string>
+    <string name="prefs_tor_bridges_title">Köprüler kullanılsın</string>
+    <string name="prefs_bridges_category_title">Köprü türleri</string>
+    <string name="prefs_bridges_obfs_builtin_title">Tor Browser Obfs4</string>
+    <string name="prefs_bridges_at_least_one">En az bir köprü türü seçin ya da \"Köprüler kullanılsın\" seçeneğini kapatın.</string>
 
 </resources>
