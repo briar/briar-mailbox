@@ -119,7 +119,7 @@ task x86LinuxJar(type: Jar) {
     jarFactory(it, 'linux', 'x86_64', configurations.runtimeClasspath)
 }
 
-task ARM64LinuxJar(type: Jar) {
+task aarch64LinuxJar(type: Jar) {
     group = "Build"
     description = "Assembles a runnable fat jar for AArch64 Linux"
     jarFactory(it, 'linux', 'aarch64', configurations.runtimeClasspath)

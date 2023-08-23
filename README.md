@@ -94,9 +94,9 @@ A fat JAR for running on a x86_64 GNU/Linux server can be compiled with
 
     ./gradlew x86LinuxJar
 
-And also AArch64 with
+And also ARM64 with
 
-    ./gradlew ARM64LinuxJar
+    ./gradlew aarch64LinuxJar
 
 ## Donate 
 [![Donate using Liberapay](https://briarproject.org/img/liberapay.svg)](https://liberapay.com/Briar/donate) [![Flattr this](https://briarproject.org/img/flattr-badge-large.png "Flattr this")](https://flattr.com/t/592836/)   
