@@ -17,7 +17,7 @@
     <string name="onboarding_0_title">Бъдете на разположение</string>
     <string name="onboarding_0_description">Пощенската кутия ви помага да поддържате връзка с контактите си и синхронизира съобщенията с Briar.</string>
     <string name="onboarding_1_title">Използвайте друго устройство</string>
-    <string name="onboarding_1_description">Инсталирайте приложението на пощенската кутия на резервен телефон или таблет и му осигурете захранване и безжична връзка.</string>
+    <string name="onboarding_1_description">Инсталирайте приложението на пощенската кутия на резервен телефон или таблет като му осигурите захранване и безжична връзка.</string>
     <string name="onboarding_2_title">Доставка на съобщения</string>
     <string name="onboarding_2_description">Когато пощенската кутия е свързана с интернет, контактите ви могат да ви оставят съобщения, дори ако вашият Briar е без връзка. Пощенската кутия ще получи съобщенията и ще ги препрати към Briar, когато сте свързани.</string>
     <string name="onboarding_3_title">Шифроване</string>
@@ -65,11 +65,17 @@
 
     <string name="stopping">Спиране на пощенската кутия…</string>
 
+    <string name="wipe_wiping">Изчистване на кутията…</string>
+    <string name="wipe_complete_title">Изчистването е завършено</string>
     <string name="sorry">Съжаляваме</string>
+    <string name="activity_not_found">Не е намерено приложение за това действие</string>
     <string name="startup_failed_activity_title">Неуспешно стартиране</string>
     <!-- Preference -->
     <string name="prefs_title">Настройки</string>
+    <string name="prefs_tor_category_title">Настроики на заобикаляне с Тор</string>
     <string name="prefs_tor_auto_title">Автоматичен избор на мост</string>
+    <string name="prefs_tor_auto_summary">Мостовете се избират на база на местоположението ви</string>
     <string name="prefs_tor_bridges_title">Използване на мостове</string>
     <string name="prefs_bridges_category_title">Видове на мостовете</string>
+    <string name="prefs_bridges_obfs_builtin_title">Obfs4 от четеца Тор</string>
     </resources>

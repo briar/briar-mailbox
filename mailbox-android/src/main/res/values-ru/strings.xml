@@ -36,7 +36,7 @@
     <string name="link_description">Сосканируйте этот QR-код с помощью Briar</string>
     <string name="link_menu_title">Показать как текст</string>
     <string name="link_text_title">Связать, используя текст</string>
-    <string name="link_text_description">Скопируйте это и вставьте в Briar Desktop:</string>
+    <string name="link_text_description">Скопируйте и вставьте в Briar Desktop:</string>
     <string name="link_cancel">Отменить настройку</string>
 
     <string name="startup_headline">Запуск Mailbox</string>
