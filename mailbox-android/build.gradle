@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         applicationId "org.briarproject.mailbox"
-        minSdkVersion 16
+        minSdkVersion 18
         targetSdkVersion 33
         versionCode 10007
         versionName "1.0.7"
