@@ -14,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.briarproject.mailbox.R
 import org.briarproject.mailbox.android.ui.MailboxViewModel
-import org.briarproject.mailbox.core.settings.SettingsManager
 import org.briarproject.mailbox.core.tor.NetworkManager
 import org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_AUTO
 import org.briarproject.mailbox.core.tor.TorConstants.BRIDGE_AUTO_DEFAULT
@@ -48,9 +47,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private lateinit var vanillaPref: SwitchPreferenceCompat
     private lateinit var brideTypePrefs: List<SwitchPreferenceCompat>
     private lateinit var bridgeTypesCategory: PreferenceCategory
-
-    @Inject
-    lateinit var settingsManager: SettingsManager
 
     @Inject
     lateinit var torSettingsStore: TorSettingsStore
@@ -122,12 +118,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun onAutoChanged(auto: Boolean) {
         autoPref.isChecked = auto
         val country = locationUtils.currentCountry
-        val doBridgesWork = circumventionProvider.doBridgesWork(country)
+        val useBridgesByDefault = circumventionProvider.shouldUseBridges(country)
         // if automatic mode is on, we show what Tor is using, otherwise we show what user has set
         if (auto) {
             setIsPersistent(false)
-            usePref.isChecked = doBridgesWork
-            onUseBridgesChanged(doBridgesWork)
+            usePref.isChecked = useBridgesByDefault
+            onUseBridgesChanged(useBridgesByDefault)
             val autoTypes = if (networkManager.networkStatus.isIpv6Only) {
                 listOf(MEEK, SNOWFLAKE)
             } else {
@@ -141,7 +137,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         } else {
             setIsPersistent(true)
             val useBridges =
-                torSettingsStore.getBooleanAndStoreDefault(usePref, BRIDGE_USE, doBridgesWork)
+                torSettingsStore.getBooleanAndStoreDefault(usePref, BRIDGE_USE, useBridgesByDefault)
             onUseBridgesChanged(useBridges)
             val customTypes = torPlugin.customBridgeTypes
             torSettingsStore.getBooleanAndStoreDefault(

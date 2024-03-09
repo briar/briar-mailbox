@@ -4,9 +4,9 @@ ext {
     nav_version = '2.5.3'
     tor_version = '0.4.8.9-1'
     obfs4_version = '0.0.14-tor2'
-    snowflake_version = '2.5.1'
+    snowflake_version = '2.9.1'
     junit_version = '5.7.2'
     mockk_version = '1.10.4'
     ktlint_plugin_version = '10.2.1'
-    onionwrapper_version = '0.0.7'
+    onionwrapper_version = '0.1.0'
 }
