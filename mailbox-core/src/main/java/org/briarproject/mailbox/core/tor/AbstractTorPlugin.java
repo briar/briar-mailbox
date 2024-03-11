@@ -95,7 +95,6 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 	private final LocationUtils locationUtils;
 	private final CircumventionProvider circumventionProvider;
 	private final IntSupplier portSupplier;
-	private final boolean canVerifyLetsEncryptCerts;
 	private final TorWrapper tor;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
@@ -109,7 +108,6 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 			LocationUtils locationUtils,
 			CircumventionProvider circumventionProvider,
 			IntSupplier portSupplier,
-			boolean canVerifyLetsEncryptCerts,
 			TorWrapper tor) {
 		this.ioExecutor = ioExecutor;
 		this.settingsManager = settingsManager;
@@ -117,7 +115,6 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 		this.locationUtils = locationUtils;
 		this.circumventionProvider = circumventionProvider;
 		this.portSupplier = portSupplier;
-		this.canVerifyLetsEncryptCerts = canVerifyLetsEncryptCerts;
 		this.tor = tor;
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor =
@@ -232,7 +229,7 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 			List<String> bridges = new ArrayList<>();
 			for (BridgeType bridgeType : bridgeTypes) {
 				bridges.addAll(circumventionProvider.getBridges(bridgeType,
-						countryCode, canVerifyLetsEncryptCerts));
+						countryCode));
 			}
 			tor.enableBridges(bridges);
 		}
@@ -357,7 +354,7 @@ public abstract class AbstractTorPlugin implements TorPlugin, EventListener {
 	private List<BridgeType> getBridgeTypes(String country, boolean ipv6Only) {
 		List<BridgeType> bridgeTypes = emptyList();
 		boolean bridgesNeeded =
-				circumventionProvider.doBridgesWork(country);
+				circumventionProvider.shouldUseBridges(country);
 		boolean bridgeAuto =
 				settings.getBoolean(BRIDGE_AUTO, BRIDGE_AUTO_DEFAULT);
 		if (bridgeAuto) {

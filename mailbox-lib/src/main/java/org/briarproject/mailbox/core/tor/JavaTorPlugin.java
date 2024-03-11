@@ -43,7 +43,7 @@ public class JavaTorPlugin extends AbstractTorPlugin {
 			File torDirectory,
 			IntSupplier portSupplier) {
 		super(ioExecutor, settingsManager, networkManager, locationUtils,
-				circumventionProvider, portSupplier, true,
+				circumventionProvider, portSupplier,
 				new UnixTorWrapper(ioExecutor, eventExecutor, architecture,
 						torDirectory, SOCKS_PORT, CONTROL_PORT));
 	}

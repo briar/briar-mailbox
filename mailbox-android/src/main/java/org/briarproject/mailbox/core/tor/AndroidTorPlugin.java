@@ -54,7 +54,7 @@ public class AndroidTorPlugin extends AbstractTorPlugin {
 			File torDirectory,
 			IntSupplier portSupplier) {
 		super(ioExecutor, settingsManager, networkManager, locationUtils,
-				circumventionProvider, portSupplier, SDK_INT >= 25,
+				circumventionProvider, portSupplier,
 				new AndroidTorWrapper(app, wakeLockManager, ioExecutor,
 						eventExecutor, architecture, torDirectory, SOCKS_PORT,
 						CONTROL_PORT));
