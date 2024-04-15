@@ -98,6 +98,15 @@ And also ARM64 with
 
     ./gradlew aarch64LinuxJar
 
+As well as a docker container can be built with
+
+    docker build -t briar/mailbox .
+
+And run with
+
+    docker volume create briar-mailbox-1
+    docker run --name briar-mailbox --volume briar-mailbox-1:/root briar/mailbox
+
 ## Donate 
 [![Donate using Liberapay](https://briarproject.org/img/liberapay.svg)](https://liberapay.com/Briar/donate) [![Flattr this](https://briarproject.org/img/flattr-badge-large.png "Flattr this")](https://flattr.com/t/592836/)   
 Bitcoin and BCH: 1NZCKkUCtJV2U2Y9hDb9uq8S7ksFCFGR6K
