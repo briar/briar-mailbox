@@ -19,9 +19,9 @@
     <string name="onboarding_1_title">Используйте запасное устройство</string>
     <string name="onboarding_1_description">Установите приложение Mailbox на запасной телефон или планшет и оставьте его подключенным к источнику питания и WiFi.</string>
     <string name="onboarding_2_title">Доставка сообщений</string>
-    <string name="onboarding_2_description">Когда Mailbox онлайн, ваши контакты могут оставлять сообщения, даже если ваш Briar не в сети. Mailbox будет получать сообщения и пересылать их Briar, как только вы появитесь в сети.</string>
+    <string name="onboarding_2_description">Если Mailbox включен, ваши собеседники могут отправлять вам сообщения, даже если ваш Briar выключен.  Mailbox будет получать сообщения и перешлет их в Briar, как только вы появитесь в сети.</string>
     <string name="onboarding_3_title">Зашифровано</string>
-    <string name="onboarding_3_description">Сообщения, проходящие через Mailbox, шифруются и не могут быть прочитаны ни Mailbox, ни этим устройством. Mailbox просто пересылает их на ваш Briar Messenger.</string>
+    <string name="onboarding_3_description">Сообщения, проходящие через Mailbox, шифруются и не могут быть прочитаны ни Mailbox, ни этим устройством. Mailbox просто пересылает их в ваш Briar Messenger.</string>
 
     <!-- TODO: We might want to copy string from don't kill me lib,
           so translation memory can auto-translate most of them. -->
@@ -32,10 +32,10 @@
     <string name="share">Поделиться</string>
     <string name="copied">Скопировано</string>
 
-    <string name="link_title">Связать, используя QR-код</string>
+    <string name="link_title">Связать через QR-код</string>
     <string name="link_description">Сосканируйте этот QR-код с помощью Briar</string>
     <string name="link_menu_title">Показать как текст</string>
-    <string name="link_text_title">Связать, используя текст</string>
+    <string name="link_text_title">Связать через текст</string>
     <string name="link_text_description">Скопируйте и вставьте в Briar Desktop:</string>
     <string name="link_cancel">Отменить настройку</string>
 

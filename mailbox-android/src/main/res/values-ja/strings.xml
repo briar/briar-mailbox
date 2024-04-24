@@ -16,7 +16,7 @@
 
     <string name="onboarding_0_title">到達可能を保持</string>
     <string name="onboarding_0_description">メールボックスは、連絡先との接触と、Briarへのメッセージが同期した状態を保つのを助けます。</string>
-    <string name="onboarding_1_title">予備端末を使う</string>
+    <string name="onboarding_1_title">予備端末を使用する</string>
     <string name="onboarding_1_description">予備の電話機またはタブレット上にメールボックスアプリをインストールして、電源とWiFiに接続されたまま放置してください。</string>
     <string name="onboarding_2_title">メッセージ配達</string>
     <string name="onboarding_2_description">Briarがオフラインでも、メールボックスがオンラインの時、連絡先はあなたにメッセージを残せます。メールボックスはあなたがオンラインに復帰すると、メッセージを受け取って、Briarにそれらを転送します。</string>
@@ -77,6 +77,16 @@
     <string name="startup_failed_activity_title">メールボックス起動失敗</string>
     <string name="startup_failed_service_error">メールボックスは必要なコンポーネントを起動できませんでした。\n\nアプリの最新版にアップグレードしてから、もう一度試してください。</string>
     <string name="startup_failed_lifecycle_reuse">メールボックスは既に停止されています。\n\nアプリを閉じて、再びお試しください。</string>
+    <string name="startup_failed_clock_error">お使いの端末の時計が正しくないため、メールボックスは起動できませんでした。\n\n端末の時計を正しい時刻に設定してから、もう一度試してください。</string>
+
     <!-- Preference -->
     <string name="prefs_title">設定</string>
-    </resources>
+    <string name="prefs_tor_category_title">Tor迂回設定</string>
+    <string name="prefs_tor_auto_title">自動ブリッジ選択</string>
+    <string name="prefs_tor_auto_summary">ブリッジはあなたの位置に基づいて選択されます</string>
+    <string name="prefs_tor_bridges_title">ブリッジを使用する</string>
+    <string name="prefs_bridges_category_title">ブリッジの種類</string>
+    <string name="prefs_bridges_obfs_builtin_title">Tor BrowserからObfs4</string>
+    <string name="prefs_bridges_at_least_one">少なくとも１つのブリッジの種類が有効でなければならず、そうしなければ、「ブリッジを使用する」を無効にしなければなりません。</string>
+
+</resources>

@@ -1,0 +1,92 @@
+<resources>
+    <string name="app_name">Briar Mailbox</string>
+    <string name="notification_channel_name">Canal Briar Mailbox</string>
+    <string name="notification_mailbox_title_starting">A iniciar a Mailbox</string>
+    <string name="notification_mailbox_content_starting">A iniciar a mailbox…</string>
+    <string name="notification_mailbox_title_setup">Configurar a Mailbox</string>
+    <string name="notification_mailbox_content_setup">À espera que o Briar leia o código QR…</string>
+    <string name="notification_mailbox_title_running">Briar Mailbox a ser executado</string>
+    <string name="notification_mailbox_content_running">À espera de mensagens…</string>
+    <string name="notification_mailbox_title_offline">Briar Mailbox offline</string>
+    <string name="notification_mailbox_content_offline">À espera de conexão à Internet…</string>
+    <string name="notification_mailbox_content_clock_skew">À espera do relógio correto do sistema…</string>
+    <string name="button_continue">Continuar</string>
+    <string name="button_skip_intro">Saltar a introdução</string>
+    <string name="button_back">Voltar</string>
+
+    <string name="onboarding_0_title">Mantém-te contactável</string>
+    <string name="onboarding_0_description">A Mailbox ajuda-te a manteres-te em contacto com os teus contactos e sincroniza as tuas mensagens com o Briar.</string>
+    <string name="onboarding_1_title">Utilizar um dispositivo de reserva</string>
+    <string name="onboarding_1_description">Instala a aplicação Mailbox num telemóvel ou tablet de reserva e deixa-o ligado à corrente e à rede Wi-Fi.</string>
+    <string name="onboarding_2_title">Entrega de mensagens</string>
+    <string name="onboarding_2_description">Quando a tua Mailbox está online, os teus contactos podem deixar mensagens para ti, mesmo que o teu Briar esteja offline. A Mailbox receberá as mensagens e reencaminhará as mesmas para o Briar quando estiveres online.</string>
+    <string name="onboarding_3_title">Encriptado</string>
+    <string name="onboarding_3_description">As mensagens que passam pela Mailbox são encriptadas e não podem ser lidas pela Mailbox ou por este telemóvel. A Mailbox simplesmente encaminha-as para o teu telemóvel Briar Messenger.</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">A Briar Mailbox não conseguiu ser executada em segundo plano</string>
+    <string name="fix">Corrigir</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancelar</string>
+    <string name="share">Partilhar</string>
+    <string name="copied">Copiado</string>
+
+    <string name="link_title">Hiperligação através de código QR</string>
+    <string name="link_description">Digitalizar este código QR com Briar</string>
+    <string name="link_menu_title">Mostrar como texto</string>
+    <string name="link_text_title">Hiperligação via texto</string>
+    <string name="link_text_description">Copia esta mensagem e cola-a no Briar Desktop:</string>
+    <string name="link_cancel">Cancelar configuração</string>
+
+    <string name="startup_headline">A iniciar a Mailbox</string>
+    <string name="startup_init_app">A inicializar a aplicação</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">Conexão com a rede Tor (%d%%)</string>
+    <string name="startup_publishing_onion_service">A publicar o serviço Tor onion</string>
+
+    <string name="clock_skew_title">Relógio do sistema incorreto</string>
+    <string name="clock_skew_description">Verifica a tua hora, fuso horário e data nas configurações do sistema. Após a correção, aguarda algum tempo para que o Tor recupere.</string>
+
+    <string name="no_network_title">Dispositivo offline?</string>
+    <string name="no_network_description">Certifica-te que este dispositivo está online e ligado à Internet. Quando estiveres online, a configuração deve ser iniciada automaticamente aqui.</string>
+
+    <string name="status_running">A Mailbox está em execução</string>
+    <string name="last_connection">Última conexão: %s</string>
+    <string name="now">agora</string>
+    <string name="never">nunca</string>
+    <string name="stop">Parar</string>
+    <string name="unlink">Desvincular</string>
+    <string name="unlink_title">Desvincular a Mailbox?</string>
+    <string name="unlink_description">Se desvinculares a tua Mailbox, não poderás receber mensagens enquanto o Briar estiver offline.\n\nQueres mesmo desvincular a tua Mailbox?</string>
+    <string name="confirm_stop_title">Parar a Mailbox?</string>
+    <string name="confirm_stop_description">Quando parares a tua Mailbox, a aplicação será encerrada e deixará de receber mensagens até abrires a aplicação novamente.\n\nQuaisquer mensagens que já tenham sido recebidas serão guardadas. O Briar poderá recolhê-las quando reabrires a aplicação Mailbox.</string>
+
+    <string name="setup_complete_title">Conectado</string>
+    <string name="setup_complete_description">A tua Mailbox foi vinculada com sucesso ao Briar.\n\nMantém o dispositivo com a tua Mailbox ligado à corrente elétrica e à rede Wi-Fi para que este esteja sempre online.</string>
+    <string name="setup_complete_finish">Concluir</string>
+
+    <string name="stopping">A parar a Mailbox…</string>
+
+    <string name="wipe_wiping">A limpar a Mailbox…</string>
+    <string name="wipe_complete_title">Limpeza terminada</string>
+    <string name="wipe_complete_description">Da próxima vez que tiveres acesso ao teu dispositivo com o Briar, abre o ecrã de configurações da Mailbox na aplicação Briar e, em seguida, toca no botão \"Desvincular\" para concluir o processo.</string>
+
+    <string name="sorry">Desculpa</string>
+    <string name="activity_not_found">Não foi encontrada nenhuma aplicação para esta ação</string>
+    <string name="startup_failed_activity_title">Falha no arranque da Mailbox</string>
+    <string name="startup_failed_service_error">A Mailbox não conseguiu iniciar um componente necessário.\n\nAtualiza para a versão mais recente da aplicação e tenta novamente.</string>
+    <string name="startup_failed_lifecycle_reuse">A Mailbox já parou.\n\nFecha a aplicação e tenta novamente.</string>
+    <string name="startup_failed_clock_error">Não foi possível iniciar a Mailbox porque o relógio do teu dispositivo está errado.\n\nAcerta o relógio do teu dispositivo para a hora correta e tenta novamente.</string>
+
+    <!-- Preference -->
+    <string name="prefs_title">Configurações</string>
+    <string name="prefs_tor_category_title">Configurações de contorno do Tor</string>
+    <string name="prefs_tor_auto_title">Seleção automática de pontes</string>
+    <string name="prefs_tor_auto_summary">As pontes são selecionadas com base na tua localização</string>
+    <string name="prefs_tor_bridges_title">Usar pontes</string>
+    <string name="prefs_bridges_category_title">Tipos de pontes</string>
+    <string name="prefs_bridges_obfs_builtin_title">Obfs4 do Tor Browser</string>
+    <string name="prefs_bridges_at_least_one">Tem de estar ativado pelo menos um tipo de ponte, ou então desativa \"Usar pontes\".</string>
+
+</resources>
