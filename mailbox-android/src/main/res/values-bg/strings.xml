@@ -36,10 +36,11 @@
     <string name="link_description">Сканирайте кода с Briar</string>
     <string name="link_menu_title">Като текст</string>
     <string name="link_text_title">Свържете посредством текст</string>
-    <string name="link_text_description">Копирайте текста и го поставете в Briar Desktop:</string>
+    <string name="link_text_description">Копирайте текста и го поставете в Briar за настолно устройство:</string>
     <string name="link_cancel">Прекъсване на настройката</string>
 
     <string name="startup_headline">Стартиране на пощенската кутия</string>
+    <string name="startup_init_app">Подготвяне на приложението</string>
     <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
     <string name="startup_bootstrapping_tor">Свързване с мрежата на Тор (%d%%)</string>
     <string name="startup_publishing_onion_service">Публикуване на услугата на Тор</string>
@@ -59,6 +60,8 @@
     <string name="unlink_title">Желаете ли да прекъснете връзката с пощенската кутия?</string>
     <string name="unlink_description">Ако прекъснете връзката с пощенската си кутия, няма да можете да получавате съобщения, докато Briar е без връзка.\n\nСигурни ли сте, че желаете да прекъснете връзката с пощенската си кутия?</string>
     <string name="confirm_stop_title">Спиране на кутията?</string>
+    <string name="confirm_stop_description">Когато спрете Пощенската кутия, приложението ще се изключи и ще спре получаването на съобщения докато приложението не бъде отворено отново.\n\nВсички съобщения, които вече са били получени, ще бъдат запазени. Briar ще може да ги изтегли, когато отново отворите Пощенската кутия.</string>
+
     <string name="setup_complete_title">Свързан</string>
     <string name="setup_complete_description">Пощенската кутия е свързана с Briar.\n\nЗа да е винаги на линия, я дръжте включена в захранване и свързана с безжична мрежа.</string>
     <string name="setup_complete_finish">Край</string>
@@ -67,9 +70,15 @@
 
     <string name="wipe_wiping">Изчистване на кутията…</string>
     <string name="wipe_complete_title">Изчистването е завършено</string>
+    <string name="wipe_complete_description">Следващият път, когато имате достъп до устройството с Briar, отворете екрана за настройки на пощенската кутия в приложението, след което докоснете бутона „Прекъсване на връзката“ за да завършите процеса.</string>
+
     <string name="sorry">Съжаляваме</string>
     <string name="activity_not_found">Не е намерено приложение за това действие</string>
     <string name="startup_failed_activity_title">Неуспешно стартиране</string>
+    <string name="startup_failed_service_error">Пощенската кутия не може да стартира задължителна приставка.\n\nОбновете до последно издание и опитайте отново.</string>
+    <string name="startup_failed_lifecycle_reuse">Пощенската кутия вече е спряна.\n\nЗатворете приложението и опитайте отново.</string>
+    <string name="startup_failed_clock_error">Пощенската кутия не може да стартира, защото часовника на устройството не е верен.\n\nСверете часовника и опитайте отново.</string>
+
     <!-- Preference -->
     <string name="prefs_title">Настройки</string>
     <string name="prefs_tor_category_title">Настроики на заобикаляне с Тор</string>
@@ -78,4 +87,6 @@
     <string name="prefs_tor_bridges_title">Използване на мостове</string>
     <string name="prefs_bridges_category_title">Видове на мостовете</string>
     <string name="prefs_bridges_obfs_builtin_title">Obfs4 от четеца Тор</string>
-    </resources>
+    <string name="prefs_bridges_at_least_one">Най-малко един вид мостове трябва да е включен или изключете „Използване на мостове“.</string>
+
+</resources>
