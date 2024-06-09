@@ -1,12 +1,21 @@
-FROM eclipse-temurin:11 AS build
+FROM eclipse-temurin:17 AS build
 WORKDIR /mailbox
 COPY . /mailbox
-RUN ./gradlew x86LinuxJar 
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+    ./gradlew aarch64LinuxJar ; \
+    mv mailbox-cli/build/libs/mailbox-cli-linux-arm64.jar mailbox-cli/build/libs/mailbox-cli-linux.jar ; \
+    elif [ "$TARGETARCH" = "amd64" ]; then \
+    ./gradlew x86LinuxJar ; \
+    mv mailbox-cli/build/libs/mailbox-cli-linux-x86_64.jar mailbox-cli/build/libs/mailbox-cli-linux.jar ; \
+    else \
+    echo 'Targetarch is not supported. Exiting.' ; \
+    exit 1 ; \
+    fi;
 
-
-FROM eclipse-temurin:11
+FROM eclipse-temurin:17
 RUN mkdir -p /root/.local/share
 VOLUME /root
 WORKDIR /mailbox
-COPY --from=build /mailbox/mailbox-cli/build/libs/mailbox-cli-linux-x86_64.jar /mailbox/mailbox-cli-linux-x86_64.jar
-CMD [ "java", "-jar", "/mailbox/mailbox-cli-linux-x86_64.jar" ]
+COPY --from=build /mailbox/mailbox-cli/build/libs/mailbox-cli-linux.jar /mailbox/mailbox-cli-linux.jar
+CMD [ "java", "-jar", "/mailbox/mailbox-cli-linux.jar" ]
