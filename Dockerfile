@@ -4,7 +4,7 @@ COPY . /mailbox
 ARG TARGETARCH
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
     ./gradlew aarch64LinuxJar ; \
-    mv mailbox-cli/build/libs/mailbox-cli-linux-arm64.jar mailbox-cli/build/libs/mailbox-cli-linux.jar ; \
+    mv mailbox-cli/build/libs/mailbox-cli-linux-aarch64.jar mailbox-cli/build/libs/mailbox-cli-linux.jar ; \
     elif [ "$TARGETARCH" = "amd64" ]; then \
     ./gradlew x86LinuxJar ; \
     mv mailbox-cli/build/libs/mailbox-cli-linux-x86_64.jar mailbox-cli/build/libs/mailbox-cli-linux.jar ; \
