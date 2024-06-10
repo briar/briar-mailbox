@@ -32,5 +32,5 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: briar-mailbox:latest
+          tags: ${{ env.DOCKERHUB_REPO }}/briar-mailbox:latest
           platforms: linux/amd64,linux/arm64
