@@ -1,0 +1,6 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+exec \
+    s6-setuidgid abc \
+        /usr/bin/java -jar -Dfelix.cm.dir=/config -Dopenems.data.dir=/data /app/openems-backend.jar
