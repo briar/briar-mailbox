@@ -1,0 +1,92 @@
+<resources>
+    <string name="app_name">Briar pašto dėžutė</string>
+    <string name="notification_channel_name">Briar pašto dėžutės kanalas</string>
+    <string name="notification_mailbox_title_starting">Pašto dėžutė paleidžiama</string>
+    <string name="notification_mailbox_content_starting">Paleidžiama pašto dėžutė…</string>
+    <string name="notification_mailbox_title_setup">Nustatoma pašto dėžutė</string>
+    <string name="notification_mailbox_content_setup">Laukiama, kol Briar nuskenuos QR kodą…</string>
+    <string name="notification_mailbox_title_running">Briar pašto dėžutė veikia</string>
+    <string name="notification_mailbox_content_running">Laukiama žinučių…</string>
+    <string name="notification_mailbox_title_offline">Briar pašto dėžutei internetas nepasiekiamas</string>
+    <string name="notification_mailbox_content_offline">Laukiama interneto ryšio…</string>
+    <string name="notification_mailbox_content_clock_skew">Laukiama teisingo sistemos laikrodžio…</string>
+    <string name="button_continue">Tęsti</string>
+    <string name="button_skip_intro">Praleisti įžangą</string>
+    <string name="button_back">Atgal</string>
+
+    <string name="onboarding_0_title">Būkite pasiekiami</string>
+    <string name="onboarding_0_description">Pašto dėžutė padeda jums palaikyti ryšį su adresatais ir sinchronizuoja jūsų žinutes į Briar.</string>
+    <string name="onboarding_1_title">Naudokite atliekamą įrenginį</string>
+    <string name="onboarding_1_description">Įdiekite pašto dėžutės programėlę atliekamame telefone ar planšetėje ir palikite įrenginį prijungtą prie elektros maitinimo šaltinio bei belaidžio (Wi-Fi) tinklo.</string>
+    <string name="onboarding_2_title">Žinučių pristatymas</string>
+    <string name="onboarding_2_description">Kai jūsų pašto dėžutė yra prijungta prie interneto, jūsų adresatai gali palikti jums žinutes net tada, kai jūsų Briar programėlė yra atjungta nuo interneto. Pašto dėžutė gaus žinutes ir persiųs jas į Briar, kai Briar prisijungs prie interneto.</string>
+    <string name="onboarding_3_title">Šifruota</string>
+    <string name="onboarding_3_description">Žinutės, keliaujančios per pašto dėžutę yra šifruotos, tad nei pašto dėžutė, nei šis telefonas negali jų perskaityti. Pašto dėžutė tiesiog persiunčia jas į Briar pokalbių programėlę jūsų telefone.</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Briar pašto dėžutei nepavyko veikti fone</string>
+    <string name="fix">Pataisyti</string>
+    <string name="ok">Gerai</string>
+    <string name="cancel">Atsisakyti</string>
+    <string name="share">Bendrinti</string>
+    <string name="copied">Nukopijuota</string>
+
+    <string name="link_title">Susieti per QR kodą</string>
+    <string name="link_description">Nuskenuokite šį QR kodą naudodami Briar</string>
+    <string name="link_menu_title">Rodyti kaip tekstą</string>
+    <string name="link_text_title">Susieti per tekstą</string>
+    <string name="link_text_description">Nukopijuokite tai ir įdėkite į Briar Desktop:</string>
+    <string name="link_cancel">Atsisakyti sąrankos</string>
+
+    <string name="startup_headline">Paleidžiama pašto dėžutė</string>
+    <string name="startup_init_app">Inicijuojama programėlė</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">Jungiamasi prie Tor tinklo (%d%%)</string>
+    <string name="startup_publishing_onion_service">Paskelbiama „Tor onion“ paslauga</string>
+
+    <string name="clock_skew_title">Neteisingai nustatytas sistemos laikrodis</string>
+    <string name="clock_skew_description">Patikrinkite sistemos nustatymuose laiką, laiko juostą bei datą. Ištaisę, šiek tiek palaukite, kol Tor atsistatys.</string>
+
+    <string name="no_network_title">Internetas nepasiekiamas?</string>
+    <string name="no_network_description">Įsitikinkite, kad šis įrenginys yra prisijungęs prie interneto. Kai būsite prisijungę prie interneto, sąranka automatiškai prasitęs.</string>
+
+    <string name="status_running">Pašto dėžutė veikia</string>
+    <string name="last_connection">Paskutinis prisijungimas: %s</string>
+    <string name="now">dabar</string>
+    <string name="never">niekada</string>
+    <string name="stop">Stabdyti</string>
+    <string name="unlink">Atsieti</string>
+    <string name="unlink_title">Atsieti pašto dėžutę?</string>
+    <string name="unlink_description">Jei atsiesite savo pašto dėžutę, nebegalėsite gauti žinučių tais laikotarpiais, kai Briar nebus prijungta prie interneto.\n\nAr tikrai norite atsieti pašto dėžutę?</string>
+    <string name="confirm_stop_title">Stabdyti pašto dėžutę?</string>
+    <string name="confirm_stop_description">Kai sustabdysite pašto dėžutę, programėlė išsijungs ir nustos gauti žinutes tol, kol vėl jos neatversite.\n\nBet kokios jau gautos žinutės bus įrašytos. Briar galės jas surinkti, kai iš naujo atversite pašto dėžutės programėlę.</string>
+
+    <string name="setup_complete_title">Prisijungta</string>
+    <string name="setup_complete_description">Jūsų pašto dėžutė sėkmingai susieta su Briar.\n\nLaikykite pašto dėžutę prijungtą prie elektros maitinimo šaltinio ir belaidžio (Wi-Fi) tinklo, kad ji visuomet būtų prisijungusi prie interneto.</string>
+    <string name="setup_complete_finish">Užbaigti</string>
+
+    <string name="stopping">Stabdoma pašto dėžutė…</string>
+
+    <string name="wipe_wiping">Išvaloma pašto dėžutė…</string>
+    <string name="wipe_complete_title">Išvalymas užbaigtas</string>
+    <string name="wipe_complete_description">Kitą kartą, kai turėsite prieigą prie Briar įrenginio, atverkite Briar programėlėje pašto dėžutės nustatymų langą ir bakstelėkite mygtuką „Atsieti“, kad užbaigtumėte procesą.</string>
+
+    <string name="sorry">Atsiprašome</string>
+    <string name="activity_not_found">Nerasta jokios programėlės šiam veiksmui atlikti</string>
+    <string name="startup_failed_activity_title">Pašto dėžutės paleidimo nesėkmė</string>
+    <string name="startup_failed_service_error">Pašto dėžutei nepavyko paleisti reikiamo komponento.\n\nAtnaujinkite programėlę į naujausią versiją ir bandykite dar kartą.</string>
+    <string name="startup_failed_lifecycle_reuse">Pašto dėžutė jau sustabdyta.\n\nUžverkite programėlę ir bandykite dar kartą.</string>
+    <string name="startup_failed_clock_error">Pašto dėžutei nepavyko pasileisti, nes jūsų įrenginio laikrodis rodo neteisingą laiką.\n\nNustatykite savo įrenginyje teisingą laiką ir bandykite dar kartą.</string>
+
+    <!-- Preference -->
+    <string name="prefs_title">Nustatymai</string>
+    <string name="prefs_tor_category_title">Tor apėjimo nustatymai</string>
+    <string name="prefs_tor_auto_title">Automatinis tinklų tiltų pasirinkimas</string>
+    <string name="prefs_tor_auto_summary">Tinklų tiltai pasirinkti remiantis jūsų buimo vieta</string>
+    <string name="prefs_tor_bridges_title">Naudoti tinklų tiltus</string>
+    <string name="prefs_bridges_category_title">Tinklų tiltų tipai</string>
+    <string name="prefs_bridges_obfs_builtin_title">Obfs4 iš Tor naršyklės</string>
+    <string name="prefs_bridges_at_least_one">Privalo būti įjungtas bent vienas tinklų tiltas arba išjunkite „Naudoti tinklų tiltus“</string>
+
+</resources>
