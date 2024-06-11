@@ -35,8 +35,12 @@ RUN \
 
 # add bin files
 COPY --from=build /mailbox/mailbox-cli/build/libs/mailbox-cli-linux.jar /app/mailbox-cli-linux.jar
+
 # add local files
 COPY root/ /
 
-# Volumes
-VOLUME /data
+RUN bash -c 'mkdir -p /{data}'
+
+WORKDIR /app
+
+RUN bash -c 'ln -s /config /home/abc/.local/briar'
