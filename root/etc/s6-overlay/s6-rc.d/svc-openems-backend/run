@@ -3,4 +3,4 @@
 
 exec \
     s6-setuidgid abc \
-        /usr/bin/java -jar -Dfelix.cm.dir=/config -Dopenems.data.dir=/data /app/openems-backend.jar
+        /usr/bin/java -jar /app/openems-backend.jar
