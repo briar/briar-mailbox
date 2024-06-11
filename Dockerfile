@@ -34,9 +34,9 @@ RUN \
     /tmp/*
 
 # add bin files
-COPY --from=build /mailbox/mailbox-cli/build/libs/mailbox-cli-linux.jar /usr/lib/briar/mailbox-cli-linux.jar
+COPY --from=build /mailbox/mailbox-cli/build/libs/mailbox-cli-linux.jar /app/mailbox-cli-linux.jar
 # add local files
 COPY root/ /
 
-# Volumes and Ports
-VOLUME /config
+# Volumes
+VOLUME /data
