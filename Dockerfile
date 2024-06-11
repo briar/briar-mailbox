@@ -15,13 +15,6 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
     exit 1 ; \
     fi;
 
-FROM eclipse-temurin:17
-RUN mkdir -p /root/.local/share
-VOLUME /root
-WORKDIR /mailbox
-COPY --from=build /mailbox/mailbox-cli/build/libs/mailbox-cli-linux.jar /mailbox/mailbox-cli-linux.jar
-CMD [ "java", "-jar", "/mailbox/mailbox-cli-linux.jar" ]
-
 
 FROM ghcr.io/linuxserver/baseimage-alpine:latest
 
