@@ -1,0 +1,104 @@
+<resources>
+    <string name="app_name">Briar Mailbox</string>
+    <string name="notification_channel_name">Canal de Briar Mailbox</string>
+    <string name="notification_mailbox_title_starting">Iniciando buzón de correo</string>
+    <string name="notification_mailbox_content_starting">Iniciando buzón de correo...</string>
+    <string name="notification_mailbox_title_setup">Configurando buzón de correo</string>
+    <string name="notification_mailbox_content_setup">Esperando a que Brian escanee el código QR...</string>
+    <string name="notification_mailbox_title_running">Briar Mailbox en ejecución</string>
+    <string name="notification_mailbox_content_running">Esperando por mensajes...</string>
+    <string name="notification_mailbox_title_offline">Briar Mailbox sin conexión</string>
+    <string name="notification_mailbox_content_offline">Esperando por conexión a internet...</string>
+    <string name="notification_mailbox_content_clock_skew">Esperando por el reloj de sistema correcto...</string>
+    <string name="button_continue">Continuar</string>
+    <string name="button_skip_intro">Saltar intro</string>
+    <string name="button_back">Atrás</string>
+
+    <string name="onboarding_0_title">Mantenerse accesible</string>
+    <string name="onboarding_0_description">El buzón de correo te ayuda a mantenerte en contacto con tus contactos y sincroniza tus mensajes con Briar.</string>
+    <string name="onboarding_1_title">Utilice un dispositivo de repuesto.</string>
+    <string name="onboarding_1_description">Instala una aplicación de correo en un teléfono o tableta que no uses y déjalo conectado a la corriente y al WiFi</string>
+    <string name="onboarding_2_title">Entrega de mensajes</string>
+    <string name="onboarding_2_description">Cuando su buzón de correo está en línea, tus contactos pueden dejarte mensajes incluso si tu Briar está sin conexión. El buzón recibirá los mensajes y los reenviará a Briar cuando vuelva a estar en línea.</string>
+    <string name="onboarding_3_title">Cifrado</string>
+    <string name="onboarding_3_description">Los mensajes que pasan a través del buzón de correo son cifrados y no pueden ser leídos por el buzón o este teléfono. Simplemente los reenvía a tu teléfono que está usando la app Briar.</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Briar Mailbox no ha podido ejecutarse en segundo plano</string>
+    <string name="fix">Reparar</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancelar</string>
+    <string name="share">Compartir</string>
+    <string name="copied">Copiado</string>
+
+    <string name="link_title">Enlace a través de código QR</string>
+    <string name="link_description">Escanea este código QR con Briar</string>
+    <string name="link_menu_title">Mostrar como texto</string>
+    <string name="link_text_title">Enlace a través de texto</string>
+    <string name="link_text_description">Copia esto y pégalo en Briar Desktop</string>
+    <string name="link_cancel">Cancelar configuración</string>
+
+    <string name="startup_headline">Iniciando el buzón de correo</string>
+    <string name="startup_init_app">Inicializando la aplicación</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">Conectando a la red Tor (%d%%)</string>
+    <string name="startup_publishing_onion_service">Publicando el servicio de Tor onion</string>
+
+    <string name="clock_skew_title">Hora del sistema incorrecta</string>
+    <string name="clock_skew_description">Verifica la hora, la zona horaria y la fecha en la configuración del sistema. Después de corregirlo, espera un tiempo para que Tor se recupere.</string>
+
+    <string name="no_network_title">¿Dispositivo fuera de línea?</string>
+    <string name="no_network_description">Por favor asegúrate de que este dispositivo esté conectado a Internet y en línea. Una vez que estés en línea, la configuración debería continuar automáticamente.</string>
+
+    <string name="status_running">El buzón de correo está en ejecución</string>
+    <string name="last_connection">Última conexión: %s</string>
+    <string name="now">ahora</string>
+    <string name="never">nunca</string>
+    <string name="stop">Detener</string>
+    <string name="unlink">Desvincular</string>
+    <string name="unlink_title">¿Desvincular el buzón de correo?</string>
+    <string name="unlink_description">Si desvinculas tu buzón de correo, no podrás recibir mensajes mientras Briar esté desconectado.
+
+¿Estás seguro de que quieres continuar tu buzón de correo?</string>
+    <string name="confirm_stop_title">¿Detener buzón de correo?</string>
+    <string name="confirm_stop_description">Cuando detienes tu buzón de correo, la aplicación se cerrará y dejará de recibir mensajes hasta que vuelvas a abrir la aplicación.
+
+Cualquier mensaje que ya haya sido recibido se guardará. Briar podrá leerlos cuando vuelvas a abrir la aplicación del buzón de correo.</string>
+
+    <string name="setup_complete_title">Conectado</string>
+    <string name="setup_complete_description">Tu buzón de correo ha sido vinculado exitosamente con Briar.
+
+Mantén tu buzón de correo conectado al suministro eléctrico y al Wi-Fi, de modo que permanezca en línea.</string>
+    <string name="setup_complete_finish">Finalizar</string>
+
+    <string name="stopping">Deteniendo el buzón de correo</string>
+
+    <string name="wipe_wiping">Limpiando el buzón de correo...</string>
+    <string name="wipe_complete_title">Barrido completado</string>
+    <string name="wipe_complete_description">La próxima vez que tengas acceso a tu dispositivo Briar, por favor abre la pantalla de configuración del buzón de correo en la aplicación Briar, luego pulsa el botón \"Desvincular\" para completar el proceso.</string>
+
+    <string name="sorry">Disculpa</string>
+    <string name="activity_not_found">No se encuentra la aplicación para esta acción</string>
+    <string name="startup_failed_activity_title">Fallo al iniciar el buzón de correo</string>
+    <string name="startup_failed_service_error">Briar no fue capaz de iniciar un componente requerido.
+
+Por favor, actualiza a la última versión de la aplicación e inténtalo de nuevo.</string>
+    <string name="startup_failed_lifecycle_reuse">El buzón de correo se ha detenido.
+
+Por favor, cierra la aplicación e inténtalo de nuevo.</string>
+    <string name="startup_failed_clock_error">El buzón de correo no pudo arrancar porque el reloj de tu dispositivo no está bien.
+
+Por favor, ajusta el reloj del mismo con la fecha y hora correctas e inténtalo de nuevo.</string>
+
+    <!-- Preference -->
+    <string name="prefs_title">Ajustes</string>
+    <string name="prefs_tor_category_title">Configuración de evasión de Tor</string>
+    <string name="prefs_tor_auto_title">Selección automática de puentes</string>
+    <string name="prefs_tor_auto_summary">Los puentes se eligen según tu ubicación.</string>
+    <string name="prefs_tor_bridges_title">Usar puentes</string>
+    <string name="prefs_bridges_category_title">Tipos de puentes</string>
+    <string name="prefs_bridges_obfs_builtin_title">Obfs4 del Navegador Tor</string>
+    <string name="prefs_bridges_at_least_one">Al menos un tipo de puente debe estar habilitado, o deshabilita \"Usar puentes\".</string>
+
+</resources>
