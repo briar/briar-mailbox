@@ -1,0 +1,92 @@
+<resources>
+    <string name="app_name">Briar Mailbox</string>
+    <string name="notification_channel_name">Briar Mailbox চ্যানেল</string>
+    <string name="notification_mailbox_title_starting">Mailbox চালু হচ্ছে</string>
+    <string name="notification_mailbox_content_starting">mailbox চালু হচ্ছে…</string>
+    <string name="notification_mailbox_title_setup">Mailbox সেট করা হচ্ছে</string>
+    <string name="notification_mailbox_content_setup">QR কোড স্ক্যান করতে Briar এর জন্য অপেক্ষা করা হচ্ছে...</string>
+    <string name="notification_mailbox_title_running">Briar Mailbox চালু আছে</string>
+    <string name="notification_mailbox_content_running">বার্তার জন্য অপেক্ষা করা হচ্ছে…</string>
+    <string name="notification_mailbox_title_offline">Briar Mailbox অফলাইনে</string>
+    <string name="notification_mailbox_content_offline">ইন্টারনেট সংযোগের জন্য অপেক্ষা করা হচ্ছে...</string>
+    <string name="notification_mailbox_content_clock_skew">সিস্টেমের সময় সঠিক হওয়ার অপেক্ষা করা হচ্ছে...</string>
+    <string name="button_continue">চালিয়ে যান</string>
+    <string name="button_skip_intro">ইন্ট্রো এড়িয়ে যান</string>
+    <string name="button_back">পেছনে</string>
+
+    <string name="onboarding_0_title">যোগাযোগ বজায় রাখুন</string>
+    <string name="onboarding_0_description">Mailbox আপনাকে আপনার কন্টাক্টদের সাথে যুক্ত থাকতে সাহায্য করে এবং আপনার মেসেজগুলো Briar-এর সাথে সিঙ্ক্রোনাইজ করে।</string>
+    <string name="onboarding_1_title">অন্য একটি ডিভাইস ব্যবহার করুন</string>
+    <string name="onboarding_1_description">একটি অতিরিক্ত ফোন বা ট্যাবলেটে Mailbox অ্যাপটি ইনস্টল করুন এবং এটি চার্জার এবং WiFi-তে সংযুক্ত রাখুন।</string>
+    <string name="onboarding_2_title">বার্তা ডেলিভারি</string>
+    <string name="onboarding_2_description">Briar অফলাইনে থাকলেও, আপনার Mailbox অনলাইনে থাকলে, তখন আপনার কন্টাক্টরা আপনাকে বার্তা পাঠাতে পারবে। মেইলবক্স বার্তাগুলি গ্রহণ করবে এবং আপনি অনলাইনে আসার পর সেগুলি Briar-এ ফরওয়ার্ড করবে।</string>
+    <string name="onboarding_3_title">এনক্রিপটেড</string>
+    <string name="onboarding_3_description">Mailbox-এর মাধ্যমে যাওয়া বার্তাগুলি এনক্রিপ্টেড থাকে এবং mailbox বা এই ফোন এগুলি পড়তে পারে না। Mailbox শুধুমাত্র এগুলি আপনার Briar মেসেঞ্জার ফোনে ফরওয়ার্ড করে দেয়।</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Briar Mailbox ব্যাকগ্রাউন্ডে চলতে পারছে না</string>
+    <string name="fix">সংশোধন</string>
+    <string name="ok">ঠিক আছে</string>
+    <string name="cancel">বাতিল</string>
+    <string name="share">শেয়ার করুন</string>
+    <string name="copied">কপি করা হয়েছে</string>
+
+    <string name="link_title">QR কোডের মাধ্যমে লিংক করুন</string>
+    <string name="link_description">Briar দিয়ে এই QR কোড স্ক্যান করুন</string>
+    <string name="link_menu_title">লেখা আকারে দেখান</string>
+    <string name="link_text_title">লেখার মাধ্যমে লিংক করুন</string>
+    <string name="link_text_description">এটি কপি করে Briar Desktop-এ পেস্ট করুন</string>
+    <string name="link_cancel">সেটআপ বাতিল করুন</string>
+
+    <string name="startup_headline">Mailbox চালু হচ্ছে</string>
+    <string name="startup_init_app">অ্যাপ শুরু হচ্ছে</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">টর নেটওয়ার্কের সাথে যুক্ত হচ্ছে(%d%%)</string>
+    <string name="startup_publishing_onion_service">Tor onion service প্রকাশ করা হচ্ছে</string>
+
+    <string name="clock_skew_title">সিস্টেমের সময় সঠিক নয়</string>
+    <string name="clock_skew_description">সিস্টেম সেটিংসে আপনার সময়, টাইমজোন এবং তারিখ চেক করুন। সমাধান করার পর, টর পুনরায় প্রস্তুত হতে কিছু সময় অপেক্ষা করুন।</string>
+
+    <string name="no_network_title">ডিভাইস অফলাইনে?</string>
+    <string name="no_network_description">দয়া করে নিশ্চিত করুন যে এই ডিভাইসটি অনলাইন এবং ইন্টারনেটের সাথে সংযুক্ত। একবার আপনি অনলাইনে আসলে, সেটআপটি স্বয়ংক্রিয়ভাবে চালু হবে।</string>
+
+    <string name="status_running">মেইল বক্স চালু আছে</string>
+    <string name="last_connection">শেষবার সংযোগ হয়েছে: %s</string>
+    <string name="now">এখন</string>
+    <string name="never">কখনোই না</string>
+    <string name="stop">শেষ</string>
+    <string name="unlink">আনলিঙ্ক</string>
+    <string name="unlink_title">Mailbox বিচ্ছিন্ন করুন?</string>
+    <string name="unlink_description">যদি আপনি আপনার Mailbox বিচ্ছিন্ন করেন, তাহলে আপনি Briar অফলাইনে থাকা অবস্থায় বার্তা গ্রহণ করতে পারবেন না।\n\nআপনি কি নিশ্চিত যে আপনি আপনার Mailbox বিচ্ছিন্ন করতে চান?</string>
+    <string name="confirm_stop_title">Mailbox বন্ধ করবেন?</string>
+    <string name="confirm_stop_description">যখন আপনি আপনার Mailbox বন্ধ করবেন, অ্যাপটি বন্ধ হয়ে যাবে এবং আপনি আবার অ্যাপটি খোলার আগ পর্যন্ত বার্তা গ্রহণ করা বন্ধ থাকবে।\n\nযে সমস্ত বার্তা ইতোমধ্যে গ্রহণ করা হয়েছে, সেগুলি সংরক্ষিত থাকবে। যখন আপনি মেইলবক্স অ্যাপটি আবার খুললে Briar সেগুলি সংগ্রহ করতে পারবে।</string>
+
+    <string name="setup_complete_title">সংযুক্ত</string>
+    <string name="setup_complete_description">আপনার Mailbox সফলভাবে Briar-এর সাথে সংযুক্ত হয়েছে।\n\nআপনার Mailbox সবসময় অনলাইনে রাখার জন্য এটি চার্জার এবং Wi-Fi-এ সংযুক্ত রাখুন।</string>
+    <string name="setup_complete_finish">শেষ</string>
+
+    <string name="stopping">Mailbox বন্ধ করা হচ্ছে…</string>
+
+    <string name="wipe_wiping">Mailbox মুছে ফেলা হচ্ছে…</string>
+    <string name="wipe_complete_title">মুছে ফেলা হয়েছে</string>
+    <string name="wipe_complete_description">পরবর্তী সময়ে যখন আপনি আপনার Briar ডিভাইসটি অ্যাক্সেস করতে পারবেন, দয়া করে Briar অ্যাপে Mailbox সেটিংস স্ক্রীনটি খুলুন, তারপর প্রক্রিয়া সম্পূর্ণ করতে \"বিচ্ছিন্ন\" বোতামে ট্যাপ করুন।</string>
+
+    <string name="sorry">দুঃখিত</string>
+    <string name="activity_not_found">এটা করার মত কোন অ্যাপ পাওয়া যায়নি</string>
+    <string name="startup_failed_activity_title">Mailbox শুরু করতে ব্যর্থ হয়েছে</string>
+    <string name="startup_failed_service_error">Mailbox একটি প্রয়োজনীয় উপাদান চালু করতে পারেনি।\n\nদয়া করে অ্যাপটির সর্বশেষ সংস্করণে আপগ্রেড করুন এবং আবার চেষ্টা করুন।</string>
+    <string name="startup_failed_lifecycle_reuse">Mailbox ইতিমধ্যে বন্ধ হয়ে গেছে।\n\nদয়া করে অ্যাপটি বন্ধ করুন এবং আবার চেষ্টা করুন।</string>
+    <string name="startup_failed_clock_error">Mailbox শুরু করতে পারেনি কারণ আপনার ডিভাইসের সময় সঠিক নয়।\n\nদয়া করে আপনার ডিভাইসের সময় সঠিক করে সেট করুন এবং আবার চেষ্টা করুন।</string>
+
+    <!-- Preference -->
+    <string name="prefs_title">সেটিংস</string>
+    <string name="prefs_tor_category_title">Tor circumvention সেটিংস</string>
+    <string name="prefs_tor_auto_title">স্বয়ংক্রিয়ভাবে bridge নির্বাচন</string>
+    <string name="prefs_tor_auto_summary">আপনার অবস্থান অনুসারে Bridges নির্বাচন করা হয়েছে</string>
+    <string name="prefs_tor_bridges_title">bridge ব্যবহার করুন</string>
+    <string name="prefs_bridges_category_title">Bridge এর ধরণ</string>
+    <string name="prefs_bridges_obfs_builtin_title">Tor Browser থেকে Obfs4</string>
+    <string name="prefs_bridges_at_least_one">কমপক্ষে এক প্রকারের Bridge সচল করতে হবে, অথবা \"Bridge ব্যবহার করুন\" বন্ধ করুন।</string>
+
+</resources>

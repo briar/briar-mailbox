@@ -1,0 +1,92 @@
+<resources>
+    <string name="app_name">Boite à messages Briar</string>
+    <string name="notification_channel_name">Canal de la Boite à messages Briar</string>
+    <string name="notification_mailbox_title_starting">Démarrage de la Boite à messages</string>
+    <string name="notification_mailbox_content_starting">Démarrage de la Boite à messages…</string>
+    <string name="notification_mailbox_title_setup">Configuration de la Boite à messages</string>
+    <string name="notification_mailbox_content_setup">En attente de balayage du code QR par Briar…</string>
+    <string name="notification_mailbox_title_running">La Boite à messages Briar est en fonction</string>
+    <string name="notification_mailbox_content_running">En attente de messages…</string>
+    <string name="notification_mailbox_title_offline">La Boite à messages Briar est hors ligne</string>
+    <string name="notification_mailbox_content_offline">En attente d’une connexion à Internet…</string>
+    <string name="notification_mailbox_content_clock_skew">En attente de l’heure système juste…</string>
+    <string name="button_continue">Poursuivre</string>
+    <string name="button_skip_intro">Ignorer l’intro</string>
+    <string name="button_back">Retour</string>
+
+    <string name="onboarding_0_title">Rester joignable</string>
+    <string name="onboarding_0_description">La Boite à messages vous permet de rester en contact avec vos contacts et de synchroniser vos messages vers Briar.</string>
+    <string name="onboarding_1_title">Installer sur un appareil inutilisé</string>
+    <string name="onboarding_1_description">Installez l’appli Boite à messages sur une tablette ou sur un téléphone non utilisés connectés à l’alimentation et au wifi.</string>
+    <string name="onboarding_2_title">Remise des messages</string>
+    <string name="onboarding_2_description">Si votre Boite à messages est en ligne, vos contacts peuvent vous laisser des messages même si votre Briar est hors ligne. La Boite à messages recevra les messages et les transmettra à Briar quand vous serez en ligne.</string>
+    <string name="onboarding_3_title">Chiffrée</string>
+    <string name="onboarding_3_description">Les messages acheminés par la Boite à messages sont chiffrés et ne peuvent être lus ni par la Boite à messages ni par cet appareil. La Boite à messages les transmet simplement à l’appareil sur lequel Briar est installée.</string>
+
+    <!-- TODO: We might want to copy string from don't kill me lib,
+          so translation memory can auto-translate most of them. -->
+    <string name="warning_dozed">Impossible d’exécuter la Boite à messages Briar en arrière-plan</string>
+    <string name="fix">Corriger</string>
+    <string name="ok">Valider</string>
+    <string name="cancel">Annuler</string>
+    <string name="share">Partager</string>
+    <string name="copied">A été copié</string>
+
+    <string name="link_title">Associer à l’aide d’un code QR</string>
+    <string name="link_description">Balayez ce code QR avec Briar</string>
+    <string name="link_menu_title">Afficher comme texte</string>
+    <string name="link_text_title">Associer à l’aide d’un texte</string>
+    <string name="link_text_description">Copiez ce texte et collez-le dans Briar pour ordinateur :</string>
+    <string name="link_cancel">Annuler la configuration</string>
+
+    <string name="startup_headline">Démarrage de la Boite à messages</string>
+    <string name="startup_init_app">Initialisation de l’appli</string>
+    <!-- The number placeholder will be replaced with a percentage, e.g. 50 -> (50%) -->
+    <string name="startup_bootstrapping_tor">Connexion au réseau Tor (%d %%)</string>
+    <string name="startup_publishing_onion_service">Publication du service oignon Tor</string>
+
+    <string name="clock_skew_title">L’horloge système n’est pas à l’heure</string>
+    <string name="clock_skew_description">Vérifiez l’heure, le fuseau horaire et la date dans les paramètres du système. Après correction, attendez un peu que Tor se rétablisse.</string>
+
+    <string name="no_network_title">L’appareil est-il hors ligne ?</string>
+    <string name="no_network_description">Assurez-vous que cet appareil est en ligne et connecté à Internet. Une fois en ligne, l’installation devrait démarrer ici automatiquement.</string>
+
+    <string name="status_running">La Boite à messages est en fonction</string>
+    <string name="last_connection">Dernière connexion : %s</string>
+    <string name="now">maintenant</string>
+    <string name="never">jamais</string>
+    <string name="stop">Arrêter</string>
+    <string name="unlink">Dissocier</string>
+    <string name="unlink_title">Dissocier la Boite à messages ?</string>
+    <string name="unlink_description">Si vous dissociez votre Boite à messages, vous ne pourrez plus recevoir de messages si Briar est hors ligne.\n\Voulez-vous vraiment dissocier votre Boite à messages ?</string>
+    <string name="confirm_stop_title">Arrêter la Boite à messages ?</string>
+    <string name="confirm_stop_description">Si vous arrêtez votre Boite à messages, l’appli se ferme et ne reçoit plus de messages jusqu’à son prochain démarrage.\n\Les messages déjà reçus sont enregistrés. Briar pourra les récupérer quand vous rouvrirez l\'appli Boite à messages.</string>
+
+    <string name="setup_complete_title">Connectée</string>
+    <string name="setup_complete_description">Votre Boite à messages est associée à Briar.\n\nGardez votre Boite à message connectée à l’alimentation et au wifi afin qu’elle soit toujours en ligne.</string>
+    <string name="setup_complete_finish">Terminer</string>
+
+    <string name="stopping">Arrêt de la Boite à messages…</string>
+
+    <string name="wipe_wiping">Effacement de la Boite à messages…</string>
+    <string name="wipe_complete_title">L’effacement est terminée</string>
+    <string name="wipe_complete_description">La prochaine fois que vous aurez accès à votre appareil Briar, ouvrez l’écran des paramètres de la Boite à messages dans l’appli Briar, puis touchez le bouton « Dissocier » pour terminer le processus.</string>
+
+    <string name="sorry">Désolé</string>
+    <string name="activity_not_found">Aucun appli n’a été trouvée pour cette action</string>
+    <string name="startup_failed_activity_title">Échec d’arrêt de la Boite à messages</string>
+    <string name="startup_failed_service_error">La Boite à messages n’a pas pu lancer un composant essentiel.\n\nMettez l’appli à jour vers la version la plus récente et réessayez.</string>
+    <string name="startup_failed_lifecycle_reuse">La Boite à messages s’est déjà arrêtée.\n\nFermez l’appli et réessayez.</string>
+    <string name="startup_failed_clock_error">La Boite à messages n’a pas pu démarrer, car l’horloge de votre appareil n’est pas à l’heure.\n\nMettez-la à l’heure et réessayez.</string>
+
+    <!-- Preference -->
+    <string name="prefs_title">Paramètres</string>
+    <string name="prefs_tor_category_title">Paramètres de contournement de Tor</string>
+    <string name="prefs_tor_auto_title">Sélection automatique des ponts</string>
+    <string name="prefs_tor_auto_summary">Les ponts sont choisis en fonction de votre position géographique</string>
+    <string name="prefs_tor_bridges_title">Utiliser des ponts</string>
+    <string name="prefs_bridges_category_title">Types de ponts</string>
+    <string name="prefs_bridges_obfs_builtin_title">Obfs4 du Navigateur Tor</string>
+    <string name="prefs_bridges_at_least_one">Au moins un type de pont doit être activé, sinon désactivez l’option « Utiliser les ponts ».</string>
+
+</resources>
